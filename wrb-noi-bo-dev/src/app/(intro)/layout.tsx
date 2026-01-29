@@ -11,4 +11,4 @@ export default function OnboardingLayout({ children }) {
       {children}
     </div>
   );
-} s
+};
