@@ -1,0 +1,77 @@
+/* 
+ * File: globals.css
+ * Chức năng: Chứa các style CSS toàn cục cho ứng dụng Next.js
+ * Bao gồm import font, Tailwind CSS, và các style cơ bản cho body, html
+ * Định nghĩa các class utility và animation tùy chỉnh
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- 1. CẤU HÌNH CƠ BẢN --- */
+body {
+  background-color: black;
+  color: white;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  overflow-x: hidden;
+}
+
+/* --- 2. FONT LUXURY --- */
+.font-luxury {
+  font-family: 'Cinzel', serif; /* Hoặc 'Playfair Display' tùy bạn chọn */
+}
+
+/* --- 3. HIỆU ỨNG LOGO GLOW (Quan trọng) --- */
+.logo-glow {
+  filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.6));
+}
+
+/* --- 4. CÁC UTILITIES RIÊNG --- */
+@layer utilities {
+  /* Hiệu ứng mờ nền kính */
+  .backdrop-blur-md {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  /* Chỉnh scrollbar ẩn cho đẹp */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* --- 5. ANIMATIONS --- */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+
+
+/* Thiết lập html và body luôn full màn hình */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Chặn thanh cuộn ngang */
+  background-color: black; /* Thêm dòng này để chắc chắn nền luôn đen */
+}
+
+/* Giúp ảnh không bị vỡ giao diện */
+img {
+  max-width: 100%;
+}
