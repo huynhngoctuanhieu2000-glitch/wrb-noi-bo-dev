@@ -8,6 +8,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { translations, TranslationKey } from "./CustomerType.i18n";
+// Animation imports
+import { getPopupOverlayClass, getPopupContentClass } from "./CustomerType.animation";
 // ✅ Import hàm check từ Service theo chuẩn Barrel File
 import { checkUserEmail } from "@/services/user";
 
@@ -20,7 +22,7 @@ export const useCustomerTypeLogic = (lang: string) => {
   const [popupStep, setPopupStep] = useState<'input' | 'error'>('input'); // Bước của popup
   const [isLoading, setIsLoading] = useState(false); // Loading khi gọi Firebase
 
-  // --- 2. HÀM DỊCH NGÔN NGỮ (Giữ nguyên) ---
+  // --- 2. HÀM DỊCH NGÔN NGỮ ---
   const t = (key: TranslationKey) => {
     if (translations[lang] && translations[lang][key]) {
       return translations[lang][key];
@@ -32,54 +34,45 @@ export const useCustomerTypeLogic = (lang: string) => {
   };
 
   // --- 3. LOGIC XỬ LÝ KHÁCH HÀNG MỚI ---
-  // Gọi khi bấm nút "Khách hàng mới" hoặc chọn "Đăng ký mới" từ Popup lỗi
   const onSelectNewUser = () => {
-    setShowPopup(false); // Tắt popup nếu đang mở
-    setIsExiting(true);  // Kích hoạt animation bay lên
+    setShowPopup(false);
+    setIsExiting(true);
 
-    // Đợi 500ms cho animation chạy xong rồi mới chuyển trang
     setTimeout(() => {
-      // ✅ Sửa đường dẫn chuẩn theo cấu trúc mới: .../new-user/select-menu
       router.push(`/${lang}/new-user/select-menu`);
     }, 500);
   };
 
   // --- 4. LOGIC XỬ LÝ KHÁCH HÀNG CŨ ---
-  // Gọi khi bấm nút "Khách hàng cũ" -> Chỉ mở Popup, chưa chuyển trang
   const onSelectOldUser = () => {
-    setPopupStep('input'); // Reset về màn hình nhập
-    setShowPopup(true);    // Hiện Popup
+    setPopupStep('input');
+    setShowPopup(true);
   };
 
-  // --- 5. LOGIC CHECK EMAIL VỚI FIREBASE (QUAN TRỌNG) ---
+  // --- 5. LOGIC CHECK EMAIL VỚI FIREBASE ---
   const handleCheckUserEmail = async (email: string) => {
-    if (!email.trim()) return; // Không làm gì nếu ô trống
+    if (!email.trim()) return;
 
     setIsLoading(true);
 
-    // 🔥 Gọi Service (File checkUserEmail.ts thông qua index.ts)
     const exists = await checkUserEmail(email);
 
     setIsLoading(false);
 
     if (exists) {
-      // ✅ TÌM THẤY: Lưu email tạm và chuyển sang lịch sử
-      // (Có thể lưu vào localStorage hoặc Redux/Context tùy bạn)
       localStorage.setItem('currentUserEmail', email);
-
-      setIsExiting(true); // Animation thoát
+      setIsExiting(true);
       setTimeout(() => {
         router.push(`/${lang}/old-user/history`);
       }, 500);
     } else {
-      // ❌ KHÔNG THẤY: Chuyển popup sang giao diện báo lỗi
       setPopupStep('error');
     }
   };
 
   // --- 6. CÁC HÀM PHỤ TRỢ ---
-  const handleRetry = () => setPopupStep('input'); // Quay lại nhập lại
-  const closePopup = () => setShowPopup(false);    // Đóng popup
+  const handleRetry = () => setPopupStep('input');
+  const closePopup = () => setShowPopup(false);
 
   const handleBack = () => {
     setIsExiting(true);
@@ -99,12 +92,16 @@ export const useCustomerTypeLogic = (lang: string) => {
 
     // Functions
     t,
-    onSelectNewUser,      // Dùng cho nút Khách Mới
-    onSelectOldUser,      // Dùng cho nút Khách Cũ
-    handleCheckUserEmail, // Dùng cho nút "Kiểm tra" trong Popup
-    handleRetry,          // Dùng cho nút "Nhập lại"
+    onSelectNewUser,
+    onSelectOldUser,
+    handleCheckUserEmail,
+    handleRetry,
     closePopup,
     handleBack,
-    getCommonAnimationClass
+
+    // Animation Helpers
+    getCommonAnimationClass,
+    getPopupOverlayClass,
+    getPopupContentClass
   };
 };

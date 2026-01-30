@@ -5,7 +5,11 @@
  * Cung cấp cấu trúc HTML cơ bản cho các trang con
  */
 
-export default function OnboardingLayout({ children }) {
+export default function OnboardingLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <div className="w-full h-full"> {/* Thay bằng div */}
       {children}
