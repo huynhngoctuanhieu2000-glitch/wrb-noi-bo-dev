@@ -43,17 +43,9 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
                 <MenuTypeSelector
                     lang={lang}
                     onSelect={handleSelectMenu}
+                    onBack={() => router.back()}
                 />
             </div>
-
-            {/* Nút Back */}
-            <button
-                onClick={() => router.back()}
-                className="relative z-10 mt-12 flex items-center gap-2 text-gray-500 hover:text-white uppercase text-xs tracking-widest transition-colors"
-            >
-                <ArrowLeft size={14} />
-                Back
-            </button>
 
         </div>
     );
