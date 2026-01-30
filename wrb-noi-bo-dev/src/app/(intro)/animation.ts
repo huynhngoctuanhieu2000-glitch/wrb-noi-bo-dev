@@ -100,7 +100,6 @@ export const useOrbitRotation = () => {
  */
 export const animClasses = {
   wrapper: "relative w-full h-[100dvh] bg-black overflow-hidden flex flex-col",
-
   bgImage: "absolute inset-0 z-0 pointer-events-none w-full h-full object-cover object-center opacity-40 mix-blend-screen",
 
   logoTopContainer: "absolute top-[50px] w-full text-center z-20 px-4",
@@ -120,5 +119,11 @@ export const animClasses = {
 
   flagImg: "w-full h-full object-cover",
 
-  footer: "absolute bottom-[30px] left-0 w-full max-w-full text-center z-[100] px-0 font-luxury text-[12px] md:text-[14px] text-[#EAB308] tracking-[0.1em] uppercase drop-shadow-md"
+  // --- CẬP NHẬT PHẦN FOOTER (MARQUEE) ---
+  marqueeWrapper: "absolute bottom-[60px] left-0 w-full z-[90] overflow-hidden bg-black/30 backdrop-blur-sm border-y border-yellow-500/20 py-2",
+  marqueeTrack: "flex whitespace-nowrap w-max hover:[animation-play-state:paused]",
+  marqueeText: "font-luxury text-[12px] md:text-[14px] text-[#EAB308] tracking-[0.2em] uppercase drop-shadow-md mx-8 flex items-center gap-4",
+
+  // --- PHẦN 2: FOOTER TĨNH ---
+  footer: "absolute bottom-[30px] left-0 w-full max-w-full text-center z-[100] px-0 font-luxury text-[12px] md:text-[14px] text-[#EAB308] tracking-[0.2em] uppercase drop-shadow-md"
 };

@@ -25,6 +25,9 @@ export default function LanguageSelectorPage() {
     getFlagPosition
   } = useLanguageSelectorLogic();
 
+  // Tạo mảng nội dung lặp lại để chạy chữ (4 lần để đảm bảo lấp đầy màn hình rộng)
+  const marqueeContent = Array(4).fill(staticText.footer);
+
   return (
     <div id="screen-galaxy" suppressHydrationWarning className={animClasses.wrapper}>
       <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none" />
@@ -41,12 +44,12 @@ export default function LanguageSelectorPage() {
 
       <div className={animClasses.orbitContainer}>
         <div className={animClasses.centerLogoWrapper(showGreeting)}>
-            <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full animate-pulse"></div>
-            <img
-              src="https://i.ibb.co/pq0rH1k/logo-Ngan-ha.png"
-              alt="Logo Center"
-              className="w-[70%] h-[70%] object-contain rounded-full relative z-20 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"
-            />
+          <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full animate-pulse"></div>
+          <img
+            src="https://i.ibb.co/pq0rH1k/logo-Ngan-ha.png"
+            alt="Logo Center"
+            className="w-[70%] h-[70%] object-contain rounded-full relative z-20 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"
+          />
         </div>
 
         {!showGreeting && languages.map((lang, index) => {
@@ -74,6 +77,17 @@ export default function LanguageSelectorPage() {
         </div>
       </div>
 
+      {/* --- PHẦN CHỮ CHẠY (MARQUEE) --- */}
+      {/* Nằm ở bottom-60px */}
+      <div className={animClasses.marqueeWrapper}>
+        <div className={`${animClasses.marqueeTrack} animate-scroll`}>
+          {marqueeContent.map((text, i) => (
+            <div key={i} className={animClasses.marqueeText}> Please choose your language for order here !</div>
+          ))}
+        </div>
+      </div>
+
+      {/* --- PHẦN 2: FOOTER TĨNH (Nằm thấp hơn nhờ class bottom-[30px]) --- */}
       <div className={animClasses.footer}>
         {staticText.footer}
       </div>
