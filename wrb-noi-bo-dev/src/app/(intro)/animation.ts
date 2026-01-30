@@ -120,10 +120,10 @@ export const animClasses = {
   flagImg: "w-full h-full object-cover",
 
   // --- CẬP NHẬT PHẦN FOOTER (MARQUEE) ---
-  marqueeWrapper: "absolute bottom-[60px] left-0 w-full z-[90] overflow-hidden bg-black/30 backdrop-blur-sm border-y border-yellow-500/20 py-2",
+  marqueeWrapper: "absolute bottom-[150px] left-0 w-full z-[90] overflow-hidden bg-black/30 backdrop-blur-sm py-2",
   marqueeTrack: "flex whitespace-nowrap w-max hover:[animation-play-state:paused]",
-  marqueeText: "font-luxury text-[12px] md:text-[14px] text-[#EAB308] tracking-[0.2em] uppercase drop-shadow-md mx-8 flex items-center gap-4",
+  marqueeText: "font-luxury text-[18px] md:text-[30px] text-[#EAB308] tracking-[0.23em] uppercase drop-shadow-md mx-2 flex items-center gap-4",
 
   // --- PHẦN 2: FOOTER TĨNH ---
-  footer: "absolute bottom-[30px] left-0 w-full max-w-full text-center z-[100] px-0 font-luxury text-[12px] md:text-[14px] text-[#EAB308] tracking-[0.2em] uppercase drop-shadow-md"
+  footer: "absolute bottom-[20px] left-0 w-full max-w-full text-center z-[100] px-0 font-luxury text-[15px] md:text-[20px] text-[#EAB308] tracking-[0.15em] uppercase drop-shadow-md"
 };

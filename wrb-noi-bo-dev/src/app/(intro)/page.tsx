@@ -39,7 +39,7 @@ export default function LanguageSelectorPage() {
         style={{ maxWidth: 'none' }}
       />
       <div className={animClasses.logoTopContainer}>
-        <img src="https://i.ibb.co/Y4XK7P4S/spa11.png" alt="Ngan Ha Spa" className={animClasses.logoTop} />
+        <img src="https://i.postimg.cc/3J8zBRVz/logo-500x500px-(maltic-gold)-1.png" alt="Ngan Ha Spa" className={animClasses.logoTop} />
       </div>
 
       <div className={animClasses.orbitContainer}>
