@@ -1,6 +1,13 @@
 /*
  * File: Menu/types.ts
- * Chức năng: Định nghĩa toàn bộ cấu trúc dữ liệu cho hệ thống Menu
+ * Chức năng: Định nghĩa toàn bộ cấu trúc dữ liệu (TypeScript Interfaces) cho hệ thống Menu.
+ * Logic chi tiết:
+ * - MultiLangString: Hỗ trợ đa ngôn ngữ cho tên và mô tả.
+ * - Service: Cấu trúc dữ liệu của một dịch vụ (ID, giá, thời gian, hình ảnh...).
+ * - CartState: Cấu trúc lưu trữ giỏ hàng (ID -> Số lượng).
+ * - SheetState: Quản lý trạng thái đóng/mở của các bảng chọn (Main, Review, Cart).
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
  */
 
 // 1. Đa ngôn ngữ (Quan trọng để hiển thị tên món theo En/Vi/Cn...)

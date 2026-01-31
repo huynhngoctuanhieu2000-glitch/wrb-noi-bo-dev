@@ -1,4 +1,13 @@
-import { Category } from './types';
+/*
+ * File: Menu/constants.ts
+ * Chức năng: Chứa dữ liệu tĩnh (Static Data) và cấu hình mặc định.
+ * Logic chi tiết:
+ * - CATEGORIES: Danh sách các danh mục dịch vụ (Body, Foot, Facial, Package...).
+ * - SERVICES: Dữ liệu mẫu (Dummy Data) dùng để hiển thị thử nghiệm hoặc fallback.
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
+ */
+import { Category, Service } from './types';
 
 export const CATEGORIES: Category[] = [
     {

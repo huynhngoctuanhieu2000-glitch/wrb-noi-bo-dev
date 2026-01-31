@@ -1,3 +1,14 @@
+/*
+ * File: Standard/Footer.tsx
+ * Chức năng: Thanh trạng thái (Status Bar) dưới cùng.
+ * Logic chi tiết:
+ * - Hiển thị tổng tiền (VND & USD) và tổng số lượng items trong cart.
+ * - Nút "Back": Quay lại trang Home/Lựa chọn Menu.
+ * - Nút "Cart": Mở CartDrawer để xem chi tiết giỏ hàng.
+ * - Sử dụng animation slide-up nhe khi xuất hiện.
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
+ */
 'use client';
 import React from 'react';
 import { ShoppingCart, ArrowLeft } from 'lucide-react';
@@ -13,7 +24,15 @@ interface FooterProps {
     onToggleCart: () => void;
 }
 
+const TEXT = {
+    total_est: { vn: 'TỔNG DỰ KIẾN', en: 'TOTAL ESTIMATED', cn: '预计总额', jp: '合計(推定)', kr: '예상 합계' },
+    back: { vn: 'QUAY LẠI', en: 'BACK', cn: '返回', jp: '戻る', kr: '뒤로' },
+    mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
+};
+
 export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lang, onBack, onToggleCart }: FooterProps) {
+    const t = (key: keyof typeof TEXT) => TEXT[key][lang as keyof typeof TEXT['total_est']] || TEXT[key]['en'];
+
     return (
         <div
             className="glass-footer w-full p-4 flex items-center justify-between gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800 pb-safe"
@@ -30,14 +49,14 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
             {/* Nút Back */}
             <button onClick={onBack} className="relative w-14 h-14 shrink-0 rounded-full border-2 border-green-500 bg-black flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(34,197,94,0.4)] active:scale-95 transition-transform group">
                 <img src={`https://flagcdn.com/w80/${lang === 'vn' ? 'vn' : 'gb'}.png`} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" alt="Lang" />
-                <span className="absolute bottom-0 left-0 w-full text-[8px] font-bold text-center bg-black/60 text-green-400 backdrop-blur-[1px] py-[1px]">BACK</span>
+                <span className="absolute bottom-0 left-0 w-full text-[8px] font-bold text-center bg-black/60 text-green-400 backdrop-blur-[1px] py-[1px]">{t('back')}</span>
             </button>
 
             {/* Thông tin Tiền & Thời gian */}
             <div className="flex-1 flex flex-col items-center justify-center min-w-0">
                 {maxMinutes > 0 && (
                     <div className="text-[9px] text-gray-400 font-bold tracking-[0.15em] uppercase mb-0.5 flex items-center gap-1 whitespace-nowrap">
-                        Total Estimated <span className="text-yellow-500 font-bold ml-1">• {maxMinutes} {lang === 'vn' ? 'phút' : 'mins'}</span>
+                        {t('total_est')} <span className="text-yellow-500 font-bold ml-1">• {maxMinutes} {t('mins')}</span>
                     </div>
                 )}
                 <div className="flex items-baseline justify-center gap-0.5 whitespace-nowrap">

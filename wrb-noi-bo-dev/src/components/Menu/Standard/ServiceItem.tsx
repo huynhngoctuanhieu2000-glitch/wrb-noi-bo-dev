@@ -1,3 +1,13 @@
+/*
+ * File: Standard/ServiceItem.tsx
+ * Chức năng: Card hiển thị thông tin tóm tắt của một nhóm dịch vụ (Service Group).
+ * Logic chi tiết:
+ * - Hiển thị ảnh đại diện, tên dịch vụ (đa ngôn ngữ), và khoảng giá (Min - Max).
+ * - Xử lý sự kiện click để mở MainSheet cho nhóm dịch vụ này.
+ * - Hiển thị badge số lượng nếu đã có item trong giỏ hàng.
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
+ */
 'use client';
 import React from 'react';
 import { Plus } from 'lucide-react';

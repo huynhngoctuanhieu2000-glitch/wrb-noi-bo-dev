@@ -1,3 +1,14 @@
+/*
+ * File: Standard/Header.tsx
+ * Chức năng: Thanh điều hướng (Navigation Bar) trên cùng.
+ * Logic chi tiết:
+ * - Nhận danh sách categories và activeCategory từ parent.
+ * - Hiển thị các tab danh mục (Body, Foot, Facial...).
+ * - Xử lý sự kiện click: Scroll mượt (smooth scroll) đến section tương ứng.
+ * - Highlight tab đang active.
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
+ */
 'use client';
 import React from 'react';
 import { Category } from '@/components/Menu/types';

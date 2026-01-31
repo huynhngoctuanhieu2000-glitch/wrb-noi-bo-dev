@@ -1,3 +1,13 @@
+/*
+ * File: Standard/Sheets/ReviewSheet.tsx
+ * Chức năng: Popup xem lại và chỉnh sửa một món đơn lẻ.
+ * Logic chi tiết:
+ * - Load số lượng hiện tại của món từ Cart.
+ * - Cho phép tăng/giảm số lượng hoặc xóa hẳn (Remove).
+ * - Gọi callback updateCart và tự động đóng Sheet sau khi lưu.
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
+ */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -39,6 +49,7 @@ export default function ReviewSheet({ service, cart, isOpen, lang, onClose, onUp
         onUpdateCart(service.id, qty);
         // Lưu ý: handleClose sẽ được gọi bên index.tsx hoặc gọi ở đây tùy logic
         // Ở đây mình để index.tsx quyết định đóng sau khi update
+        handleClose(); // Tự đóng sau khi lưu (Vì index.tsx không còn tự đóng nữa)
     };
 
     // Lấy tên/mô tả

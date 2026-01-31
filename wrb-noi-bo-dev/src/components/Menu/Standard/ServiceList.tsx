@@ -1,4 +1,15 @@
 'use client';
+/*
+ * File: Standard/ServiceList.tsx
+ * Chức năng: Render danh sách nhóm dịch vụ theo Category.
+ * Logic chi tiết:
+ * - Nhận danh sách services và categories.
+ * - Group services theo Category ID (Body, Foot...).
+ * - Render từng section (Tiêu đề Category + Grid các ServiceItem).
+ * - Sử dụng useMemo để tối ưu hóa việc nhóm dữ liệu.
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
+ */
 import React, { useMemo } from 'react';
 import { Star } from 'lucide-react';
 import ServiceItem from '@/components/Menu/Standard/ServiceItem';

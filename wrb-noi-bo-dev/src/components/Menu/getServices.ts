@@ -1,4 +1,14 @@
 // 1. Import các hàm từ Modular SDK của Firestore
+/*
+ * File: Menu/getServices.ts
+ * Chức năng: Layer xử lý lấy dữ liệu dịch vụ (Data Fetching).
+ * Logic chi tiết:
+ * - Hàm getServices(type): Trả về danh sách dịch vụ dựa trên loại menu (Standard/VIP).
+ * - Hiện tại: Trả về dữ liệu mock từ constants.ts.
+ * - Tương lai: Có thể mở rộng để gọi API hoặc truy vấn Firebase từ đây.
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
+ */
 import { collection, getDocs } from "firebase/firestore";
 import { db } from '../../lib/firebase';
 import { Service, MultiLangString } from '../../components/Menu/types';

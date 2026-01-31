@@ -1,3 +1,14 @@
+/*
+ * File: Standard/index.tsx
+ * Chức năng: Component gốc (Root) của Menu Standard.
+ * Logic chi tiết:
+ * - Quản lý state toàn cục: cart (giỏ hàng), sheet (trạng thái hiển thị popup), activeCategory.
+ * - Fetch dữ liệu service từ getServices.
+ * - Tính toán tổng tiền (VND/USD) và tổng item thông qua useMemo.
+ * - Điều phối hiển thị các Sheet: MainSheet (chọn giờ), ReviewSheet (sửa món), CartDrawer (giỏ hàng).
+ * Tác giả: TunHisu
+ * Ngày cập nhật: 2026-01-31
+ */
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -9,7 +20,8 @@ import Footer from './Footer';
 
 // Import các Sheet
 import MainSheet from './Sheets/MainSheet';
-import ReviewSheet from './Sheets/ReviewSheet'; // Import thêm ReviewSheet
+import ReviewSheet from './Sheets/ReviewSheet';
+import CartDrawer from './Sheets/CartDrawer'; // Import CartDrawer
 
 // 2. Import Logic & Data
 import { CATEGORIES } from '@/components/Menu/constants';
@@ -42,6 +54,7 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
         const fetchData = async () => {
             setLoading(true);
             const data = await getServices('standard');
+            console.log('🔥 [FIREBASE - Standard Menu] Tải thành công! Tổng dịch vụ:', data.length);
             setServices(data);
             setLoading(false);
         };
@@ -82,12 +95,12 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
             }
             return { ...prev, [id]: qty };
         });
-        
+
         // Cập nhật xong thì đóng Sheet
         // (Lưu ý: Nếu muốn giữ Sheet mở để chỉnh tiếp thì bỏ dòng này)
-        closeSheet(); 
+        // closeSheet(); // Đã comment để không tự đóng (Fix cho CartDrawer)
     };
-    
+
     // Hàm Add đặc biệt cho MainSheet (Cộng dồn số lượng)
     const addToCart = (id: string, qty: number) => {
         setCart((prev: CartState) => ({
@@ -99,9 +112,7 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
 
     // Mở giỏ hàng tổng (Sẽ làm CartDrawer sau)
     const handleOpenCart = () => {
-        // Tạm thời log ra
-        console.log("Open Cart Drawer");
-        // setSheet({ isOpen: true, type: 'CART', data: null });
+        setSheet({ isOpen: true, type: 'CART', data: null });
     };
 
     // Đóng Sheet
@@ -148,11 +159,12 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
             />
 
             {/* D. KHU VỰC CÁC SHEET */}
-            
+
             {/* 1. Main Sheet (Chọn thời gian) - Nhận data là Array (Group) */}
             {sheet.isOpen && sheet.type === 'MAIN' && Array.isArray(sheet.data) && (
                 <MainSheet
                     group={sheet.data} // Truyền data (là mảng) vào prop group
+                    cart={cart} // Truyền cart để check item đã mua
                     isOpen={sheet.isOpen}
                     lang={lang}
                     onClose={closeSheet}
@@ -162,11 +174,23 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
 
             {/* 2. Review Sheet (Xem lại món đơn lẻ) - Nhận data là 1 Service */}
             {sheet.isOpen && sheet.type === 'REVIEW' && !Array.isArray(sheet.data) && sheet.data && (
-                <ReviewSheet 
+                <ReviewSheet
                     service={sheet.data}
                     cart={cart}
                     isOpen={sheet.isOpen}
                     lang={lang}
+                    onClose={closeSheet}
+                    onUpdateCart={updateCart}
+                />
+            )}
+
+            {/* 3. Cart Drawer (Giỏ hàng) */}
+            {sheet.isOpen && sheet.type === 'CART' && (
+                <CartDrawer
+                    cart={cart}
+                    services={services}
+                    lang={lang}
+                    isOpen={sheet.isOpen}
                     onClose={closeSheet}
                     onUpdateCart={updateCart}
                 />
