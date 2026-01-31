@@ -37,7 +37,7 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
         <div className="absolute inset-0 bg-black/60 z-10" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1000"
+          src="https://i.postimg.cc/K8mxt9QM/galaxy2.png"
           alt="Spa Background"
           className="w-full h-full object-cover opacity-50"
         />
@@ -49,15 +49,15 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
         <div className="w-24 h-24 mx-auto mb-2 relative flex items-center justify-center">
           <div className="absolute inset-0 bg-yellow-500/20 rounded-full blur-xl animate-pulse"></div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="https://i.ibb.co/pq0rH1k/logo-Ngan-ha.png" alt="Logo" className="w-full h-full object-contain relative z-10 drop-shadow-lg" />
+          <img src="https://i.postimg.cc/4xDZ4cxg/only-logo-500x500px-(maltic-gold).png" alt="Logo" className="w-full h-full object-contain relative z-10 drop-shadow-lg" />
         </div>
 
         {/* --- TIÊU ĐỀ (Dùng t() để dịch) --- */}
         <div className="text-center mb-6">
-          <h1 className="text-[#EAB308] text-3xl font-bold uppercase tracking-widest mb-2 font-luxury">
+          <h1 className="text-[30px] font-bold uppercase tracking-[0.1em] mb-2 font-luxury gold-text-shiny drop-shadow-md">
             {t('wc_title')}
           </h1>
-          <p className="text-gray-400 text-sm">
+          <p className="gold-text-soft text-[20px] font-medium tracking-wide opacity-100">
             {t('wc_desc')}
           </p>
         </div>
@@ -65,34 +65,32 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
         {/* --- NÚT KHÁCH HÀNG CŨ --- */}
         <button
           onClick={onSelectOldUser}
-          className="w-full h-[80px] bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold text-lg rounded-t-2xl flex items-center justify-between px-8 transition-all active:scale-95 shadow-lg"
+          className="w-full h-[80px] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] hover:brightness-110 text-black font-extrabous font-bold text-[15px] rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] shadow-[0_10px_20px_-10px_rgba(179,135,40,0.5)]"
         >
-          <span className="uppercase tracking-wide">{t('btn_old_title')}</span>
-          <div className="w-10 h-10 bg-black/10 rounded-full flex items-center justify-center">
-            <UserCheck size={24} />
-          </div>
+          <span className="uppercase tracking-widest">{t('btn_old_title')}</span>
+          <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <UserCheck size={22} />
+            </div>
         </button>
-
         {/* --- NÚT KHÁCH HÀNG MỚI --- */}
         <button
-          onClick={onSelectNewUser}
-          className="group w-full h-[72px] bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 rounded-b-2xl flex items-center justify-between px-6 transition-all duration-300 active:scale-95"
-        >
-          <div className="flex flex-col items-start text-left">
-            <span className="text-white/90 font-bold text-[15px] uppercase tracking-wide group-hover:text-white">
-              {t('btn_new_title')}
-            </span>
-            <span className="text-gray-400 text-[11px] font-normal mt-0.5 group-hover:text-gray-300 italic">
-              {t('btn_new_desc')}
-            </span>
-          </div>
-          <ArrowRight size={20} className="text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-transform" />
-        </button>
-
+    onClick={onSelectNewUser}
+    className="group w-full h-[75px] bg-[black]/[0.03] border-yellow hover:bg-yellow-500/10 rounded-[1.5rem] flex items-center justify-between px-6 transition-all duration-300 active:scale-[0.98]"
+  >
+    <div className="flex flex-col items-start text-left">
+      <span className="gold-text-shiny font-bold text-[15px] uppercase tracking-wider group-hover:brightness-125">
+        {t('btn_new_title')}
+      </span>
+      <span className="text-gray-500 text-[10px] font-normal tracking-tight group-hover:text-gray-400 italic">
+        {t('btn_new_desc')}
+      </span>
+    </div>
+    <ArrowRight size={20} className="text-yellow-600/50 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
+  </button>
         {/* --- NÚT QUAY LẠI --- */}
         <button
           onClick={handleBack}
-          className="mt-6 flex items-center justify-center gap-2 text-gray-500 hover:text-white text-xs uppercase tracking-widest transition-colors py-2"
+          className="mt-4 flex items-center justify-center gap-2 text-gray-500 hover:text-white text-xs uppercase tracking-widest transition-colors py-2"
         >
           <ArrowLeft size={14} />
           {t('btn_back')}
@@ -111,10 +109,9 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
 
           {popupStep === 'input' ? (
             <div className="flex flex-col gap-4 text-center">
-              <h3 className="text-xl font-bold text-[#EAB308] uppercase tracking-wide">
-                {/* Bạn có thể thêm key dịch cho popup title nếu muốn */}
+              <h3 className="text-xl font-bold gold-text-shiny uppercase tracking-widest">
                 CHECK MEMBERSHIP
-              </h3>
+              </h3> 
               <p className="text-sm text-gray-300 mb-2">Nhập Email để kiểm tra thành viên.</p>
 
               <div className="relative">

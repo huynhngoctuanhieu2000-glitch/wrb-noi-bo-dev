@@ -29,7 +29,23 @@ body {
 .logo-glow {
   filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.6));
 }
+/* 🌟 3.1 CHỮ VÀNG KIM LOẠI SÁNG (Dành cho Lời chào) */
+.gold-text-shiny {
+          background: linear-gradient(to right, #F0E0A0, #FFF8D6, #f0e1aa);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          display: inline-block;
+        }
 
+/* 3.2 CHỮ VÀNG KIM LOẠI MỀM (Dành cho Footer) */
+        .gold-text-soft {
+          background: linear-gradient(to right, #F0E0A0, #FFF8D6, #f0e1aa);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          display: inline-block;
+        }
 /* --- 4. CÁC UTILITIES RIÊNG --- */
 @layer utilities {
 

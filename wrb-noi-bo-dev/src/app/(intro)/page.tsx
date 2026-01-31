@@ -30,10 +30,10 @@ export default function LanguageSelectorPage() {
 
   return (
     <div id="screen-galaxy" suppressHydrationWarning className={animClasses.wrapper}>
-      <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none" />
-      <div className="absolute inset-0 bg-black/90 z-10 pointer-events-none"></div>
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none opacity-80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-black z-0 pointer-events-none"></div>
       <img
-        src="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2000&auto=format&fit=crop"
+        src="https://i.postimg.cc/K8mxt9QM/galaxy2.png"
         className={animClasses.bgImage}
         alt="Background"
         style={{ maxWidth: 'none' }}
@@ -46,9 +46,9 @@ export default function LanguageSelectorPage() {
         <div className={animClasses.centerLogoWrapper(showGreeting)}>
           <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full animate-pulse"></div>
           <img
-            src="https://i.ibb.co/pq0rH1k/logo-Ngan-ha.png"
+            src="https://i.postimg.cc/4xDZ4cxg/only-logo-500x500px-(maltic-gold).png"
             alt="Logo Center"
-            className="w-[70%] h-[70%] object-contain rounded-full relative z-20 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"
+            className="w-[100%] h-[100%] object-contain rounded-full relative z-20 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"
           />
         </div>
 
@@ -75,10 +75,9 @@ export default function LanguageSelectorPage() {
         <div className={animClasses.greeting(showGreeting)}>
           {greeting}
         </div>
-      </div>
+       </div>
 
       {/* --- PHẦN CHỮ CHẠY (MARQUEE) --- */}
-      {/* Nằm ở bottom-60px */}
       <div className={animClasses.marqueeWrapper}>
         <div className={`${animClasses.marqueeTrack} animate-scroll`}>
           {marqueeContent.map((text, i) => (
@@ -87,11 +86,10 @@ export default function LanguageSelectorPage() {
         </div>
       </div>
 
-      {/* --- PHẦN 2: FOOTER TĨNH (Nằm thấp hơn nhờ class bottom-[30px]) --- */}
+      {/* FOOTER (VÀNG KIM) */}
       <div className={animClasses.footer}>
         {staticText.footer}
       </div>
-
     </div>
   );
 }

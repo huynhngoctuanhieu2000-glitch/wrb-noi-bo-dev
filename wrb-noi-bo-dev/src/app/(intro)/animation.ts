@@ -111,7 +111,7 @@ export const animClasses = {
     `absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-[100px] h-[100px] rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center transition-all duration-700 overflow-hidden ${show ? 'scale-0 opacity-0' : 'scale-100'}`,
 
   greeting: (show: boolean) =>
-    `absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[50] font-luxury font-bold tracking-widest whitespace-nowrap transition-all duration-1000 text-[#EAB308] drop-shadow-[0_0_20px_rgba(234,179,8,0.8)] text-center px-4 ${show ? "opacity-100 scale-100 text-[32px] md:text-[60px]" : "opacity-0 scale-50 pointer-events-none"}`,
+    `absolute z-[50] font-bold tracking-widest whitespace-nowrap transition-all duration-1000 text-center px-4 gold-text-shiny ${show ? "opacity-100 scale-100 text-[26px] md:text-[40px]" : "opacity-0 scale-50 pointer-events-none"}`,
 
   flagItem: "absolute top-1/2 left-1/2 z-30 cursor-pointer w-[60px] h-[60px] -ml-[30px] -mt-[30px] shrink-0 rounded-full aspect-square",
 
@@ -120,10 +120,10 @@ export const animClasses = {
   flagImg: "w-full h-full object-cover",
 
   // --- CẬP NHẬT PHẦN FOOTER (MARQUEE) ---
-  marqueeWrapper: "absolute bottom-[150px] left-0 w-full z-[90] overflow-hidden bg-black/30 backdrop-blur-sm py-2",
-  marqueeTrack: "flex whitespace-nowrap w-max hover:[animation-play-state:paused]",
-  marqueeText: "font-luxury text-[18px] md:text-[30px] text-[#EAB308] tracking-[0.23em] uppercase drop-shadow-md mx-2 flex items-center gap-4",
+  marqueeWrapper: "absolute bottom-[150px] w-full z-40 h-[50px] flex items-center overflow-hidden pointer-events-none select-none [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]",
+  marqueeTrack: "flex whitespace-nowrap w-max",
+  marqueeText: "font-luxury text-[17px] md:text-[17px] tracking-[0.1em] uppercase mx-10 flex items-center gap-4 gold-text-soft",
 
   // --- PHẦN 2: FOOTER TĨNH ---
-  footer: "absolute bottom-[20px] left-0 w-full max-w-full text-center z-[100] px-0 font-luxury text-[15px] md:text-[20px] text-[#EAB308] tracking-[0.15em] uppercase drop-shadow-md"
+  footer: "absolute bottom-[30px] w-full text-center z-[50] px-4 font-serif text-[11px] md:text-[13px] tracking-[0.1em] uppercase gold-text-soft"
 };
