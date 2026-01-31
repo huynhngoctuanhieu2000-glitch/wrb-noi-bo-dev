@@ -48,8 +48,25 @@ export interface Category {
   image?: string;
 }
 
-// 4. Giỏ hàng (Lưu ID và Số lượng)
-export type CartState = Record<string, number>;
+// 4. Giỏ hàng & Options
+export interface ServiceOptions {
+  strength?: 'Light' | 'Medium' | 'Strong';
+  therapist?: 'Male' | 'Female' | 'Random';
+  fullBody?: boolean;
+  focusAreas?: string[]; // VD: ['Neck', 'Shoulder']
+  avoidAreas?: string[];
+  tags?: string[];       // VD: ['Pregnant', 'Allergy']
+  note?: string;
+}
+
+export interface CartItem extends Service {
+  cartId: string; // ID riêng biệt trong giỏ (để phân biệt cùng món nhưng khác options)
+  qty: number;
+  options?: ServiceOptions;
+}
+
+// export type CartState = Record<string, number>; // (Legacy - Deactivated)
+export type CartState = CartItem[]; // Chuyển sang dùng mảng để lưu chi tiết
 
 // 5. QUẢN LÝ TRẠNG THÁI SHEET (Bảng trượt) - MỚI
 // Đây là phần quan trọng để điều khiển MainSheet và ReviewSheet

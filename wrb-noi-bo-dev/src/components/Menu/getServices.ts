@@ -36,7 +36,7 @@ const getMenuTypeFromId = (id: string): 'standard' | 'vip' | 'unknown' => {
 };
 
 // Hàm chính lấy dữ liệu
-export const getServices = async (filterType: 'standard' | 'vip'): Promise<Service[]> => {
+export const getServices = async (filterType?: 'standard' | 'vip' | 'all'): Promise<Service[]> => {
     try {
         // Kiểm tra db có tồn tại không
         if (!db) {
@@ -67,7 +67,7 @@ export const getServices = async (filterType: 'standard' | 'vip'): Promise<Servi
 
             // Filter loại menu
             const currentItemType = getMenuTypeFromId(data.ID);
-            if (currentItemType !== filterType) return;
+            if (filterType && filterType !== 'all' && currentItemType !== filterType) return;
 
             // Mapping dữ liệu
             services.push({
@@ -98,7 +98,7 @@ export const getServices = async (filterType: 'standard' | 'vip'): Promise<Servi
                 timeValue: Number(data.TIME) || 0,
                 timeDisplay: `${data.TIME} mins`,
 
-                menuType: currentItemType,
+                menuType: currentItemType as 'standard' | 'vip', // Type casting tạm thời
                 tags: data.TAGS || []
             });
         });

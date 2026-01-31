@@ -7,6 +7,7 @@
 
 import type { Metadata } from "next";
 import "./globals.css"; // 👈 QUAN TRỌNG: Dòng này để tải file CSS nền đen, font chữ...
+import { MenuProvider } from "@/components/Menu/MenuContext";
 
 export const metadata: Metadata = {
   title: "Ngan Ha Spa",
@@ -24,7 +25,9 @@ export default function RootLayout({
         Nó sẽ tự động nhận các style từ globals.css
       */}
       <body className="antialiased w-full h-full">
-        {children}
+        <MenuProvider>
+          {children}
+        </MenuProvider>
       </body>
     </html>
   );

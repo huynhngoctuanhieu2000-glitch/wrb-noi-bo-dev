@@ -18,7 +18,7 @@ import { Category, Service, CartState } from '@/components/Menu/types';
 interface ServiceListProps {
     categories: Category[];
     services: Service[]; // Đây là danh sách tất cả các món (bao gồm 60', 90', 120'...)
-    cart: CartState;
+    cart: Record<string, number>; // Lookup Map (ID -> Qty)
     lang: string;
     onItemClick: (services: Service[]) => void; // Thay đổi: Truyền vào 1 mảng các biến thể
 }

@@ -19,7 +19,7 @@ import { formatCurrency } from '../../utils';
 
 interface MainSheetProps {
     group: Service[]; // Nhận vào cả nhóm món ăn
-    cart: CartState;  // Nhận thêm cart để check
+    cart: Record<string, number>;  // Nhận vào Lookup Map
     isOpen: boolean;
     lang: string;
     onClose: () => void;

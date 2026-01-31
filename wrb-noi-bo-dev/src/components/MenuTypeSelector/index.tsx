@@ -22,25 +22,25 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
     const t = texts[lang] || texts['en'];
 
     return (
-        <div className="w-full h-full min-h-screen flex flex-col items-center justify-center py-10 relative z-10">
+        <div className="flex flex-col items-center justify-center">
 
             {/* 1. HEADER */}
             <div className="text-center mb-[60px] animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="w-[140px] h-[140px] mx-auto -mb-[20px] relative animate-pulse z-10">
+                <div className="w-[450px] h-[140px] mx-auto -mb-[20px] relative animate-pulse z-10">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        src="https://i.ibb.co/Y4XK7P4S/spa11.png"
+                        src="https://i.postimg.cc/3J8zBRVz/logo-500x500px-(maltic-gold)-1.png"
                         alt="Ngan Ha Spa"
                         className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(234,179,8,0.6)]"
                     />
                 </div>
-                <p className="font-luxury text-3xl md:text-4xl text-yellow-500/90 mt-[5px] italic tracking-wider drop-shadow-lg relative z-20">
+                <p className="gold-text-shiny font-bold text-[25px] text-yellow-500/90 mt-[18px] italic ">
                     {t.title}
                 </p>
             </div>
 
             {/* 2. BOOKS CONTAINER */}
-            <div className="flex flex-col md:flex-row justify-center items-center gap-16 mt-[-60px] mb-[20px] w-full">
+            <div className="flex flex-col md:flex-row justify-center items-center gap-1 mt-[-60px] mb-[20px] w-full">
 
                 {/* === BOOK 1: STANDARD === */}
                 <div
@@ -60,7 +60,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                         {/* flex items-center justify-center: Căn chữ vào GIỮA VÙNG GIẤY NÀY */}
                         <div className="absolute left-[14%] top-[26%] w-[78%] h-[55%] z-20 flex flex-col items-center justify-center text-center">
 
-                            <h3 className="font-luxury text-4xl md:text-5xl font-bold text-[#4a3800] drop-shadow-sm leading-tight mb-2 w-full">
+                            <h3 className="font-bold -luxury text-[25px] md:text-5xl text-[#4a3800] drop-shadow-sm leading-tight mb-2 w-full">
                                 {t.std}
                             </h3>
 
@@ -68,7 +68,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                                 {t.std_desc}
                             </p>
 
-                            <div className="mt-3 w-12 h-0.5 bg-[#4a3500] opacity-50 rounded-full" />
+                            <div className="mt-2 w-20 bg-[#000000] opacity-50 rounded-full" />
                         </div>
                     </div>
                 </div>
@@ -90,11 +90,11 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                         {/* top-[34%]: Hạ thấp hơn vì Logo Vương Miện to hơn */}
                         <div className="absolute left-[14%] top-[34%] w-[78%] h-[50%] z-20 flex flex-col items-center justify-center text-center">
 
-                            <h3 className="font-luxury text-4xl md:text-5xl font-bold text-[#ffd700] drop-shadow-[0_2px_10px_rgba(255,215,0,0.4)] leading-tight mb-3 w-full">
+                            <h3 className="gold-text-shiny font-bold text-[25px] uppercase tracking-wider group-hover:brightness-125">
                                 {t.vip}
                             </h3>
 
-                            <p className="font-bold-body text-[15px] text-[#ffffff] font-semibold w-full px-2">
+                            <p className="gold-text-shiny font-bold text-[10px] uppercase tracking-wider group-hover:brightness-125">
                                 {t.vip_desc}
                             </p>
 

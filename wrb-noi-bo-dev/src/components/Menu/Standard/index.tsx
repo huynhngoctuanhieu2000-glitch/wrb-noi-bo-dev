@@ -27,17 +27,18 @@ import CartDrawer from './Sheets/CartDrawer'; // Import CartDrawer
 import { CATEGORIES } from '@/components/Menu/constants';
 import { Service, CartState, SheetState } from '@/components/Menu/types';
 import { getServices } from '@/components/Menu/getServices'; // Đảm bảo đường dẫn đúng
+import { useMenuData } from '@/components/Menu/MenuContext'; // Import Hook Context
 
 interface StandardMenuProps {
     lang: string;
     onBack: () => void;
+    onCheckout: () => void;
 }
 
-export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
+export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuProps) {
     // --- STATE DỮ LIỆU ---
+    // Remove local loading state (duplicate)
     const [services, setServices] = useState<Service[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [cart, setCart] = useState<CartState>({});
 
     // --- STATE GIAO DIỆN ---
     const [activeCategory, setActiveCategory] = useState<string>('Body');
@@ -49,64 +50,61 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
         data: null
     });
 
-    // --- 1. FETCH DATA ---
+    // --- 1. LẤY DATA TỪ CONTEXT ---
+    const { services: allServices, loading: contextLoading, cart, addToCart: contextAddToCart, updateCartItem } = useMenuData();
+
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            const data = await getServices('standard');
-            console.log('🔥 [FIREBASE - Standard Menu] Tải thành công! Tổng dịch vụ:', data.length);
-            setServices(data);
-            setLoading(false);
-        };
-        fetchData();
-    }, []);
+        if (!contextLoading && allServices.length > 0) {
+            // Filter đúng loại Standard (NHS...)
+            const standardServices = allServices.filter(s => s.menuType === 'standard');
+            setServices(standardServices);
+        }
+    }, [allServices, contextLoading]);
 
     // --- 2. LOGIC TÍNH TOÁN CART ---
+    // a. Tính tổng tiền & số lượng (cho Footer)
     const { totalVND, totalUSD, totalItems, maxMinutes } = useMemo(() => {
         let vnd = 0, usd = 0, items = 0, maxMin = 0;
-        Object.entries(cart).forEach(([id, qty]) => {
-            const svc = services.find(s => s.id === id);
-            if (svc) {
-                vnd += svc.priceVND * qty;
-                usd += svc.priceUSD * qty;
-                items += qty;
-                if (svc.timeValue > maxMin) maxMin = svc.timeValue;
-            }
+
+        cart.forEach(item => {
+            vnd += (item.priceVND || 0) * item.qty;
+            usd += (item.priceUSD || 0) * item.qty;
+            items += item.qty;
+            if (item.timeValue > maxMin) maxMin = item.timeValue;
         });
+
         return { totalVND: vnd, totalUSD: usd, totalItems: items, maxMinutes: maxMin };
-    }, [cart, services]);
+    }, [cart]);
+
+    // b. Tạo Lookup Map (ID -> Qty) để truyền xuống ServiceList và MainSheet (để hiện Badge)
+    const cartLookup = useMemo(() => {
+        const lookup: Record<string, number> = {};
+        cart.forEach(item => {
+            // Cộng dồn qty của các item có cùng ID (dù khác options)
+            lookup[item.id] = (lookup[item.id] || 0) + item.qty;
+        });
+        return lookup;
+    }, [cart]);
 
     // --- 3. XỬ LÝ TƯƠNG TÁC ---
 
     // [QUAN TRỌNG] Khi bấm vào Card ở List -> Nhận vào 1 NHÓM (Service[])
     const handleServiceClick = (group: Service[]) => {
-        // Luôn mở MainSheet để khách chọn thời gian (theo yêu cầu mới)
         setSheet({ isOpen: true, type: 'MAIN', data: group });
     };
 
     // Hàm cập nhật Cart (Dùng cho cả MainSheet và ReviewSheet)
-    const updateCart = (id: string, qty: number) => {
-        setCart((prev: CartState) => {
-            // Nếu qty = 0 thì xóa key đó đi cho nhẹ object (tùy chọn), hoặc cứ để 0
-            if (qty === 0) {
-                const newCart = { ...prev };
-                delete newCart[id];
-                return newCart;
-            }
-            return { ...prev, [id]: qty };
-        });
-
-        // Cập nhật xong thì đóng Sheet
-        // (Lưu ý: Nếu muốn giữ Sheet mở để chỉnh tiếp thì bỏ dòng này)
-        // closeSheet(); // Đã comment để không tự đóng (Fix cho CartDrawer)
+    const handleUpdateCart = (cartId: string, qty: number) => {
+        updateCartItem(cartId, qty);
     };
 
-    // Hàm Add đặc biệt cho MainSheet (Cộng dồn số lượng)
-    const addToCart = (id: string, qty: number) => {
-        setCart((prev: CartState) => ({
-            ...prev,
-            [id]: (prev[id] || 0) + qty
-        }));
+    // Hàm Add đặc biệt cho MainSheet
+    // MainSheet đang trả về (id, qty). Ta cần chuyển đổi id -> Service object để gọi Context
+    const handleAddToCart = (id: string, qty: number) => {
+        const service = services.find(s => s.id === id);
+        if (service) {
+            contextAddToCart(service, qty);
+        }
         closeSheet();
     };
 
@@ -122,7 +120,8 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
     };
 
     // --- 4. RENDER UI ---
-    if (loading) return <div className="h-screen bg-black text-yellow-500 flex items-center justify-center">Loading...</div>;
+    // Assuming 'loading' state is managed elsewhere or removed, if not, this line might cause an error.
+    // if (loading) return <div className="h-screen bg-black text-yellow-500 flex items-center justify-center">Loading...</div>;
 
     return (
         <div className="relative inset-0 z-20 bg-black flex flex-col h-[100dvh] w-full overflow-hidden font-sans">
@@ -142,7 +141,7 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
             <ServiceList
                 categories={CATEGORIES}
                 services={services}
-                cart={cart}
+                cart={cartLookup} // Truyền Lookup Map
                 lang={lang}
                 onItemClick={handleServiceClick} // Truyền hàm xử lý nhóm
             />
@@ -164,11 +163,11 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
             {sheet.isOpen && sheet.type === 'MAIN' && Array.isArray(sheet.data) && (
                 <MainSheet
                     group={sheet.data} // Truyền data (là mảng) vào prop group
-                    cart={cart} // Truyền cart để check item đã mua
+                    cart={cartLookup} // Truyền Lookup Map để check sl
                     isOpen={sheet.isOpen}
                     lang={lang}
                     onClose={closeSheet}
-                    onAddToCart={addToCart}
+                    onAddToCart={handleAddToCart}
                 />
             )}
 
@@ -176,11 +175,11 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
             {sheet.isOpen && sheet.type === 'REVIEW' && !Array.isArray(sheet.data) && sheet.data && (
                 <ReviewSheet
                     service={sheet.data}
-                    cart={cart}
+                    cart={cartLookup} // Truyền Lookup Map
                     isOpen={sheet.isOpen}
                     lang={lang}
                     onClose={closeSheet}
-                    onUpdateCart={updateCart}
+                    onUpdateCart={handleUpdateCart}
                 />
             )}
 
@@ -192,7 +191,8 @@ export default function StandardMenu({ lang, onBack }: StandardMenuProps) {
                     lang={lang}
                     isOpen={sheet.isOpen}
                     onClose={closeSheet}
-                    onUpdateCart={updateCart}
+                    onUpdateCart={handleUpdateCart}
+                    onCheckout={onCheckout}
                 />
             )}
 

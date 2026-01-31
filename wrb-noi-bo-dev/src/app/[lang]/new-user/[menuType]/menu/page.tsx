@@ -24,14 +24,20 @@ export default function MenuPage() {
         router.back(); // Quay lại trang trước đó (Galaxy hoặc Home)
     };
 
-    // 3. LOGIC ĐIỀU PHỐI (ROUTING)
+    // 3. Hàm xử lý Checkout
+    const handleCheckout = () => {
+        // Chuyển hướng sang trang checkout
+        router.push(`/${lang}/new-user/${menuType}/checkout`);
+    };
+
+    // 4. LOGIC ĐIỀU PHỐI (ROUTING)
 
     // Trường hợp 1: Menu Thường
     if (menuType === 'standard') {
-        return <StandardMenu lang={lang} onBack={handleBack} />;
+        return <StandardMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} />;
     }
 
- 
+
 
     // Trường hợp 3: Người dùng nhập bậy bạ (vd: .../abc/menu) -> Trả về 404
     return notFound();

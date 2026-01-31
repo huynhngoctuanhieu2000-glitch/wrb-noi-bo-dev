@@ -17,7 +17,7 @@ import { formatCurrency } from '../../utils';
 
 interface ReviewSheetProps {
     service: Service; // Nhận vào 1 món cụ thể (VD: Aroma Oil 60')
-    cart: CartState;
+    cart: Record<string, number>;
     isOpen: boolean;
     lang: string;
     onClose: () => void;

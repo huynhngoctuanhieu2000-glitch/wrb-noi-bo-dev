@@ -14,7 +14,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, Minus, Plus } from 'lucide-react';
 import { Service, CartState } from '@/components/Menu/types';
-import { formatCurrency } from '@/components/Menu/utils';
+import { formatCurrency as formatMoney, formatCurrency } from '@/components/Menu/utils'; // Alias formatMoney to formatCurrency
 
 interface CartDrawerProps {
     cart: CartState;
@@ -23,6 +23,7 @@ interface CartDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     onUpdateCart: (id: string, quantity: number) => void;
+    onCheckout: () => void; // New prop for checkout navigation
 }
 
 // Translate Text
@@ -31,10 +32,11 @@ const TEXT = {
     mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
     total: { vn: 'TỔNG CỘNG', en: 'TOTAL', cn: '总计', jp: '合計', kr: '합계' },
     close: { vn: 'ĐÓNG', en: 'CLOSE', cn: '关闭', jp: '閉じる', kr: '닫기' },
-    continue: { vn: 'TIẾP TỤC', en: 'CONTINUE', cn: '继续', jp: '継続する', kr: '계속' }
+    continue: { vn: 'TIẾP TỤC', en: 'CONTINUE', cn: '继续', jp: '継続する', kr: '계속' },
+    empty: { vn: 'Giỏ hàng trống', en: 'Your cart is empty', cn: '购物车为空', jp: 'カートは空です', kr: '장바구니가 비어 있습니다' }
 };
 
-export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUpdateCart }: CartDrawerProps) {
+export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUpdateCart, onCheckout }: CartDrawerProps) {
     const [isClosing, setIsClosing] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
 
@@ -55,23 +57,13 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
         setTimeout(onClose, 300);
     };
 
-    // Lọc ra các items có trong cart
-    const cartItems = useMemo(() => {
-        return Object.entries(cart)
-            .map(([id, qty]) => {
-                const service = services.find(s => s.id === id);
-                return service ? { ...service, qty } : null;
-            })
-            .filter((item): item is Service & { qty: number } => item !== null && item.qty > 0);
-    }, [cart, services]);
-
-    // Tính tổng tiền
+    // Tính tổng tiền trực tiếp từ cart (CartItem[])
     const { totalVND, totalUSD } = useMemo(() => {
-        return cartItems.reduce((acc, item) => ({
-            totalVND: acc.totalVND + item.priceVND * item.qty,
-            totalUSD: acc.totalUSD + item.priceUSD * item.qty
+        return cart.reduce((acc, item) => ({
+            totalVND: acc.totalVND + (item.priceVND || 0) * item.qty,
+            totalUSD: acc.totalUSD + (item.priceUSD || 0) * item.qty
         }), { totalVND: 0, totalUSD: 0 });
-    }, [cartItems]);
+    }, [cart]);
 
     const t = (key: keyof typeof TEXT) => TEXT[key][lang as keyof typeof TEXT['title']] || TEXT[key]['en'];
 
@@ -101,51 +93,56 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                     <div className="w-10 h-0.5 bg-yellow-600 mx-auto mt-2"></div>
                 </div>
 
-                {/* List Items */}
-                <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-3">
-                    {cartItems.map((item) => (
-                        <div key={item.id} className="bg-gray-800/50 border border-gray-700 rounded-2xl p-4 flex flex-col gap-3">
-                            {/* Top: Name & Qty Control */}
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h3 className="text-white font-bold text-lg leading-tight">
-                                        {item.names[lang as keyof typeof item.names] || item.names['en']}
-                                    </h3>
-                                    <div className="text-gray-400 text-sm italic mt-1 font-serif">
-                                        {item.timeValue}{t('mins')}
-                                        <span className="mx-1 text-gray-600">|</span>
-                                        <span className="text-yellow-500 font-bold">{formatCurrency(item.priceVND)} VND</span>
-                                        <span className="mx-1 text-gray-600">/</span>
-                                        <span className="text-yellow-600 font-medium">{item.priceUSD} USD</span>
+                {/* 3. Danh sách món (Sử dụng map trên mảng CartItem) */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {cart.length === 0 ? (
+                        <div className="text-center text-gray-500 italic mt-10">
+                            {t('empty')}
+                        </div>
+                    ) : (
+                        cart.map((item) => (
+                            <div key={item.cartId} className="flex gap-4 bg-gray-900/50 p-3 rounded-xl border border-white/10">
+                                {/* Ảnh */}
+                                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                                    <img src={item.img} alt={item.names[lang]} className="w-full h-full object-cover" />
+                                </div>
+
+                                {/* Info */}
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-yellow-500 line-clamp-1">{item.names[lang]}</h4>
+                                    <div className="text-xs text-gray-400 mb-2">
+                                        {item.options ? (
+                                            <span>Customized</span> // Tạm thời
+                                        ) : (
+                                            <span>{item.timeDisplay || `${item.timeValue} mins`}</span>
+                                        )}
+                                    </div>
+
+                                    {/* Controls */}
+                                    <div className="flex items-center justify-between">
+                                        <div className="font-bold text-white">
+                                            {formatMoney(item.priceVND * item.qty)}
+                                        </div>
+
+                                        <div className="flex items-center gap-3 bg-gray-800 rounded-lg px-2 py-1">
+                                            <button
+                                                onClick={() => onUpdateCart(item.cartId, item.qty - 1)}
+                                                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white"
+                                            >
+                                                -
+                                            </button>
+                                            <span className="font-bold text-white w-4 text-center">{item.qty}</span>
+                                            <button
+                                                onClick={() => onUpdateCart(item.cartId, item.qty + 1)}
+                                                className="w-6 h-6 flex items-center justify-center text-yellow-500 hover:text-yellow-400"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-
-                                {/* Quantity Control */}
-                                <div className="flex items-center bg-[#0f172a] rounded-lg border border-gray-600 h-10">
-                                    <button
-                                        onClick={() => onUpdateCart(item.id, item.qty - 1)}
-                                        className="w-10 h-full flex items-center justify-center text-gray-400 hover:text-white transition-colors active:scale-90"
-                                    >
-                                        <Minus size={16} />
-                                    </button>
-
-                                    <span className="w-8 text-center font-bold text-white text-lg">{item.qty}</span>
-
-                                    <button
-                                        onClick={() => onUpdateCart(item.id, item.qty + 1)}
-                                        className="w-10 h-full flex items-center justify-center text-yellow-500 hover:text-yellow-400 transition-colors active:scale-90"
-                                    >
-                                        <Plus size={16} />
-                                    </button>
-                                </div>
                             </div>
-                        </div>
-                    ))}
-
-                    {cartItems.length === 0 && (
-                        <div className="text-center text-gray-500 py-10 italic">
-                            Empty Cart
-                        </div>
+                        ))
                     )}
                 </div>
 
@@ -171,6 +168,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                             {t('close')}
                         </button>
                         <button
+                            onClick={onCheckout}
                             className="flex-[2] py-4 rounded-xl bg-yellow-600 text-black font-bold uppercase shadow-lg shadow-yellow-600/20 hover:bg-yellow-500 transition-colors"
                         >
                             {t('continue')}
