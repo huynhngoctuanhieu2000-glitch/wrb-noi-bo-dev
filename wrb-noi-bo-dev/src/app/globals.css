@@ -178,6 +178,76 @@ img {
   }
 }
 
+/* Animation Nổi */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Sao băng */
+@keyframes shoot {
+  0% {
+    transform: translate(0, 0) rotate(-45deg) scaleX(0.5);
+    opacity: 0;
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-600px, 600px) rotate(-45deg) scaleX(1.2);
+    opacity: 0;
+  }
+}
+
+.shooting-star {
+  position: absolute;
+  height: 2px;
+  width: 150px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 999px;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+  opacity: 0;
+  z-index: 1;
+  animation: shoot 3s linear infinite;
+}
+
+.star-1 {
+  top: 10%;
+  right: 10%;
+  animation-delay: 0s;
+}
+
+.star-2 {
+  top: 30%;
+  right: -5%;
+  animation-delay: 2s;
+}
+
+.star-3 {
+  top: -10%;
+  right: 30%;
+  animation-delay: 4s;
+}
+
+.star-4 {
+  top: 40%;
+  right: 0%;
+  animation-delay: 1.5s;
+}
+
 /* Class để Tailwind gọi được */
 .animate-pop {
   animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);

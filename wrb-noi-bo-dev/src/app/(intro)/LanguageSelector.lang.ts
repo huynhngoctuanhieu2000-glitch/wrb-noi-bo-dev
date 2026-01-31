@@ -51,11 +51,3 @@ export const languages: Language[] = [
     flag: "https://flagcdn.com/w80/cn.png"
   }
 ];
-
-/**
- * Text tĩnh không phụ thuộc vào ngôn ngữ
- * Hiện tại chỉ có footer với địa chỉ spa
- */
-export const staticText = {
-  footer: "Ngan Ha: 11 Ngo Duc Ke St, Sai Gon Ward, Ho Chi Minh City"
-};

@@ -10,7 +10,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { languages } from "./LanguageSelector.lang";
-import { useStarfield, useOrbitRotation } from "./animation";
+import { useOrbitRotation } from "./animation";
 
 /**
  * Hook chính chứa logic cho trang chọn ngôn ngữ
@@ -22,7 +22,6 @@ export const useLanguageSelectorLogic = () => {
   const [showGreeting, setShowGreeting] = useState(false); // Hiển thị greeting hay không
   const [radius, setRadius] = useState(0); // Bán kính quỹ đạo cờ
 
-  const canvasRef = useStarfield(); // Hook tạo hiệu ứng sao
   const rotation = useOrbitRotation(); // Hook tạo hiệu ứng xoay quỹ đạo
 
   /**
@@ -75,7 +74,6 @@ export const useLanguageSelectorLogic = () => {
 
   // Trả về object chứa tất cả state và hàm cần thiết cho component
   return {
-    canvasRef,
     greeting,
     showGreeting,
     handleSelectLanguage,

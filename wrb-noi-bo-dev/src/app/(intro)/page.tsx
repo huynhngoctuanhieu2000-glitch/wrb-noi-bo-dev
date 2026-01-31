@@ -9,7 +9,7 @@
 
 import React from "react";
 import { useLanguageSelectorLogic } from "./LanguageSelector.logic";
-import { languages, staticText } from "./LanguageSelector.lang";
+import { languages } from "./LanguageSelector.lang";
 import { animClasses } from "./animation";
 
 /**
@@ -18,7 +18,6 @@ import { animClasses } from "./animation";
  */
 export default function LanguageSelectorPage() {
   const {
-    canvasRef,
     greeting,
     showGreeting,
     handleSelectLanguage,
@@ -26,18 +25,27 @@ export default function LanguageSelectorPage() {
   } = useLanguageSelectorLogic();
 
   // Tạo mảng nội dung lặp lại để chạy chữ (4 lần để đảm bảo lấp đầy màn hình rộng)
-  const marqueeContent = Array(4).fill(staticText.footer);
+  const marqueeContent = Array(4).fill("11 Ngo Duc Ke, Sai Gon Ward, HCMC, VietNam");
 
   return (
-    <div id="screen-galaxy" suppressHydrationWarning className={animClasses.wrapper}>
-      <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none opacity-80" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-black z-0 pointer-events-none"></div>
-      <img
-        src="https://i.postimg.cc/K8mxt9QM/galaxy2.png"
-        className={animClasses.bgImage}
-        alt="Background"
-        style={{ maxWidth: 'none' }}
-      />
+    <div className="w-full h-[100dvh] flex flex-col justify-center items-center px-6 relative overflow-hidden bg-black">
+
+      {/* --- NỀN --- */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-black/0 z-0" />
+        <img
+          src="https://i.postimg.cc/K8mxt9QM/galaxy2.png"
+          alt="Spa Background"
+          className="w-full h-full object-cover opacity-100"
+        />
+        <div className="absolute inset-0 bg-black/40 z-10" />
+        <img src="https://i.postimg.cc/K8mxt9QM/galaxy2.png" alt="Background" className="bg-image" />
+        <div className="shooting-star star-1"></div>
+        <div className="shooting-star star-2"></div>
+        <div className="shooting-star star-3"></div>
+
+      </div>
+
       <div className={animClasses.logoTopContainer}>
         <img src="https://i.postimg.cc/3J8zBRVz/logo-500x500px-(maltic-gold)-1.png" alt="Ngan Ha Spa" className={animClasses.logoTop} />
       </div>
@@ -75,21 +83,17 @@ export default function LanguageSelectorPage() {
         <div className={animClasses.greeting(showGreeting)}>
           {greeting}
         </div>
-       </div>
+      </div>
 
       {/* --- PHẦN CHỮ CHẠY (MARQUEE) --- */}
       <div className={animClasses.marqueeWrapper}>
         <div className={`${animClasses.marqueeTrack} animate-scroll`}>
           {marqueeContent.map((text, i) => (
-            <div key={i} className={animClasses.marqueeText}> Please choose your language for order here !</div>
+            <div key={i} className={animClasses.marqueeText}> 11 Ngo Duc Ke, Sai Gon Ward, HCMC, VietNam </div>
           ))}
         </div>
       </div>
 
-      {/* FOOTER (VÀNG KIM) */}
-      <div className={animClasses.footer}>
-        {staticText.footer}
-      </div>
     </div>
   );
 }
