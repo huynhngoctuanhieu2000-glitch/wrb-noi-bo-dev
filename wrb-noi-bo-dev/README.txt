@@ -132,4 +132,104 @@ Hệ thống được thiết kế theo luồng phân nhánh rõ ràng để cá
 
 ---
 
+
+
+Luồng chi tiết trong lựa chọn menu thường 
+
+
+PHẦN 1: PHÂN TÍCH LUỒNG NGƯỜI DÙNG (USER FLOW)
+Dựa trên các ảnh từ 1 đến 5 (tôi đã đánh số trong đầu để dễ hình dung):
+
+-Trạng thái ban đầu:
+
+Người dùng ở màn hình danh sách dịch vụ (List View).
+Mỗi món (ví dụ: "Aroma oil") có một nút tròn + màu xám ở góc phải dưới.
+Hành động: Người dùng bấm vào nút + của "Aroma oil".
+
+-Chọn biến thể - Main Sheet:
+
+Một bảng (Bottom Sheet) trượt từ dưới lên.
+Hiển thị ảnh lớn, tên, mô tả.
+Hiển thị lưới các gói thời gian/giá tiền (60mins, 70mins, 90mins...).
+Hành động: Người dùng chọn gói "60mins". Nút "Thêm vào giỏ" sẽ sáng lên kèm bộ đếm số lượng. Người dùng bấm "Thêm".
+
+-Cập nhật trạng thái Menu:
+
+Bảng trượt đóng lại.
+Trở về màn hình danh sách.
+Thay đổi: Nút + màu xám lúc nãy chuyển thành số "1" màu đen nền vàng.
+Hành động: Người dùng muốn sửa hoặc chọn thêm gói khác của món này -> Bấm vào số "1" (hoặc bấm vào thẻ).
+
+-Xem lại / Chỉnh sửa - Review Sheet :
+
+Một bảng khác (Review Sheet) trượt lên.
+Nó liệt kê các gói "Aroma oil" đã chọn (hiện tại là 1 gói 60mins).
+Có nút bút chì để sửa gói đó.
+Có nút "Add option" (Thêm tùy chọn) để chọn thêm một gói Aroma oil khác (ví dụ mua thêm 1 suất 90p cho người đi cùng).
+
+-Giỏ hàng tổng - Mini Cart:
+
+Khi bấm vào nút Giỏ hàng ở thanh Footer.
+Hiển thị tất cả các dịch vụ đã chọn (Aroma, Facial, Nail...).
+Tổng tiền tạm tính.
+Nút "Continue" để sang bước thanh toán.
+
+PHẦN 2: CẤU TRÚC THƯ MỤC TRANG STANDARD
+
+Để đáp ứng luồng phức tạp này (2 loại Bottom Sheet khác nhau), 
+cấu trúc trong src/components/Menu/Standard/ cần được chia nhỏ như sau:
+Bash
+
+src/components/Menu/Standard/
+├── index.tsx             # [FILE GỐC] Quản lý State chung (Cart, Sheet nào đang mở)
+│
+├── Header.tsx            # (Đã có) Thanh danh mục icon tròn
+├── ServiceList.tsx       # (Đã có) Vùng cuộn chứa danh sách món (KHUNG CHỨA DANH SÁCH MÓN)
+├── ServiceItem.tsx       # (Cần nâng cấp) Card món ăn, xử lý logic hiển thị nút (+) hay số (1) (MÓN ĂN)    
+├── Footer.tsx            # (Đã có) Thanh đen dưới cùng hiện tổng tiền
+│
+├── Sheets/               # [THƯ MỤC MỚI] Chứa các Bottom Sheet
+│   ├── MainSheet.tsx     # Bảng chọn giờ (Ảnh số 2)
+│   ├── ReviewSheet.tsx   # Bảng xem lại danh sách món cùng loại (Ảnh số 4)
+│   └── CartDrawer.tsx    # Bảng giỏ hàng tổng (Ảnh số 5)
+│
+└── index.module.css      # (Tùy chọn) Nếu cần CSS riêng cho animation trượt
+
+PHẦN 3: MÔ TẢ QUY TRÌNH CODE (LOGIC)
+Trước khi viết code, tôi thống nhất logic xử lý dữ liệu với bạn:
+
+1. Quản lý State (Tại Standard/index.tsx):
+
+    Chúng ta sẽ dùng một biến state trung tâm sheetState để điều khiển việc hiển thị:
+
+    isOpen: true/false
+
+    type: 'MAIN' (chọn giờ) | 'REVIEW' (xem lại) | 'CART' (giỏ hàng tổng).
+
+        data: Dữ liệu của món đang thao tác (ví dụ: ID của Aroma oil).
+
+2. Logic tại ServiceItem.tsx:
+
+    Nhận vào cart (giỏ hàng).
+
+    Kiểm tra: Nếu ID món này có trong giỏ hàng -> Hiện số lượng (nút vàng). Nếu không -> Hiện nút + (nút xám).
+
+    Sự kiện Click:
+
+        Nếu chưa có trong giỏ -> Gọi openMainSheet.
+
+        Nếu đã có -> Gọi openReviewSheet.
+
+3. Logic tại MainSheet.tsx (Bảng chọn giờ):
+
+    Hiển thị lưới nút bấm thời gian.
+
+    Khi bấm "Thêm vào giỏ" -> Cập nhật State Cart ở cha -> Đóng Sheet.
+
+4. Logic tại ReviewSheet.tsx (Bảng xem lại):
+
+    Lọc từ giỏ hàng ra những món trùng tên/ID cha.
+
+    Nút "Add option" -> Đóng ReviewSheet -> Mở MainSheet (để chọn mới).
+
 *© 2024 Ngan Ha Spa Internal System.*

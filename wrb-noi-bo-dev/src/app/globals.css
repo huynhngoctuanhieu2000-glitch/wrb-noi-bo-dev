@@ -1,72 +1,116 @@
-/* 
- * File: globals.css
- * Chức năng: Chứa các style CSS toàn cục cho ứng dụng Next.js
- * Bao gồm import font, Tailwind CSS, và các style cơ bản cho body, html
- * Định nghĩa các class utility và animation tùy chỉnh
+/* * File: globals.css
+ * Chức năng: Style toàn cục (Đã cập nhật cho Menu Standard & VIP)
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* --- 0. CẤU HÌNH BIẾN MÔI TRƯỜNG (MỚI - QUAN TRỌNG CHO MOBILE) --- */
+:root {
+  /* Tự động lấy chiều cao tai thỏ/dynamic island */
+  --safe-top: env(safe-area-inset-top, 20px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
 
 /* --- 1. CẤU HÌNH CƠ BẢN --- */
+html,
 body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  /* Chặn cuộn ngang */
   background-color: black;
   color: white;
   font-family: 'Be Vietnam Pro', sans-serif;
-  overflow-x: hidden;
 }
 
-/* --- 2. FONT LUXURY --- */
+/* Giúp ảnh không bị vỡ giao diện */
+img {
+  max-width: 100%;
+}
+
+/* --- 2. CÁC CLASS TIỆN ÍCH CHO UI (MỚI) --- */
+
+/* Padding vùng an toàn (Tránh tai thỏ) */
+.pt-safe-top {
+  padding-top: var(--safe-top);
+}
+
+.pb-safe {
+  padding-bottom: var(--safe-bottom);
+}
+
+/* FONT LUXURY */
 .font-luxury {
   font-family: 'Cinzel', serif;
-  /* Hoặc 'Playfair Display' tùy bạn chọn */
 }
 
-/* --- 3. HIỆU ỨNG LOGO GLOW (Quan trọng) --- */
+/* --- 3. HIỆU ỨNG MÀU SẮC & GLOW (GIỮ NGUYÊN CỦA BẠN) --- */
 .logo-glow {
   filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.6));
 }
-/* 🌟 3.1 CHỮ VÀNG KIM LOẠI SÁNG (Dành cho Lời chào) */
+
 .gold-text-shiny {
-          background: linear-gradient(to right, #F0E0A0, #FFF8D6, #f0e1aa);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          display: inline-block;
-        }
+  background: linear-gradient(to right, #F0E0A0, #FFF8D6, #f0e1aa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
 
-/* 3.2 CHỮ VÀNG KIM LOẠI MỀM (Dành cho Footer) */
-        .gold-text-soft {
-          background: linear-gradient(to right, #F0E0A0, #FFF8D6, #f0e1aa);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          display: inline-block;
-        }
-/* --- 4. CÁC UTILITIES RIÊNG --- */
+.gold-text-soft {
+  background: linear-gradient(to right, #F0E0A0, #FFF8D6, #f0e1aa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+/* --- 4. MENU STYLES (MỚI - DÀNH CHO HEADER/FOOTER KÍNH) --- */
+
+.glass-header {
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  /* Cho Safari */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-footer {
+  background-color: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  /* Cho Safari */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* --- 5. UTILITIES RIÊNG --- */
 @layer utilities {
-
-  /* Hiệu ứng mờ nền kính */
   .backdrop-blur-md {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 
-  /* Chỉnh scrollbar ẩn cho đẹp */
-  .hide-scrollbar::-webkit-scrollbar {
+  /* Ẩn thanh cuộn (Dùng chung cho cả hide-scrollbar và no-scrollbar) */
+  .hide-scrollbar::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
-  .hide-scrollbar {
+  .hide-scrollbar,
+  .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
 }
 
-/* --- 5. ANIMATIONS --- */
+/* --- 6. ANIMATIONS (CẬP NHẬT THÊM SLIDE-UP & POP) --- */
+
+/* Animation cũ của bạn */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -91,7 +135,7 @@ body {
   animation-delay: 200ms;
 }
 
-/* Marquee Scroll Animation */
+/* Marquee Scroll */
 @keyframes scroll {
   0% {
     transform: translateX(0);
@@ -107,21 +151,34 @@ body {
   animation: scroll 40s linear infinite;
 }
 
+/* --- [MỚI] Animation cho Footer & Nút bấm --- */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 
-/* Thiết lập html và body luôn full màn hình */
-html,
-body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  /* Chặn thanh cuộn ngang */
-  background-color: black;
-  /* Thêm dòng này để chắc chắn nền luôn đen */
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-/* Giúp ảnh không bị vỡ giao diện */
-img {
-  max-width: 100%;
+@keyframes pop {
+  0% {
+    transform: scale(0.8);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Class để Tailwind gọi được */
+.animate-pop {
+  animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
