@@ -14,7 +14,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Minus, Plus, ChevronDown, List, Pencil, PlusCircle } from 'lucide-react';
-import { Service, CartState } from '../../types'; // Import từ file types vừa sửa
+import { Service, CartState } from '../../types';
 import { formatCurrency } from '../../utils';
 
 interface MainSheetProps {
@@ -23,7 +23,7 @@ interface MainSheetProps {
     isOpen: boolean;
     lang: string;
     onClose: () => void;
-    onAddToCart: (id: string, quantity: number) => void;
+    onAddToCart: (id: string, quantity: number, options?: any) => void;
 }
 
 // DICTIONARY
@@ -45,7 +45,9 @@ const TEXT = {
     view_more: { vn: 'Xem thêm', en: 'View More', cn: '查看更多', jp: 'もっと見る', kr: '더 보기' },
     update_cart: { vn: 'Cập Nhật Giỏ', en: 'Update Cart', cn: '更新购物车', jp: 'カートを更新', kr: '장바구니 업데이트' },
     add_to_cart: { vn: 'Thêm Vào Giỏ', en: 'Add to Cart', cn: '加入购物车', jp: 'カートに追加', kr: '장바구니 담기' },
-    mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' }
+    mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
+    custom_for_you: { vn: 'Tùy chỉnh dịch vụ', en: 'Custom for you', cn: '定制服务', jp: 'カスタムサービス', kr: '맞춤 서비스' },
+    custom_selected: { vn: 'Đã tùy chỉnh', en: 'Customized', cn: '已定制', jp: 'カスタマイズ済み', kr: '맞춤 설정됨' }
 };
 
 export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToCart }: MainSheetProps) {

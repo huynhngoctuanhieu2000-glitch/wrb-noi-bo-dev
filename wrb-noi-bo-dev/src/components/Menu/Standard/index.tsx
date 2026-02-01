@@ -100,7 +100,7 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
 
     // Hàm Add đặc biệt cho MainSheet
     // Logic mới: XÓA CŨ -> THÊM MỚI TÁCH LẺ (Để mỗi item là 1 dòng riêng biệt cho phép Custom)
-    const handleAddToCart = (id: string, qty: number) => {
+    const handleAddToCart = (id: string, qty: number, options?: any) => {
         const service = services.find(s => s.id === id);
         if (service) {
             // 1. Tìm các item cũ trong cart có cùng id (để replace logic)
@@ -114,7 +114,7 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
             // 3. Thêm mới: Chạy vòng lặp để thêm từng item lẻ (qty = 1)
             // Ví dụ: Chọn 3 -> Thêm 3 lần (Mỗi lần 1 item contextAddToCart sẽ tạo cartId mới)
             for (let i = 0; i < qty; i++) {
-                contextAddToCart(service, 1);
+                contextAddToCart(service, 1, options);
             }
         }
         closeSheet();

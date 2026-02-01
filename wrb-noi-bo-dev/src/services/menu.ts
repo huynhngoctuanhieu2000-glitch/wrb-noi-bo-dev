@@ -73,7 +73,10 @@ export const getMenuData = async (): Promise<Service[]> => {
                 timeValue: Number(data.TIME) || 0,
                 timeDisplay: `${data.TIME} mins`,
                 menuType: currentItemType as 'standard' | 'vip',
-                tags: data.TAGS || []
+                TAGS: data.TAGS || [], // Fix: tags -> TAGS
+                FOCUS_POSITION: data.FOCUS_POSITION,
+                SHOW_STRENGTH: true, // Default true or from DB if available
+                HINT: data.HINT
             });
         });
 

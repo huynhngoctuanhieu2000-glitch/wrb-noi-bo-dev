@@ -38,7 +38,12 @@ export interface Service {
 
   // Logic phân loại
   menuType?: 'standard' | 'vip';
-  tags?: MultiLangString[];
+
+  // Custom For You Data
+  FOCUS_POSITION?: Record<string, boolean>; // HEAD, NECK...
+  TAGS?: MultiLangString[]; // Array of tags [0: Pregnant, 1: Allergy] (Each tag is MultiLangString)
+  SHOW_STRENGTH?: boolean;
+  HINT?: MultiLangString;
 }
 
 // 3. Dữ liệu Danh mục (Category)
@@ -50,13 +55,19 @@ export interface Category {
 
 // 4. Giỏ hàng & Options
 export interface ServiceOptions {
-  strength?: 'Light' | 'Medium' | 'Strong';
-  therapist?: 'Male' | 'Female' | 'Random';
-  fullBody?: boolean;
-  focusAreas?: string[]; // VD: ['Neck', 'Shoulder']
-  avoidAreas?: string[];
-  tags?: string[];       // VD: ['Pregnant', 'Allergy']
-  note?: string;
+  strength?: 'light' | 'medium' | 'strong';
+  therapist?: 'male' | 'female' | 'random';
+
+  // Custom For You New Structure
+  bodyParts?: {
+    focus: string[];
+    avoid: string[];
+  };
+  notes?: {
+    tag0: boolean;
+    tag1: boolean;
+    content: string;
+  };
 }
 
 export interface CartItem extends Service {

@@ -24,6 +24,7 @@ interface MenuContextType {
     cart: CartItem[];
     addToCart: (service: Service, qty: number, options?: ServiceOptions) => void;
     updateCartItem: (cartId: string, qty: number) => void;
+    updateCartItemOptions: (cartId: string, options: ServiceOptions) => void;
     updateAllCartItemOptions: (options: ServiceOptions) => void;
     removeFromCart: (cartId: string) => void;
     clearCart: () => void;
@@ -94,6 +95,11 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
+    // [NEW] Cập nhật options cho 1 item cụ thể (CartId)
+    const updateCartItemOptions = (cartId: string, options: ServiceOptions) => {
+        setCart(prev => prev.map(item => item.cartId === cartId ? { ...item, options: { ...item.options, ...options } } : item));
+    };
+
     // [NEW] Cập nhật options cho TOÀN BỘ giỏ hàng (Bulk Update)
     const updateAllCartItemOptions = (options: ServiceOptions) => {
         setCart(prev => prev.map(item => ({ ...item, options: { ...item.options, ...options } })));
@@ -113,7 +119,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
     return (
         <MenuContext.Provider value={{
             services, categories, loading, error, refreshData: fetchData,
-            cart, addToCart, updateCartItem, updateAllCartItemOptions, removeFromCart, clearCart, getQty
+            cart, addToCart, updateCartItem, updateCartItemOptions, updateAllCartItemOptions, removeFromCart, clearCart, getQty
         }}>
             {children}
         </MenuContext.Provider>

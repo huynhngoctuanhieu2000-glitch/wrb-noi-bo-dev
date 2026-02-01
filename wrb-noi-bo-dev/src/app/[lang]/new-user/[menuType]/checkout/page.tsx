@@ -9,50 +9,48 @@ import CheckoutHeader from '@/components/Checkout/CheckoutHeader';
 import CustomerInfo from '@/components/Checkout/CustomerInfo';
 import Invoice from '@/components/Checkout/Invoice';
 import PaymentMethods from '@/components/Checkout/PaymentMethods';
-import CustomRequestModal from '@/components/Checkout/CustomRequestModal';
-import { ServiceOptions } from '@/components/Menu/types';
+// import CustomRequestModal from '@/components/Checkout/CustomRequestModal'; // Remove old modal
+import OrderConfirmModal from '@/components/Checkout/OrderConfirmModal'; // Import new modal
+import CustomForYouModal from '@/components/CustomForYou'; // Import new modal
+import { ServiceOptions, CartItem } from '@/components/Menu/types';
 
 export default function CheckoutPage() {
     const router = useRouter();
-    const { cart, updateAllCartItemOptions } = useMenuData();
+    const { cart, updateAllCartItemOptions, updateCartItemOptions } = useMenuData();
 
     // State for Custom Request Modal
     const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = React.useState(false); // New State
+    const [selectedCartItem, setSelectedCartItem] = React.useState<CartItem | null>(null);
 
-    // State for Customer Info
+    // ... (Customer Info & Payment State remain same)
     const [customerInfo, setCustomerInfo] = React.useState({
         name: '',
         email: '',
         phone: '',
         gender: 'Male',
-        room: '' // Optional or removed based on new req? Keeping for compat for now
+        room: ''
     });
-
-    // State for Payment
     const [paymentMethod, setPaymentMethod] = React.useState('cash_vnd');
-    const [amountPaid, setAmountPaid] = React.useState<string>(''); // Keep as string for input
+    const [amountPaid, setAmountPaid] = React.useState<string>('');
 
-    // Derived Calculations
+    // ... (Calculations remain same)
     const totalVND = React.useMemo(() => cart.reduce((sum, item) => sum + item.priceVND * item.qty, 0), [cart]);
 
-    // Calculate Change
     const changeAmount = React.useMemo(() => {
         const paid = parseInt(amountPaid.replace(/\./g, '') || '0', 10);
         return paid - totalVND;
     }, [amountPaid, totalVND]);
 
-    // Format input as money
     const handleAmountPaidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const raw = e.target.value.replace(/\D/g, '');
         setAmountPaid(Number(raw).toLocaleString('vi-VN'));
     };
 
-    // Quick Set Amount Paid
     const setQuickAmount = (amount: number) => {
         setAmountPaid(amount.toLocaleString('vi-VN'));
     };
 
-    // Nếu giỏ hàng trống, quay về menu
     React.useEffect(() => {
         if (!cart || cart.length === 0) {
             router.push('/');
@@ -63,12 +61,16 @@ export default function CheckoutPage() {
         router.back();
     };
 
-    const handleCustomRequest = () => {
+    const handleCustomRequest = (item: CartItem) => {
+        setSelectedCartItem(item);
         setIsModalOpen(true);
     };
 
     const handleSaveCustomRequest = (options: ServiceOptions) => {
-        updateAllCartItemOptions(options);
+        if (selectedCartItem) {
+            updateCartItemOptions(selectedCartItem.cartId, options);
+            setIsModalOpen(false);
+        }
     };
 
     const handleCustomerChange = (field: string, value: string) => {
@@ -80,30 +82,42 @@ export default function CheckoutPage() {
             alert('Please enter Full Name and Email');
             return;
         }
+        setIsConfirmOpen(true); // Open Modal
+    };
 
-        const orderData = {
+    const handleFinalSubmit = async () => {
+        const payload = {
             customer: customerInfo,
+            items: cart,
             paymentMethod,
             amountPaid: parseInt(amountPaid.replace(/\./g, '') || '0', 10),
-            change: changeAmount,
-            items: cart,
             totalVND,
-            createdAt: new Date().toISOString()
+            lang: 'en'
         };
 
-        console.log('✅ ORDER CONFIRMED:', orderData);
-        alert('Order Success! (Simulated)');
-        // router.push('/success');
+        const res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || "Failed to submit");
+        }
     };
 
     if (!cart) return null;
 
+
+
+    // ... (Render)
     return (
         <div className="min-h-screen bg-[#f8fafc] text-black pb-32 font-sans">
+            {/* ... existing content ... */}
             <CheckoutHeader title="Payment Information" onBack={handleBack} />
 
             <main className="p-4 space-y-6 max-w-2xl mx-auto">
-
                 {/* 1. Customer Info */}
                 <CustomerInfo
                     lang="en"
@@ -125,7 +139,7 @@ export default function CheckoutPage() {
                     onChange={setPaymentMethod}
                 />
 
-                {/* 4. Cash Payment Logic (POS) - Only show if Cash VND/USD selected */}
+                {/* 4. Cash Payment Logic ... */}
                 {(paymentMethod === 'cash_vnd' || paymentMethod === 'cash_usd') && (
                     <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
                         <div className="flex justify-between items-center">
@@ -188,12 +202,34 @@ export default function CheckoutPage() {
                 </div>
             </div>
 
-            {/* Modal */}
-            <CustomRequestModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSave={handleSaveCustomRequest}
+            {/* Modals */}
+            {selectedCartItem && (
+                <CustomForYouModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onSave={handleSaveCustomRequest}
+                    lang={customerInfo.name ? 'en' : 'en'}
+                    serviceData={{
+                        ID: selectedCartItem.id,
+                        NAMES: selectedCartItem.names as any,
+                        FOCUS_POSITION: selectedCartItem.FOCUS_POSITION as any,
+                        TAGS: selectedCartItem.TAGS as any,
+                        SHOW_STRENGTH: selectedCartItem.SHOW_STRENGTH,
+                        HINT: selectedCartItem.HINT as any
+                    }}
+                    initialData={selectedCartItem.options as any}
+                />
+            )}
+
+            <OrderConfirmModal
+                isOpen={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={handleFinalSubmit}
                 lang="en"
+                cart={cart}
+                customerInfo={customerInfo}
+                paymentMethod={paymentMethod}
+                amountPaid={parseInt(amountPaid.replace(/\./g, '') || '0', 10)}
             />
         </div>
     );
