@@ -51,7 +51,7 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
     });
 
     // --- 1. LẤY DATA TỪ CONTEXT ---
-    const { services: allServices, loading: contextLoading, cart, addToCart: contextAddToCart, updateCartItem } = useMenuData();
+    const { services: allServices, loading: contextLoading, cart, addToCart: contextAddToCart, updateCartItem, removeFromCart } = useMenuData();
 
     useEffect(() => {
         if (!contextLoading && allServices.length > 0) {
@@ -99,11 +99,23 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
     };
 
     // Hàm Add đặc biệt cho MainSheet
-    // MainSheet đang trả về (id, qty). Ta cần chuyển đổi id -> Service object để gọi Context
+    // Logic mới: XÓA CŨ -> THÊM MỚI TÁCH LẺ (Để mỗi item là 1 dòng riêng biệt cho phép Custom)
     const handleAddToCart = (id: string, qty: number) => {
         const service = services.find(s => s.id === id);
         if (service) {
-            contextAddToCart(service, qty);
+            // 1. Tìm các item cũ trong cart có cùng id (để replace logic)
+            const existingItems = cart.filter(item => item.id === id);
+
+            // 2. Xóa hết chúng đi
+            existingItems.forEach(item => {
+                removeFromCart(item.cartId);
+            });
+
+            // 3. Thêm mới: Chạy vòng lặp để thêm từng item lẻ (qty = 1)
+            // Ví dụ: Chọn 3 -> Thêm 3 lần (Mỗi lần 1 item contextAddToCart sẽ tạo cartId mới)
+            for (let i = 0; i < qty; i++) {
+                contextAddToCart(service, 1);
+            }
         }
         closeSheet();
     };

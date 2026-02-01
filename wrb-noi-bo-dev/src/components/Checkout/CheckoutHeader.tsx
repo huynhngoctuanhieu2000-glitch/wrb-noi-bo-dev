@@ -8,7 +8,7 @@ interface CheckoutHeaderProps {
 
 export default function CheckoutHeader({ title, onBack }: CheckoutHeaderProps) {
     return (
-        <div className="bg-white pb-4 mb-2">
+        <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm pb-4 mb-6 shadow-sm border-b border-gray-100 transition-all">
             {/* Top Bar: Back + Title */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 mb-4">
                 <button
