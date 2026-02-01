@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import styles from "./style.module.css";
 import { ArrowLeft } from "lucide-react";
 
@@ -27,12 +28,17 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
             {/* 1. HEADER */}
             <div className="text-center mb-[60px] animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="w-[450px] h-[140px] mx-auto -mb-[20px] relative animate-pulse z-10">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src="https://i.postimg.cc/3J8zBRVz/logo-500x500px-(maltic-gold)-1.png"
-                        alt="Ngan Ha Spa"
-                        className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(234,179,8,0.6)]"
-                    />
+                    {/* ES Lint disable was here, removed as we use Next Image */}
+                    <div className="relative w-full h-full">
+                        <Image
+                            src="https://i.postimg.cc/3J8zBRVz/logo-500x500px-(maltic-gold)-1.png"
+                            alt="Ngan Ha Spa"
+                            fill
+                            className="object-contain drop-shadow-[0_0_25px_rgba(234,179,8,0.6)]"
+                            priority
+                            sizes="(max-width: 768px) 100vw, 450px"
+                        />
+                    </div>
                 </div>
                 <p className="gold-text-shiny font-bold text-[25px] text-yellow-500/90 mt-[18px] italic ">
                     {t.title}
@@ -48,10 +54,16 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-left-8 delay-150 fill-mode-forwards relative`}
                 >
                     <div className={`${styles.bookCover} ${styles.perspective1000} relative`}>
-                        <div
-                            className={styles.bgCover}
-                            style={{ backgroundImage: "url('https://i.postimg.cc/g0CM57Zz/sach-standard-500x500px.png')" }}
-                        />
+                        <div className={`${styles.bgCover} relative overflow-hidden`}>
+                            <Image
+                                src="https://i.postimg.cc/g0CM57Zz/sach-standard-500x500px.png"
+                                alt="Standard Menu Book"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 500px"
+                                priority
+                            />
+                        </div>
 
                         {/* ✅ VÙNG GIẤY VIẾT (STANDARD) */}
                         {/* left-[17%]: Bắt đầu từ sau gáy lò xo */}
@@ -79,10 +91,16 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-right-8 delay-300 fill-mode-forwards relative`}
                 >
                     <div className={`${styles.bookCover} ${styles.perspective1000} relative`}>
-                        <div
-                            className={styles.bgCover}
-                            style={{ backgroundImage: "url('https://i.postimg.cc/MKQCpyzy/sach-premium-500x500px.png')" }}
-                        />
+                        <div className={`${styles.bgCover} relative overflow-hidden`}>
+                            <Image
+                                src="https://i.postimg.cc/MKQCpyzy/sach-premium-500x500px.png"
+                                alt="Premium Menu Book"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 500px"
+                                priority
+                            />
+                        </div>
                         <div className={styles.shineEffect} />
 
                         {/* ✅ VÙNG GIẤY VIẾT (PREMIUM) */}
