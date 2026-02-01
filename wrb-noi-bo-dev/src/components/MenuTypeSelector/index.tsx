@@ -50,7 +50,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     <div className={`${styles.bookCover} ${styles.perspective1000} relative`}>
                         <div
                             className={styles.bgCover}
-                            style={{ backgroundImage: "url('https://i.ibb.co/fV4Yzyzg/sa-ch-stand-2-500x500px.png')" }}
+                            style={{ backgroundImage: "url('https://i.postimg.cc/g0CM57Zz/sach-standard-500x500px.png')" }}
                         />
 
                         {/* ✅ VÙNG GIẤY VIẾT (STANDARD) */}
@@ -81,7 +81,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     <div className={`${styles.bookCover} ${styles.perspective1000} relative`}>
                         <div
                             className={styles.bgCover}
-                            style={{ backgroundImage: "url('https://i.ibb.co/DHS0J6sK/sach-pre-500x500px.png')" }}
+                            style={{ backgroundImage: "url('https://i.postimg.cc/MKQCpyzy/sach-premium-500x500px.png')" }}
                         />
                         <div className={styles.shineEffect} />
 
@@ -98,7 +98,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                                 {t.vip_desc}
                             </p>
 
-                            <div className="mt-4 w-12 h-0.5 bg-yellow-500 opacity-60 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
+                            <div className="mt-3 w-12 bg-yellow-500 opacity-60 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
                         </div>
                     </div>
                 </div>
@@ -110,13 +110,13 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                 <div className="text-center animate-in fade-in slide-in-from-bottom-8 delay-500 fill-mode-forwards z-30 pb-12">
                     <button
                         onClick={onBack}
-                        className="group relative flex items-center justify-center gap-4 px-10 py-4 rounded-full border border-yellow-500/30 bg-black/40 backdrop-blur-md hover:bg-yellow-950/30 hover:border-yellow-400 transition-all duration-500 active:scale-95 shadow-[0_0_20px_rgba(234,179,8,0.1)] hover:shadow-[0_0_30px_rgba(234,179,8,0.25)]"
+                        className="mt-4 w-fit mx-auto rounded-[1.5rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-1 text-black hover:text-white text-xs uppercase tracking-widest transition-colors py-2"
                     >
                         <ArrowLeft
                             size={20}
-                            className="text-yellow-500/80 group-hover:text-yellow-300 transition-transform duration-300 group-hover:-translate-x-1"
+                            className="bg-black-500/80 group-hover:bg-white transition-transform duration-300 group-hover:-translate-x-1"
                         />
-                        <span className="text-sm text-yellow-50/90 group-hover:text-white uppercase tracking-[0.25em] font-semibold transition-colors duration-300">
+                        <span className="text-sm text-black/90 group-hover:text-white uppercase tracking-[0.25em] font-semibold transition-colors duration-300">
                             {t.btn_back}
                         </span>
                     </button>

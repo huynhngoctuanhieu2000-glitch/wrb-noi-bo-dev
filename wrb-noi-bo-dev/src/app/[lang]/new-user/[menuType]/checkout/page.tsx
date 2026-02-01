@@ -118,7 +118,7 @@ export default function CheckoutPage() {
                     onCustomRequest={handleCustomRequest}
                 />
 
-                {/* 3. Payment Methods */} // Moved up based on logical flow, or keep as is? Plan said modify payment methods.
+                {/* 3. Payment Methods */}
                 <PaymentMethods
                     lang="en"
                     selected={paymentMethod}

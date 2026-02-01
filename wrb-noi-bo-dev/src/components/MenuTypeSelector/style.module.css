@@ -51,12 +51,12 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 50%;
+    width: 20%;
     background: linear-gradient(to right, transparent, rgba(255, 215, 0, 0.2), transparent);
     transform: skewX(-25deg);
     pointer-events: none;
-    animation: shine-sweep 3s infinite;
-    animation-delay: 1.4s;
+    animation: shine-sweep 2s infinite;
+    animation-delay: 1.0s;
 }
 
 /* Ảnh bìa sách (Background Image) */

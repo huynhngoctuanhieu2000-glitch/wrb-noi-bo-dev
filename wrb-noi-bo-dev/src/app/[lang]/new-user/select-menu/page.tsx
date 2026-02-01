@@ -33,9 +33,9 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
 
             {/* Background */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-black/70 z-10" />
+                <div className="absolute inset-0 bg-black/ z-10" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?q=80&w=1000" className="w-full h-full object-cover opacity-40" />
+                <img src="https://i.postimg.cc/hPx71PLs/Gemini-Generated-Image-psjknhpsjknhpsjk.png" className="w-full h-full object-cover opacity-40" />
             </div>
 
             {/* Component Tái Sử Dụng */}
