@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Check, Ban } from 'lucide-react';
 import { BodyPartKey, LanguageCode, MultiLangText, ServiceData } from './types';
 import { getText } from './utils';
+import { getDictionary } from '@/lib/dictionaries';
 
 const ALL_BODY_PARTS: { key: BodyPartKey; height: string }[] = [
     { key: 'HEAD', height: '10%' },
@@ -24,6 +25,8 @@ interface BodyMapProps {
 }
 
 const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onToggle }) => {
+    const dict = getDictionary(lang);
+
     // 1. Lọc ra các bộ phận được phép hiển thị dựa trên Service Data
     // Nếu FOCUS_POSITION không có -> mặc định hiện hết
     const availableParts = ALL_BODY_PARTS.filter(part => {
@@ -69,16 +72,16 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                             {availableParts.length === ALL_BODY_PARTS.length ? (
                                 // Logic cũ: Full Body
                                 isFullBody ? (
-                                    <>Full<br />Body</>
+                                    <>{dict.custom_for_you?.full_body}</>
                                 ) : (
-                                    focus.length > 0 ? <>Partly</> : <>Full<br />Body</>
+                                    focus.length > 0 ? <>{dict.custom_for_you?.partly}</> : <>{dict.custom_for_you?.full_body}</>
                                 )
                             ) : (
                                 // Logic mới: Select All
                                 isFullBody ? (
                                     getText({ en: 'All', vn: 'Tất cả', jp: 'すべて', kr: '모두', cn: '全部' }, lang)
                                 ) : (
-                                    focus.length > 0 ? <>Partly</> : getText({ en: 'Select All', vn: 'Chọn Hết', jp: 'すべて選択', kr: '모두 선택', cn: '全选' }, lang)
+                                    focus.length > 0 ? <>{dict.custom_for_you?.partly}</> : getText({ en: 'Select All', vn: 'Chọn Hết', jp: 'すべて選択', kr: '모두 선택', cn: '全选' }, lang)
                                 )
                             )}
                         </span>

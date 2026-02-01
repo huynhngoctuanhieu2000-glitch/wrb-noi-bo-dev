@@ -1,46 +1,77 @@
 'use client';
 
-import React from 'react';
+import React, { use, useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
 import { useMenuData } from '@/components/Menu/MenuContext';
 
 import CheckoutHeader from '@/components/Checkout/CheckoutHeader';
 import CustomerInfo from '@/components/Checkout/CustomerInfo';
 import Invoice from '@/components/Checkout/Invoice';
 import PaymentMethods from '@/components/Checkout/PaymentMethods';
-// import CustomRequestModal from '@/components/Checkout/CustomRequestModal'; // Remove old modal
-import OrderConfirmModal from '@/components/Checkout/OrderConfirmModal'; // Import new modal
-import CustomForYouModal from '@/components/CustomForYou'; // Import new modal
+import OrderConfirmModal from '@/components/Checkout/OrderConfirmModal';
+import CustomForYouModal from '@/components/CustomForYou';
 import { ServiceOptions, CartItem } from '@/components/Menu/types';
+import { getDictionary } from '@/lib/dictionaries';
 
-export default function CheckoutPage() {
+export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
     const { cart, updateAllCartItemOptions, updateCartItemOptions } = useMenuData();
 
-    // State for Custom Request Modal
-    const [isModalOpen, setIsModalOpen] = React.useState(false);
-    const [isConfirmOpen, setIsConfirmOpen] = React.useState(false); // New State
-    const [selectedCartItem, setSelectedCartItem] = React.useState<CartItem | null>(null);
+    // Unwrap params
+    const { lang: rawLang } = use(params);
+    // Explicitly normalize 'vn' -> 'vi' here to be absolutely sure
+    const lang = rawLang === 'vn' ? 'vi' : rawLang;
 
-    // ... (Customer Info & Payment State remain same)
-    const [customerInfo, setCustomerInfo] = React.useState({
+    console.log('[CheckoutPage] resolved lang:', lang);
+    const dict = getDictionary(lang);
+    console.log('[CheckoutPage] dict title:', dict?.checkout?.title);
+
+    // Helper to translate options (strength, therapist)
+    const tOption = (category: string, value: string) => {
+        if (!value) return '';
+        // @ts-ignore
+        return dict.options?.[category]?.[value.toLowerCase()] || value;
+    };
+
+    // --- STATE ---
+
+    // Customer Info
+    const [customerInfo, setCustomerInfo] = useState({
         name: '',
         email: '',
         phone: '',
-        gender: 'Male',
+        gender: 'Male', // Default or could be empty
         room: ''
     });
-    const [paymentMethod, setPaymentMethod] = React.useState('cash_vnd');
-    const [amountPaid, setAmountPaid] = React.useState<string>('');
 
-    // ... (Calculations remain same)
-    const totalVND = React.useMemo(() => cart.reduce((sum, item) => sum + item.priceVND * item.qty, 0), [cart]);
+    // Payment
+    const [paymentMethod, setPaymentMethod] = useState('cash_vnd');
+    const [amountPaid, setAmountPaid] = useState<string>('');
 
-    const changeAmount = React.useMemo(() => {
+    // Modals
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
+
+    // --- COMPUTED ---
+    const totalVND = useMemo(() => cart.reduce((sum, item) => sum + item.priceVND * item.qty, 0), [cart]);
+
+    const changeAmount = useMemo(() => {
         const paid = parseInt(amountPaid.replace(/\./g, '') || '0', 10);
         return paid - totalVND;
     }, [amountPaid, totalVND]);
+
+    // --- EFFECTS ---
+    useEffect(() => {
+        if (!cart || cart.length === 0) {
+            router.push('/');
+        }
+    }, [cart, router]);
+
+    // --- HANDLERS ---
+    const handleBack = () => {
+        router.back();
+    };
 
     const handleAmountPaidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const raw = e.target.value.replace(/\D/g, '');
@@ -49,16 +80,6 @@ export default function CheckoutPage() {
 
     const setQuickAmount = (amount: number) => {
         setAmountPaid(amount.toLocaleString('vi-VN'));
-    };
-
-    React.useEffect(() => {
-        if (!cart || cart.length === 0) {
-            router.push('/');
-        }
-    }, [cart, router]);
-
-    const handleBack = () => {
-        router.back();
     };
 
     const handleCustomRequest = (item: CartItem) => {
@@ -79,10 +100,10 @@ export default function CheckoutPage() {
 
     const handleConfirmOrder = () => {
         if (!customerInfo.name || !customerInfo.email) {
-            alert('Please enter Full Name and Email');
+            alert(lang === 'vi' ? 'Vui lòng điền Tên và Email' : 'Please enter Full Name and Email');
             return;
         }
-        setIsConfirmOpen(true); // Open Modal
+        setIsConfirmOpen(true);
     };
 
     const handleFinalSubmit = async () => {
@@ -92,7 +113,7 @@ export default function CheckoutPage() {
             paymentMethod,
             amountPaid: parseInt(amountPaid.replace(/\./g, '') || '0', 10),
             totalVND,
-            lang: 'en'
+            lang: lang
         };
 
         const res = await fetch('/api/orders', {
@@ -105,22 +126,24 @@ export default function CheckoutPage() {
             const err = await res.json();
             throw new Error(err.error || "Failed to submit");
         }
+        // Success handling is done in the Modal component (visual feedback)
     };
 
     if (!cart) return null;
 
-
-
-    // ... (Render)
     return (
-        <div className="min-h-screen bg-[#f8fafc] text-black pb-32 font-sans">
-            {/* ... existing content ... */}
-            <CheckoutHeader title="Payment Information" onBack={handleBack} />
+        <div className="min-h-screen bg-[#f8fafc] text-black pb-32 font-sans animate-in fade-in duration-500">
+            <CheckoutHeader
+                title={dict.checkout.title}
+                backLabel={dict.common?.back_to_menu}
+                onBack={handleBack}
+            />
 
             <main className="p-4 space-y-6 max-w-2xl mx-auto">
                 {/* 1. Customer Info */}
                 <CustomerInfo
-                    lang="en"
+                    lang={lang}
+                    dict={dict}
                     info={customerInfo}
                     onChange={handleCustomerChange}
                 />
@@ -128,27 +151,31 @@ export default function CheckoutPage() {
                 {/* 2. Invoice */}
                 <Invoice
                     cart={cart}
-                    lang="en"
+                    lang={lang}
+                    dict={dict}
                     onCustomRequest={handleCustomRequest}
                 />
 
                 {/* 3. Payment Methods */}
                 <PaymentMethods
-                    lang="en"
+                    lang={lang}
+                    dict={dict}
                     selected={paymentMethod}
                     onChange={setPaymentMethod}
                 />
 
-                {/* 4. Cash Payment Logic ... */}
+                {/* 4. Cash Payment Input */}
                 {(paymentMethod === 'cash_vnd' || paymentMethod === 'cash_usd') && (
                     <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs">AMOUNT PAID</h2>
+                            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs">
+                                {dict.checkout.amount_paid_title}
+                            </h2>
                             <button
                                 onClick={() => setAmountPaid('0')}
                                 className="text-red-500 text-xs font-bold border border-red-100 px-3 py-1 rounded-lg hover:bg-red-50"
                             >
-                                Reset
+                                {dict.checkout.reset}
                             </button>
                         </div>
 
@@ -181,9 +208,9 @@ export default function CheckoutPage() {
 
                         {/* Change Display */}
                         <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
-                            <span className="text-gray-500 text-sm font-medium">Change:</span>
+                            <span className="text-gray-500 text-sm font-medium">{dict.checkout.change_title}</span>
                             <span className={`text-xl font-bold ${changeAmount >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                {changeAmount >= 0 ? changeAmount.toLocaleString('vi-VN') : 'Insufficient'} VND
+                                {changeAmount >= 0 ? changeAmount.toLocaleString('vi-VN') : dict.checkout.insufficient} VND
                             </span>
                         </div>
                     </div>
@@ -197,7 +224,7 @@ export default function CheckoutPage() {
                         onClick={handleConfirmOrder}
                         className="w-full py-4 bg-[#0f172a] text-white font-bold uppercase rounded-xl shadow-lg hover:bg-[#1e293b] transition-colors text-lg"
                     >
-                        Confirm Order
+                        {dict.checkout.confirm_order_btn}
                     </button>
                 </div>
             </div>
@@ -208,7 +235,7 @@ export default function CheckoutPage() {
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     onSave={handleSaveCustomRequest}
-                    lang={customerInfo.name ? 'en' : 'en'}
+                    lang={lang as any}
                     serviceData={{
                         ID: selectedCartItem.id,
                         NAMES: selectedCartItem.names as any,
@@ -225,7 +252,8 @@ export default function CheckoutPage() {
                 isOpen={isConfirmOpen}
                 onClose={() => setIsConfirmOpen(false)}
                 onConfirm={handleFinalSubmit}
-                lang="en"
+                lang={lang}
+                dict={dict}
                 cart={cart}
                 customerInfo={customerInfo}
                 paymentMethod={paymentMethod}

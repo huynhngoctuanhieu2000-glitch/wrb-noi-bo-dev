@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, Check } from "lucide-react";
 import { ServiceData, CustomPreferences, LanguageCode } from "./types";
 import { getText } from "./utils";
+import { getDictionary } from "@/lib/dictionaries"; // Import getDictionary
 import BodyMap from "./BodyMap";
 import NoteSection from "./NoteSection";
 import Preferences from "./Preferences";
@@ -23,6 +24,8 @@ export default function CustomForYouModal({
     lang,
     initialData
 }: CustomForYouModalProps) {
+    const dict = getDictionary(lang); // Get dictionary
+
     // Default State
     const [prefs, setPrefs] = useState<CustomPreferences>({
         bodyParts: { focus: [], avoid: [] },
@@ -134,7 +137,7 @@ export default function CustomForYouModal({
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white z-10">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">Custom for you</h2>
+                        <h2 className="text-xl font-bold text-gray-900">{dict.custom_for_you?.title}</h2>
                         <p className="text-sm text-gray-500 font-medium">
                             {getText(serviceData.NAMES, lang)}
                         </p>

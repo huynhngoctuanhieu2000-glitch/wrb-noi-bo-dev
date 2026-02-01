@@ -6,23 +6,23 @@ import { formatCurrency } from '@/components/Menu/utils';
 interface InvoiceProps {
     cart: CartItem[];
     lang: string;
+    dict: any; // Accept dict
     onCustomRequest: (item: CartItem) => void;
 }
 
-export default function Invoice({ cart, lang, onCustomRequest }: InvoiceProps) {
+export default function Invoice({ cart, lang, dict, onCustomRequest }: InvoiceProps) {
     const totalVND = cart.reduce((sum, item) => sum + (item.priceVND * item.qty), 0);
-    const totalUSD = cart.reduce((sum, item) => sum + (item.priceUSD * item.qty), 0);
 
     return (
         <div className="space-y-4">
             {/* Green Banner */}
             <div className="bg-green-50 border border-green-100 p-3 rounded-xl flex items-center justify-center text-center">
-                <span className="text-green-700 font-bold text-sm">*Please pay before entering the service room.</span>
+                <span className="text-green-700 font-bold text-sm">*{dict.checkout.pay_warning}</span>
             </div>
 
             <div className="bg-white text-black p-5 rounded-3xl shadow-sm border border-gray-100">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-gray-800 font-bold text-lg">Invoice Details</h2>
+                    <h2 className="text-gray-800 font-bold text-lg">{dict.checkout.invoice_details}</h2>
                     <span className="bg-gray-100 text-gray-500 text-xs font-bold px-2 py-1 rounded">#INV-001</span>
                 </div>
 
@@ -33,8 +33,7 @@ export default function Invoice({ cart, lang, onCustomRequest }: InvoiceProps) {
                         const strength = item.options?.strength || 'medium';
                         const therapist = item.options?.therapist || 'random';
 
-                        // 2. Strict Check for "Customized" status (Green Check logic)
-                        // Only true if values differ from defaults or extra info exists
+                        // 2. Strict Check for "Customized" status
                         const isStrengthCustom = strength !== 'medium';
                         const isTherapistCustom = therapist !== 'random';
                         const isBodyCustom = item.options?.bodyParts && (item.options.bodyParts.focus.length > 0 || item.options.bodyParts.avoid.length > 0);
@@ -42,7 +41,6 @@ export default function Invoice({ cart, lang, onCustomRequest }: InvoiceProps) {
 
                         const hasCustom = isStrengthCustom || isTherapistCustom || isBodyCustom || isNotesCustom;
 
-                        // Helper to translate Parts logic
                         const formatParts = (parts: string[]) => parts.map(p => p.charAt(0) + p.slice(1).toLowerCase()).join(', ');
 
                         return (
@@ -58,10 +56,9 @@ export default function Invoice({ cart, lang, onCustomRequest }: InvoiceProps) {
                                     {item.timeValue}mins
                                 </div>
 
-                                {/* Options Detail Box - Always Visible to show Defaults */}
+                                {/* Options Detail Box */}
                                 <div className="bg-gray-50 rounded-lg p-4 text-sm mb-4 space-y-2 border border-gray-100">
-
-                                    {/* Focus / Avoid (Conditional) */}
+                                    {/* Focus / Avoid */}
                                     {item.options?.bodyParts && (
                                         <>
                                             {item.options.bodyParts.focus.length > 0 && (
@@ -83,26 +80,30 @@ export default function Invoice({ cart, lang, onCustomRequest }: InvoiceProps) {
                                         </>
                                     )}
 
-                                    {/* Strength / Therapist (Always Visible) */}
+                                    {/* Strength / Therapist */}
                                     <div className={`flex flex-wrap gap-x-4 gap-y-1 text-gray-600 ${item.options?.bodyParts && (item.options.bodyParts.focus.length > 0 || item.options.bodyParts.avoid.length > 0) ? 'border-t border-gray-200 pt-2 mt-2' : ''}`}>
                                         <span>
-                                            <span className="font-bold text-gray-800">Strength:</span>
+                                            <span className="font-bold text-gray-800">{dict.checkout.strength_label}</span>
                                             <span className={`ml-1 capitalize font-bold ${strength === 'light' ? 'text-green-700' :
-                                                    strength === 'medium' ? 'text-yellow-700' :
-                                                        strength === 'strong' ? 'text-red-700' : 'text-gray-600'
-                                                }`}>{strength}</span>
+                                                strength === 'medium' ? 'text-yellow-700' :
+                                                    strength === 'strong' ? 'text-red-700' : 'text-gray-600'
+                                                }`}>
+                                                {dict.options?.strength_levels?.[strength?.toLowerCase()] || strength}
+                                            </span>
                                         </span>
                                         <span className="text-gray-300">|</span>
                                         <span>
-                                            <span className="font-bold text-gray-800">Therapist:</span>
+                                            <span className="font-bold text-gray-800">{dict.checkout.therapist_label}</span>
                                             <span className={`ml-1 capitalize font-bold ${therapist === 'male' ? 'text-blue-700' :
-                                                    therapist === 'female' ? 'text-purple-700' :
-                                                        therapist === 'random' ? 'text-green-700' : 'text-gray-600'
-                                                }`}>{therapist}</span>
+                                                therapist === 'female' ? 'text-purple-700' :
+                                                    therapist === 'random' ? 'text-green-700' : 'text-gray-600'
+                                                }`}>
+                                                {dict.options?.therapist_options?.[therapist?.toLowerCase()] || therapist}
+                                            </span>
                                         </span>
                                     </div>
 
-                                    {/* Tags (Conditional) */}
+                                    {/* Tags */}
                                     {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1) && (
                                         <div className="flex gap-2 pt-1 border-t border-gray-200 mt-2">
                                             {item.options.notes.tag0 && (
@@ -119,8 +120,7 @@ export default function Invoice({ cart, lang, onCustomRequest }: InvoiceProps) {
                                     )}
                                 </div>
 
-
-                                {/* Custom Button - Matching Design */}
+                                {/* Custom Button */}
                                 <button
                                     onClick={() => onCustomRequest(item)}
                                     className={`w-full py-3 rounded-xl border font-bold uppercase transition-all flex items-center justify-center gap-2 text-sm shadow-sm ${hasCustom
@@ -129,7 +129,7 @@ export default function Invoice({ cart, lang, onCustomRequest }: InvoiceProps) {
                                         }`}
                                 >
                                     {hasCustom ? <Check size={18} className="text-green-600" /> : <Wand2 size={16} />}
-                                    <span>CUSTOM FOR YOU</span>
+                                    <span>{dict.checkout.custom_for_you_btn}</span>
                                 </button>
                             </div>
                         );

@@ -3,22 +3,23 @@ import { CreditCard, Banknote, ArrowRightLeft } from 'lucide-react';
 
 interface PaymentMethodsProps {
     lang: string;
+    dict: any; // Accept dict
     selected: string;
     onChange: (methodId: string) => void;
 }
 
-const METHODS = [
-    { id: 'cash_vnd', icon: Banknote, label: 'Cash VND' },
-    { id: 'cash_usd', icon: Banknote, label: 'Cash USD' }, // Use dollar sign icon logic in render if needed or generic Banknote
-    { id: 'card', icon: CreditCard, label: 'Card' },
-    { id: 'transfer', icon: ArrowRightLeft, label: 'Transfer' },
-];
+export default function PaymentMethods({ lang, dict, selected, onChange }: PaymentMethodsProps) {
+    const METHODS = [
+        { id: 'cash_vnd', icon: Banknote, label: dict.payment_methods.cash_vnd },
+        { id: 'cash_usd', icon: Banknote, label: dict.payment_methods.cash_usd },
+        { id: 'card', icon: CreditCard, label: dict.payment_methods.card },
+        { id: 'transfer', icon: ArrowRightLeft, label: dict.payment_methods.transfer },
+    ];
 
-export default function PaymentMethods({ lang, selected, onChange }: PaymentMethodsProps) {
     return (
         <div className="bg-white p-1 rounded-3xl border border-green-200 overflow-hidden">
             <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs p-4 pb-2">
-                PAYMENT METHOD
+                {dict.checkout.payment_method}
             </h2>
 
             <div className="grid grid-cols-4 gap-2 p-2 pt-0">
@@ -27,8 +28,8 @@ export default function PaymentMethods({ lang, selected, onChange }: PaymentMeth
                         key={method.id}
                         onClick={() => onChange(method.id)}
                         className={`flex flex-col items-center justify-center gap-2 py-6 rounded-2xl border transition-all ${selected === method.id
-                                ? 'bg-white border-2 border-green-500 shadow-lg shadow-green-100 z-10'
-                                : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
+                            ? 'bg-white border-2 border-green-500 shadow-lg shadow-green-100 z-10'
+                            : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
                             }`}
                     >
                         {/* Icon */}
@@ -44,9 +45,7 @@ export default function PaymentMethods({ lang, selected, onChange }: PaymentMeth
                         {/* Label */}
                         <div className={`text-xs font-bold text-center leading-tight ${selected === method.id ? 'text-black' : 'text-gray-400'
                             }`}>
-                            {method.label.split(' ').map((word, i) => (
-                                <div key={i}>{word}</div>
-                            ))}
+                            {method.label}
                         </div>
                     </button>
                 ))}

@@ -3,10 +3,11 @@ import { ChevronLeft } from 'lucide-react';
 
 interface CheckoutHeaderProps {
     title: string;
+    backLabel?: string;
     onBack: () => void;
 }
 
-export default function CheckoutHeader({ title, onBack }: CheckoutHeaderProps) {
+export default function CheckoutHeader({ title, backLabel = "Menu", onBack }: CheckoutHeaderProps) {
     return (
         <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm pb-4 mb-6 shadow-sm border-b border-gray-100 transition-all">
             {/* Top Bar: Back + Title */}
@@ -16,7 +17,7 @@ export default function CheckoutHeader({ title, onBack }: CheckoutHeaderProps) {
                     className="flex items-center gap-1 text-blue-600 font-medium text-sm hover:text-blue-700 transition-colors"
                 >
                     <ChevronLeft size={20} />
-                    <span>Menu</span>
+                    <span>{backLabel}</span>
                 </button>
                 <h1 className="text-gray-800 font-bold text-base absolute left-1/2 -translate-x-1/2">
                     {title}
