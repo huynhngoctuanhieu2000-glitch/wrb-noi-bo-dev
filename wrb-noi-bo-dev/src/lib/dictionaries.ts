@@ -66,7 +66,14 @@ const dictionaries = {
             cash_vnd: "Cash VND",
             cash_usd: "Cash USD",
             card: "Card",
-            transfer: "Transfer"
+            transfer: "Transfer",
+            // New UI keys
+            denominations: "Collected Denominations",
+            exchange_rules: "Collection & Refund Rules",
+            refund_note: "Change will be returned in VND.",
+            accepted_cards: "Accepted Cards",
+            cards_desc: "Supported payment cards",
+            understood: "Understood"
         },
         common: {
             back_to_menu: "Menu"

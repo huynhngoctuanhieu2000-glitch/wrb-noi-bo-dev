@@ -6,7 +6,7 @@ import { useParams, useRouter, notFound } from 'next/navigation';
 // --- IMPORT 2 GIAO DIỆN LỚN ---
 // Tự động tìm file index.tsx trong thư mục tương ứng
 import StandardMenu from '@/components/Menu/Standard';
-//import VipMenu from '@/components/Menu/VIP'; 
+//import PremiumMenu from '@/components/Menu/Premium';
 
 export default function MenuPage() {
     // 1. Lấy tham số từ URL

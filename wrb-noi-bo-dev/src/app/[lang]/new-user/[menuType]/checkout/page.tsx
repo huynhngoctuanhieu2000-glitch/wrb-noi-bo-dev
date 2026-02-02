@@ -45,7 +45,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     });
 
     // Payment
-    const [paymentMethod, setPaymentMethod] = useState('cash_vnd');
+    const [paymentMethod, setPaymentMethod] = useState('');
     const [amountPaid, setAmountPaid] = useState<string>('');
 
     // Modals
@@ -54,12 +54,18 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
 
     // --- COMPUTED ---
+    const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
+
     const totalVND = useMemo(() => cart.reduce((sum, item) => sum + item.priceVND * item.qty, 0), [cart]);
+    const totalUSD = useMemo(() => cart.reduce((sum, item) => sum + item.priceUSD * item.qty, 0), [cart]);
 
     const changeAmount = useMemo(() => {
-        const paid = parseInt(amountPaid.replace(/\./g, '') || '0', 10);
-        return paid - totalVND;
-    }, [amountPaid, totalVND]);
+        const rawPaid = parseInt(amountPaid.replace(/\./g, '') || '0', 10);
+        if (currency === 'USD') {
+            return rawPaid - totalUSD;
+        }
+        return rawPaid - totalVND;
+    }, [amountPaid, totalVND, totalUSD, currency]);
 
     // --- EFFECTS ---
     useEffect(() => {
@@ -68,20 +74,41 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         }
     }, [cart, router]);
 
+    // Reset amount paid when payment method changes
+    useEffect(() => {
+        setAmountPaid('');
+    }, [paymentMethod]);
+
     // --- HANDLERS ---
     const handleBack = () => {
         router.back();
     };
 
     const handleAmountPaidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // If USD, just allow numbers, no dots formatting needed for small amounts (usually) 
+        // OR standard check.
         const raw = e.target.value.replace(/\D/g, '');
-        setAmountPaid(Number(raw).toLocaleString('vi-VN'));
+        if (!raw) {
+            setAmountPaid('');
+            return;
+        }
+
+        if (currency === 'USD') {
+            setAmountPaid(raw); // Simple number
+        } else {
+            setAmountPaid(Number(raw).toLocaleString('vi-VN'));
+        }
     };
 
     const setQuickAmount = (amount: number) => {
-        setAmountPaid(amount.toLocaleString('vi-VN'));
+        if (currency === 'USD') {
+            setAmountPaid(amount.toString());
+        } else {
+            setAmountPaid(amount.toLocaleString('vi-VN'));
+        }
     };
 
+    // ... (Custom Request Handlers remain same) ...
     const handleCustomRequest = (item: CartItem) => {
         setSelectedCartItem(item);
         setIsModalOpen(true);
@@ -103,16 +130,21 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             alert(lang === 'vi' ? 'Vui lòng điền Tên và Email' : 'Please enter Full Name and Email');
             return;
         }
+        if (!paymentMethod) {
+            alert(lang === 'vi' ? 'Vui lòng chọn phương thức thanh toán' : 'Please select a payment method');
+            return;
+        }
         setIsConfirmOpen(true);
     };
 
+    // ... (Final Submit remains same) ...
     const handleFinalSubmit = async () => {
         const payload = {
             customer: customerInfo,
             items: cart,
             paymentMethod,
             amountPaid: parseInt(amountPaid.replace(/\./g, '') || '0', 10),
-            totalVND,
+            totalVND, // Keep for legacy backend compatibility
             lang: lang
         };
 
@@ -126,10 +158,14 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             const err = await res.json();
             throw new Error(err.error || "Failed to submit");
         }
-        // Success handling is done in the Modal component (visual feedback)
     };
 
     if (!cart) return null;
+
+    // Quick Suggestions Logic
+    const quickSuggestions = currency === 'USD'
+        ? [totalUSD, 50, 100, 200]
+        : [totalVND, 500000, 1000000];
 
     return (
         <div className="min-h-screen bg-[#f8fafc] text-black pb-32 font-sans animate-in fade-in duration-500">
@@ -153,6 +189,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                     cart={cart}
                     lang={lang}
                     dict={dict}
+                    currency={currency} // Pass currency
                     onCustomRequest={handleCustomRequest}
                 />
 
@@ -188,19 +225,21 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                                 placeholder="0"
                                 className="w-full text-center text-4xl font-bold text-black border-b-2 border-gray-100 py-4 focus:outline-none focus:border-green-500 transition-colors bg-transparent placeholder-gray-200"
                             />
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded">VND</span>
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded">
+                                {currency}
+                            </span>
                         </div>
 
                         {/* Quick Suggestions */}
                         <div className="flex gap-2 justify-center flex-wrap">
-                            {[totalVND, 500000, 1000000].map(amt => (
+                            {quickSuggestions.map(amt => (
                                 amt > 0 && (
                                     <button
                                         key={amt}
                                         onClick={() => setQuickAmount(amt)}
                                         className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all"
                                     >
-                                        {amt.toLocaleString('vi-VN')}
+                                        {currency === 'USD' ? amt : amt.toLocaleString('vi-VN')}
                                     </button>
                                 )
                             ))}
@@ -209,9 +248,23 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                         {/* Change Display */}
                         <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
                             <span className="text-gray-500 text-sm font-medium">{dict.checkout.change_title}</span>
-                            <span className={`text-xl font-bold ${changeAmount >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                {changeAmount >= 0 ? changeAmount.toLocaleString('vi-VN') : dict.checkout.insufficient} VND
-                            </span>
+                            {changeAmount >= 0 ? (
+                                <div className="text-right">
+                                    <span className="text-xl font-bold text-green-600 block">
+                                        {changeAmount.toLocaleString('vi-VN')} {currency}
+                                    </span>
+                                    {/* Conversion Display for USD */}
+                                    {currency === 'USD' && (
+                                        <span className="text-green-700 font-bold text-lg block">
+                                            = {(changeAmount * 24000).toLocaleString('vi-VN')} VND
+                                        </span>
+                                    )}
+                                </div>
+                            ) : (
+                                <span className="text-xl font-bold text-red-500">
+                                    {dict.checkout.insufficient}
+                                </span>
+                            )}
                         </div>
                     </div>
                 )}

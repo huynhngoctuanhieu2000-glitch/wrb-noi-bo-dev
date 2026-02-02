@@ -35,7 +35,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     });
 
     // Payment
-    const [paymentMethod, setPaymentMethod] = useState('cash_vnd');
+    const [paymentMethod, setPaymentMethod] = useState('');
     const [amountPaid, setAmountPaid] = useState<string>('');
 
     // Modals
@@ -115,6 +115,10 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     const handleConfirmOrder = () => {
         if (!customerInfo.name || !customerInfo.email) {
             alert(lang === 'vi' ? 'Vui lòng điền Tên và Email' : 'Please enter Full Name and Email');
+            return;
+        }
+        if (!paymentMethod) {
+            alert(lang === 'vi' ? 'Vui lòng chọn phương thức thanh toán' : 'Please select a payment method');
             return;
         }
         setIsConfirmOpen(true);
