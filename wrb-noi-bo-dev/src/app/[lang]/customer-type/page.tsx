@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { UserCheck, ArrowRight, X, Loader2, ArrowLeft } from "lucide-react";
+import { UserCheck, ArrowRight, X, Loader2, ArrowLeft, History, Search } from "lucide-react";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
 
 export default function CustomerTypePage({ params }: { params: Promise<{ lang: string }> }) {
@@ -104,55 +104,79 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
 
       {/* --- POPUP --- */}
       {/* Áp dụng class animation từ Logic */}
+      {/* --- POPUP --- */}
+      {/* Áp dụng class animation từ Logic */}
       <div className={getPopupOverlayClass(showPopup)}>
-        <div className={getPopupContentClass(showPopup)}>
-
-          <button onClick={closePopup} className="absolute top-4 right-4 text-gray-400 hover:text-white">
-            <X size={20} />
-          </button>
+        <div className={`${getPopupContentClass(showPopup)} !bg-[#0f1218] !border-[#2a2f3e] !rounded-[32px] !p-8 !max-w-[400px]`}>
+          {/* Note: Override styles for dark theme look */}
 
           {popupStep === 'input' ? (
-            <div className="flex flex-col gap-4 text-center">
-              <h3 className="text-xl font-bold gold-text-shiny uppercase tracking-widest">
-                CHECK MEMBERSHIP
-              </h3>
-              <p className="text-sm text-gray-300 mb-2">Nhập Email để kiểm tra thành viên.</p>
+            <div className="flex flex-col items-center text-center">
+              {/* Icon Clock Gold */}
+              <div className="mb-6 relative">
+                <div className="w-20 h-20 rounded-full border-4 border-[#8B6E40]/30 flex items-center justify-center">
+                  <History size={48} className="text-[#D4AF37]" strokeWidth={2.5} />
+                </div>
+                {/* Glow effect */}
+                <div className="absolute inset-0 bg-[#D4AF37] blur-3xl opacity-20 rounded-full"></div>
+              </div>
 
-              <div className="relative">
+              <h3 className="text-2xl font-bold text-white mb-2">
+                {t('find_history')}
+              </h3>
+              <p className="text-sm text-gray-400 mb-8 font-medium">
+                {t('desc_enter_email')}
+              </p>
+
+              <div className="w-full space-y-4">
                 <input
                   type="email"
-                  placeholder="name@example.com"
-                  className="w-full bg-black/50 border border-gray-600 rounded-xl p-3 text-white text-center font-medium focus:border-yellow-500 outline-none transition-colors placeholder-gray-600"
+                  placeholder={t('input_placeholder')}
+                  className="w-full bg-[#161b26] border border-[#2a3040] rounded-2xl p-4 text-white text-center font-bold text-lg focus:border-[#EAB308] focus:ring-1 focus:ring-[#EAB308] outline-none transition-all placeholder-gray-600"
                   value={inputEmail}
                   onChange={(e) => setInputEmail(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleCheckUserEmail(inputEmail)}
+                  autoFocus
                 />
-              </div>
 
-              <button
-                onClick={() => handleCheckUserEmail(inputEmail)}
-                disabled={isLoading}
-                className="w-full bg-[linear-gradient(125deg,#8B6E40_0%,#FBF5B7_30%,#B38728_50%,#FFF8D6_70%,#8B6E40_100%)] hover:brightness-110 text-[#422006] font-bold text-[14px] rounded-xl items-center justify-center gap-2 uppercase tracking-widest text-xs shadow-lg active:scale-95 transition-transform"
-              >
-                {isLoading ? <Loader2 className="animate-spin" size={18} /> : "KIỂM TRA NGAY"}
-              </button>
+                <button
+                  onClick={() => handleCheckUserEmail(inputEmail)}
+                  disabled={isLoading}
+                  className="w-full bg-[#EAB308] hover:bg-[#d9a507] text-black font-extrabold text-[15px] py-4 rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-[0.98]"
+                >
+                  {isLoading ? <Loader2 className="animate-spin" size={20} /> : (
+                    <>
+                      {t('search')} <Search size={18} strokeWidth={3} />
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={closePopup}
+                  className="text-gray-500 hover:text-white text-sm font-medium underline-offset-4 hover:underline transition-colors mt-2"
+                >
+                  {t('cancel')}
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col gap-4 text-center animate-in zoom-in duration-300">
-              <div className="mx-auto w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 mb-1">
-                <X size={28} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Chưa tìm thấy!</h3>
-                <p className="text-xs text-gray-400 mt-1">Email này chưa từng sử dụng dịch vụ.</p>
+              {/* Not Found State - Keep somewhat consistent but dark */}
+              <div className="mx-auto w-20 h-20 rounded-full bg-red-500/10 border-4 border-red-500/20 flex items-center justify-center text-red-500 mb-2">
+                <X size={40} strokeWidth={3} />
               </div>
 
-              <div className="flex flex-col gap-2 mt-2">
-                <button onClick={handleRetry} className="w-full bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-medium py-3 rounded-xl border border-white/5">
-                  Thử lại email khác
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">{t('error_not_found')}</h3>
+                <p className="text-sm text-gray-400">{t('error_desc')}</p>
+              </div>
+
+              <div className="flex flex-col gap-3 mt-4">
+                <button onClick={handleRetry} className="w-full bg-[#2a2f3e] hover:bg-[#353b4d] text-white font-bold py-3.5 rounded-xl border border-white/5 transition-colors">
+                  {t('btn_retry')}
                 </button>
-                <button onClick={onSelectNewUser} className="w-full bg-[#EAB308] hover:bg-[#d9a507] text-black font-bold py-3 rounded-xl text-sm uppercase tracking-wide shadow-md">
-                  Đăng ký khách mới
+                <button onClick={onSelectNewUser} className="w-full bg-[#EAB308] hover:bg-[#d9a507] text-black font-bold py-3.5 rounded-xl uppercase tracking-wide shadow-md transition-colors">
+                  {t('btn_register_new')}
                 </button>
               </div>
             </div>

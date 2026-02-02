@@ -55,12 +55,15 @@ export const useCustomerTypeLogic = (lang: string) => {
 
     setIsLoading(true);
 
-    const exists = await checkUserEmail(email);
+    const result = await checkUserEmail(email);
 
     setIsLoading(false);
 
-    if (exists) {
+    if (result.exists && result.customer) {
       localStorage.setItem('currentUserEmail', email);
+      // Save full info for Auto-fill
+      localStorage.setItem('currentUserInfo', JSON.stringify(result.customer));
+
       setIsExiting(true);
       setTimeout(() => {
         router.push(`/${lang}/old-user/history`);

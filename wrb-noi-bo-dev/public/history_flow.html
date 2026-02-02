@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Data & Action Flow Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+        });
+    </script>
+    <style>
+        body {
+            background-color: #0f1218;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1,
+        h2 {
+            color: #D4AF37;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-top: 30px;
+        }
+
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            background: #1a1e28;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #2a3040;
+            margin-bottom: 20px;
+        }
+
+        .note {
+            margin-top: 10px;
+            color: #aaa;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Luồng Dữ liệu & Hành động Trang Lịch sử</h1>
+
+    <h2>1. Luồng Lấy Dữ liệu (Authentication & Fetching)</h2>
+    <div class="mermaid">
+        sequenceDiagram
+        participant User as Người dùng (Guest)
+        participant Popup as Popup "Find History"
+        participant API as API Server
+        participant DB as Firebase
+        participant Page as Trang History
+        participant Local as LocalStorage
+
+        %% Authentication Flow
+        User->>Popup: Nhập Email
+        Popup->>API: Check Email?
+        API->>DB: Query User
+        DB-->>API: Result
+        API-->>Popup: OK / Fail
+
+        alt OK
+        Popup->>Local: Lưu Email
+        Popup->>Page: Redirect
+        else Fail
+        Popup-->>User: Báo lỗi
+        end
+
+        %% Fetching Flow
+        Page->>Page: Mount (useEffect)
+        Page->>Local: Get Email
+        Page->>API: GET /api/orders?email=...
+        API->>DB: Query Orders
+        DB-->>API: List Orders
+        API-->>Page: JSON Data
+        Page-->>User: Render List
+    </div>
+
+    <h2>2. Luồng Hành động (Actions Flow)</h2>
+    <div class="mermaid">
+        sequenceDiagram
+        participant User as Người dùng
+        participant Page as Trang History
+        participant Context as MenuContext (Cart)
+        participant Router as Next Router
+
+        %% Create New
+        rect rgb(30, 30, 30)
+        Note right of User: A. Nút "Create New Booking"
+        User->>Page: Click "Create New"
+        Page->>Context: clearCart()
+        Page->>Router: Push "/new-user/select-menu"
+        end
+
+        %% Modify
+        rect rgb(40, 40, 45)
+        Note right of User: B. Nút "Modify (New)" - Sửa đơn cũ
+        User->>Page: Click "Modify"
+        Page->>Context: clearCart()
+        Page->>Page: Parse Order Items
+
+        loop Mỗi món trong đơn
+        Page->>Context: addToCart(Service, Qty, Options)
+        end
+
+        Page->>Router: Push "/old-user/service/menu"
+        end
+
+        %% Rebook
+        rect rgb(50, 45, 20)
+        Note right of User: C. Nút "Rebook This" - Đặt lại y hệt
+        User->>Page: Click "Rebook"
+        Page->>Context: clearCart()
+        Page->>Page: Parse Order Items
+
+        loop Mỗi món trong đơn
+        Page->>Context: addToCart(Service, Qty, Options)
+        end
+
+        Page->>Router: Push "/old-user/checkout"
+        end
+    </div>
+
+    <div class="note">
+        Tip: Dùng Ctrl + Scroll để Zoom vào biểu đồ.
+    </div>
+</body>
+
+</html>

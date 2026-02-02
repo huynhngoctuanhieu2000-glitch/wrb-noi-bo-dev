@@ -87,6 +87,13 @@ const dictionaries = {
             title: "Custom for you",
             full_body: "Full Body",
             partly: "Partly"
+        },
+        history: {
+            page_title: "Your Visits",
+            modify_btn: "Modify (New)",
+            rebook_btn: "Rebook This",
+            create_new_btn: "+ CREATE NEW BOOKING",
+            note_label: "Note"
         }
     },
     vi: {
@@ -167,6 +174,13 @@ const dictionaries = {
             title: "Tùy chỉnh cho bạn",
             full_body: "Toàn thân",
             partly: "Một phần"
+        },
+        history: {
+            page_title: "Lịch sử ghé thăm",
+            modify_btn: "Chỉnh sửa (Mới)",
+            rebook_btn: "Đặt lại đơn này",
+            create_new_btn: "+ TẠO ĐƠN MỚI",
+            note_label: "Lưu ý"
         }
     },
     kr: {
@@ -247,6 +261,13 @@ const dictionaries = {
             title: "맞춤 설정",
             full_body: "전신",
             partly: "부분"
+        },
+        history: {
+            page_title: "방문 기록",
+            modify_btn: "수정 (신규)",
+            rebook_btn: "다시 예약",
+            create_new_btn: "+ 새 예약 만들기",
+            note_label: "메모"
         }
     },
     cn: {
@@ -327,6 +348,13 @@ const dictionaries = {
             title: "为您定制",
             full_body: "全身",
             partly: "部分"
+        },
+        history: {
+            page_title: "访问记录",
+            modify_btn: "修改 (新)",
+            rebook_btn: "再次预订",
+            create_new_btn: "+ 创建新预订",
+            note_label: "备注"
         }
     },
     jp: {
@@ -407,6 +435,13 @@ const dictionaries = {
             title: "カスタム",
             full_body: "全身",
             partly: "部分"
+        },
+        history: {
+            page_title: "訪問履歴",
+            modify_btn: "変更 (新規)",
+            rebook_btn: "再予約",
+            create_new_btn: "+ 新規予約作成",
+            note_label: "メモ"
         }
     }
 };

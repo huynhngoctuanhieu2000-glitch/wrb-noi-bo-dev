@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { runTransaction, doc, collection, setDoc, getDoc } from 'firebase/firestore';
+import { runTransaction, doc, collection, setDoc, getDoc, query, where, getDocs, orderBy } from 'firebase/firestore';
 
 // Helper to translate Options to Vietnamese (Hardcoded mapping based on user request)
 const toVietnamese = (text: string | null | undefined): string => {
@@ -69,9 +69,7 @@ export async function POST(request: Request) {
             if (opts.notes?.tag0) tagList.push(toVietnamese('pregnant'));
             if (opts.notes?.tag1) tagList.push(toVietnamese('allergy'));
 
-            // Description Logic (Using VN description if possible - mocking here as we don't have full DB access to names.vn easily without fetching again, but we can rely on what client sends or default)
-            // User asked to "get static desc VN". In this simplified version, we might use the English name or Client provided name.
-            // Ideally we should look up, but for now we use the client's name.
+            // Description Logic
             const staticDescVN = item.names?.vn || item.names?.en || item.name;
 
             return {
@@ -116,13 +114,17 @@ export async function POST(request: Request) {
             phone: customer.phone || "",
             choosed_lan: (lang || 'en').toUpperCase(),
 
-            time_booking: formatTime(timeCome), // Using estimated start as booking time
+            // Times
+            time_booking: formatTime(timeCome),
             branch: "Ngan Ha Spa",
 
             // Concatenated Strings
             service: processedItems.map((i: any) => `${i.name} (${i.time})`).join(" | "),
             des_service: processedItems.map((i: any) => i.full_desc).join(" | "),
             items: processedItems,
+
+            // [NEW] Raw Items for Rebook/Modify
+            raw_items: items,
 
             time_come: formatTime(timeCome),
             time_start: formatTime(timeCome),
@@ -147,6 +149,53 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, billNum });
     } catch (error: any) {
         console.error("API Order Error:", error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}
+
+export async function GET(request: Request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const email = searchParams.get('email');
+
+        if (!email) {
+            return NextResponse.json({ success: false, error: 'Email required' }, { status: 400 });
+        }
+
+        if (!db) {
+            throw new Error("Firebase DB not initialized");
+        }
+
+        const ordersRef = collection(db, 'orders');
+        const q = query(
+            ordersRef,
+            where('email', '==', email)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        const orders: any[] = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const totalNum = parseInt((data.total || "0").replace(/\D/g, ''));
+
+            orders.push({
+                id: data.bill_num,
+                date: data.date_str,
+                total: totalNum,
+                // Return full item object to get 'id' for restoreCart
+                items: (data.items || []).map((i: any) => i),
+                raw_items: data.raw_items || [],
+                note: data.note || 'None'
+            });
+        });
+
+        // Sort by id desc (which serves as proxy for date if counters work as expected)
+        orders.sort((a, b) => b.id.localeCompare(a.id));
+
+        return NextResponse.json({ success: true, orders });
+    } catch (error: any) {
+        console.error("API GET Order Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

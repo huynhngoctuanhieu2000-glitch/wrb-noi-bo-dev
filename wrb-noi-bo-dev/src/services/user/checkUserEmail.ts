@@ -1,30 +1,53 @@
 // File: src/services/user/checkUserEmail.ts
-import { collection, query, where, getDocs, Firestore } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy, limit, Firestore } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-export const checkUserEmail = async (email: string): Promise<boolean> => {
+export interface CheckUserResult {
+    exists: boolean;
+    customer: {
+        name: string;
+        phone: string;
+        email: string;
+    } | null;
+}
+
+export const checkUserEmail = async (email: string): Promise<CheckUserResult> => {
     try {
         if (!db) {
             console.error("Firebase chưa được khởi tạo!");
-            return false;
+            return { exists: false, customer: null };
         }
 
-        // 🔴 SỬA Ở ĐÂY: Đổi "users" thành "orders"
-        // Vì ảnh của bạn cho thấy dữ liệu nằm trong collection 'orders'
         const ordersRef = collection(db as Firestore, "orders");
 
-        // Tìm xem trong bảng orders có đơn nào chứa email này không
-        const q = query(ordersRef, where("email", "==", email));
+        // Tìm đơn hàng gần nhất của email này để lấy thông tin mới nhất
+        const q = query(
+            ordersRef,
+            where("email", "==", email),
+            // orderBy("created_at", "desc"), // Cần composite index, tạm thời bỏ qua sort nếu chưa có index
+            // limit(1) 
+        );
 
         const querySnapshot = await getDocs(q);
 
-        // Debug log để bạn yên tâm
-        console.log(`🔎 Tìm trong 'orders' với email: ${email}`);
-        console.log(`✅ Kết quả: tìm thấy ${querySnapshot.size} đơn hàng cũ.`);
+        if (!querySnapshot.empty) {
+            // Lấy doc đầu tiên (hoặc logic sort JS nếu cần chính xác nhất)
+            // Tạm thời lấy doc đầu tiên tìm thấy
+            const docData = querySnapshot.docs[0].data();
 
-        return !querySnapshot.empty;
+            return {
+                exists: true,
+                customer: {
+                    name: docData.cus_name || "",
+                    phone: docData.phone || "",
+                    email: docData.email || email
+                }
+            };
+        }
+
+        return { exists: false, customer: null };
     } catch (error) {
         console.error("Lỗi check email:", error);
-        return false;
+        return { exists: false, customer: null };
     }
 };
