@@ -103,18 +103,30 @@ export default function Invoice({ cart, lang, dict, onCustomRequest }: InvoicePr
                                         </span>
                                     </div>
 
-                                    {/* Tags */}
-                                    {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1) && (
-                                        <div className="flex gap-2 pt-1 border-t border-gray-200 mt-2">
-                                            {item.options.notes.tag0 && (
-                                                <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">
-                                                    Pregnant
-                                                </span>
+                                    {/* Tags & Note Content */}
+                                    {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.content) && (
+                                        <div className="pt-2 border-t border-gray-200 mt-2 space-y-2">
+                                            {/* Tags */}
+                                            {(item.options.notes.tag0 || item.options.notes.tag1) && (
+                                                <div className="flex gap-2">
+                                                    {item.options.notes.tag0 && (
+                                                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">
+                                                            Pregnant
+                                                        </span>
+                                                    )}
+                                                    {item.options.notes.tag1 && (
+                                                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">
+                                                            Allergy
+                                                        </span>
+                                                    )}
+                                                </div>
                                             )}
-                                            {item.options.notes.tag1 && (
-                                                <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">
-                                                    Allergy
-                                                </span>
+                                            {/* Note Content */}
+                                            {item.options.notes.content && (
+                                                <div className="text-gray-600 italic text-xs bg-white p-2 rounded border border-gray-100">
+                                                    <span className="font-bold not-italic text-gray-400 mr-1">Note:</span>
+                                                    {item.options.notes.content}
+                                                </div>
                                             )}
                                         </div>
                                     )}

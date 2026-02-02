@@ -257,6 +257,15 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                                     ))}
                                                 </div>
                                             )}
+                                            {/* Note Content */}
+                                            {item.options?.notes?.content && (
+                                                <div className="flex items-start gap-2 text-sm mt-1 pl-7">
+                                                    <div className="text-gray-500 italic text-xs bg-gray-50 p-2 rounded w-full">
+                                                        <span className="font-bold not-italic text-gray-400 mr-1">Note:</span>
+                                                        {item.options.notes.content}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );
