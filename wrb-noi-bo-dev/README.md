@@ -132,4 +132,4 @@ Hệ thống được thiết kế theo luồng phân nhánh rõ ràng để cá
 
 ---
 
-*© 2024 Ngan Ha Spa Internal System.*
+*© 2026 Ngan Ha Spa Internal System.*
