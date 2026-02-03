@@ -39,10 +39,17 @@ export default function CustomRequestModal({ isOpen, onClose, onSave, lang }: Cu
 
     const handleSave = () => {
         onSave({
-            focusAreas,
-            strength,
-            therapist,
-            note
+            strength: strength.toLowerCase() as 'light' | 'medium' | 'strong',
+            therapist: therapist.toLowerCase() as 'male' | 'female' | 'random',
+            bodyParts: {
+                focus: focusAreas,
+                avoid: []
+            },
+            notes: {
+                tag0: false,
+                tag1: false,
+                content: note
+            }
         });
         onClose();
     };
