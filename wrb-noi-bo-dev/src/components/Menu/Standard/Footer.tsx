@@ -35,14 +35,14 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
 
     return (
         <div
-            className="glass-footer w-full px-4 pt-6 pb-3 flex items-center justify-between gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800 pb-safe"
-            // THÊM ĐOẠN STYLE NÀY: Ép buộc trình duyệt gim xuống đáy
+            className="glass-footer w-full px-4 pt-6 flex items-center justify-between gap-3 animate-[slide-up_0.3s_ease-out] bg-black/90 backdrop-blur-xl border-t border-gray-800"
             style={{
                 position: 'fixed',
                 bottom: 0,
                 left: 0,
                 right: 0,
-                zIndex: 10 // Đảm bảo nổi lên trên tất cả
+                zIndex: 50,
+                paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' // 1.25rem = 20px. Đảm bảo luôn cách đáy 20px + tai thỏ
             }}
         >
 
