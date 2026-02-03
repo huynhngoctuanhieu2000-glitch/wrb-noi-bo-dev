@@ -46,7 +46,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
             </div>
 
             {/* 2. BOOKS CONTAINER */}
-            <div className="flex flex-col md:flex-row justify-center items-center gap-1 mt-[-60px] mb-[20px] w-full">
+            <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-24 mt-[-60px] mb-[20px] w-full">
 
                 {/* === BOOK 1: STANDARD === */}
                 <div
