@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 
 // Import Component tái sử dụng
 // 👇 SỬA DÒNG NÀY: Thêm "/index" vào cuối đường dẫn
-import MenuTypeSelector from "@/components/MenuTypeSelector/index";
+import MenuTypeSelector from "@/components/MenuTypeSelector";
 
 export default function SelectMenuPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();

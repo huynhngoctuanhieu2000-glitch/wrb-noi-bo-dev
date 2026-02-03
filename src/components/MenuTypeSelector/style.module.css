@@ -10,12 +10,6 @@
     height: 15rem;
     /* Mobile: Small enough to fit 2 items + header without scrolling */
 
-    @media (min-width: 768px) {
-        width: 20rem;
-        height: 26rem;
-        /* Desktop: Larger and more premium */
-    }
-
     border-radius: 0 0.5rem 0.5rem 0;
     /* Bo tròn cạnh phải giống gáy sách */
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -23,6 +17,14 @@
     overflow: hidden;
     transform-style: preserve-3d;
     transition: transform 0.3s ease-out;
+}
+
+@media (min-width: 768px) {
+    .bookCover {
+        width: 20rem;
+        height: 26rem;
+        /* Desktop: Larger and more premium */
+    }
 }
 
 /* Hiệu ứng khi hover vào container thì xoay sách */
