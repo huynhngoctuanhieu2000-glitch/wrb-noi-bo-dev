@@ -178,8 +178,8 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             <main className="p-4 lg:p-8 max-w-6xl mx-auto min-h-screen">
                 <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:gap-8">
 
-                    {/* 1. Customer Info (Mobile: Order 1, Desktop: Left Col Row 1) */}
-                    <div className="w-full order-1 lg:col-span-7 lg:row-start-1">
+                    {/* 1. Customer Info (Mobile: Item 1, Desktop: Left Col Row 1) */}
+                    <div className="w-full lg:col-span-7 lg:row-start-1">
                         <CustomerInfo
                             lang={lang}
                             dict={dict}
@@ -188,8 +188,33 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                         />
                     </div>
 
-                    {/* 3. Payment Section (Mobile: Order 3, Desktop: Left Col Row 2) */}
-                    <div className="w-full order-3 lg:col-span-7 lg:row-start-2 lg:mt-6 space-y-6">
+                    {/* 2. Invoice (Mobile: Item 2, Desktop: Right Col Row 1-Span-2) */}
+                    {/* Moved UP in DOM to ensure it appears 2nd on mobile */}
+                    <div className="w-full lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2 space-y-6">
+                        <div className="lg:sticky lg:top-4">
+                            {/* 2. Invoice */}
+                            <Invoice
+                                cart={cart}
+                                lang={lang}
+                                dict={dict}
+                                currency={currency} // Pass currency
+                                onCustomRequest={handleCustomRequest}
+                            />
+
+                            {/* Desktop Confirm Button (Hidden on Mobile) */}
+                            <div className="hidden lg:block mt-6">
+                                <button
+                                    onClick={handleConfirmOrder}
+                                    className="w-full py-4 bg-[#0f172a] text-white font-bold uppercase rounded-xl shadow-lg hover:bg-[#1e293b] transition-colors text-lg"
+                                >
+                                    {dict.checkout.confirm_order_btn}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 3. Payment Section (Mobile: Item 3, Desktop: Left Col Row 2) */}
+                    <div className="w-full lg:col-span-7 lg:row-start-2 lg:mt-6 space-y-6">
                         <PaymentMethods
                             lang={lang}
                             dict={dict}
@@ -265,31 +290,6 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                             </div>
                         )}
                     </div>
-
-                    {/* 2. Invoice (Mobile: Order 2, Desktop: Right Col Row 1-Span-2) */}
-                    <div className="w-full order-2 lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2 space-y-6">
-                        <div className="lg:sticky lg:top-4">
-                            {/* 2. Invoice */}
-                            <Invoice
-                                cart={cart}
-                                lang={lang}
-                                dict={dict}
-                                currency={currency} // Pass currency
-                                onCustomRequest={handleCustomRequest}
-                            />
-
-                            {/* Desktop Confirm Button (Hidden on Mobile) */}
-                            <div className="hidden lg:block mt-6">
-                                <button
-                                    onClick={handleConfirmOrder}
-                                    className="w-full py-4 bg-[#0f172a] text-white font-bold uppercase rounded-xl shadow-lg hover:bg-[#1e293b] transition-colors text-lg"
-                                >
-                                    {dict.checkout.confirm_order_btn}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </main>
 
