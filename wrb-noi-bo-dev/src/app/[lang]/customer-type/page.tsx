@@ -58,10 +58,10 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
 
         {/* --- TIÊU ĐỀ (Dùng t() để dịch) --- */}
         <div className="text-center mb-6">
-          <h1 className="text-[30px] font-bold uppercase tracking-[0.1em] mb-2 font-bold luxury gold-text-shiny drop-shadow-md">
+          <h1 className="text-2xl md:text-4xl font-bold uppercase tracking-[0.1em] mb-2 font-bold luxury gold-text-shiny drop-shadow-md">
             {t('wc_title')}
           </h1>
-          <p className="gold-text-soft text-[20px] font-medium tracking-wide opacity-100">
+          <p className="gold-text-soft text-lg md:text-xl font-medium tracking-wide opacity-100">
             {t('wc_desc')}
           </p>
         </div>
@@ -69,7 +69,7 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
         {/* --- NÚT KHÁCH HÀNG CŨ --- */}
         <button
           onClick={onSelectOldUser}
-          className="w-full h-[80px] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] hover:brightness-110 text-black font-extrabous font-bold text-[15px] rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] shadow-[0_10px_20px_-10px_rgba(179,135,40,0.5)]"
+          className="w-full min-h-[70px] h-auto py-4 bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] hover:brightness-110 text-black font-extrabous font-bold text-[15px] md:text-lg rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] shadow-[0_10px_20px_-10px_rgba(179,135,40,0.5)]"
         >
           <span className="uppercase tracking-widest">{t('btn_old_title')}</span>
           <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -79,7 +79,7 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
         {/* --- NÚT KHÁCH HÀNG MỚI --- */}
         <button
           onClick={onSelectNewUser}
-          className="group w-full h-[75px] bg-[black]/[0.03] border-yellow hover:bg-yellow-500/10 rounded-[1.5rem] flex items-center justify-between px-6 transition-all duration-300 active:scale-[0.98]"
+          className="group w-full min-h-[70px] h-auto py-4 bg-[black]/[0.03] border-yellow hover:bg-yellow-500/10 rounded-[1.5rem] flex items-center justify-between px-6 transition-all duration-300 active:scale-[0.98]"
         >
           <div className="flex flex-col items-start text-left">
             <span className="gold-text-shiny font-bold text-[15px] uppercase tracking-wider group-hover:brightness-125">

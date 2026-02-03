@@ -57,7 +57,7 @@ export default function ServiceList({ categories, services, cart, lang, onItemCl
                         </div>
 
                         {/* Grid danh sách */}
-                        <div className="flex flex-col gap-4"> {/* gap-4 tạo khoảng cách giữa các món */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Grid responsive: 1 cột mobile, 2 cột tablet+ */}
                             {categoryGroups.map((group) => {
                                 const representative = group[0]; // Lấy món đầu tiên làm đại diện hiển thị
 
