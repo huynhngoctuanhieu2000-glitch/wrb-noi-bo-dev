@@ -60,16 +60,51 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
         console.log("Items to restore:", itemsToRestore);
 
         itemsToRestore.forEach((item: any) => {
-            // Find service in current menu data to get full details (images, etc)
-            const service = services.find((s: any) => s.id === item.id);
-            console.log(`Checking item ${item.id} -> Found?`, !!service);
+            // 1. Try to find service by ID first
+            let service = services.find((s: any) => s.id === item.id);
+
+            // 2. Fallback: Find by Name (exact match EN or VN) if ID not found
+            if (!service && item.name) {
+                const cleanName = item.name.trim().toLowerCase();
+                service = services.find(s =>
+                    s.names.en.toLowerCase() === cleanName ||
+                    s.names.vn.toLowerCase() === cleanName ||
+                    s.names.en.toLowerCase() === cleanName // Fallback to whatever name property exists
+                );
+            }
+
+            console.log(`Checking item ${item.id || item.name} -> Found?`, !!service);
 
             if (service) {
-                addToCart(service, item.qty, item.options);
+                // 3. Construct Options
+                // If raw_items (has .options), use directly.
+                // If processedItems (has flat fields strength/therapist in VN/EN), map back to codes.
+                let options = item.options ? { ...item.options } : {};
+
+                if (!item.options) {
+                    // Reverse map helper
+                    const mapVal = (val: string): any => {
+                        if (!val) return undefined;
+                        const v = val.toLowerCase();
+                        if (v.includes('vừa') || v === 'medium') return 'medium';
+                        if (v.includes('lẹ') || v.includes('nhẹ') || v === 'light') return 'light'; // Typo protection
+                        if (v.includes('mạnh') || v === 'strong') return 'strong';
+
+                        if (v.includes('nam') || v === 'male') return 'male';
+                        if (v.includes('nữ') || v === 'female') return 'female';
+                        if (v.includes('ngẫu nhiên') || v === 'random') return 'random';
+                        return undefined;
+                    };
+
+                    options = {
+                        strength: mapVal(item.strength),
+                        therapist: mapVal(item.therapist || item.therapist_name), // Screenshot showed therapist_name
+                    };
+                }
+
+                addToCart(service, item.qty || 1, options);
             } else {
-                // Fallback if service not found (maybe deleted?), still try to add minimal info if possible
-                // But addToCart needs Service object. If not found, skip or warn.
-                console.warn(`Service ${item.id} not found in current menu`);
+                console.warn(`Service ${item.id || item.name} not found in current menu`);
             }
         });
     };
