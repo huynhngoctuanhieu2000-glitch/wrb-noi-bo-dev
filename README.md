@@ -130,6 +130,6 @@ Hệ thống được thiết kế theo luồng phân nhánh rõ ràng để cá
 2.  **Images**: Ảnh tĩnh (Logo, Menu Cover) nên được lưu trong `public/images/` để tải nhanh và ổn định hơn so với link ngoài.
 3.  **Animation**: Sử dụng `tailwind-animate` và CSS Keyframes cho các hiệu ứng chuyển cảnh mượt mà.
 
-----
+-----
 
 *© 2026 Ngan Ha Spa Internal System.*
