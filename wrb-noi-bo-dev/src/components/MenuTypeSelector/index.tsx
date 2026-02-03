@@ -31,7 +31,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     {/* ES Lint disable was here, removed as we use Next Image */}
                     <div className="relative w-full h-full">
                         <Image
-                            src="https://i.postimg.cc/3J8zBRVz/logo-500x500px-(maltic-gold)-1.png"
+                            src="/assets/logos/logo-gold.webp"
                             alt="Ngan Ha Spa"
                             fill
                             className="object-contain drop-shadow-[0_0_25px_rgba(234,179,8,0.6)]"
@@ -56,7 +56,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     <div className={`${styles.bookCover} ${styles.perspective1000} relative`}>
                         <div className={`${styles.bgCover} relative overflow-hidden`}>
                             <Image
-                                src="https://i.postimg.cc/g0CM57Zz/sach-standard-500x500px.png"
+                                src="/assets/logos/menu-standard.webp"
                                 alt="Standard Menu Book"
                                 fill
                                 className="object-cover"
@@ -93,7 +93,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     <div className={`${styles.bookCover} ${styles.perspective1000} relative`}>
                         <div className={`${styles.bgCover} relative overflow-hidden`}>
                             <Image
-                                src="https://i.postimg.cc/MKQCpyzy/sach-premium-500x500px.png"
+                                src="/assets/logos/menu-premium.webp"
                                 alt="Premium Menu Book"
                                 fill
                                 className="object-cover"

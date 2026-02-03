@@ -92,7 +92,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
             {/* Body Illustration */}
             <div className="w-[50%] h-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden relative flex items-start justify-center group pt-6">
                 <Image
-                    src="https://i.ibb.co/p6bqd0Zg/icon-hi-nh-ng-i.webp"
+                    src="/assets/icons/body-map.webp"
                     alt="Body Map"
                     width={220}
                     height={500}

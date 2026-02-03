@@ -24,30 +24,30 @@ export const languages: Language[] = [
     id: "en",
     name: "English",
     greeting: "Welcome to Ngan Ha",
-    flag: "https://flagcdn.com/w80/gb.png"
+    flag: "/assets/flags/gb.webp"
   },
   {
     id: "vn",
     name: "Tiếng Việt",
     greeting: "Ngân Hà Xin Chào",
-    flag: "https://flagcdn.com/w80/vn.png"
+    flag: "/assets/flags/vn.webp"
   },
   {
     id: "jp",
     name: "Japanese",
     greeting: "Ngan Ha ようこそ",
-    flag: "https://flagcdn.com/w80/jp.png"
+    flag: "/assets/flags/jp.webp"
   },
   {
     id: "kr",
     name: "Korean",
     greeting: "Ngan Ha 의 인사",
-    flag: "https://flagcdn.com/w80/kr.png"
+    flag: "/assets/flags/kr.webp"
   },
   {
     id: "cn",
     name: "Chinese",
     greeting: "Ngan Ha 向您问候",
-    flag: "https://flagcdn.com/w80/cn.png"
+    flag: "/assets/flags/cn.webp"
   }
 ];

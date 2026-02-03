@@ -23,7 +23,7 @@ export default function OldUserSelectMenuPage({ params }: { params: Promise<{ la
             <div className="absolute inset-0 z-0">
                 <div className="absolute inset-0 bg-black/40 z-10" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://i.postimg.cc/hPx71PLs/Gemini-Generated-Image-psjknhpsjknhpsjk.png" className="w-full h-full object-cover opacity-40" alt="background" />
+                <img src="/assets/backgrounds/bg-blur.webp" className="w-full h-full object-cover opacity-40" alt="background" />
             </div>
 
             <div className="relative z-10 w-full">

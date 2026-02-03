@@ -34,12 +34,12 @@ export default function LanguageSelectorPage() {
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-black/0 z-0" />
         <img
-          src="https://i.postimg.cc/K8mxt9QM/galaxy2.png"
+          src="/assets/backgrounds/galaxy.webp"
           alt="Spa Background"
           className="w-full h-full object-cover opacity-100"
         />
         <div className="absolute inset-0 bg-black/40 z-10" />
-        <img src="https://i.postimg.cc/K8mxt9QM/galaxy2.png" alt="Background" className="bg-image" />
+        <img src="/assets/backgrounds/galaxy.webp" alt="Background" className="bg-image" />
         <div className="shooting-star star-1"></div>
         <div className="shooting-star star-2"></div>
         <div className="shooting-star star-3"></div>
@@ -47,14 +47,14 @@ export default function LanguageSelectorPage() {
       </div>
 
       <div className={animClasses.logoTopContainer}>
-        <img src="https://i.postimg.cc/3J8zBRVz/logo-500x500px-(maltic-gold)-1.png" alt="Ngan Ha Spa" className={animClasses.logoTop} />
+        <img src="/assets/logos/logo-gold.webp" alt="Ngan Ha Spa" className={animClasses.logoTop} />
       </div>
 
       <div className={animClasses.orbitContainer}>
         <div className={animClasses.centerLogoWrapper(showGreeting)}>
           <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full animate-pulse"></div>
           <img
-            src="https://i.postimg.cc/4xDZ4cxg/only-logo-500x500px-(maltic-gold).png"
+            src="/assets/logos/logo-only-gold.webp"
             alt="Logo Center"
             className="w-[100%] h-[100%] object-contain rounded-full relative z-20 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"
           />

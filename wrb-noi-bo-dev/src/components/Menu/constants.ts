@@ -19,7 +19,7 @@ export const CATEGORIES: Category[] = [
             kr: '전신 마사지',
             cn: '全身按摩'
         },
-        image: 'https://i.ibb.co/3yZbCj1Z/icon-body-150x150px.webp'
+        image: '/assets/icons/body.webp'
     },
     {
         id: 'Foot',
@@ -30,7 +30,7 @@ export const CATEGORIES: Category[] = [
             kr: '발 마사지',
             cn: '足部按摩'
         },
-        image: 'https://i.ibb.co/bRKN60Tv/icon-foot-150x150-px.webp'
+        image: '/assets/icons/foot.webp'
     },
     {
         id: 'Hair Wash',
@@ -41,7 +41,7 @@ export const CATEGORIES: Category[] = [
             kr: '샴푸',
             cn: '洗头'
         },
-        image: 'https://i.ibb.co/d47f0CxD/icon-hairwash-150x150px.webp'
+        image: '/assets/icons/hairwash.webp'
     },
     {
         id: 'Facial',
@@ -52,7 +52,7 @@ export const CATEGORIES: Category[] = [
             kr: '페이셜 케어',
             cn: '面部护理'
         },
-        image: 'https://i.ibb.co/xxjHXk7/icon-facial-150x150px.webp'
+        image: '/assets/icons/facial.webp'
     },
     {
         id: 'Heel Skin Shave',
@@ -63,7 +63,7 @@ export const CATEGORIES: Category[] = [
             kr: '발뒤꿈치 케어',
             cn: '磨脚皮'
         },
-        image: 'https://i.ibb.co/W4sc6ngT/icon-heelskinshave-150x150px.webp'
+        image: '/assets/icons/heelskinshave.webp'
     },
     {
         id: 'Manicure & Pedicure',
@@ -74,7 +74,7 @@ export const CATEGORIES: Category[] = [
             kr: '네일 케어',
             cn: '美甲'
         },
-        image: 'https://i.ibb.co/dwnwS8Jz/icon-nails-150x150px.webp'
+        image: '/assets/icons/nails.webp'
     },
     {
         id: 'Ear Clean',
@@ -85,7 +85,7 @@ export const CATEGORIES: Category[] = [
             kr: '귀 청소',
             cn: '采耳'
         },
-        image: 'https://i.ibb.co/fVpNcJFG/icon-earclean-150x150px.webp'
+        image: '/assets/icons/earclean.webp'
     },
     {
         id: 'Barber',
@@ -96,7 +96,7 @@ export const CATEGORIES: Category[] = [
             kr: '이발',
             cn: '男士理发'
         },
-        image: 'https://i.ibb.co/Q3GPkbtr/icon-haircut-150x150px.webp'
+        image: '/assets/icons/haircut.webp'
     },
     {
         id: 'Premium',
@@ -107,7 +107,7 @@ export const CATEGORIES: Category[] = [
             kr: 'VIP 코스',
             cn: 'VIP套餐'
         },
-        image: 'https://i.ibb.co/9kDZJ072/icon-cbking-150-x-150-px.webp'
+        image: '/assets/icons/combo-king.webp'
     },
     {
         id: 'Additional',
@@ -118,6 +118,6 @@ export const CATEGORIES: Category[] = [
             kr: '추가 서비스',
             cn: '额外服务'
         },
-        image: 'https://i.ibb.co/ynvbRJBM/addd.png'
+        image: '/assets/icons/add-more.webp'
     }
 ];

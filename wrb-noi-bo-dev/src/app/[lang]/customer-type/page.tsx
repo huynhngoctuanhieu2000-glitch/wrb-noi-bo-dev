@@ -36,12 +36,12 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-black/0 z-0" />
         <img
-          src="https://i.postimg.cc/K8mxt9QM/galaxy2.png"
+          src="/assets/backgrounds/galaxy.webp"
           alt="Spa Background"
           className="w-full h-full object-cover opacity-100"
         />
         <div className="absolute inset-0 bg-black/40 z-10" />
-        <img src="https://i.postimg.cc/K8mxt9QM/galaxy2.png" alt="Background" className="bg-image" />
+        <img src="/assets/backgrounds/galaxy.webp" alt="Background" className="bg-image" />
         <div className="shooting-star star-1"></div>
         <div className="shooting-star star-2"></div>
         <div className="shooting-star star-3"></div>
@@ -53,7 +53,7 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
         {/* --- LOGO --- */}
         <div className="w-48 h-48 mx-auto mb-2 relative flex items-center justify-center">
           <div className="absolute inset-0 bg-yellow-500/20 rounded-full blur-xl animate-pulse"></div>
-          <img src="https://i.postimg.cc/4xDZ4cxg/only-logo-500x500px-(maltic-gold).png" alt="Logo" className="w-full h-full object-contain relative z-10 drop-shadow-lg" />
+          <img src="/assets/logos/logo-only-gold.webp" alt="Logo" className="w-full h-full object-contain relative z-10 drop-shadow-lg" />
         </div>
 
         {/* --- TIÊU ĐỀ (Dùng t() để dịch) --- */}
