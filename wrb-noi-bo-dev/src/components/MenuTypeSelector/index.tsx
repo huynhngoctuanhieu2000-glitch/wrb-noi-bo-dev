@@ -72,11 +72,11 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                         {/* flex items-center justify-center: Căn chữ vào GIỮA VÙNG GIẤY NÀY */}
                         <div className="absolute left-[14%] top-[26%] w-[78%] h-[55%] z-20 flex flex-col items-center justify-center text-center">
 
-                            <h3 className="font-bold -luxury text-[25px] md:text-5xl text-[#4a3800] drop-shadow-sm leading-tight mb-2 w-full">
+                            <h3 className="font-bold -luxury text-lg md:text-5xl text-[#4a3800] drop-shadow-sm leading-tight mb-1 w-full">
                                 {t.std}
                             </h3>
 
-                            <p className="font-bold-body text-[13px] text-[#5c4000] font-semibold w-full px-2">
+                            <p className="font-bold-body text-[10px] md:text-[13px] text-[#5c4000] font-semibold w-full px-1">
                                 {t.std_desc}
                             </p>
 
@@ -108,11 +108,11 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                         {/* top-[34%]: Hạ thấp hơn vì Logo Vương Miện to hơn */}
                         <div className="absolute left-[14%] top-[34%] w-[78%] h-[50%] z-20 flex flex-col items-center justify-center text-center">
 
-                            <h3 className="gold-text-shiny font-bold text-[25px] uppercase tracking-wider group-hover:brightness-125">
+                            <h3 className="gold-text-shiny font-bold text-lg md:text-[25px] uppercase tracking-wider group-hover:brightness-125 mb-1">
                                 {t.vip}
                             </h3>
 
-                            <p className="gold-text-shiny font-bold text-[10px] uppercase tracking-wider group-hover:brightness-125">
+                            <p className="gold-text-shiny font-bold text-[8px] md:text-[10px] uppercase tracking-wider group-hover:brightness-125">
                                 {t.vip_desc}
                             </p>
 

@@ -6,10 +6,16 @@
 /* Class chung cho bìa sách */
 .bookCover {
     position: relative;
-    width: 16rem;
-    /* w-64 */
-    height: 20rem;
-    /* h-80 */
+    width: 11rem;
+    height: 15rem;
+    /* Mobile: Small enough to fit 2 items + header without scrolling */
+
+    @media (min-width: 768px) {
+        width: 20rem;
+        height: 26rem;
+        /* Desktop: Larger and more premium */
+    }
+
     border-radius: 0 0.5rem 0.5rem 0;
     /* Bo tròn cạnh phải giống gáy sách */
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
