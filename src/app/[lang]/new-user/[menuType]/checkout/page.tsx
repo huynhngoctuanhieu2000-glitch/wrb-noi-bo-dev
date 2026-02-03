@@ -176,93 +176,97 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             />
 
             <main className="p-4 lg:p-8 max-w-6xl mx-auto min-h-screen">
-                <div className="flex flex-col lg:grid lg:grid-cols-12 lg:gap-8">
+                <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:gap-8">
 
                     {/* LEFT COLUMN: Customer Info & Payment (span 7) */}
-                    <div className="lg:col-span-7 space-y-6 order-1 lg:order-1">
-                        {/* 1. Customer Info */}
-                        <CustomerInfo
-                            lang={lang}
-                            dict={dict}
-                            info={customerInfo}
-                            onChange={handleCustomerChange}
-                        />
+                    <div className="contents lg:block lg:col-span-7 lg:space-y-6 lg:order-1">
+                        {/* 1. Customer Info Wrapper */}
+                        <div className="order-1 w-full">
+                            <CustomerInfo
+                                lang={lang}
+                                dict={dict}
+                                info={customerInfo}
+                                onChange={handleCustomerChange}
+                            />
+                        </div>
 
-                        {/* 3. Payment Methods */}
-                        <PaymentMethods
-                            lang={lang}
-                            dict={dict}
-                            selected={paymentMethod}
-                            onChange={setPaymentMethod}
-                        />
+                        {/* 3. Payment Wrapper */}
+                        <div className="order-3 w-full lg:mt-6 space-y-6">
+                            <PaymentMethods
+                                lang={lang}
+                                dict={dict}
+                                selected={paymentMethod}
+                                onChange={setPaymentMethod}
+                            />
 
-                        {/* 4. Cash Payment Input */}
-                        {(paymentMethod === 'cash_vnd' || paymentMethod === 'cash_usd') && (
-                            <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs">
-                                        {dict.checkout.amount_paid_title}
-                                    </h2>
-                                    <button
-                                        onClick={() => setAmountPaid('0')}
-                                        className="text-red-500 text-xs font-bold border border-red-100 px-3 py-1 rounded-lg hover:bg-red-50"
-                                    >
-                                        {dict.checkout.reset}
-                                    </button>
-                                </div>
+                            {/* 4. Cash Payment Input */}
+                            {(paymentMethod === 'cash_vnd' || paymentMethod === 'cash_usd') && (
+                                <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs">
+                                            {dict.checkout.amount_paid_title}
+                                        </h2>
+                                        <button
+                                            onClick={() => setAmountPaid('0')}
+                                            className="text-red-500 text-xs font-bold border border-red-100 px-3 py-1 rounded-lg hover:bg-red-50"
+                                        >
+                                            {dict.checkout.reset}
+                                        </button>
+                                    </div>
 
-                                {/* Input Large */}
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={amountPaid}
-                                        onChange={handleAmountPaidChange}
-                                        placeholder="0"
-                                        className="w-full text-center text-4xl font-bold text-black border-b-2 border-gray-100 py-4 focus:outline-none focus:border-green-500 transition-colors bg-transparent placeholder-gray-200"
-                                    />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded">
-                                        {currency}
-                                    </span>
-                                </div>
-
-                                {/* Quick Suggestions */}
-                                <div className="flex gap-2 justify-center flex-wrap">
-                                    {quickSuggestions.map(amt => (
-                                        amt > 0 && (
-                                            <button
-                                                key={amt}
-                                                onClick={() => setQuickAmount(amt)}
-                                                className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all"
-                                            >
-                                                {currency === 'USD' ? amt : amt.toLocaleString('vi-VN')}
-                                            </button>
-                                        )
-                                    ))}
-                                </div>
-
-                                {/* Change Display */}
-                                <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
-                                    <span className="text-gray-500 text-sm font-medium">{dict.checkout.change_title}</span>
-                                    {changeAmount >= 0 ? (
-                                        <div className="text-right">
-                                            <span className="text-xl font-bold text-green-600 block">
-                                                {changeAmount.toLocaleString('vi-VN')} {currency}
-                                            </span>
-                                            {/* Conversion Display for USD */}
-                                            {currency === 'USD' && (
-                                                <span className="text-green-700 font-bold text-lg block">
-                                                    = {(changeAmount * 24000).toLocaleString('vi-VN')} VND
-                                                </span>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <span className="text-xl font-bold text-red-500">
-                                            {dict.checkout.insufficient}
+                                    {/* Input Large */}
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={amountPaid}
+                                            onChange={handleAmountPaidChange}
+                                            placeholder="0"
+                                            className="w-full text-center text-4xl font-bold text-black border-b-2 border-gray-100 py-4 focus:outline-none focus:border-green-500 transition-colors bg-transparent placeholder-gray-200"
+                                        />
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded">
+                                            {currency}
                                         </span>
-                                    )}
+                                    </div>
+
+                                    {/* Quick Suggestions */}
+                                    <div className="flex gap-2 justify-center flex-wrap">
+                                        {quickSuggestions.map(amt => (
+                                            amt > 0 && (
+                                                <button
+                                                    key={amt}
+                                                    onClick={() => setQuickAmount(amt)}
+                                                    className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all"
+                                                >
+                                                    {currency === 'USD' ? amt : amt.toLocaleString('vi-VN')}
+                                                </button>
+                                            )
+                                        ))}
+                                    </div>
+
+                                    {/* Change Display */}
+                                    <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
+                                        <span className="text-gray-500 text-sm font-medium">{dict.checkout.change_title}</span>
+                                        {changeAmount >= 0 ? (
+                                            <div className="text-right">
+                                                <span className="text-xl font-bold text-green-600 block">
+                                                    {changeAmount.toLocaleString('vi-VN')} {currency}
+                                                </span>
+                                                {/* Conversion Display for USD */}
+                                                {currency === 'USD' && (
+                                                    <span className="text-green-700 font-bold text-lg block">
+                                                        = {(changeAmount * 24000).toLocaleString('vi-VN')} VND
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className="text-xl font-bold text-red-500">
+                                                {dict.checkout.insufficient}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
                     {/* RIGHT COLUMN: Invoice (span 5) */}
