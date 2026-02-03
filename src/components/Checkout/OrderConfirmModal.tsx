@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, ClipboardList, Clock, ArrowRight, Check, User, HeartPulse, Ban, GripHorizontal, AlertCircle, Phone, Mail } from 'lucide-react';
+import { X, ClipboardList, Clock, ArrowRight, Check, User, HeartPulse, Ban, GripHorizontal, AlertCircle, Phone, Mail, Hand } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 
@@ -137,6 +137,11 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         );
     }
 
+    const formatParts = (parts: string[]) => parts.map(p => {
+        // @ts-ignore
+        return dict.body_parts?.[p.toLowerCase()] || dict.body_parts?.[p] || p;
+    }).join(', ');
+
     return (
         <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in pb-0 sm:pb-0">
             <div
@@ -191,10 +196,27 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 const therapist = item.options?.therapist;
                                 const focus = item.options?.bodyParts?.focus || [];
                                 const avoid = item.options?.bodyParts?.avoid || [];
+                                // ...
+
                                 const tags = [
-                                    item.options?.notes?.tag0 ? 'Pregnant' : null,
-                                    item.options?.notes?.tag1 ? 'Allergy' : null
+                                    item.options?.notes?.tag0 ? (dict.tags?.pregnant || 'Pregnant') : null,
+                                    item.options?.notes?.tag1 ? (dict.tags?.allergy || 'Allergy') : null
                                 ].filter(Boolean) as string[];
+
+                                const getStrengthColor = (s: string) => {
+                                    switch (s?.toLowerCase()) {
+                                        case 'light': return 'text-green-700';
+                                        case 'strong': return 'text-red-700';
+                                        case 'medium': default: return 'text-yellow-700';
+                                    }
+                                };
+                                const getTherapistColor = (t: string) => {
+                                    switch (t?.toLowerCase()) {
+                                        case 'male': return 'text-blue-700';
+                                        case 'female': return 'text-purple-700';
+                                        case 'random': default: return 'text-green-700';
+                                    }
+                                };
 
                                 return (
                                     <div key={item.cartId} className="border border-gray-100 rounded-2xl p-4 shadow-sm bg-white">
@@ -203,26 +225,26 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             <span className="font-bold text-gray-900 text-[15px]">{idx + 1}. {item.names[lang] || item.names.en}</span>
                                             <span className="font-bold text-gray-900 text-[15px]">{formatCurrency(item.priceVND * item.qty)} VND</span>
                                         </div>
-                                        <div className="text-xs text-gray-400 font-medium mb-3">{item.timeValue}mins</div>
+                                        <div className="text-xs text-gray-400 font-medium mb-3 border-b border-dashed border-gray-100 pb-2">{item.timeValue}mins</div>
 
                                         {/* Attributes */}
-                                        <div className="space-y-1.5 pt-2 border-t border-dashed border-gray-100">
+                                        <div className="space-y-2">
                                             {/* Strength */}
                                             <div className="flex items-center gap-2 text-sm">
-                                                <div className="w-5 flex justify-center"><GripHorizontal size={14} className="text-red-500" /></div>
-                                                <span className="font-bold text-red-500">{dict.checkout.strength}</span>
-                                                <span className="text-gray-300">|</span>
-                                                <span className="text-red-500 font-medium capitalize">
+                                                <div className="w-5 flex justify-center"><Hand size={14} className="text-gray-400" /></div>
+                                                <span className="font-bold text-gray-400 w-20">{dict.checkout.strength}</span>
+                                                <span className="text-gray-300 mx-1">|</span>
+                                                <span className={`font-bold capitalize ${getStrengthColor(strength || '')}`}>
                                                     {/* @ts-ignore */}
                                                     {dict.options?.strength_levels?.[strength?.toLowerCase()] || strength || 'Medium'}
                                                 </span>
                                             </div>
                                             {/* Therapist */}
                                             <div className="flex items-center gap-2 text-sm">
-                                                <div className="w-5 flex justify-center"><User size={14} className="text-purple-500" /></div>
-                                                <span className="font-bold text-purple-500">{dict.checkout.therapist}</span>
-                                                <span className="text-gray-300">|</span>
-                                                <span className="text-purple-500 font-medium capitalize">
+                                                <div className="w-5 flex justify-center"><User size={14} className="text-purple-400" /></div>
+                                                <span className="font-bold text-gray-400 w-20">{dict.checkout.therapist}</span>
+                                                <span className="text-gray-300 mx-1">|</span>
+                                                <span className={`font-bold capitalize ${getTherapistColor(therapist || '')}`}>
                                                     {/* @ts-ignore */}
                                                     {dict.options?.therapist_options?.[therapist?.toLowerCase()] || therapist || 'Random'}
                                                 </span>
@@ -231,9 +253,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             {focus.length > 0 && (
                                                 <div className="flex items-start gap-2 text-sm">
                                                     <div className="w-5 flex justify-center mt-0.5"><HeartPulse size={14} className="text-green-600" /></div>
-                                                    <span className="font-bold text-green-600 whitespace-nowrap">{dict.checkout.focus}:</span>
+                                                    <span className="font-bold text-green-600 whitespace-nowrap w-20 shrink-0">{dict.checkout.focus}:</span>
                                                     <span className="text-green-600 font-medium leading-tight">
-                                                        {focus.join(', ')}
+                                                        {formatParts(focus)}
                                                     </span>
                                                 </div>
                                             )}
@@ -241,29 +263,31 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             {avoid.length > 0 && (
                                                 <div className="flex items-start gap-2 text-sm">
                                                     <div className="w-5 flex justify-center mt-0.5"><Ban size={14} className="text-red-500" /></div>
-                                                    <span className="font-bold text-red-500 whitespace-nowrap">{dict.checkout.avoid}:</span>
+                                                    <span className="font-bold text-red-500 whitespace-nowrap w-20 shrink-0">{dict.checkout.avoid}:</span>
                                                     <span className="text-red-500 font-medium leading-tight">
-                                                        {avoid.join(', ')}
+                                                        {formatParts(avoid)}
                                                     </span>
                                                 </div>
                                             )}
+
+                                            {/* Note Content */}
+                                            {item.options?.notes?.content && (
+                                                <div className="flex items-start gap-2 text-sm mt-1 pt-2 border-t border-gray-50">
+                                                    <div className="text-gray-500 italic text-xs bg-gray-50 p-2 rounded w-full">
+                                                        <span className="font-bold not-italic text-gray-400 mr-1">{dict.history?.note_label || 'Note'}:</span>
+                                                        {item.options.notes.content}
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* Tags */}
                                             {tags.length > 0 && (
-                                                <div className="flex gap-2 mt-2 pt-1 pl-7">
+                                                <div className="flex gap-2 mt-2 pt-2">
                                                     {tags.map(tag => (
                                                         <span key={tag} className="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-1 rounded">
                                                             {tag}
                                                         </span>
                                                     ))}
-                                                </div>
-                                            )}
-                                            {/* Note Content */}
-                                            {item.options?.notes?.content && (
-                                                <div className="flex items-start gap-2 text-sm mt-1 pl-7">
-                                                    <div className="text-gray-500 italic text-xs bg-gray-50 p-2 rounded w-full">
-                                                        <span className="font-bold not-italic text-gray-400 mr-1">Note:</span>
-                                                        {item.options.notes.content}
-                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -277,7 +301,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     <div className="bg-gray-50 rounded-2xl p-5 space-y-3">
                         <div className="flex justify-between text-sm text-gray-600 mb-2">
                             <span>{dict.checkout.payment_method}</span>
-                            <span className="font-bold text-gray-900 uppercase">Cash (VND)</span>
+                            <span className="font-bold text-gray-900 uppercase">
+                                {dict.payment_methods?.[paymentMethod] || dict.payment_methods?.cash_vnd || 'Cash (VND)'}
+                            </span>
                         </div>
                         <div className="flex justify-between text-sm text-gray-600 mb-4 border-b border-gray-200 pb-3">
                             <span>{dict.checkout.total_duration}</span>
@@ -312,7 +338,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 <div className="flex flex-wrap gap-2">
                                     {uniqueTags.map(tag => (
                                         <span key={tag} className="text-red-600 font-medium flex items-center gap-1">
-                                            {tag} {tag === 'Pregnant' ? '🤰' : '⚠️'}
+                                            {/* Look up tag name again to be safe/consistent */}
+                                            {(tag === 'Pregnant' || tag === (dict.tags?.pregnant)) ? (dict.tags?.pregnant) : (dict.tags?.allergy)} {tag.includes('Pregnant') || tag === dict.tags?.pregnant ? '🤰' : '⚠️'}
                                         </span>
                                     ))}
                                 </div>

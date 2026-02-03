@@ -1,5 +1,5 @@
 import React from 'react';
-import { PencilLine, Wand2, Check } from 'lucide-react';
+import { PencilLine, Wand2, Check, GripHorizontal, User, HeartPulse, Ban, Hand } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 
@@ -29,7 +29,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                 {/* List Items */}
                 <div className="space-y-8 mb-8">
-                    {cart.map(item => {
+                    {cart.map((item, idx) => {
                         // 1. Determine effective values (Defaults if missing)
                         const strength = item.options?.strength || 'medium';
                         const therapist = item.options?.therapist || 'random';
@@ -42,13 +42,35 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                         const hasCustom = isStrengthCustom || isTherapistCustom || isBodyCustom || isNotesCustom;
 
-                        const formatParts = (parts: string[]) => parts.map(p => p.charAt(0) + p.slice(1).toLowerCase()).join(', ');
+                        const formatParts = (parts: string[]) => parts.map(p => {
+                            // Try exact match, or lowercase match, or uppercase match
+                            const key = p.toLowerCase();
+                            // @ts-ignore
+                            return dict.body_parts?.[key] || dict.body_parts?.[p] || p;
+                        }).join(', ');
+
+                        // Helper for colors
+                        const getStrengthColor = (s: string) => {
+                            switch (s?.toLowerCase()) {
+                                case 'light': return 'text-green-700';
+                                case 'strong': return 'text-red-700';
+                                case 'medium': default: return 'text-yellow-700';
+                            }
+                        };
+
+                        const getTherapistColor = (t: string) => {
+                            switch (t?.toLowerCase()) {
+                                case 'male': return 'text-blue-700';
+                                case 'female': return 'text-purple-700';
+                                case 'random': default: return 'text-green-700';
+                            }
+                        };
 
                         return (
-                            <div key={item.cartId} className="border-b border-dashed border-gray-200 pb-8 last:border-0 last:pb-0">
+                            <div key={item.cartId} className="border border-gray-100 rounded-2xl p-4 shadow-sm bg-white mb-4">
                                 {/* Row 1: Name + Price */}
                                 <div className="flex justify-between items-start mb-1">
-                                    <h4 className="text-black font-bold text-lg">{item.names[lang] || item.names.en}</h4>
+                                    <h4 className="text-black font-bold text-lg">{idx + 1}. {item.names[lang] || item.names.en}</h4>
                                     <span className={`font-bold text-lg ${currency === 'USD' ? 'text-orange-600' : 'text-yellow-600'}`}>
                                         {currency === 'USD'
                                             ? `${(item.priceUSD * item.qty)} USD`
@@ -58,90 +80,87 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                 </div>
 
                                 {/* Row 2: Duration */}
-                                <div className="text-gray-500 text-sm mb-3">
+                                <div className="text-gray-400 text-sm font-medium mb-3 border-b border-dashed border-gray-100 pb-3">
                                     {item.timeValue}mins
                                 </div>
 
-                                {/* Options Detail Box */}
-                                <div className="bg-gray-50 rounded-lg p-4 text-sm mb-4 space-y-2 border border-gray-100">
-                                    {/* Focus / Avoid */}
-                                    {item.options?.bodyParts && (
-                                        <>
-                                            {item.options.bodyParts.focus.length > 0 && (
-                                                <div className="flex gap-1">
-                                                    <span className="font-bold text-green-600">Focus:</span>
-                                                    <span className="text-green-700 font-medium">
-                                                        {formatParts(item.options.bodyParts.focus)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {item.options.bodyParts.avoid.length > 0 && (
-                                                <div className="flex gap-1">
-                                                    <span className="font-bold text-red-500">Avoid:</span>
-                                                    <span className="text-red-400 font-medium">
-                                                        {formatParts(item.options.bodyParts.avoid)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {/* Strength / Therapist */}
-                                    <div className={`flex flex-wrap gap-x-4 gap-y-1 text-gray-600 ${item.options?.bodyParts && (item.options.bodyParts.focus.length > 0 || item.options.bodyParts.avoid.length > 0) ? 'border-t border-gray-200 pt-2 mt-2' : ''}`}>
-                                        <span>
-                                            <span className="font-bold text-gray-800">{dict.checkout.strength_label}</span>
-                                            <span className={`ml-1 capitalize font-bold ${strength === 'light' ? 'text-green-700' :
-                                                strength === 'medium' ? 'text-yellow-700' :
-                                                    strength === 'strong' ? 'text-red-700' : 'text-gray-600'
-                                                }`}>
-                                                {dict.options?.strength_levels?.[strength?.toLowerCase()] || strength}
-                                            </span>
-                                        </span>
-                                        <span className="text-gray-300">|</span>
-                                        <span>
-                                            <span className="font-bold text-gray-800">{dict.checkout.therapist_label}</span>
-                                            <span className={`ml-1 capitalize font-bold ${therapist === 'male' ? 'text-blue-700' :
-                                                therapist === 'female' ? 'text-purple-700' :
-                                                    therapist === 'random' ? 'text-green-700' : 'text-gray-600'
-                                                }`}>
-                                                {dict.options?.therapist_options?.[therapist?.toLowerCase()] || therapist}
-                                            </span>
+                                {/* Vertical Attributes Stack */}
+                                <div className="space-y-2 text-sm">
+                                    {/* Strength */}
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-5 flex justify-center"><Hand size={16} className="text-gray-400" /></div>
+                                        <span className="font-bold text-gray-500 w-24">{dict.checkout.strength_label}</span>
+                                        <span className="text-gray-300 mx-1">|</span>
+                                        <span className={`font-bold capitalize ${getStrengthColor(strength)}`}>
+                                            {dict.options?.strength_levels?.[strength?.toLowerCase()] || strength}
                                         </span>
                                     </div>
 
-                                    {/* Tags & Note Content */}
-                                    {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.content) && (
-                                        <div className="pt-2 border-t border-gray-200 mt-2 space-y-2">
-                                            {/* Tags */}
-                                            {(item.options.notes.tag0 || item.options.notes.tag1) && (
-                                                <div className="flex gap-2">
-                                                    {item.options.notes.tag0 && (
-                                                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">
-                                                            Pregnant
-                                                        </span>
-                                                    )}
-                                                    {item.options.notes.tag1 && (
-                                                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-bold">
-                                                            Allergy
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            )}
-                                            {/* Note Content */}
-                                            {item.options.notes.content && (
-                                                <div className="text-gray-600 italic text-xs bg-white p-2 rounded border border-gray-100">
-                                                    <span className="font-bold not-italic text-gray-400 mr-1">Note:</span>
-                                                    {item.options.notes.content}
-                                                </div>
-                                            )}
+                                    {/* Therapist */}
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-5 flex justify-center"><User size={16} className="text-purple-400" /></div>
+                                        <span className="font-bold text-gray-500 w-24">{dict.checkout.therapist_label}</span>
+                                        <span className="text-gray-300 mx-1">|</span>
+                                        <span className={`font-bold capitalize ${getTherapistColor(therapist)}`}>
+                                            {dict.options?.therapist_options?.[therapist?.toLowerCase()] || therapist}
+                                        </span>
+                                    </div>
+
+                                    {/* Focus */}
+                                    {item.options?.bodyParts?.focus && item.options.bodyParts.focus.length > 0 && (
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-5 flex justify-center mt-0.5"><HeartPulse size={16} className="text-green-600" /></div>
+                                            <span className="font-bold text-green-600 w-24 shrink-0">{dict.checkout.focus}:</span>
+                                            <span className="text-green-600 font-medium leading-tight">
+                                                {formatParts(item.options.bodyParts.focus)}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Avoid */}
+                                    {item.options?.bodyParts?.avoid && item.options.bodyParts.avoid.length > 0 && (
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-5 flex justify-center mt-0.5"><Ban size={16} className="text-red-500" /></div>
+                                            <span className="font-bold text-red-500 w-24 shrink-0">{dict.checkout.avoid}:</span>
+                                            <span className="text-red-500 font-medium leading-tight">
+                                                {formatParts(item.options.bodyParts.avoid)}
+                                            </span>
                                         </div>
                                     )}
                                 </div>
 
+                                {/* Tags & Note Content - Footer */}
+                                {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.content) && (
+                                    <div className="mt-4 pt-3 border-t border-gray-50 flex flex-col gap-2">
+                                        {/* Tags */}
+                                        {(item.options.notes.tag0 || item.options.notes.tag1) && (
+                                            <div className="flex gap-2">
+                                                {item.options.notes.tag0 && (
+                                                    <span className="bg-yellow-100 text-yellow-800 text-[11px] px-2 py-1 rounded font-bold">
+                                                        {dict.tags?.pregnant || 'Pregnant'}
+                                                    </span>
+                                                )}
+                                                {item.options.notes.tag1 && (
+                                                    <span className="bg-yellow-100 text-yellow-800 text-[11px] px-2 py-1 rounded font-bold">
+                                                        {dict.tags?.allergy || 'Allergy'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                        {/* Note Content */}
+                                        {item.options.notes.content && (
+                                            <div className="text-gray-600 italic text-xs bg-gray-50 p-2 rounded border border-gray-100">
+                                                <span className="font-bold not-italic text-gray-400 mr-1">{dict.history?.note_label || 'Note'}:</span>
+                                                {item.options.notes.content}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* Custom Button */}
                                 <button
                                     onClick={() => onCustomRequest(item)}
-                                    className={`w-full py-3 rounded-xl border font-bold uppercase transition-all flex items-center justify-center gap-2 text-sm shadow-sm ${hasCustom
+                                    className={`w-full py-3 rounded-xl border font-bold uppercase transition-all flex items-center justify-center gap-2 text-sm shadow-sm mt-4 ${hasCustom
                                         ? 'border-green-200 bg-white text-green-700 hover:bg-green-50'
                                         : 'border-gray-100 text-gray-500 hover:bg-gray-50 hover:text-black'
                                         }`}
@@ -171,6 +190,6 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

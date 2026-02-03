@@ -95,6 +95,38 @@ const dictionaries = {
             full_body: "Full Body",
             partly: "Partly"
         },
+        body_parts: {
+            foot: "Foot",
+            feet: "Feet",
+            head: "Head",
+            neck: "Neck",
+            shoulder: "Shoulder",
+            back: "Back",
+            back_upper: "Upper Back",
+            back_lower: "Lower Back",
+            arm: "Arm",
+            arms: "Arms",
+            hand: "Hand",
+            hands: "Hands",
+            thigh: "Thigh",
+            leg: "Leg",
+            legs: "Legs",
+            calf: "Calf",
+            glute: "Glute",
+            // Fallback for uppercase keys just in case
+            FOOT: "Foot",
+            HEAD: "Head",
+            NECK: "Neck",
+            SHOULDER: "Shoulder",
+            BACK: "Back",
+            ARM: "Arm",
+            THIGH: "Thigh",
+            CALF: "Calf"
+        },
+        tags: {
+            pregnant: "Pregnant",
+            allergy: "Allergy"
+        },
         history: {
             page_title: "Your Visits",
             modify_btn: "Modify (New)",
@@ -181,6 +213,38 @@ const dictionaries = {
             title: "Tùy chỉnh cho bạn",
             full_body: "Toàn thân",
             partly: "Một phần"
+        },
+        body_parts: {
+            foot: "Chân",
+            feet: "Bàn chân",
+            head: "Đầu",
+            neck: "Cổ",
+            shoulder: "Vai",
+            back: "Lưng",
+            back_upper: "Lưng trên",
+            back_lower: "Thắt lưng",
+            arm: "Tay",
+            arms: "Tay",
+            hand: "Bàn tay",
+            hands: "Bàn tay",
+            thigh: "Đùi",
+            leg: "Chân",
+            legs: "Chân",
+            calf: "Bắp chân",
+            glute: "Mông",
+            // Fallback
+            FOOT: "Chân",
+            HEAD: "Đầu",
+            NECK: "Cổ",
+            SHOULDER: "Vai",
+            BACK: "Lưng",
+            ARM: "Tay",
+            THIGH: "Đùi",
+            CALF: "Bắp chân"
+        },
+        tags: {
+            pregnant: "Mang thai",
+            allergy: "Dị ứng"
         },
         history: {
             page_title: "Lịch sử ghé thăm",
@@ -269,6 +333,38 @@ const dictionaries = {
             full_body: "전신",
             partly: "부분"
         },
+        body_parts: {
+            foot: "발",
+            feet: "발",
+            head: "머리",
+            neck: "목",
+            shoulder: "어깨",
+            back: "등",
+            back_upper: "등 위쪽",
+            back_lower: "허리",
+            arm: "팔",
+            arms: "팔",
+            hand: "손",
+            hands: "손",
+            thigh: "허벅지",
+            leg: "다리",
+            legs: "다리",
+            calf: "종아리",
+            glute: "엉덩이",
+            // Fallback
+            FOOT: "발",
+            HEAD: "머리",
+            NECK: "목",
+            SHOULDER: "어깨",
+            BACK: "등",
+            ARM: "팔",
+            THIGH: "허벅지",
+            CALF: "종아리"
+        },
+        tags: {
+            pregnant: "임산부",
+            allergy: "알레르기"
+        },
         history: {
             page_title: "방문 기록",
             modify_btn: "수정 (신규)",
@@ -356,6 +452,38 @@ const dictionaries = {
             full_body: "全身",
             partly: "部分"
         },
+        body_parts: {
+            foot: "脚",
+            feet: "脚",
+            head: "头",
+            neck: "脖子",
+            shoulder: "肩膀",
+            back: "背部",
+            back_upper: "上背部",
+            back_lower: "下背部",
+            arm: "手臂",
+            arms: "手臂",
+            hand: "手",
+            hands: "手",
+            thigh: "大腿",
+            leg: "腿",
+            legs: "腿",
+            calf: "小腿",
+            glute: "臀部",
+            // Fallback
+            FOOT: "脚",
+            HEAD: "头",
+            NECK: "脖子",
+            SHOULDER: "肩膀",
+            BACK: "背部",
+            ARM: "手臂",
+            THIGH: "大腿",
+            CALF: "小腿"
+        },
+        tags: {
+            pregnant: "孕妇",
+            allergy: "过敏"
+        },
         history: {
             page_title: "访问记录",
             modify_btn: "修改 (新)",
@@ -442,6 +570,38 @@ const dictionaries = {
             title: "カスタム",
             full_body: "全身",
             partly: "部分"
+        },
+        body_parts: {
+            foot: "足",
+            feet: "足",
+            head: "頭",
+            neck: "首",
+            shoulder: "肩",
+            back: "背中",
+            back_upper: "背中上部",
+            back_lower: "腰",
+            arm: "腕",
+            arms: "腕",
+            hand: "手",
+            hands: "手",
+            thigh: "太もも",
+            leg: "脚",
+            legs: "脚",
+            calf: "ふくらはぎ",
+            glute: "お尻",
+            // Fallback
+            FOOT: "足",
+            HEAD: "頭",
+            NECK: "首",
+            SHOULDER: "肩",
+            BACK: "背中",
+            ARM: "腕",
+            THIGH: "太もも",
+            CALF: "ふくらはぎ"
+        },
+        tags: {
+            pregnant: "妊娠中",
+            allergy: "アレルギー"
         },
         history: {
             page_title: "訪問履歴",
