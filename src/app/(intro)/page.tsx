@@ -12,6 +12,31 @@ import { useLanguageSelectorLogic } from "./LanguageSelector.logic";
 import { languages } from "./LanguageSelector.lang";
 import { animClasses } from "./animation";
 
+// ============================================================================
+// 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN CHỌN NGÔN NGỮ (SỬA SỐ Ở ĐÂY) 👇
+// ============================================================================
+const LAYOUT_CONFIG = {
+  // 1. LOGO TRÊN CÙNG
+  topLogo: {
+    marginTop: "40px",       // Khoảng cách từ mép trên xuống Logo
+    width: "200px",          // Chiều rộng Logo
+  },
+
+  // 2. VÒNG TRÒN CỜ (ORBIT)
+  orbit: {
+    marginTop: "0px",        // Đẩy toàn bộ vòng tròn cờ lên (số âm) hoặc xuống (số dương)
+    centerLogoSize: "100px", // Kích thước Logo ở giữa vòng tròn
+  },
+
+  // 3. CHỮ CHẠY (MARQUEE)
+  marquee: {
+    marginBottom: "150px",   // Khoảng cách từ mép dưới lên dòng chữ chạy
+    height: "100px",         // Chiều cao vùng chứa chữ chạy
+    fontSize: "17px",        // Cỡ chữ
+  }
+};
+// ============================================================================
+
 /**
  * Component chính cho trang chọn ngôn ngữ
  * Sử dụng hook useLanguageSelectorLogic để quản lý logic
@@ -46,12 +71,28 @@ export default function LanguageSelectorPage() {
 
       </div>
 
-      <div className={animClasses.logoTopContainer}>
-        <img src="/assets/logos/logo-gold.webp" alt="Ngan Ha Spa" className={animClasses.logoTop} />
+      {/* LOGO TRÊN CÙNG */}
+      <div
+        className={animClasses.logoTopContainer}
+        style={{ top: `calc(${LAYOUT_CONFIG.topLogo.marginTop} + env(safe-area-inset-top))` }}
+      >
+        <img
+          src="/assets/logos/logo-gold.webp"
+          alt="Ngan Ha Spa"
+          className={animClasses.logoTop}
+          style={{ width: LAYOUT_CONFIG.topLogo.width }}
+        />
       </div>
 
-      <div className={animClasses.orbitContainer}>
-        <div className={animClasses.centerLogoWrapper(showGreeting)}>
+      {/* VÒNG TRÒN CỜ & LOGO GIỮA */}
+      <div
+        className={animClasses.orbitContainer}
+        style={{ marginTop: LAYOUT_CONFIG.orbit.marginTop }}
+      >
+        <div
+          className={animClasses.centerLogoWrapper(showGreeting)}
+          style={{ width: LAYOUT_CONFIG.orbit.centerLogoSize, height: LAYOUT_CONFIG.orbit.centerLogoSize }}
+        >
           <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full animate-pulse"></div>
           <img
             src="/assets/logos/logo-only-gold.webp"
@@ -86,10 +127,22 @@ export default function LanguageSelectorPage() {
       </div>
 
       {/* --- PHẦN CHỮ CHẠY (MARQUEE) --- */}
-      <div className={animClasses.marqueeWrapper}>
+      <div
+        className={animClasses.marqueeWrapper}
+        style={{
+          bottom: `calc(${LAYOUT_CONFIG.marquee.marginBottom} + env(safe-area-inset-bottom))`,
+          height: LAYOUT_CONFIG.marquee.height
+        }}
+      >
         <div className={`${animClasses.marqueeTrack} animate-scroll`}>
           {marqueeContent.map((text, i) => (
-            <div key={i} className={animClasses.marqueeText}> 11 Ngo Duc Ke, Sai Gon Ward, HCMC, VietNam </div>
+            <div
+              key={i}
+              className={animClasses.marqueeText}
+              style={{ fontSize: LAYOUT_CONFIG.marquee.fontSize }}
+            >
+              11 Ngo Duc Ke, Sai Gon Ward, HCMC, VietNam
+            </div>
           ))}
         </div>
       </div>
