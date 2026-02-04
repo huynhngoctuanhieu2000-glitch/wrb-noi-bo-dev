@@ -192,7 +192,14 @@ const dictionaries = {
             cash_vnd: "Tiền mặt (VND)",
             cash_usd: "Tiền mặt (USD)",
             card: "Thẻ",
-            transfer: "Chuyển khoản"
+            transfer: "Chuyển khoản",
+            // New UI keys
+            denominations: "Mệnh giá thu",
+            exchange_rules: "Quy định thu & trả lại",
+            refund_note: "Tiền thừa sẽ được trả lại bằng VND.",
+            accepted_cards: "Các loại thẻ chấp nhận",
+            cards_desc: "Thẻ thanh toán được hỗ trợ",
+            understood: "Đã hiểu"
         },
         common: {
             back_to_menu: "Menu"
@@ -311,7 +318,14 @@ const dictionaries = {
             cash_vnd: "현금 (VND)",
             cash_usd: "현금 (USD)",
             card: "카드",
-            transfer: "계좌 이체"
+            transfer: "계좌 이체",
+            // New UI keys
+            denominations: "수금 가능 권종",
+            exchange_rules: "수금 및 환불 규정",
+            refund_note: "거스름돈은 VND로 반환됩니다.",
+            accepted_cards: "허용된 카드",
+            cards_desc: "지원되는 결제 카드",
+            understood: "확인"
         },
         common: {
             back_to_menu: "메뉴"
@@ -430,7 +444,14 @@ const dictionaries = {
             cash_vnd: "现金 (VND)",
             cash_usd: "现金 (USD)",
             card: "银行卡",
-            transfer: "转账"
+            transfer: "转账",
+            // New UI keys
+            denominations: "接收面额",
+            exchange_rules: "收款与退款规则",
+            refund_note: "找零将返还 VND。",
+            accepted_cards: "支持的银行卡",
+            cards_desc: "支持的支付卡",
+            understood: "明白了"
         },
         common: {
             back_to_menu: "菜单"
@@ -549,7 +570,14 @@ const dictionaries = {
             cash_vnd: "現金 (VND)",
             cash_usd: "現金 (USD)",
             card: "カード",
-            transfer: "銀行振込"
+            transfer: "銀行振込",
+            // New UI keys
+            denominations: "取り扱い券種",
+            exchange_rules: "徴収および返金ルール",
+            refund_note: "お釣りはVNDで返却されます。",
+            accepted_cards: "利用可能なカード",
+            cards_desc: "対応している支払いカード",
+            understood: "了解しました"
         },
         common: {
             back_to_menu: "メニュー"
