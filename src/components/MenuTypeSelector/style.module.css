@@ -6,9 +6,12 @@
 /* Class chung cho bìa sách */
 .bookCover {
     position: relative;
-    width: 11rem;
-    height: 15rem;
-    /* Mobile: Small enough to fit 2 items + header without scrolling */
+    width: 19.5vh;
+    height: 26vh;
+    /* Mobile: 23% height per book -> 46% total. More breathing room for header/footer. */
+    /* Maintain ~0.75 aspect ratio */
+    /* iPhone SE (667px) -> ~187px height (safe) */
+    /* iPhone 14 Pro Max (932px) -> ~260px height (bigger & nice) */
 
     border-radius: 0 0.5rem 0.5rem 0;
     /* Bo tròn cạnh phải giống gáy sách */

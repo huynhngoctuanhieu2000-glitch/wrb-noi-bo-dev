@@ -5,6 +5,42 @@ import Image from "next/image";
 import styles from "./style.module.css";
 import { ArrowLeft } from "lucide-react";
 
+// ============================================================================
+// 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN (CHỈ CẦN SỬA SỐ Ở ĐÂY) 👇
+// ============================================================================
+const LAYOUT_CONFIG = {
+    // 1. CẤU HÌNH LOGO & TIÊU ĐỀ
+    // 1. CẤU HÌNH LOGO & TIÊU ĐỀ
+    header: {
+        marginTop: "-55px",      // Đẩy logo lên cao (số âm) hoặc xuống thấp (số dương)
+        gapLogoText: "10px",     // 👇 Khoảng cách từ Logo xuống dòng chữ "Select Service Menu"
+        marginBottom: "20px",    // 👇 Khoảng cách từ dòng chữ xuống cuốn sách vàng
+        logoHeight: "100px",     // Chiều cao Logo
+        logoWidth: "320px",      // Chiều rộng khung Logo (giữ tỉ lệ ảnh)
+        titleSize: "20px",       // Cỡ chữ "Select Service Menu"
+    },
+
+    // 2. CẤU HÌNH CUỐN SÁCH MENU
+    books: {
+        width: "160px",          // Chiều rộng cuốn sách
+        height: "220px",         // Chiều cao cuốn sách
+        gap: "30px",             // Khoảng cách giữa 2 cuốn sách
+        titleSize: "24px",       // Cỡ chữ tên gói (Standard/Premium)
+        descSize: "12px",        // Cỡ chữ mô tả (Random Staff...)
+    },
+
+    // 3. CẤU HÌNH NÚT BACK (QUAY LẠI)
+    backButton: {
+        marginTop: "30px",       // 👇 Khoảng cách từ cuốn sách đen xuống nút Back
+        marginBottom: "10px",    // Khoảng cách từ mép dưới màn hình
+        fontSize: "14px",        // Cỡ chữ trong nút
+        paddingY: "12px",        // Độ dày nút (trên dưới)
+        paddingX: "60px",        // Độ dài nút (trái phải) - Tăng số này để nút dài ra
+        minWidth: "180px",       // Chiều dài tối thiểu của nút
+    }
+};
+// ============================================================================
+
 interface Props {
     lang: string;
     onSelect: (type: 'standard' | 'vip') => void;
@@ -23,12 +59,20 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
     const t = texts[lang] || texts['en'];
 
     return (
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center justify-between h-full w-full max-h-full py-2">
 
             {/* 1. HEADER */}
-            <div className="text-center mb-[60px] animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="w-[450px] h-[140px] mx-auto -mb-[20px] relative animate-pulse z-10">
-                    {/* ES Lint disable was here, removed as we use Next Image */}
+            <div
+                className="text-center animate-in fade-in slide-in-from-bottom-4 duration-700 shrink-0"
+                style={{
+                    marginTop: LAYOUT_CONFIG.header.marginTop,
+                    marginBottom: LAYOUT_CONFIG.header.marginBottom // Áp dụng khoảng cách xuống sách
+                }}
+            >
+                <div
+                    className="mx-auto relative animate-pulse z-10"
+                    style={{ height: LAYOUT_CONFIG.header.logoHeight, width: LAYOUT_CONFIG.header.logoWidth }}
+                >
                     <div className="relative w-full h-full">
                         <Image
                             src="/assets/logos/logo-gold.webp"
@@ -40,20 +84,32 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                         />
                     </div>
                 </div>
-                <p className="gold-text-shiny font-bold text-[25px] text-yellow-500/90 mt-[18px] italic ">
+                <p
+                    className="gold-text-shiny font-bold text-yellow-500/90 mt-0 italic"
+                    style={{
+                        fontSize: LAYOUT_CONFIG.header.titleSize,
+                        marginTop: LAYOUT_CONFIG.header.gapLogoText // Áp dụng khoảng cách Logo - Text
+                    }}
+                >
                     {t.title}
                 </p>
             </div>
 
             {/* 2. BOOKS CONTAINER */}
-            <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-24 mt-[-60px] mb-[20px] w-full">
+            <div
+                className="flex flex-col md:flex-row justify-center items-center w-full flex-1 min-h-0"
+                style={{ gap: LAYOUT_CONFIG.books.gap }}
+            >
 
                 {/* === BOOK 1: STANDARD === */}
                 <div
                     onClick={() => onSelect('standard')}
                     className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-left-8 delay-150 fill-mode-forwards relative`}
                 >
-                    <div className={`${styles.bookCover} ${styles.perspective1000} relative`}>
+                    <div
+                        className={`${styles.bookCover} ${styles.perspective1000} relative`}
+                        style={{ width: LAYOUT_CONFIG.books.width, height: LAYOUT_CONFIG.books.height }}
+                    >
                         <div className={`${styles.bgCover} relative overflow-hidden`}>
                             <Image
                                 src="/assets/logos/menu-standard.webp"
@@ -65,21 +121,20 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                             />
                         </div>
 
-                        {/* ✅ VÙNG GIẤY VIẾT (STANDARD) */}
-                        {/* left-[17%]: Bắt đầu từ sau gáy lò xo */}
-                        {/* w-[78%]: Chiều rộng còn lại của trang giấy */}
-                        {/* top-[26%]: Bắt đầu từ dưới cái hoa văn trang trí */}
-                        {/* flex items-center justify-center: Căn chữ vào GIỮA VÙNG GIẤY NÀY */}
+                        {/* TEXT ON STANDARD BOOK */}
                         <div className="absolute left-[14%] top-[26%] w-[78%] h-[55%] z-20 flex flex-col items-center justify-center text-center">
-
-                            <h3 className="font-bold -luxury text-lg md:text-5xl text-[#4a3800] drop-shadow-sm leading-tight mb-1 w-full">
+                            <h3
+                                className="font-bold -luxury text-[#4a3800] drop-shadow-sm leading-tight mb-1 w-full"
+                                style={{ fontSize: LAYOUT_CONFIG.books.titleSize }}
+                            >
                                 {t.std}
                             </h3>
-
-                            <p className="font-bold-body text-[10px] md:text-[13px] text-[#5c4000] font-semibold w-full px-1">
+                            <p
+                                className="font-bold-body text-[#5c4000] font-semibold w-full px-1"
+                                style={{ fontSize: LAYOUT_CONFIG.books.descSize }}
+                            >
                                 {t.std_desc}
                             </p>
-
                             <div className="mt-2 w-20 bg-[#000000] opacity-50 rounded-full" />
                         </div>
                     </div>
@@ -90,7 +145,10 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     onClick={() => onSelect('vip')}
                     className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-right-8 delay-300 fill-mode-forwards relative`}
                 >
-                    <div className={`${styles.bookCover} ${styles.perspective1000} relative`}>
+                    <div
+                        className={`${styles.bookCover} ${styles.perspective1000} relative`}
+                        style={{ width: LAYOUT_CONFIG.books.width, height: LAYOUT_CONFIG.books.height }}
+                    >
                         <div className={`${styles.bgCover} relative overflow-hidden`}>
                             <Image
                                 src="/assets/logos/menu-premium.webp"
@@ -103,19 +161,20 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                         </div>
                         <div className={styles.shineEffect} />
 
-                        {/* ✅ VÙNG GIẤY VIẾT (PREMIUM) */}
-                        {/* left-[17%]: Giống bên trên, né gáy lò xo */}
-                        {/* top-[34%]: Hạ thấp hơn vì Logo Vương Miện to hơn */}
+                        {/* TEXT ON PREMIUM BOOK */}
                         <div className="absolute left-[14%] top-[34%] w-[78%] h-[50%] z-20 flex flex-col items-center justify-center text-center">
-
-                            <h3 className="gold-text-shiny font-bold text-lg md:text-[25px] uppercase tracking-wider group-hover:brightness-125 mb-1">
+                            <h3
+                                className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125 mb-1"
+                                style={{ fontSize: LAYOUT_CONFIG.books.titleSize }}
+                            >
                                 {t.vip}
                             </h3>
-
-                            <p className="gold-text-shiny font-bold text-[8px] md:text-[10px] uppercase tracking-wider group-hover:brightness-125">
+                            <p
+                                className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125"
+                                style={{ fontSize: LAYOUT_CONFIG.books.descSize }}
+                            >
                                 {t.vip_desc}
                             </p>
-
                             <div className="mt-3 w-12 bg-yellow-500 opacity-60 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
                         </div>
                     </div>
@@ -125,16 +184,30 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
 
             {/* 3. NÚT BACK */}
             {onBack && (
-                <div className="text-center animate-in fade-in slide-in-from-bottom-8 delay-500 fill-mode-forwards z-30 pb-12">
+                <div
+                    className="text-center animate-in fade-in slide-in-from-bottom-8 delay-500 fill-mode-forwards z-30"
+                    style={{
+                        paddingBottom: LAYOUT_CONFIG.backButton.marginBottom,
+                        marginTop: LAYOUT_CONFIG.backButton.marginTop // Áp dụng khoảng cách từ sách xuống nút
+                    }}
+                >
                     <button
                         onClick={onBack}
-                        className="mt-4 w-fit mx-auto rounded-[1.5rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-1 text-black hover:text-white text-xs uppercase tracking-widest transition-colors py-2"
+                        style={{
+                            fontSize: LAYOUT_CONFIG.backButton.fontSize,
+                            paddingTop: LAYOUT_CONFIG.backButton.paddingY,
+                            paddingBottom: LAYOUT_CONFIG.backButton.paddingY,
+                            paddingLeft: LAYOUT_CONFIG.backButton.paddingX,
+                            paddingRight: LAYOUT_CONFIG.backButton.paddingX,
+                            minWidth: LAYOUT_CONFIG.backButton.minWidth
+                        }}
+                        className="mt-4 mx-auto rounded-[2rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-2 text-black hover:text-white uppercase tracking-widest transition-colors shadow-lg"
                     >
                         <ArrowLeft
                             size={20}
                             className="bg-black-500/80 group-hover:bg-white transition-transform duration-300 group-hover:-translate-x-1"
                         />
-                        <span className="text-sm text-black/90 group-hover:text-white uppercase tracking-[0.25em] font-semibold transition-colors duration-300">
+                        <span className="text-black/90 group-hover:text-white uppercase tracking-[0.25em] font-semibold transition-colors duration-300">
                             {t.btn_back}
                         </span>
                     </button>

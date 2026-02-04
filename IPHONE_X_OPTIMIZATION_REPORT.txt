@@ -1,0 +1,22 @@
+BÁO CÁO KỸ THUẬT: Vấn đề hiển thị Full-screen trên iPhone (đặc biệt dòng X trở lên)
+
+1. Vấn đề "Tai thỏ" và "Thanh Home ảo" (Safe Area)
+*   Phần cứng: iPhone X là dòng đầu tiên loại bỏ nút Home vật lý và thêm "tai thỏ" (notch) ở trên cùng. Apple quy định hai vùng chết (Dead Zones) là đỉnh (tai thỏ) và đáy (thanh vuốt Home).
+*   Hệ quả: Nếu Website để mặc định tràn viền (Full width/height), nội dung sẽ bị tai thỏ che mất hoặc nút bấm bên dưới bị thanh Home đè lên -> Không bấm được.
+
+2. "Kẻ thù" thực sự: Thanh địa chỉ trình duyệt (Dynamic URL Bar)
+Đây là lý do chính khiến bản HTML chạy ngon mà React/Next.js ban đầu bị lỗi:
+*   CSS "100vh": Trên máy tính, 100vh là 100% chiều cao màn hình. Nhưng trên iPhone (Safari), 100vh bao gồm cả thanh địa chỉ bên dưới/trên. Khi thanh địa chỉ hiện ra, phần dưới cùng của web (nút Confirm/Checkout) sẽ bị che khuất.
+*   CSS "100dvh": Đây là đơn vị mới để khắc phục vấn đề trên, nhưng trên các bản iOS cũ (iPhone X đời đầu thường chạy iOS cũ), nó hoạt động không ổn định hoặc giật lag khi người dùng cuộn trang.
+
+3. Tại sao file HTML cũ lại chạy ngon còn Next.js thì khó chỉnh?
+*   File HTML tĩnh: Sử dụng cách tiếp cận "cổ điển nhưng chắc chắn" là JavaScript (window.innerHeight). Nó dùng code để đo chiều cao thực tế của phần nhìn thấy được (đã trừ thanh địa chỉ) rồi ép cứng chiều cao đó cho App (--app-height). Cách này hoạt động 100% chính xác trên mọi thiết bị nhưng yêu cầu phải viết code tay.
+*   Next.js (Framework): Mặc định render từ phía Server (Server Side Rendering), lúc này chưa có thông tin về màn hình điện thoại của người dùng (vì server đâu thể biết người dùng đang cầm iPhone hay Samsung). Do đó, lúc load trang lên nó phải dùng CSS mặc định (100dvh), dẫn đến việc bị sai lệch hiển thị trên một số thiết bị Apple "khó tính".
+
+4. Giải pháp triệt để (Đã thực hiện)
+Chúng ta đã bỏ qua cách làm mặc định của Next.js và quay lại sử dụng phương pháp "thủ công" của file HTML tĩnh nhưng tích hợp nó vào môi trường React:
+1.  Ép buộc Viewport: Thêm viewport-fit=cover và user-scalable=no vào thẻ Meta (để chặn iPhone tự ý zoom hay tự ý thêm khoảng trắng).
+2.  Đo màn hình bằng JS: Viết một đoạn mã (Script) chạy ngầm ngay khi Web vừa mở lên để đo chính xác milimet phần hiển thị khả dụng, sau đó gán giá trị này cho web.
+3.  Safe-area padding: Cộng thêm khoảng cách an toàn (lấy từ biến môi trường env(safe-area-inset...)) vào các nút bấm.
+
+Tóm lại: Việc tối ưu cho iPhone X+ khó vì sự phân mảnh giữa các phiên bản iOS và cơ chế render "thông minh quá mức" của trình duyệt Safari. Giải pháp hiện tại (dùng JS đo lại chiều cao) là giải pháp bền vững nhất (giống hệt cách Zalo/Facebook/Native App đang làm).
