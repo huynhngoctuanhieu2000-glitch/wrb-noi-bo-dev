@@ -5,6 +5,42 @@ import React, { useState, useEffect } from "react";
 import { UserCheck, ArrowRight, X, Loader2, ArrowLeft, History, Search } from "lucide-react";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
 
+// ============================================================================
+// 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN (SỬA SỐ Ở ĐÂY) 👇
+// ============================================================================
+const LAYOUT_CONFIG = {
+  // 1. CẤU HÌNH LOGO
+  logo: {
+    size: "180px",           // Kích thước Logo (Vuông)
+    marginBottom: "20px",    // Khoảng cách từ Logo xuống Tiêu đề
+  },
+
+  // 2. CẤU HÌNH TIÊU ĐỀ
+  text: {
+    titleSize: "28px",       // Cỡ chữ tiêu đề chính (WELCOME...)
+    descSize: "16px",        // Cỡ chữ mô tả bên dưới
+    marginBottom: "30px",    // Khoảng cách từ chữ xuống nút đầu tiên
+  },
+
+  // 3. CẤU HÌNH NÚT BẤM (BUTTONS)
+  buttons: {
+    height: "70px",          // Chiều cao của 2 nút chính
+    gap: "16px",             // Khoảng cách giữa 2 nút
+    fontSizeTitle: "16px",   // Cỡ chữ tiêu đề trong nút
+    fontSizeDesc: "11px",    // Cỡ chữ mô tả (nhỏ) trong nút KH mới
+    iconSize: 22,            // Kích thước Icon (số, không phải px)
+  },
+
+  // 4. CẤU HÌNH NÚT BACK
+  backButton: {
+    marginTop: "20px",       // Khoảng cách từ nút KH mới xuống nút Back
+    fontSize: "14px",        // Cỡ chữ
+    paddingX: "30px",        // Độ rộng nút
+    paddingY: "10px",        // Độ dày nút
+  }
+};
+// ============================================================================
+
 export default function CustomerTypePage({ params }: { params: Promise<{ lang: string }> }) {
   const [lang, setLang] = useState<string>("en");
   const [inputEmail, setInputEmail] = useState("");
@@ -48,20 +84,33 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
 
       </div>
 
-      <div className={`z-10 w-full max-w-md flex flex-col gap-4 ${getCommonAnimationClass()}`}>
+      <div className={`z-10 w-full max-w-md flex flex-col ${getCommonAnimationClass()}`} style={{ gap: LAYOUT_CONFIG.buttons.gap }}>
 
         {/* --- LOGO --- */}
-        <div className="w-48 h-48 mx-auto mb-2 relative flex items-center justify-center">
+        <div
+          className="mx-auto relative flex items-center justify-center"
+          style={{
+            width: LAYOUT_CONFIG.logo.size,
+            height: LAYOUT_CONFIG.logo.size,
+            marginBottom: LAYOUT_CONFIG.logo.marginBottom
+          }}
+        >
           <div className="absolute inset-0 bg-yellow-500/20 rounded-full blur-xl animate-pulse"></div>
           <img src="/assets/logos/logo-only-gold.webp" alt="Logo" className="w-full h-full object-contain relative z-10 drop-shadow-lg" />
         </div>
 
         {/* --- TIÊU ĐỀ (Dùng t() để dịch) --- */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl md:text-4xl font-bold uppercase tracking-[0.1em] mb-2 font-bold luxury gold-text-shiny drop-shadow-md">
+        <div className="text-center" style={{ marginBottom: LAYOUT_CONFIG.text.marginBottom }}>
+          <h1
+            className="font-bold uppercase tracking-[0.1em] mb-2 font-bold luxury gold-text-shiny drop-shadow-md"
+            style={{ fontSize: LAYOUT_CONFIG.text.titleSize }}
+          >
             {t('wc_title')}
           </h1>
-          <p className="gold-text-soft text-lg md:text-xl font-medium tracking-wide opacity-100">
+          <p
+            className="gold-text-soft font-medium tracking-wide opacity-100"
+            style={{ fontSize: LAYOUT_CONFIG.text.descSize }}
+          >
             {t('wc_desc')}
           </p>
         </div>
@@ -69,32 +118,52 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
         {/* --- NÚT KHÁCH HÀNG CŨ --- */}
         <button
           onClick={onSelectOldUser}
-          className="w-full min-h-[70px] h-auto py-4 bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] hover:brightness-110 text-black font-extrabous font-bold text-[15px] md:text-lg rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] shadow-[0_10px_20px_-10px_rgba(179,135,40,0.5)]"
+          style={{ height: LAYOUT_CONFIG.buttons.height }}
+          className="w-full h-auto py-4 bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] hover:brightness-110 text-black font-extrabous font-bold rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] shadow-[0_10px_20px_-10px_rgba(179,135,40,0.5)]"
         >
-          <span className="uppercase tracking-widest">{t('btn_old_title')}</span>
+          <span className="uppercase tracking-widest" style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}>
+            {t('btn_old_title')}
+          </span>
           <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <UserCheck size={22} />
+            <UserCheck size={LAYOUT_CONFIG.buttons.iconSize} />
           </div>
         </button>
+
         {/* --- NÚT KHÁCH HÀNG MỚI --- */}
         <button
           onClick={onSelectNewUser}
-          className="group w-full min-h-[70px] h-auto py-4 bg-[black]/[0.03] border-yellow hover:bg-yellow-500/10 rounded-[1.5rem] flex items-center justify-between px-6 transition-all duration-300 active:scale-[0.98]"
+          style={{ height: LAYOUT_CONFIG.buttons.height }}
+          className="group w-full h-auto py-4 bg-[black]/[0.03] border-yellow hover:bg-yellow-500/10 rounded-[1.5rem] flex items-center justify-between px-6 transition-all duration-300 active:scale-[0.98]"
         >
           <div className="flex flex-col items-start text-left">
-            <span className="gold-text-shiny font-bold text-[15px] uppercase tracking-wider group-hover:brightness-125">
+            <span
+              className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125"
+              style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}
+            >
               {t('btn_new_title')}
             </span>
-            <span className="text-gray-500 text-[10px] font-normal tracking-tight group-hover:text-gray-400 italic">
+            <span
+              className="text-gray-500 font-normal tracking-tight group-hover:text-gray-400 italic"
+              style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeDesc }}
+            >
               {t('btn_new_desc')}
             </span>
           </div>
           <ArrowRight size={30} className="text-yellow-600/50 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
         </button>
+
         {/* --- NÚT QUAY LẠI --- */}
         <button
           onClick={handleBack}
-          className="mt-4 w-fit mx-auto rounded-[1.5rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-1 text-black hover:text-white text-xs uppercase tracking-widest transition-colors py-2"
+          style={{
+            marginTop: LAYOUT_CONFIG.backButton.marginTop,
+            paddingTop: LAYOUT_CONFIG.backButton.paddingY,
+            paddingBottom: LAYOUT_CONFIG.backButton.paddingY,
+            paddingLeft: LAYOUT_CONFIG.backButton.paddingX,
+            paddingRight: LAYOUT_CONFIG.backButton.paddingX,
+            fontSize: LAYOUT_CONFIG.backButton.fontSize
+          }}
+          className="w-fit mx-auto rounded-[1.5rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-1 text-black hover:text-white uppercase tracking-widest transition-colors py-2"
         >
           <ArrowLeft size={14} />
           {t('btn_back')}
@@ -102,8 +171,6 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
 
       </div>
 
-      {/* --- POPUP --- */}
-      {/* Áp dụng class animation từ Logic */}
       {/* --- POPUP --- */}
       {/* Áp dụng class animation từ Logic */}
       <div className={getPopupOverlayClass(showPopup)}>
