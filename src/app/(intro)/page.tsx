@@ -26,6 +26,7 @@ const LAYOUT_CONFIG = {
   orbit: {
     marginTop: "0px",        // Đẩy toàn bộ vòng tròn cờ lên (số âm) hoặc xuống (số dương)
     centerLogoSize: "100px", // Kích thước Logo ở giữa vòng tròn
+    radius: 110,             // 👇 Bán kính vòng tròn (độ rộng của quỹ đạo cờ) - SỐ (không có px)
   },
 
   // 3. CHỮ CHẠY (MARQUEE)
@@ -47,7 +48,7 @@ export default function LanguageSelectorPage() {
     showGreeting,
     handleSelectLanguage,
     getFlagPosition
-  } = useLanguageSelectorLogic();
+  } = useLanguageSelectorLogic(LAYOUT_CONFIG.orbit.radius); // Truyền bán kính từ config vào logic
 
   // Tạo mảng nội dung lặp lại để chạy chữ (4 lần để đảm bảo lấp đầy màn hình rộng)
   const marqueeContent = Array(4).fill("11 Ngo Duc Ke, Sai Gon Ward, HCMC, VietNam");

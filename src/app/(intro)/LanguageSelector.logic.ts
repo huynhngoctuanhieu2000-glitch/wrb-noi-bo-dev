@@ -16,11 +16,11 @@ import { useOrbitRotation } from "./animation";
  * Hook chính chứa logic cho trang chọn ngôn ngữ
  * @returns Object chứa các state và hàm xử lý
  */
-export const useLanguageSelectorLogic = () => {
+export const useLanguageSelectorLogic = (overrideRadius?: number) => {
   const router = useRouter();
   const [greeting, setGreeting] = useState(""); // Lưu trữ text greeting
   const [showGreeting, setShowGreeting] = useState(false); // Hiển thị greeting hay không
-  const [radius, setRadius] = useState(0); // Bán kính quỹ đạo cờ
+  const [radius, setRadius] = useState(overrideRadius || 0); // Bán kính quỹ đạo cờ
 
   const rotation = useOrbitRotation(); // Hook tạo hiệu ứng xoay quỹ đạo
 
@@ -29,13 +29,17 @@ export const useLanguageSelectorLogic = () => {
    * Responsive: mobile 110px, desktop 120px
    */
   useEffect(() => {
+    if (overrideRadius) {
+      setRadius(overrideRadius);
+      return;
+    }
     const updateRadius = () => {
       setRadius(window.innerWidth < 768 ? 110 : 120);
     };
     updateRadius();
     window.addEventListener('resize', updateRadius);
     return () => window.removeEventListener('resize', updateRadius);
-  }, []);
+  }, [overrideRadius]);
 
   /**
    * Hàm xử lý khi người dùng chọn ngôn ngữ
