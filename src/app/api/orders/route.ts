@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { runTransaction, doc, collection, setDoc, getDoc, query, where, getDocs, orderBy } from 'firebase/firestore';
 
+const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
+
 // Helper to translate Options to Vietnamese (Hardcoded mapping based on user request)
 const toVietnamese = (text: string | null | undefined): string => {
     if (!text) return '';
@@ -36,11 +38,25 @@ export async function POST(request: Request) {
 
         // 1. Generate Bill Number (Transaction)
         const now = new Date();
-        const day = now.getDate().toString().padStart(2, '0');
-        const month = (now.getMonth() + 1).toString().padStart(2, '0');
-        const year = now.getFullYear();
-        const dateCode = `${day}${month}${year}`; // 02022026
-        const dateStrForSheet = `${year}-${month}-${day}`; // 2026-02-02
+
+        // Convert to VN Time to determine "Business Day"
+        // This ensures we work with VN time regardless of Server Region
+        const vnDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+        const currentHour = vnDate.getHours();
+
+        // Determine Business Date
+        // If before 8 AM, count as PREVIOUS Day
+        const businessDate = new Date(vnDate);
+        if (currentHour < DAY_CUTOFF_HOUR) {
+            businessDate.setDate(businessDate.getDate() - 1);
+        }
+
+        const day = businessDate.getDate().toString().padStart(2, '0');
+        const month = (businessDate.getMonth() + 1).toString().padStart(2, '0');
+        const year = businessDate.getFullYear();
+
+        const dateCode = `${day}${month}${year}`; // e.g. 03022026
+        const dateStrForSheet = `${year}-${month}-${day}`; // e.g. 2026-02-03
 
         const counterRef = doc(db, 'counters', dateCode);
         let billNum = '';
