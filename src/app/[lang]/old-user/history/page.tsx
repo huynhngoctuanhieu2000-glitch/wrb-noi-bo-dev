@@ -211,7 +211,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             </div>
 
             {/* Bottom Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/90 to-transparent z-20">
+            <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-black via-black/90 to-transparent z-20">
                 <button
                     onClick={handleCreateNew}
                     className="w-full bg-[#1f2430] hover:bg-[#2a3040] border border-white/10 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 uppercase tracking-wide transition-all active:scale-[0.98]"

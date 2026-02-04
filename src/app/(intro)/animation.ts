@@ -62,7 +62,7 @@ export const useOrbitRotation = () => {
 export const animClasses = {
   wrapper: "relative w-full h-[100dvh] bg-[#050B14] overflow-hidden flex flex-col items-center justify-center font-sans",
   bgImage: "absolute inset-0 z-0 pointer-events-none w-full h-full object-cover object-center opacity-60 mix-blend-screen",
-  logoTopContainer: "absolute top-[40px] md:top-[50px] w-full text-center z-20 px-4 animate-float",
+  logoTopContainer: "absolute top-[calc(40px+env(safe-area-inset-top))] md:top-[50px] w-full text-center z-20 px-4 animate-float",
   logoTop: "mx-auto object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.5)] w-[140px] md:w-[200px]",
   orbitContainer: "relative z-10 w-full h-full flex items-center justify-center perspective-1000",
   centerLogoWrapper: (show: boolean) =>
@@ -74,10 +74,10 @@ export const animClasses = {
 
   flagItem: "absolute top-1/2 left-1/2 z-30 cursor-pointer w-[60px] h-[60px] -ml-[30px] -mt-[30px] shrink-0",
   flagInner: "w-full h-full rounded-full overflow-hidden hover:shadow-[0_0_20px_rgba(250,204,21,0.9)] hover:scale-125 transition-all duration-300 group shadow-[0_0_10px_rgba(234,179,8,0.3)]",
-  marqueeWrapper: "absolute bottom-[150px] w-full z-40 h-[100px] flex items-center overflow-hidden pointer-events-none select-none [mask-image:linear-gradient(to_right,transparent,white_10%,white_100%,transparent)]",
+  marqueeWrapper: "absolute bottom-[calc(150px+env(safe-area-inset-bottom))] w-full z-40 h-[100px] flex items-center overflow-hidden pointer-events-none select-none [mask-image:linear-gradient(to_right,transparent,white_10%,white_100%,transparent)]",
   marqueeTrack: "flex whitespace-nowrap w-max",
   marqueeText: "font bold -luxury text-[17px] md:text-[17px] tracking-[0.1em] uppercase mx-10 flex items-center gap-4 gold-text-soft",
 
   // 🔥 FOOTER: Áp dụng gold-text-soft
-  footer: "absolute bottom-[50px] w-full text-center z-[50] px-4 font-serif text-[14px] md:text-[14px] tracking-[0.1em] uppercase gold-text-soft"
+  footer: "absolute bottom-[calc(50px+env(safe-area-inset-bottom))] w-full text-center z-[50] px-4 font-serif text-[14px] md:text-[14px] tracking-[0.1em] uppercase gold-text-soft"
 };

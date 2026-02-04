@@ -30,7 +30,7 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
   } = useCustomerTypeLogic(lang);
 
   return (
-    <div className="w-full h-[100dvh] flex flex-col justify-center items-center px-6 relative overflow-hidden bg-black">
+    <div className="w-full h-[100dvh] flex flex-col justify-center items-center px-6 relative overflow-hidden bg-black pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
 
       {/* --- NỀN --- */}
       <div className="absolute inset-0 z-0 pointer-events-none">

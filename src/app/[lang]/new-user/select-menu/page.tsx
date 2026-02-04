@@ -29,7 +29,7 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
     };
 
     return (
-        <div className="w-full min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden p-6">
+        <div className="w-full min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden p-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
 
             {/* Background */}
             <div className="absolute inset-0 z-0">
