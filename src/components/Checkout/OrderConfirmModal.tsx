@@ -362,7 +362,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="p-6 bg-white border-t border-gray-100 flex gap-3 shrink-0">
+                <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-white border-t border-gray-100 flex gap-3 shrink-0">
                     <button
                         onClick={onClose}
                         disabled={isSubmitting}

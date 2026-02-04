@@ -294,7 +294,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             </main>
 
             {/* Bottom Bar - Confirm (Hidden on Desktop) */}
-            <div className="fixed bottom-0 left-0 w-full bg-white p-4 border-t border-gray-100 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] lg:hidden">
+            <div className="fixed bottom-0 left-0 w-full bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-gray-100 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] lg:hidden">
                 <div className="max-w-2xl mx-auto">
                     <button
                         onClick={handleConfirmOrder}

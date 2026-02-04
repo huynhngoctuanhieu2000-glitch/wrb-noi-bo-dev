@@ -191,7 +191,7 @@ export default function CustomForYouModal({
                 </div>
 
                 {/* Footer Action */}
-                <div className="border-t border-gray-100 bg-gray-50">
+                <div className="border-t border-gray-100 bg-gray-50 pb-[env(safe-area-inset-bottom)]">
                     <button
                         onClick={() => onSave(prefs)}
                         className="w-full bg-[#1a1c2e] hover:bg-[#2e314a] text-white font-bold py-5 rounded-none sm:rounded-b-[32px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-black/10"
