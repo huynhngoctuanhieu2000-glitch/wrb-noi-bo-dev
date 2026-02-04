@@ -16,6 +16,19 @@ const ALL_BODY_PARTS: { key: BodyPartKey; height: string }[] = [
     { key: 'FOOT', height: '10%' },
 ];
 
+// ============================================================================
+// 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN BODY MAP (SỬA SỐ Ở ĐÂY) 👇
+// ============================================================================
+const LAYOUT_CONFIG = {
+    // CẤU HÌNH DANH SÁCH CHECKBOX (CỘT BÊN PHẢI)
+    checklist: {
+        gap: "8px",             // Khoảng cách giữa 2 nút (Tập trung - Tránh) - Giảm số này để 2 nút gần nhau hơn
+        paddingRight: "-15px",    // Khoảng cách từ mép phải vào - Giảm về 0px để đẩy sát lề phải
+        checkboxSize: "24px",   // Kích thước ô vuông checkbox
+    }
+};
+// ============================================================================
+
 interface BodyMapProps {
     focus: string[];
     avoid: string[];
@@ -102,15 +115,18 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
 
             {/* Selectors Column */}
             <div className="w-[40%] flex flex-col h-full">
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-tight pb-0 border-b border-gray-100 flex-none mb-0 pt-0">
+                <div
+                    className="flex items-center justify-between text-[10px] font-bold uppercase tracking-tight pb-0 border-b border-gray-100 flex-none mb-0 pt-0"
+                    style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}
+                >
                     <span className="text-gray-400 flex-1">{getText({ en: 'Area', vn: 'Vị trí', jp: '部位', kr: '부위', cn: '区域' }, lang)}</span>
-                    <div className="flex gap-3">
-                        <span className="text-green-600 w-6 text-center">{getText({ en: 'Focus', vn: 'Tập trung', jp: '集中', kr: '집중', cn: '重点' }, lang)}</span>
-                        <span className="text-red-500 w-12 text-center">{getText({ en: 'Avoid', vn: 'Tránh', jp: '避ける', kr: '피하다', cn: '避开' }, lang)}</span>
+                    <div className="flex" style={{ gap: LAYOUT_CONFIG.checklist.gap }}>
+                        <span className="text-green-600 w-8 text-center">{getText({ en: 'Focus', vn: 'Tập trung', jp: '集中', kr: '집중', cn: '重点' }, lang)}</span>
+                        <span className="text-red-500 w-8 text-center">{getText({ en: 'Avoid', vn: 'Tránh', jp: '避ける', kr: '피하다', cn: '避开' }, lang)}</span>
                     </div>
                 </div>
 
-                <div className="flex flex-col pr-1 h-full overflow-y-auto custom-scrollbar">
+                <div className="flex flex-col h-full overflow-y-auto custom-scrollbar" style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}>
                     {ALL_BODY_PARTS.map((part) => {
                         // Check xem part này có được enable trong service không
                         const isAvailable = availableParts.find(p => p.key === part.key);
@@ -141,30 +157,33 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                                 FOOT: { en: 'Foot', vn: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
                                             }[part.key] as MultiLangText, lang)}
                                         </span>
-                                        <div className="flex gap-3">
+                                        <div className="flex items-center" style={{ gap: LAYOUT_CONFIG.checklist.gap }}>
                                             {/* Focus Checkbox */}
-                                            <label className="relative flex items-center justify-center cursor-pointer w-8">
+                                            <label className="relative flex items-center justify-center cursor-pointer w-8" style={{ width: "32px" }}>
                                                 <input
                                                     type="checkbox"
                                                     checked={isFocus}
                                                     onChange={() => onToggle('focus', part.key)}
-                                                    className="peer appearance-none w-6 h-6 border-2 border-gray-200 rounded-md bg-white checked:bg-green-500 checked:border-green-500 transition-all"
+                                                    style={{ width: LAYOUT_CONFIG.checklist.checkboxSize, height: LAYOUT_CONFIG.checklist.checkboxSize }}
+                                                    className="peer appearance-none border-2 border-gray-200 rounded-md bg-white checked:bg-green-500 checked:border-green-500 transition-all"
                                                 />
                                                 <Check className="absolute text-white w-3 h-3 opacity-0 peer-checked:opacity-100 pointer-events-none" />
                                             </label>
 
                                             {/* Avoid Checkbox (Always visible and clickable) */}
-                                            <label className="relative flex items-center justify-center w-8 cursor-pointer">
+                                            <label className="relative flex items-center justify-center cursor-pointer w-8" style={{ width: "32px" }}>
                                                 <input
                                                     type="checkbox"
                                                     checked={isAvoid}
                                                     onChange={() => onToggle('avoid', part.key)}
-                                                    className="peer appearance-none w-6 h-6 border-2 border-gray-200 rounded-md bg-white checked:bg-red-500 checked:border-red-500 transition-all"
+                                                    style={{ width: LAYOUT_CONFIG.checklist.checkboxSize, height: LAYOUT_CONFIG.checklist.checkboxSize }}
+                                                    className="peer appearance-none border-2 border-gray-200 rounded-md bg-white checked:bg-red-500 checked:border-red-500 transition-all"
                                                 />
                                                 <Ban className="absolute text-white w-3 h-3 opacity-0 peer-checked:opacity-100 pointer-events-none" />
                                             </label>
                                         </div>
                                     </>
+
                                 ) : (
                                     // Placeholder cho phần bị ẩn/disabled
                                     <span className="text-[11px] text-gray-300 italic flex-1">

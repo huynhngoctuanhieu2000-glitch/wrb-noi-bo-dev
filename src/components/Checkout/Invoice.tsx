@@ -177,7 +177,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                 <div className="h-0 border-t-2 border-dashed border-gray-100 my-6"></div>
 
                 {/* Total */}
-                <div className="flex justify-between items-end">
+                <div className="flex justify-between items-baseline">
                     <span className="text-black font-bold text-lg">Total</span>
                     <div className="text-right">
                         <span className={`block text-3xl font-black ${currency === 'USD' ? 'text-orange-600' : 'text-yellow-600'}`}>
