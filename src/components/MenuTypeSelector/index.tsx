@@ -21,8 +21,8 @@ const LAYOUT_CONFIG = {
 
     // 2. CẤU HÌNH CUỐN SÁCH MENU
     books: {
-        width: "145px",          // Chiều rộng sách (cân đối với chiều cao mới)
-        height: "210px",         // Giảm chiều cao để 2 cuốn vừa khít màn hình SE (667px)
+        width: "165px",          // Tăng chiều rộng để không bị mất lò xo (giữ tỉ lệ ảnh chuẩn)
+        height: "210px",         // Chiều cao giữ nguyên
         gap: "20px",             // Giảm khoảng cách giữa 2 sách
         titleSize: "20px",       // Cỡ chữ tên gói
         descSize: "11px",        // Cỡ chữ mô tả
@@ -34,8 +34,8 @@ const LAYOUT_CONFIG = {
         marginBottom: "15px",    // Cách đáy màn hình
         fontSize: "13px",        // Cỡ chữ nút
         paddingY: "10px",        // Độ dày nút
-        paddingX: "50px",        // Độ rộng nút
-        minWidth: "160px",       // Chiều dài tối thiểu
+        paddingX: "30px",        // Độ rộng nút
+        minWidth: "30px",       // Chiều dài tối thiểu
     }
 };
 // ============================================================================
