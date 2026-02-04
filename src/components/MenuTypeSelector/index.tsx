@@ -10,33 +10,32 @@ import { ArrowLeft } from "lucide-react";
 // ============================================================================
 const LAYOUT_CONFIG = {
     // 1. CẤU HÌNH LOGO & TIÊU ĐỀ
-    // 1. CẤU HÌNH LOGO & TIÊU ĐỀ
     header: {
-        marginTop: "-55px",      // Đẩy logo lên cao (số âm) hoặc xuống thấp (số dương)
-        gapLogoText: "10px",     // 👇 Khoảng cách từ Logo xuống dòng chữ "Select Service Menu"
-        marginBottom: "20px",    // 👇 Khoảng cách từ dòng chữ xuống cuốn sách vàng
-        logoHeight: "100px",     // Chiều cao Logo
-        logoWidth: "320px",      // Chiều rộng khung Logo (giữ tỉ lệ ảnh)
-        titleSize: "20px",       // Cỡ chữ "Select Service Menu"
+        marginTop: "10px",       // Đẩy xuống một chút để không bị cắt Logo
+        gapLogoText: "5px",      // Khoảng cách Logo - Chữ gần hơn
+        marginBottom: "15px",    // Khoảng cách Chữ - Sách gần hơn
+        logoHeight: "80px",      // Giảm chiều cao Logo cho đỡ chiếm chỗ
+        logoWidth: "260px",      // Giảm chiều rộng tương ứng
+        titleSize: "18px",       // Giảm cỡ chữ tiêu đề 1 chút
     },
 
     // 2. CẤU HÌNH CUỐN SÁCH MENU
     books: {
-        width: "160px",          // Chiều rộng cuốn sách
-        height: "220px",         // Chiều cao cuốn sách
-        gap: "30px",             // Khoảng cách giữa 2 cuốn sách
-        titleSize: "24px",       // Cỡ chữ tên gói (Standard/Premium)
-        descSize: "12px",        // Cỡ chữ mô tả (Random Staff...)
+        width: "145px",          // Chiều rộng sách (cân đối với chiều cao mới)
+        height: "210px",         // Giảm chiều cao để 2 cuốn vừa khít màn hình SE (667px)
+        gap: "20px",             // Giảm khoảng cách giữa 2 sách
+        titleSize: "20px",       // Cỡ chữ tên gói
+        descSize: "11px",        // Cỡ chữ mô tả
     },
 
     // 3. CẤU HÌNH NÚT BACK (QUAY LẠI)
     backButton: {
-        marginTop: "30px",       // 👇 Khoảng cách từ cuốn sách đen xuống nút Back
-        marginBottom: "10px",    // Khoảng cách từ mép dưới màn hình
-        fontSize: "14px",        // Cỡ chữ trong nút
-        paddingY: "12px",        // Độ dày nút (trên dưới)
-        paddingX: "60px",        // Độ dài nút (trái phải) - Tăng số này để nút dài ra
-        minWidth: "180px",       // Chiều dài tối thiểu của nút
+        marginTop: "15px",       // Khoảng cách từ sách xuống nút
+        marginBottom: "15px",    // Cách đáy màn hình
+        fontSize: "13px",        // Cỡ chữ nút
+        paddingY: "10px",        // Độ dày nút
+        paddingX: "50px",        // Độ rộng nút
+        minWidth: "160px",       // Chiều dài tối thiểu
     }
 };
 // ============================================================================
