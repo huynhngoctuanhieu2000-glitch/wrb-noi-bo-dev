@@ -18,8 +18,8 @@ import { animClasses } from "./animation";
 const LAYOUT_CONFIG = {
   // 1. LOGO TRÊN CÙNG
   topLogo: {
-    marginTop: "40px",       // Khoảng cách từ mép trên xuống Logo
-    width: "200px",          // Chiều rộng Logo
+    marginTop: "10px",       // Khoảng cách từ mép trên xuống Logo
+    width: "180px",          // Chiều rộng Logo
   },
 
   // 2. VÒNG TRÒN CỜ (ORBIT)
@@ -31,7 +31,7 @@ const LAYOUT_CONFIG = {
 
   // 3. CHỮ CHẠY (MARQUEE)
   marquee: {
-    marginBottom: "150px",   // Khoảng cách từ mép dưới lên dòng chữ chạy
+    marginBottom: "80px",   // Khoảng cách từ mép dưới lên dòng chữ chạy
     height: "100px",         // Chiều cao vùng chứa chữ chạy
     fontSize: "17px",        // Cỡ chữ
   }
