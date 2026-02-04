@@ -124,7 +124,7 @@ export default function CustomForYouModal({
     const showBodyMap = !serviceData.FOCUS_POSITION || Object.values(serviceData.FOCUS_POSITION).some(v => v === true);
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-6 animate-in fade-in duration-200">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -132,7 +132,7 @@ export default function CustomForYouModal({
             />
 
             {/* Modal Content - Expanded Width */}
-            <div className="relative w-[95vw] max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+            <div className="relative w-full sm:w-[95vw] max-w-4xl bg-white rounded-t-[32px] rounded-b-none sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col h-[95vh] sm:h-auto sm:max-h-[90vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
 
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white z-10">
@@ -191,10 +191,10 @@ export default function CustomForYouModal({
                 </div>
 
                 {/* Footer Action */}
-                <div className="p-4 border-t border-gray-100 bg-gray-50">
+                <div className="border-t border-gray-100 bg-gray-50">
                     <button
                         onClick={() => onSave(prefs)}
-                        className="w-full bg-[#1a1c2e] hover:bg-[#2e314a] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-black/10"
+                        className="w-full bg-[#1a1c2e] hover:bg-[#2e314a] text-white font-bold py-5 rounded-none sm:rounded-b-[32px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-black/10"
                     >
                         <Check size={20} />
                         {getText({ en: 'SAVE', vn: 'LƯU', jp: '保存', kr: '저장', cn: '保存' }, lang)}

@@ -160,9 +160,9 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                 {/* Custom Button */}
                                 <button
                                     onClick={() => onCustomRequest(item)}
-                                    className={`w-full py-3 rounded-xl border font-bold uppercase transition-all flex items-center justify-center gap-2 text-sm shadow-sm mt-4 ${hasCustom
-                                        ? 'border-green-200 bg-white text-green-700 hover:bg-green-50'
-                                        : 'border-gray-100 text-gray-500 hover:bg-gray-50 hover:text-black'
+                                    className={`w-[calc(100%+2rem)] -mx-4 -mb-4 py-4 rounded-t-none rounded-b-2xl border-t font-bold uppercase transition-all flex items-center justify-center gap-2 text-sm mt-4 ${hasCustom
+                                        ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100'
+                                        : 'border-gray-100 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-black'
                                         }`}
                                 >
                                     {hasCustom ? <Check size={18} className="text-green-600" /> : <Wand2 size={16} />}

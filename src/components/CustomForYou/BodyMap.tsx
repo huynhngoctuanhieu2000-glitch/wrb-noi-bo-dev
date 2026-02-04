@@ -90,13 +90,13 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
             </div>
 
             {/* Body Illustration */}
-            <div className="w-[50%] h-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden relative flex items-start justify-center group pt-6">
+            <div className="w-[50%] h-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden relative flex items-center justify-center group p-2">
                 <Image
                     src="/assets/icons/body-map.webp"
                     alt="Body Map"
                     width={220}
                     height={500}
-                    className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105 mix-blend-multiply"
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 mix-blend-multiply"
                 />
             </div>
 
