@@ -8,6 +8,8 @@
 import type { Metadata } from "next";
 import "./globals.css"; // 👈 QUAN TRỌNG: Dòng này để tải file CSS nền đen, font chữ...
 import { MenuProvider } from "@/components/Menu/MenuContext";
+// Import component fix lỗi height cho iOS
+import IOSViewportFix from "@/components/IOSViewportFix";
 
 import { Be_Vietnam_Pro } from "next/font/google";
 
@@ -42,6 +44,7 @@ export default function RootLayout({
       */}
       <body className={`${beVietnamPro.className} antialiased w-full h-full`}>
         <MenuProvider>
+          <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
           {children}
         </MenuProvider>
       </body>

@@ -32,7 +32,7 @@ body,
   -webkit-text-size-adjust: 100%;
   touch-action: pan-x pan-y;
   /* Ensure full height on mobile browsers */
-  height: 100dvh;
+  height: var(--app-height, 100dvh);
   position: fixed;
   inset: 0;
 }
