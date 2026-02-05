@@ -1,19 +1,19 @@
 /* * File: globals.css
- * Chức năng: Style toàn cục (Đã cập nhật cho Menu Standard & VIP)
+ * Function: Global Styles (Updated for Standard & VIP Menu)
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
-/* --- 0. CẤU HÌNH BIẾN MÔI TRƯỜNG (MỚI - QUAN TRỌNG CHO MOBILE) --- */
+/* --- 0. ENVIRONMENT VARIABLES CONFIGURATION (NEW - IMPORTANT FOR MOBILE) --- */
 :root {
-  /* Tự động lấy chiều cao tai thỏ/dynamic island */
+  /* Automatically get notch/dynamic island height */
   --safe-top: env(safe-area-inset-top, 20px);
   --safe-bottom: env(safe-area-inset-bottom, 20px);
 }
 
-/* --- 1. CẤU HÌNH CƠ BẢN --- */
+/* --- 1. BASIC CONFIGURATION --- */
 html,
 body,
 :root {
@@ -37,14 +37,14 @@ body,
   inset: 0;
 }
 
-/* Giúp ảnh không bị vỡ giao diện */
+/* Prevent image layout breakage */
 img {
   max-width: 100%;
 }
 
-/* --- 2. CÁC CLASS TIỆN ÍCH CHO UI (MỚI) --- */
+/* --- 2. UI UTILITY CLASSES (NEW) --- */
 
-/* Padding vùng an toàn (Tránh tai thỏ) */
+/* Safe area padding (Avoid notch) */
 .pt-safe-top {
   padding-top: var(--safe-top);
 }
@@ -58,7 +58,7 @@ img {
   font-family: 'Cinzel', serif;
 }
 
-/* --- 3. HIỆU ỨNG MÀU SẮC & GLOW (GIỮ NGUYÊN CỦA BẠN) --- */
+/* --- 3. COLORS & GLOW EFFECTS (KEEP AS IS) --- */
 .logo-glow {
   filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.6));
 }
@@ -79,13 +79,13 @@ img {
   display: inline-block;
 }
 
-/* --- 4. MENU STYLES (MỚI - DÀNH CHO HEADER/FOOTER KÍNH) --- */
+/* --- 4. MENU STYLES (NEW - FOR GLASS HEADER/FOOTER) --- */
 
 .glass-header {
   background-color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  /* Cho Safari */
+  /* For Safari */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -93,19 +93,19 @@ img {
   background-color: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  /* Cho Safari */
+  /* For Safari */
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* --- 5. UTILITIES RIÊNG --- */
+/* --- 5. CUSTOM UTILITIES --- */
 @layer utilities {
   .backdrop-blur-md {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 
-  /* Ẩn thanh cuộn (Dùng chung cho cả hide-scrollbar và no-scrollbar) */
+  /* Hide scrollbar (Common for both hide-scrollbar and no-scrollbar) */
   .hide-scrollbar::-webkit-scrollbar,
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -118,9 +118,9 @@ img {
   }
 }
 
-/* --- 6. ANIMATIONS (CẬP NHẬT THÊM SLIDE-UP & POP) --- */
+/* --- 6. ANIMATIONS (UPDATED WITH SLIDE-UP & POP) --- */
 
-/* Animation cũ của bạn */
+/* Your old animation */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -161,7 +161,7 @@ img {
   animation: scroll 40s linear infinite;
 }
 
-/* --- [MỚI] Animation cho Footer & Nút bấm --- */
+/* --- [NEW] Animation for Footer & Buttons --- */
 @keyframes slide-up {
   from {
     transform: translateY(100%);
@@ -188,7 +188,7 @@ img {
   }
 }
 
-/* Animation Nổi */
+/* Floating Animation */
 @keyframes float {
 
   0%,
@@ -205,7 +205,7 @@ img {
   animation: float 6s ease-in-out infinite;
 }
 
-/* Sao băng */
+/* Shooting Star */
 @keyframes shoot {
   0% {
     transform: translate(0, 0) rotate(-45deg) scaleX(0.5);
@@ -258,7 +258,7 @@ img {
   animation-delay: 1.5s;
 }
 
-/* Class để Tailwind gọi được */
+/* Class for Tailwind to use */
 .animate-pop {
   animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

@@ -17,14 +17,14 @@ const ALL_BODY_PARTS: { key: BodyPartKey; height: string }[] = [
 ];
 
 // ============================================================================
-// 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN BODY MAP (SỬA SỐ Ở ĐÂY) 👇
+// 👇 UI CONFIGURATION AREA (EDIT NUMBERS HERE) 👇
 // ============================================================================
 const LAYOUT_CONFIG = {
-    // CẤU HÌNH DANH SÁCH CHECKBOX (CỘT BÊN PHẢI)
+    // CHECKLIST CONFIGURATION (RIGHT COLUMN)
     checklist: {
-        gap: "8px",             // Khoảng cách giữa 2 nút (Tập trung - Tránh) - Giảm số này để 2 nút gần nhau hơn
-        paddingRight: "-15px",    // Khoảng cách từ mép phải vào - Giảm về 0px để đẩy sát lề phải
-        checkboxSize: "24px",   // Kích thước ô vuông checkbox
+        gap: "8px",             // Gap between 2 buttons (Focus - Avoid) - Decrease to bring closer
+        paddingRight: "-15px",    // Right margin offset - Decrease to 0px to push to right edge
+        checkboxSize: "24px",   // Checkbox size
     }
 };
 // ============================================================================

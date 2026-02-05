@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { CreditCard, Banknote, QrCode, DollarSign, Check, X, ArrowRightLeft } from 'lucide-react';
 import { VND_DENOMINATIONS, USD_INFO, ACCEPTED_CARDS } from '@/lib/paymentConstants';
@@ -10,7 +12,7 @@ interface PaymentMethodsProps {
     onChange: (methodId: string) => void;
 }
 
-export default function PaymentMethods({ lang, dict, selected, onChange }: PaymentMethodsProps) {
+const PaymentMethods = ({ lang, dict, selected, onChange }: PaymentMethodsProps) => {
     const [showModal, setShowModal] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [modalContent, setModalContent] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export default function PaymentMethods({ lang, dict, selected, onChange }: Payme
                                 }`}
                         >
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSelected ? 'bg-white' : 'bg-gray-50'}`}>
-                                <method.icon size={24} className={isSelected ? method.color : 'text-gray-400'} strokeWidth={2.5} />  {/* icone size */}
+                                <method.icon size={24} className={isSelected ? method.color : 'text-gray-400'} strokeWidth={2.5} />  {/* icon size */}
                             </div>
                             <span className={`text-[11px] font-bold text-center leading-tight px-1 ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}>
                                 {method.label}
@@ -207,3 +209,5 @@ export default function PaymentMethods({ lang, dict, selected, onChange }: Payme
         </div>
     );
 }
+
+export default PaymentMethods;
