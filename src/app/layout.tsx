@@ -22,6 +22,10 @@ const beVietnamPro = Be_Vietnam_Pro({
 export const metadata: Metadata = {
   title: "Ngan Ha Spa",
   description: "Booking System for Ngan Ha Spa",
+  icons: {
+    icon: "/assets/logos/logo-only-gold.webp",
+    apple: "/assets/logos/logo-only-gold.webp",
+  },
 };
 
 export const viewport = {
