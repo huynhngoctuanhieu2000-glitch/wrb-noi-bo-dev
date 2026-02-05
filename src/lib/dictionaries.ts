@@ -73,7 +73,12 @@ const dictionaries = {
             refund_note: "Change will be returned in VND.",
             accepted_cards: "Accepted Cards",
             cards_desc: "Supported payment cards",
-            understood: "Understood"
+            understood: "Understood",
+            payment_regulation: {
+                title: "Payment Regulation",
+                content: "To avoid misunderstandings and confusion during consultation and service usage, as well as to ensure transparency, we collect fees before starting the service.",
+                btn: "UNDERSTOOD"
+            }
         },
         common: {
             back_to_menu: "Menu"
@@ -199,7 +204,12 @@ const dictionaries = {
             refund_note: "Tiền thừa sẽ được trả lại bằng VND.",
             accepted_cards: "Các loại thẻ chấp nhận",
             cards_desc: "Thẻ thanh toán được hỗ trợ",
-            understood: "Đã hiểu"
+            understood: "Đã hiểu",
+            payment_regulation: {
+                title: "Quy Định Thanh Toán",
+                content: "Để tránh hiểu lầm và nhầm lẫn phát sinh trong quá trình tư vấn và sử dụng dịch vụ, cũng như đảm bảo tính minh bạch, chúng tôi thu phí trước khi bắt đầu dịch vụ.",
+                btn: "ĐÃ HIỂU"
+            }
         },
         common: {
             back_to_menu: "Menu"
@@ -325,7 +335,12 @@ const dictionaries = {
             refund_note: "거스름돈은 VND로 반환됩니다.",
             accepted_cards: "허용된 카드",
             cards_desc: "지원되는 결제 카드",
-            understood: "확인"
+            understood: "확인",
+            payment_regulation: {
+                title: "결제 규정",
+                content: "상담 및 서비스 이용 중 발생하는 오해와 혼동을 방지하고 투명성을 보장하기 위해 서비스 시작 전에 요금을 청구합니다.",
+                btn: "확인"
+            }
         },
         common: {
             back_to_menu: "메뉴"
@@ -451,7 +466,12 @@ const dictionaries = {
             refund_note: "找零将返还 VND。",
             accepted_cards: "支持的银行卡",
             cards_desc: "支持的支付卡",
-            understood: "明白了"
+            understood: "明白了",
+            payment_regulation: {
+                title: "支付规定",
+                content: "为了避免咨询和服务使用过程中产生误解和混乱，并确保透明度，我们在开始服务前收取费用。",
+                btn: "明白了"
+            }
         },
         common: {
             back_to_menu: "菜单"
@@ -577,7 +597,12 @@ const dictionaries = {
             refund_note: "お釣りはVNDで返却されます。",
             accepted_cards: "利用可能なカード",
             cards_desc: "対応している支払いカード",
-            understood: "了解しました"
+            understood: "了解しました",
+            payment_regulation: {
+                title: "支払い規定",
+                content: "相談やサービス利用中の誤解や混乱を避け、透明性を確保するために、サービス開始前に料金を徴収します。",
+                btn: "了解しました"
+            }
         },
         common: {
             back_to_menu: "メニュー"

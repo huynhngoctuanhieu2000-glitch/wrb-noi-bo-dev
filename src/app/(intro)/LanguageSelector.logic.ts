@@ -70,8 +70,8 @@ export const useLanguageSelectorLogic = (overrideRadius?: number) => {
     if (radius === 0) return { x: 0, y: 0 };
 
     const angle = step * index + rotation;
-    const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius;
+    const x = parseFloat((Math.cos(angle) * radius).toFixed(4));
+    const y = parseFloat((Math.sin(angle) * radius).toFixed(4));
 
     return { x, y };
   };

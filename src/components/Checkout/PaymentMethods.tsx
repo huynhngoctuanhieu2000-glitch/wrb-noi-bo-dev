@@ -12,12 +12,21 @@ interface PaymentMethodsProps {
 
 export default function PaymentMethods({ lang, dict, selected, onChange }: PaymentMethodsProps) {
     const [showModal, setShowModal] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
     const [modalContent, setModalContent] = useState<string | null>(null);
 
     const handleSelect = (id: string) => {
         onChange(id);
         setModalContent(id);
         setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setShowModal(false);
+            setIsClosing(false);
+        }, 200);
     };
 
     const METHODS = [
@@ -88,8 +97,13 @@ export default function PaymentMethods({ lang, dict, selected, onChange }: Payme
 
             {/* INFO MODAL */}
             {showModal && (
-                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setShowModal(false)}>
-                    <div className="bg-white w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                <div
+                    className={`fixed inset-0 z-[130] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 ${isClosing ? 'animate-out fade-out' : 'animate-in fade-in duration-200'}`}
+                    onClick={closeModal}
+                >
+                    <div
+                        className={`bg-white w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl ${isClosing ? 'animate-out zoom-out-95' : 'animate-in zoom-in-95 duration-200'}`}
+                    >
 
                         {/* Modal Header */}
                         <div className="p-6 pb-2 text-center relative">
@@ -180,7 +194,7 @@ export default function PaymentMethods({ lang, dict, selected, onChange }: Payme
                         {/* Modal Footer */}
                         <div className="p-4 border-t border-gray-100 bg-gray-50">
                             <button
-                                onClick={() => setShowModal(false)}
+                                onClick={closeModal}
                                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-lg shadow-green-200"
                             >
                                 {dict.payment_methods.understood}

@@ -1,5 +1,5 @@
-import React from 'react';
-import { PencilLine, Wand2, Check, GripHorizontal, User, HeartPulse, Ban, Hand } from 'lucide-react';
+import React, { useState } from 'react';
+import { PencilLine, Wand2, Check, GripHorizontal, User, HeartPulse, Ban, Hand, AlertCircle } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 
@@ -13,11 +13,24 @@ interface InvoiceProps {
 
 export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRequest }: InvoiceProps) {
     const total = cart.reduce((sum, item) => sum + ((currency === 'USD' ? item.priceUSD : item.priceVND) * item.qty), 0);
+    const [showWarningModal, setShowWarningModal] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
+
+    const closeModal = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setShowWarningModal(false);
+            setIsClosing(false);
+        }, 200);
+    };
 
     return (
         <div className="space-y-4">
-            {/* Green Banner */}
-            <div className="bg-green-50 border border-green-100 p-3 rounded-xl flex items-center justify-center text-center">
+            {/* Green Banner (Clickable) */}
+            <div
+                className="bg-green-50 border border-green-100 p-3 rounded-xl flex items-center justify-center text-center cursor-pointer hover:bg-green-100 transition-colors"
+                onClick={() => setShowWarningModal(true)}
+            >
                 <span className="text-green-700 font-bold text-sm">*{dict.checkout.pay_warning}</span>
             </div>
 
@@ -190,6 +203,42 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                     </div>
                 </div>
             </div>
+
+            {/* Regulation Popup */}
+            {showWarningModal && (
+                <div
+                    className={`fixed inset-0 z-[140] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6 ${isClosing ? 'animate-out fade-out' : 'animate-in fade-in duration-200'}`}
+                    onClick={closeModal}
+                >
+                    <div
+                        className={`bg-white w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl p-6 flex flex-col items-center text-center gap-4 ${isClosing ? 'animate-out zoom-out-95' : 'animate-in zoom-in-95 duration-200'}`}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Icon */}
+                        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-1">
+                            <AlertCircle size={32} className="text-green-600" />
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-xl font-bold text-gray-900 leading-tight">
+                            {dict.payment_methods?.payment_regulation?.title || "Payment Regulation"}
+                        </h3>
+
+                        {/* Content */}
+                        <p className="text-gray-600 text-[15px] leading-relaxed">
+                            {dict.payment_methods?.payment_regulation?.content || "We collect fees before service."}
+                        </p>
+
+                        {/* Button */}
+                        <button
+                            onClick={closeModal}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-lg shadow-green-200 mt-2"
+                        >
+                            {dict.payment_methods?.payment_regulation?.btn || "UNDERSTOOD"}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }

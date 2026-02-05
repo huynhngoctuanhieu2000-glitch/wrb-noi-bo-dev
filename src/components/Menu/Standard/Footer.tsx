@@ -11,7 +11,7 @@
  */
 'use client';
 import React from 'react';
-import { ShoppingCart, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, ArrowRight } from 'lucide-react';
 import { formatCurrency } from '@/components/Menu/utils';
 
 interface FooterProps {
@@ -70,8 +70,9 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
             </div>
 
             {/* Nút Giỏ hàng */}
-            <button onClick={onToggleCart} className="h-12 shrink-0 bg-[#D4AF37] hover:bg-[#C5A028] text-black font-bold px-6 rounded-xl shadow-lg active:scale-95 transition-all text-sm tracking-wide uppercase flex items-center gap-2 relative overflow-visible">
+            <button onClick={onToggleCart} className="h-12 shrink-0 bg-[#D4AF37] hover:bg-[#C5A028] text-black font-bold px-5 rounded-xl shadow-lg active:scale-95 transition-all text-sm tracking-wide uppercase flex items-center gap-2 relative overflow-visible">
                 <ShoppingCart className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5 animate-slide-right" />
                 <span className={`absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-black transition-all transform duration-300 ${totalItems > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>{totalItems}</span>
             </button>
         </div>

@@ -65,7 +65,7 @@ export default function ServiceItem({ service, quantity, lang, onClick }: Servic
                     </div>
                 ) : (
                     // Chưa chọn: Hiện nút Plus xám tròn
-                    <div className="w-9 h-9 rounded-full bg-gray-700/80 text-gray-400 flex items-center justify-center backdrop-blur-sm hover:bg-gray-600 hover:text-white transition-colors">
+                    <div className="w-9 h-9 rounded-full bg-gray-700/80 text-yellow-500 flex items-center justify-center backdrop-blur-sm hover:bg-gray-600 hover:text-white transition-colors">
                         <Plus size={18} strokeWidth={2.5} />
                     </div>
                 )}

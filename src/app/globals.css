@@ -322,6 +322,54 @@ img {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
+
   background-color: #e2e8f0;
   border-radius: 20px;
+}
+
+/* Exit Animations */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slide-right {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+.animate-slide-right {
+  animation: slide-right 1s ease-in-out infinite;
+}
+
+.animate-out.fade-out {
+  animation: fadeOut 0.2s ease-in forwards;
+}
+
+.animate-out.zoom-out-95 {
+  animation: zoomOut 0.2s ease-in forwards;
 }
