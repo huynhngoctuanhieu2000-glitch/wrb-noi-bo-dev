@@ -14,6 +14,9 @@ interface FirebaseServiceData {
     TAGS?: any[];
     HINT?: any;
     FOCUS_POSITION?: any;
+    ACTIVE?: boolean;
+    BEST_SELLER?: boolean;
+    BEST_CHOICE?: boolean;
 }
 
 const getMenuTypeFromId = (id: string): 'standard' | 'vip' | 'unknown' => {
@@ -76,7 +79,12 @@ export const getMenuData = async (): Promise<Service[]> => {
                 TAGS: data.TAGS || [], // Fix: tags -> TAGS
                 FOCUS_POSITION: data.FOCUS_POSITION,
                 SHOW_STRENGTH: true, // Default true or from DB if available
-                HINT: data.HINT
+                HINT: data.HINT,
+
+                // [LOGIC NEW] Map fields logic
+                ACTIVE: data.ACTIVE,             // boolean | undefined
+                BEST_SELLER: data.BEST_SELLER,   // boolean | undefined
+                BEST_CHOICE: data.BEST_CHOICE    // boolean | undefined
             });
         });
 
