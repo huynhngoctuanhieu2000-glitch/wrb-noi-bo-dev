@@ -265,6 +265,13 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                         : 'bg-[#1e293b] text-gray-400 border-gray-700 hover:border-gray-500'}
                                     `}
                                             >
+                                                {/* [LOGIC NEW] Badge Best Choice */}
+                                                {svc.BEST_CHOICE && (
+                                                    <div className="absolute top-0 left-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-br-md z-10 uppercase tracking-wider">
+                                                        BEST CHOICE
+                                                    </div>
+                                                )}
+
                                                 <span className={`text-xl font-bold mb-1 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
                                                     {svc.timeValue}{t('mins')}
                                                 </span>

@@ -29,8 +29,11 @@ export default function ServiceList({ categories, services, cart, lang, onItemCl
     const groupedServices: Record<string, Service[]> = useMemo(() => {
         const groups: Record<string, Service[]> = {};
         services.forEach(svc => {
-            // Dùng tên tiếng Anh làm khóa để gộp nhóm
-            const key = svc.names.en;
+            // [LOGIC NEW] Chỉ ẩn nếu ACTIVE = false (Hỗ trợ data cũ chưa có trường này)
+            if (svc.ACTIVE === false) return;
+
+            // Dùng tên tiếng Anh làm khóa để gộp nhóm (Normalize: Trim + Lowercase)
+            const key = svc.names.en.trim().toLowerCase();
             if (!groups[key]) {
                 groups[key] = [];
             }
@@ -65,12 +68,16 @@ export default function ServiceList({ categories, services, cart, lang, onItemCl
                                 // VD: Khách chọn 1 cái 60' + 1 cái 90' -> Tổng hiện thị ra ngoài là 2
                                 const totalQty = group.reduce((sum, item) => sum + (cart[item.id] || 0), 0);
 
+                                // [LOGIC NEW] Kiểm tra xem trong nhóm có item nào là Best Seller không
+                                const isBestSellerGroup = group.some(item => item.BEST_SELLER === true);
+
                                 return (
                                     <ServiceItem
                                         key={representative.id}
                                         service={representative} // Chỉ cần truyền thông tin đại diện (Tên, Ảnh)
                                         quantity={totalQty}
                                         lang={lang}
+                                        isBestSeller={isBestSellerGroup} // Truyền prop mới
                                         onClick={() => onItemClick(group)} // Quan trọng: Truyền CẢ NHÓM vào để MainSheet xử lý
                                     />
                                 );

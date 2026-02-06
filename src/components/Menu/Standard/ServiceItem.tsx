@@ -18,10 +18,11 @@ interface ServiceItemProps {
     service: Service;
     quantity: number;
     lang: string;
+    isBestSeller?: boolean; // Prop mới
     onClick: () => void;
 }
 
-export default function ServiceItem({ service, quantity, lang, onClick }: ServiceItemProps) {
+export default function ServiceItem({ service, quantity, lang, isBestSeller, onClick }: ServiceItemProps) {
     const name = service.names[lang as keyof typeof service.names] || service.names['en'];
     const desc = service.descriptions[lang as keyof typeof service.descriptions] || service.descriptions['en'];
     const isSelected = quantity > 0;
@@ -36,6 +37,13 @@ export default function ServiceItem({ service, quantity, lang, onClick }: Servic
         shadow-lg hover:bg-[#263345]
       `}
         >
+            {/* [LOGIC NEW] Badge Best Seller */}
+            {isBestSeller && (
+                <div className="absolute top-0 right-0 z-20 bg-gradient-to-r from-yellow-600 to-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md">
+                    BEST SELLER
+                </div>
+            )}
+
             {/* 1. Ảnh vuông bo tròn */}
             <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-gray-800 relative shadow-sm">
                 <img

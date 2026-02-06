@@ -44,6 +44,11 @@ export interface Service {
   TAGS?: MultiLangString[]; // Array of tags [0: Pregnant, 1: Allergy] (Each tag is MultiLangString)
   SHOW_STRENGTH?: boolean;
   HINT?: MultiLangString;
+
+  // New Logic Flags
+  ACTIVE?: boolean;      // Hiển thị hay không
+  BEST_SELLER?: boolean; // Label "Best Seller" bên ngoài
+  BEST_CHOICE?: boolean; // Label "Best Choice" bên trong (theo thời gian)
 }
 
 // 3. Dữ liệu Danh mục (Category)
