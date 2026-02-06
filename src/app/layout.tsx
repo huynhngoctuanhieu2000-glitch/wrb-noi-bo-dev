@@ -12,6 +12,8 @@ import { MenuProvider } from "@/components/Menu/MenuContext";
 import IOSViewportFix from "@/components/IOSViewportFix";
 
 import { Be_Vietnam_Pro } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react"
+
 
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ['400', '500', '600', '700'],
@@ -49,6 +51,7 @@ export default function RootLayout({
       <body className={`${beVietnamPro.className} antialiased w-full h-full`}>
         <MenuProvider>
           <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
+          <Analytics />
           {children}
         </MenuProvider>
       </body>
