@@ -13,6 +13,7 @@ import IOSViewportFix from "@/components/IOSViewportFix";
 
 import { Be_Vietnam_Pro } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 const beVietnamPro = Be_Vietnam_Pro({
