@@ -53,6 +53,7 @@ export default function RootLayout({
         <MenuProvider>
           <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
           <Analytics />
+          <SpeedInsights />
           {children}
         </MenuProvider>
       </body>
