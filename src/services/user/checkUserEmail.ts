@@ -1,6 +1,5 @@
 // File: src/services/user/checkUserEmail.ts
-import { collection, query, where, getDocs, orderBy, limit, Firestore } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 
 export interface CheckUserResult {
     exists: boolean;
@@ -13,41 +12,36 @@ export interface CheckUserResult {
 
 export const checkUserEmail = async (email: string): Promise<CheckUserResult> => {
     try {
-        if (!db) {
-            console.error("Firebase chưa được khởi tạo!");
-            return { exists: false, customer: null };
+        // Tìm đơn hàng gần nhất của email này
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('customer_name, customer_phone, customer_email')
+            .eq('customer_email', email)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') { // Không tìm thấy dữ liệu
+                return { exists: false, customer: null };
+            }
+            throw error;
         }
 
-        const ordersRef = collection(db as Firestore, "orders");
-
-        // Tìm đơn hàng gần nhất của email này để lấy thông tin mới nhất
-        const q = query(
-            ordersRef,
-            where("email", "==", email),
-            // orderBy("created_at", "desc"), // Cần composite index, tạm thời bỏ qua sort nếu chưa có index
-            // limit(1) 
-        );
-
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-            // Lấy doc đầu tiên (hoặc logic sort JS nếu cần chính xác nhất)
-            // Tạm thời lấy doc đầu tiên tìm thấy
-            const docData = querySnapshot.docs[0].data();
-
+        if (data) {
             return {
                 exists: true,
                 customer: {
-                    name: docData.cus_name || "",
-                    phone: docData.phone || "",
-                    email: docData.email || email
+                    name: data.customer_name || "",
+                    phone: data.customer_phone || "",
+                    email: data.customer_email || email
                 }
             };
         }
 
         return { exists: false, customer: null };
     } catch (error) {
-        console.error("Lỗi check email:", error);
+        console.error("❌ [Supabase] Lỗi check email:", error);
         return { exists: false, customer: null };
     }
 };

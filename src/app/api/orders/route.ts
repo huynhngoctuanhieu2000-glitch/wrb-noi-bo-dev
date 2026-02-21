@@ -1,29 +1,21 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { runTransaction, doc, collection, setDoc, getDoc, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { supabase } from '@/lib/supabase';
 
 const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
 
-// Helper to translate Options to Vietnamese (Hardcoded mapping based on user request)
+// Helper to translate Options to Vietnamese
 const toVietnamese = (text: string | null | undefined): string => {
     if (!text) return '';
     const map: Record<string, string> = {
         'light': 'Nhẹ', 'medium': 'Vừa', 'strong': 'Mạnh',
         'male': 'Nam', 'female': 'Nữ', 'random': 'Ngẫu nhiên',
-        // Body Parts
         'neck': 'Cổ', 'shoulder': 'Vai', 'back': 'Lưng', 'waist': 'Thắt lưng',
         'arm': 'Tay', 'thigh': 'Đùi', 'calf': 'Bắp chân', 'foot': 'Bàn chân',
-        'head': 'Đầu',
-        // Tags
-        'pregnant': 'Mang thai', 'allergy': 'Dị ứng',
-        // Default
+        'head': 'Đầu', 'pregnant': 'Mang thai', 'allergy': 'Dị ứng',
         'Medium': 'Vừa', 'Random': 'Ngẫu nhiên'
     };
-    // Try exact match case-insensitive
     const lower = text.toLowerCase();
     if (map[lower]) return map[lower];
-
-    // Capitalize first letter if no match
     return text.charAt(0).toUpperCase() + text.slice(1);
 };
 
@@ -32,20 +24,10 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { customer, items, paymentMethod, amountPaid, totalVND, lang } = body;
 
-        if (!db) {
-            throw new Error("Firebase DB not initialized");
-        }
-
-        // 1. Generate Bill Number (Transaction)
         const now = new Date();
-
-        // Convert to VN Time to determine "Business Day"
-        // This ensures we work with VN time regardless of Server Region
         const vnDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
         const currentHour = vnDate.getHours();
 
-        // Determine Business Date
-        // If before 8 AM, count as PREVIOUS Day
         const businessDate = new Date(vnDate);
         if (currentHour < DAY_CUTOFF_HOUR) {
             businessDate.setDate(businessDate.getDate() - 1);
@@ -55,29 +37,25 @@ export async function POST(request: Request) {
         const month = (businessDate.getMonth() + 1).toString().padStart(2, '0');
         const year = businessDate.getFullYear();
 
-        const dateCode = `${day}${month}${year}`; // e.g. 03022026
-        const dateStrForSheet = `${year}-${month}-${day}`; // e.g. 2026-02-03
+        const dateCode = `${day}${month}${year}`;
+        const dateStrForSheet = `${year}-${month}-${day}`;
 
-        const counterRef = doc(db, 'counters', dateCode);
-        let billNum = '';
+        // 1. Generate Bill Number (Based on today's count in Supabase)
+        // Note: For high concurrency, use a database function (RPC)
+        const { count } = await supabase
+            .from('bookings')
+            .select('*', { count: 'exact', head: true })
+            .ilike('id_legacy', `%-UI-${dateCode}`); // Giả định ID legacy có dateCode
 
-        await runTransaction(db, async (transaction) => {
-            const counterDoc = await transaction.get(counterRef);
-            let nextCount = 1;
-            if (counterDoc.exists()) {
-                nextCount = counterDoc.data().count + 1;
-            }
-            transaction.set(counterRef, { count: nextCount }, { merge: true });
-            billNum = `${String(nextCount).padStart(2, '0')}-${dateCode}`;
-        });
+        // Do chúng ta dùng UUID cho Supabase, ta dùng trường custom để chứa BillNum
+        const nextNum = (count || 0) + 1;
+        const billNum = `${String(nextNum).padStart(2, '0')}-${dateCode}`;
 
         // 2. Prepare Data Items
         const processedItems = items.map((item: any) => {
             const opts = item.options || {};
-
-            // Map Options to Vietnamese
             const strengthVN = toVietnamese(opts.strength || 'Medium');
-            const therapistVN = toVietnamese(opts.therapist || 'Random'); // Note: 'therapist' key from CartItem
+            const therapistVN = toVietnamese(opts.therapist || 'Random');
             const focusVN = (opts.bodyParts?.focus || []).map((f: string) => toVietnamese(f));
             const avoidVN = (opts.bodyParts?.avoid || []).map((a: string) => toVietnamese(a));
 
@@ -85,86 +63,66 @@ export async function POST(request: Request) {
             if (opts.notes?.tag0) tagList.push(toVietnamese('pregnant'));
             if (opts.notes?.tag1) tagList.push(toVietnamese('allergy'));
 
-            // Description Logic
-            const staticDescVN = item.names?.vn || item.names?.en || item.name;
-
             return {
                 id: item.id,
-                name: item.names?.en || item.name, // English Name
-                full_desc: staticDescVN, // Vietnamese Desc
-                time: `${item.timeValue}mins`,
-                price: item.priceVND,
+                name_en: item.names?.en || item.name,
+                name_vn: item.names?.vn || item.name,
                 qty: item.qty,
-
-                // Vietnamse Options
+                price: item.priceVND,
                 strength: strengthVN,
                 therapist: therapistVN,
                 focus: focusVN,
                 avoid: avoidVN,
                 tags: tagList,
-
-                note: opts.notes?.content || '',
-                full_body: false // Default to false or check logic in future
+                note: opts.notes?.content || ''
             };
         });
 
-        // 3. Prepare Final Payload
-        // Times
-        const totalMinutes = items.reduce((sum: number, i: any) => sum + i.timeValue * i.qty, 0);
-        const timeCome = new Date(now.getTime() + 15 * 60000); // 15 mins buffer
-        const endTime = new Date(timeCome.getTime() + totalMinutes * 60000);
-        const formatTime = (d: Date) => d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0');
+        // 3. Save to Supabase (Bookings)
+        const { data: booking, error: bookingError } = await supabase
+            .from('bookings')
+            .insert({
+                customer_name: customer.name || "Guest",
+                customer_phone: customer.phone || "",
+                customer_email: customer.email || "",
+                customer_gender: customer.gender || "Other",
+                total_amount: totalVND,
+                payment_method: paymentMethod,
+                status: 'pending',
+                // Lưu thêm ID cũ vào trường note hoặc 1 trường custom nếu cần thiết cho re-order
+                // Tạm thời dùng id_legacy để lưu BillNum
+                id_legacy: billNum
+            })
+            .select()
+            .single();
 
-        // Payment
-        const changeDue = amountPaid - totalVND;
-        const payName = paymentMethod === 'cash_vnd' ? 'Cash (VND)' :
-            paymentMethod === 'cash_usd' ? 'Cash (USD)' : paymentMethod;
+        if (bookingError) throw bookingError;
 
-        const dataToSend = {
-            created_at: now,
-            bill_num: billNum,
-            date_str: dateStrForSheet,
+        // 4. Save to Supabase (Booking Items)
+        const itemsToInsert = processedItems.map((pi: any) => ({
+            booking_id: booking.id,
+            service_id: pi.id,
+            quantity: pi.qty,
+            price_at_booking: pi.price,
+            options_snapshot: {
+                strength: pi.strength,
+                therapist: pi.therapist,
+                focus: pi.focus,
+                avoid: pi.avoid,
+                tags: pi.tags,
+                note: pi.note
+            }
+        }));
 
-            cus_name: customer.name || "Guest",
-            email: customer.email || "",
-            phone: customer.phone || "",
-            choosed_lan: (lang || 'en').toUpperCase(),
+        const { error: itemsError } = await supabase
+            .from('booking_items')
+            .insert(itemsToInsert);
 
-            // Times
-            time_booking: formatTime(timeCome),
-            branch: "Ngan Ha Spa",
-
-            // Concatenated Strings
-            service: processedItems.map((i: any) => `${i.name} (${i.time})`).join(" | "),
-            des_service: processedItems.map((i: any) => i.full_desc).join(" | "),
-            items: processedItems,
-
-            // [NEW] Raw Items for Rebook/Modify
-            raw_items: items,
-
-            time_come: formatTime(timeCome),
-            time_start: formatTime(timeCome),
-            time_end: formatTime(endTime),
-
-            payment_method: payName,
-            total: `${totalVND.toLocaleString('vi-VN')} VND`,
-
-            // Payment columns
-            cash_vnd: paymentMethod === 'cash_vnd' ? String(amountPaid) : "",
-            cash_usd: paymentMethod === 'cash_usd' ? String(amountPaid) : "",
-            transfer: "", // Todo: handle others
-            card: "",
-
-            change_amount_return: changeDue > 0 ? String(changeDue) : "0",
-            note: ""
-        };
-
-        // 4. Save to Firestore
-        await setDoc(doc(db, 'orders', billNum), dataToSend);
+        if (itemsError) throw itemsError;
 
         return NextResponse.json({ success: true, billNum });
     } catch (error: any) {
-        console.error("API Order Error:", error);
+        console.error("❌ API Order Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
@@ -178,40 +136,43 @@ export async function GET(request: Request) {
             return NextResponse.json({ success: false, error: 'Email required' }, { status: 400 });
         }
 
-        if (!db) {
-            throw new Error("Firebase DB not initialized");
-        }
+        // Lấy danh sách booking kèm theo items
+        const { data: bookings, error } = await supabase
+            .from('bookings')
+            .select(`
+                id,
+                id_legacy,
+                total_amount,
+                created_at,
+                booking_items (
+                    id,
+                    service_id,
+                    quantity,
+                    price_at_booking,
+                    options_snapshot
+                )
+            `)
+            .eq('customer_email', email)
+            .order('created_at', { ascending: false });
 
-        const ordersRef = collection(db, 'orders');
-        const q = query(
-            ordersRef,
-            where('email', '==', email)
-        );
+        if (error) throw error;
 
-        const querySnapshot = await getDocs(q);
+        const result = bookings.map((b: any) => ({
+            id: b.id_legacy || b.id,
+            date: new Date(b.created_at).toISOString().split('T')[0],
+            total: b.total_amount,
+            items: b.booking_items.map((i: any) => ({
+                id: i.service_id,
+                qty: i.quantity,
+                price: i.price_at_booking,
+                options: i.options_snapshot
+            })),
+            note: 'Supabase Booking'
+        }));
 
-        const orders: any[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const totalNum = parseInt((data.total || "0").replace(/\D/g, ''));
-
-            orders.push({
-                id: data.bill_num,
-                date: data.date_str,
-                total: totalNum,
-                // Return full item object to get 'id' for restoreCart
-                items: (data.items || []).map((i: any) => i),
-                raw_items: data.raw_items || [],
-                note: data.note || 'None'
-            });
-        });
-
-        // Sort by id desc (which serves as proxy for date if counters work as expected)
-        orders.sort((a, b) => b.id.localeCompare(a.id));
-
-        return NextResponse.json({ success: true, orders });
+        return NextResponse.json({ success: true, orders: result });
     } catch (error: any) {
-        console.error("API GET Order Error:", error);
+        console.error("❌ API GET Order Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

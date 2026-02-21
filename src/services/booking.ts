@@ -1,5 +1,5 @@
 import { getMenuData } from "@/services/menu";
-import { Service } from "@/components/Menu/types";
+import { supabase } from "@/lib/supabase";
 
 // Kiểu dữ liệu cho item trong giỏ hàng gửi lên từ Client
 export interface BookingItem {
@@ -21,22 +21,14 @@ export interface BookingRequest {
 
 /**
  * Tính tổng tiền hóa đơn trên Server.
- * @param items Danh sách item từ client (chỉ tin tưởng ID và Qty)
- * @returns Tổng tiền VND chính xác (dựa trên giá gốc từ Database)
  */
 export const calculateOrderTotal = async (items: BookingItem[]): Promise<{ totalVND: number, detailedItems: any[] }> => {
-    // 1. Lấy danh sách dịch vụ mới nhất từ Database (Firebase)
-    // Lưu ý: getServices hiện tại gọi Firebase Client SDK, vẫn chạy ổn trên Next.js Server Runtime
-    // 1. Lấy danh sách dịch vụ mới nhất từ Database (Firebase)
-    // Lưu ý: getServices hiện tại gọi Firebase Client SDK, vẫn chạy ổn trên Next.js Server Runtime
     const allServices = await getMenuData();
 
     let totalVND = 0;
     const detailedItems = [];
 
-    // 2. Duyệt qua từng item client gửi lên
     for (const item of items) {
-        // Tìm service gốc trong database
         const service = allServices.find(s => s.id === item.id);
 
         if (service) {
@@ -45,12 +37,11 @@ export const calculateOrderTotal = async (items: BookingItem[]): Promise<{ total
 
             detailedItems.push({
                 ...item,
-                name: service.names.vn, // Lưu tên để tiện log/email
+                name: service.names.vn,
                 priceOriginal: service.priceVND,
                 lineTotal
             });
         } else {
-            // Trường hợp không tìm thấy service (có thể bị xóa hoặc ID sai)
             console.warn(`⚠️ Warning: Service ID ${item.id} not found in DB`);
         }
     }
@@ -59,21 +50,54 @@ export const calculateOrderTotal = async (items: BookingItem[]): Promise<{ total
 };
 
 /**
- * Tạo đơn hàng mới (Giả lập lưu DB)
+ * Tạo đơn hàng mới trong Supabase
  */
 export const createBooking = async (data: BookingRequest, calculatedTotal: number) => {
-    // Ở đây sau này sẽ gọi firebase.db.collection('bookings').add(...)
+    try {
+        // 1. Chèn vào bảng 'bookings'
+        const { data: booking, error: bookingError } = await supabase
+            .from('bookings')
+            .insert({
+                customer_name: data.customer.name,
+                customer_phone: data.customer.phone,
+                customer_email: data.customer.email,
+                customer_gender: data.customer.gender,
+                total_amount: calculatedTotal,
+                payment_method: data.paymentMethod,
+                status: 'pending'
+            })
+            .select()
+            .single();
 
-    // Giả lập ID đơn hàng
-    const bookingId = `BK-${Date.now()}`;
+        if (bookingError) throw bookingError;
 
-    console.log(`✅ [Booking Service] Created booking ${bookingId}`);
-    console.log(`💰 Client Estimated: (Unknown) | Server Calculated: ${calculatedTotal}`);
+        // 2. Chèn các item vào bảng 'booking_items'
+        const { detailedItems } = await calculateOrderTotal(data.items);
 
-    return {
-        id: bookingId,
-        status: 'pending',
-        createdAt: new Date(),
-        total: calculatedTotal
-    };
+        const itemsToInsert = detailedItems.map(item => ({
+            booking_id: booking.id,
+            service_id: item.id,
+            quantity: item.qty,
+            price_at_booking: item.priceOriginal
+        }));
+
+        const { error: itemsError } = await supabase
+            .from('booking_items')
+            .insert(itemsToInsert);
+
+        if (itemsError) throw itemsError;
+
+        console.log(`✅ [Booking Service] Created booking ${booking.id} in Supabase`);
+
+        return {
+            id: booking.id,
+            status: booking.status,
+            createdAt: booking.created_at,
+            total: calculatedTotal
+        };
+
+    } catch (error: any) {
+        console.error("❌ [Booking Service] Lỗi tạo đơn hàng:", error.message);
+        throw error;
+    }
 };

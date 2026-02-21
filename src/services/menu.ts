@@ -1,97 +1,78 @@
-import { collection, getDocs } from "firebase/firestore";
-import { db } from '@/lib/firebase';
-import { Service, MultiLangString } from '@/components/Menu/types';
-
-interface FirebaseServiceData {
-    ID: string;
-    CATEGORY: string;
-    NAMES: MultiLangString;
-    DESCRIPTIONS: MultiLangString;
-    IMAGE_URL: string;
-    PRICE_VN: number;
-    PRICE_USD: number;
-    TIME: number;
-    TAGS?: any[];
-    HINT?: any;
-    FOCUS_POSITION?: any;
-    ACTIVE?: boolean;
-    BEST_SELLER?: boolean;
-    BEST_CHOICE?: boolean;
-}
-
-const getMenuTypeFromId = (id: string): 'standard' | 'vip' | 'unknown' => {
-    if (id.startsWith('NHS')) return 'standard';
-    if (id.startsWith('NHP')) return 'vip';
-    return 'unknown';
-};
+import { supabase } from '@/lib/supabase';
+import { Service } from '@/components/Menu/types';
 
 /**
- * Lấy danh sách dịch vụ từ Firebase (Server-side)
- * Logic này chạy trên Server (Node.js runtime)
+ * Lấy danh sách dịch vụ từ Supabase (Server-side & Client-side)
+ * Logic này đã được chuyển đổi từ Firebase sang PostgreSQL
  */
 export const getMenuData = async (): Promise<Service[]> => {
     try {
-        if (!db) {
-            console.error("🔥 [Server] Firebase DB chưa được khởi tạo!");
+        // Lấy dữ liệu services kèm theo thông tin của categories (JOIN)
+        const { data, error } = await supabase
+            .from('services')
+            .select(`
+                *,
+                categories (
+                    name_vn
+                )
+            `)
+            .order('id', { ascending: true });
+
+        if (error) {
+            console.error("❌ [Supabase] Lỗi lấy dữ liệu:", error.message);
             return [];
         }
 
-        const servicesRef = collection(db, "Services");
-        const snapshot = await getDocs(servicesRef);
-
-        if (snapshot.empty) {
-            console.warn("⚠️ [Server] Không tìm thấy dữ liệu trong collection 'Services'");
+        if (!data || data.length === 0) {
+            console.warn("⚠️ [Supabase] Không tìm thấy dữ liệu trong bảng 'services'");
             return [];
         }
 
-        const services: Service[] = [];
+        const services: Service[] = data.map((item: any) => {
+            // Helper để xác định menuType
+            const getMenuTypeFromId = (id: string): 'standard' | 'vip' | 'unknown' => {
+                if (id.startsWith('NHS')) return 'standard';
+                if (id.startsWith('NHP')) return 'vip';
+                return 'unknown';
+            };
 
-        snapshot.forEach((doc) => {
-            const data = doc.data() as FirebaseServiceData;
-
-            if (!data.ID || !data.NAMES) return;
-
-            const currentItemType = getMenuTypeFromId(data.ID);
-
-            services.push({
-                id: data.ID,
-                cat: data.CATEGORY,
+            return {
+                id: item.id,
+                cat: item.categories?.name_vn || "Unknown",
                 names: {
-                    en: data.NAMES.EN || data.NAMES.en || "",
-                    vn: data.NAMES.VN || data.NAMES.vn || "",
-                    cn: data.NAMES.CN || data.NAMES.cn,
-                    jp: data.NAMES.JP || data.NAMES.jp,
-                    kr: data.NAMES.KR || data.NAMES.kr,
+                    en: item.names?.en || "",
+                    vn: item.names?.vn || "",
+                    cn: item.names?.cn,
+                    jp: item.names?.jp,
+                    kr: item.names?.kr,
                 },
                 descriptions: {
-                    en: data.DESCRIPTIONS?.EN || data.DESCRIPTIONS?.en || "",
-                    vn: data.DESCRIPTIONS?.VN || data.DESCRIPTIONS?.vn || "",
-                    cn: data.DESCRIPTIONS?.CN || data.DESCRIPTIONS?.cn,
-                    jp: data.DESCRIPTIONS?.JP || data.DESCRIPTIONS?.jp,
-                    kr: data.DESCRIPTIONS?.KR || data.DESCRIPTIONS?.kr,
+                    en: item.descriptions?.en || "",
+                    vn: item.descriptions?.vn || "",
+                    cn: item.descriptions?.cn,
+                    jp: item.descriptions?.jp,
+                    kr: item.descriptions?.kr,
                 },
-                img: data.IMAGE_URL || "https://placehold.co/300x200?text=No+Image",
-                priceVND: Number(data.PRICE_VN) || 0,
-                priceUSD: Number(data.PRICE_USD) || 0,
-                timeValue: Number(data.TIME) || 0,
-                timeDisplay: `${data.TIME} mins`,
-                menuType: currentItemType as 'standard' | 'vip',
-                TAGS: data.TAGS || [], // Fix: tags -> TAGS
-                FOCUS_POSITION: data.FOCUS_POSITION,
-                SHOW_STRENGTH: true, // Default true or from DB if available
-                HINT: data.HINT,
-
-                // [LOGIC NEW] Map fields logic
-                ACTIVE: data.ACTIVE,             // boolean | undefined
-                BEST_SELLER: data.BEST_SELLER,   // boolean | undefined
-                BEST_CHOICE: data.BEST_CHOICE    // boolean | undefined
-            });
+                img: item.image_url || "https://placehold.co/300x200?text=No+Image",
+                priceVND: Number(item.price_vn) || 0,
+                priceUSD: Number(item.price_usd) || 0,
+                timeValue: Number(item.time_mins) || 0,
+                timeDisplay: `${item.time_mins} mins`,
+                menuType: getMenuTypeFromId(item.id) as 'standard' | 'vip',
+                TAGS: item.tags || [],
+                FOCUS_POSITION: item.focus_position,
+                SHOW_STRENGTH: true,
+                HINT: item.HINT, // Để lại nếu có map sau này
+                ACTIVE: item.active,
+                BEST_SELLER: item.is_best_seller,
+                BEST_CHOICE: item.is_best_choice
+            };
         });
 
         return services;
 
     } catch (error) {
-        console.error("❌ [Server] Lỗi lấy dữ liệu Firebase:", error);
+        console.error("❌ [Supabase] Lỗi không xác định:", error);
         return [];
     }
 };
