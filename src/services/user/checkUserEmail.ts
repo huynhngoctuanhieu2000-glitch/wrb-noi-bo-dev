@@ -14,10 +14,10 @@ export const checkUserEmail = async (email: string): Promise<CheckUserResult> =>
     try {
         // Tìm đơn hàng gần nhất của email này
         const { data, error } = await supabase
-            .from('bookings')
-            .select('customer_name, customer_phone, customer_email')
-            .eq('customer_email', email)
-            .order('created_at', { ascending: false })
+            .from('Bookings')
+            .select('customerName, customerPhone, customerEmail')
+            .eq('customerEmail', email)
+            .order('bookingDate', { ascending: false })
             .limit(1)
             .single();
 
@@ -32,9 +32,9 @@ export const checkUserEmail = async (email: string): Promise<CheckUserResult> =>
             return {
                 exists: true,
                 customer: {
-                    name: data.customer_name || "",
-                    phone: data.customer_phone || "",
-                    email: data.customer_email || email
+                    name: data.customerName || "",
+                    phone: data.customerPhone || "",
+                    email: data.customerEmail || email
                 }
             };
         }

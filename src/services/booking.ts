@@ -1,5 +1,6 @@
 import { getMenuData } from "@/services/menu";
 import { supabase } from "@/lib/supabase";
+import crypto from "node:crypto";
 
 // Kiểu dữ liệu cho item trong giỏ hàng gửi lên từ Client
 export interface BookingItem {
@@ -54,35 +55,40 @@ export const calculateOrderTotal = async (items: BookingItem[]): Promise<{ total
  */
 export const createBooking = async (data: BookingRequest, calculatedTotal: number) => {
     try {
-        // 1. Chèn vào bảng 'bookings'
+        const vnTimeStr = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+        // 1. Chèn vào bảng 'Bookings'
         const { data: booking, error: bookingError } = await supabase
-            .from('bookings')
+            .from('Bookings')
             .insert({
-                customer_name: data.customer.name,
-                customer_phone: data.customer.phone,
-                customer_email: data.customer.email,
-                customer_gender: data.customer.gender,
-                total_amount: calculatedTotal,
-                payment_method: data.paymentMethod,
-                status: 'pending'
+                id: crypto.randomUUID(),
+                customerName: data.customer.name,
+                customerPhone: data.customer.phone,
+                customerEmail: data.customer.email,
+                totalAmount: calculatedTotal,
+                paymentMethod: data.paymentMethod,
+                createdAt: vnTimeStr,
+                updatedAt: vnTimeStr,
+                status: 'NEW'
             })
             .select()
             .single();
 
         if (bookingError) throw bookingError;
 
-        // 2. Chèn các item vào bảng 'booking_items'
+        // 2. Chèn các item vào bảng 'BookingItems'
         const { detailedItems } = await calculateOrderTotal(data.items);
 
         const itemsToInsert = detailedItems.map(item => ({
-            booking_id: booking.id,
-            service_id: item.id,
+            id: crypto.randomUUID(),
+            bookingId: booking.id,
+            serviceId: item.id,
             quantity: item.qty,
-            price_at_booking: item.priceOriginal
+            price: item.priceOriginal
         }));
 
         const { error: itemsError } = await supabase
-            .from('booking_items')
+            .from('BookingItems')
             .insert(itemsToInsert);
 
         if (itemsError) throw itemsError;

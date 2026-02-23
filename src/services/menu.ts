@@ -9,13 +9,8 @@ export const getMenuData = async (): Promise<Service[]> => {
     try {
         // Lấy dữ liệu services kèm theo thông tin của categories (JOIN)
         const { data, error } = await supabase
-            .from('services')
-            .select(`
-                *,
-                categories (
-                    name_vn
-                )
-            `)
+            .from('Services')
+            .select('*')
             .order('id', { ascending: true });
 
         if (error) {
@@ -24,7 +19,7 @@ export const getMenuData = async (): Promise<Service[]> => {
         }
 
         if (!data || data.length === 0) {
-            console.warn("⚠️ [Supabase] Không tìm thấy dữ liệu trong bảng 'services'");
+            console.warn("⚠️ [Supabase] Không tìm thấy dữ liệu trong bảng 'Services'");
             return [];
         }
 
@@ -38,34 +33,34 @@ export const getMenuData = async (): Promise<Service[]> => {
 
             return {
                 id: item.id,
-                cat: item.categories?.name_vn || "Unknown",
+                cat: item.category || "Unknown",
                 names: {
-                    en: item.names?.en || "",
-                    vn: item.names?.vn || "",
-                    cn: item.names?.cn,
-                    jp: item.names?.jp,
-                    kr: item.names?.kr,
+                    en: item.nameEN || "",
+                    vn: item.nameVN || "",
+                    cn: item.nameCN,
+                    jp: item.nameJP,
+                    kr: item.nameKR,
                 },
                 descriptions: {
-                    en: item.descriptions?.en || "",
-                    vn: item.descriptions?.vn || "",
-                    cn: item.descriptions?.cn,
-                    jp: item.descriptions?.jp,
-                    kr: item.descriptions?.kr,
+                    en: item.description?.en || item.description?.EN || "",
+                    vn: item.description?.vn || item.description?.VN || "",
+                    cn: item.description?.cn || item.description?.CN,
+                    jp: item.description?.jp || item.description?.JP,
+                    kr: item.description?.kr || item.description?.KR,
                 },
-                img: item.image_url || "https://placehold.co/300x200?text=No+Image",
-                priceVND: Number(item.price_vn) || 0,
-                priceUSD: Number(item.price_usd) || 0,
-                timeValue: Number(item.time_mins) || 0,
-                timeDisplay: `${item.time_mins} mins`,
+                img: item.imageUrl || "https://placehold.co/300x200?text=No+Image",
+                priceVND: Number(item.priceVND) || 0,
+                priceUSD: Number(item.priceUSD) || 0,
+                timeValue: Number(item.duration) || 0,
+                timeDisplay: `${item.duration || 0} mins`,
                 menuType: getMenuTypeFromId(item.id) as 'standard' | 'vip',
                 TAGS: item.tags || [],
-                FOCUS_POSITION: item.focus_position,
+                FOCUS_POSITION: item.focusConfig,
                 SHOW_STRENGTH: true,
                 HINT: item.HINT, // Để lại nếu có map sau này
-                ACTIVE: item.active,
-                BEST_SELLER: item.is_best_seller,
-                BEST_CHOICE: item.is_best_choice
+                ACTIVE: item.isActive,
+                BEST_SELLER: item.isBestSeller,
+                BEST_CHOICE: item.isBestChoice
             };
         });
 

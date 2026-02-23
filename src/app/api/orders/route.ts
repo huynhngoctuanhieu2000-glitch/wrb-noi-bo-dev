@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import crypto from 'node:crypto';
 
 const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
 
@@ -41,17 +42,18 @@ export async function POST(request: Request) {
         const dateStrForSheet = `${year}-${month}-${day}`;
 
         // 1. Generate Bill Number (Based on today's count in Supabase)
-        // Note: For high concurrency, use a database function (RPC)
         const { count } = await supabase
-            .from('bookings')
+            .from('Bookings')
             .select('*', { count: 'exact', head: true })
-            .ilike('id_legacy', `%-UI-${dateCode}`); // Giả định ID legacy có dateCode
+            .ilike('billCode', `%-req-${dateCode}%`);
 
-        // Do chúng ta dùng UUID cho Supabase, ta dùng trường custom để chứa BillNum
+        // Use a safe unique generator that guarantees no collision
         const nextNum = (count || 0) + 1;
-        const billNum = `${String(nextNum).padStart(2, '0')}-${dateCode}`;
+        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const billNum = `${String(nextNum).padStart(3, '0')}-req-${dateCode}-${randomStr}`;
 
         // 2. Prepare Data Items
+        console.log(`[POST /api/orders] Processing order with status expected: PENDING`);
         const processedItems = items.map((item: any) => {
             const opts = item.options || {};
             const strengthVN = toVietnamese(opts.strength || 'Medium');
@@ -78,20 +80,24 @@ export async function POST(request: Request) {
             };
         });
 
+        const vnTimeStr = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+
         // 3. Save to Supabase (Bookings)
         const { data: booking, error: bookingError } = await supabase
-            .from('bookings')
+            .from('Bookings')
             .insert({
-                customer_name: customer.name || "Guest",
-                customer_phone: customer.phone || "",
-                customer_email: customer.email || "",
-                customer_gender: customer.gender || "Other",
-                total_amount: totalVND,
-                payment_method: paymentMethod,
-                status: 'pending',
+                id: crypto.randomUUID(),
+                customerName: customer.name || "Guest",
+                customerPhone: customer.phone || "",
+                customerEmail: customer.email || "",
+                totalAmount: totalVND,
+                paymentMethod: paymentMethod,
+                createdAt: vnTimeStr,
+                updatedAt: vnTimeStr,
+                status: 'NEW',
                 // Lưu thêm ID cũ vào trường note hoặc 1 trường custom nếu cần thiết cho re-order
                 // Tạm thời dùng id_legacy để lưu BillNum
-                id_legacy: billNum
+                billCode: billNum
             })
             .select()
             .single();
@@ -100,11 +106,12 @@ export async function POST(request: Request) {
 
         // 4. Save to Supabase (Booking Items)
         const itemsToInsert = processedItems.map((pi: any) => ({
-            booking_id: booking.id,
-            service_id: pi.id,
+            id: crypto.randomUUID(),
+            bookingId: booking.id,
+            serviceId: pi.id,
             quantity: pi.qty,
-            price_at_booking: pi.price,
-            options_snapshot: {
+            price: pi.price,
+            options: {
                 strength: pi.strength,
                 therapist: pi.therapist,
                 focus: pi.focus,
@@ -115,7 +122,7 @@ export async function POST(request: Request) {
         }));
 
         const { error: itemsError } = await supabase
-            .from('booking_items')
+            .from('BookingItems')
             .insert(itemsToInsert);
 
         if (itemsError) throw itemsError;
@@ -138,34 +145,34 @@ export async function GET(request: Request) {
 
         // Lấy danh sách booking kèm theo items
         const { data: bookings, error } = await supabase
-            .from('bookings')
+            .from('Bookings')
             .select(`
                 id,
-                id_legacy,
-                total_amount,
-                created_at,
-                booking_items (
+                billCode,
+                totalAmount,
+                bookingDate,
+                BookingItems (
                     id,
-                    service_id,
+                    serviceId,
                     quantity,
-                    price_at_booking,
-                    options_snapshot
+                    price,
+                    options
                 )
             `)
-            .eq('customer_email', email)
-            .order('created_at', { ascending: false });
+            .eq('customerEmail', email)
+            .order('bookingDate', { ascending: false });
 
         if (error) throw error;
 
         const result = bookings.map((b: any) => ({
-            id: b.id_legacy || b.id,
-            date: new Date(b.created_at).toISOString().split('T')[0],
-            total: b.total_amount,
-            items: b.booking_items.map((i: any) => ({
-                id: i.service_id,
+            id: b.billCode || b.id,
+            date: new Date(b.bookingDate).toISOString().split('T')[0],
+            total: b.totalAmount,
+            items: b.BookingItems.map((i: any) => ({
+                id: i.serviceId,
                 qty: i.quantity,
-                price: i.price_at_booking,
-                options: i.options_snapshot
+                price: i.price,
+                options: i.options
             })),
             note: 'Supabase Booking'
         }));
