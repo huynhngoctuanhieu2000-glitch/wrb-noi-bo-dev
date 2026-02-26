@@ -1,0 +1,29 @@
+BẢNG HƯỚNG DẪN TÙY CHỈNH TRẠNG THÁI DỊCH VỤ TRÊN MENU
+
+Việc thiết lập đúng các cột BEST_SELLER, BEST_CHOICE, và ACTIVE sẽ giúp bạn chủ động quản lý giao diện hiển thị của Menu dịch vụ trên website.
+
+1. Cột AN: BEST_SELLER (Best Service)
+- Ý Nghĩa: Đánh dấu đây là dịch vụ bán chạy nhất, được khách hàng ưa chuộng và đặt nhiều nhất.
+- Khi chọn TRUE (Bật): Dịch vụ sẽ xuất hiện thêm Huy hiệu "BEST SELLER" nổi bật (thường màu vàng/gold) trên thẻ dịch vụ để thu hút sự chú ý.
+- Khi chọn FALSE (Tắt): Thẻ dịch vụ hiển thị bình thường như các dịch vụ tiêu chuẩn khác.
+
+2. Cột AO: BEST_CHOICE
+- Ý Nghĩa: Đánh dấu đây là dịch vụ do Spa ưu tiên đề xuất hoặc gói dịch vụ cao cấp, mang lại hiệu quả tốt nhất.
+- Khi chọn TRUE (Bật): Dịch vụ sẽ được hiển thị trong mục "Gợi ý / Custom For You".
+- Khi chọn FALSE (Tắt): Dịch vụ không nằm trong nhóm đề xuất đặc biệt.
+
+3. Cột AP: ACTIVE
+- Ý Nghĩa: Quản lý việc hiển thị hay ẩn dịch vụ trên hệ thống đặt lịch (Booking).
+- Khi chọn TRUE (Bật): Dịch vụ Hiển thị bình thường trên giao diện Menu của Website để khách đưa vào giỏ hàng.
+- Khi chọn FALSE (Tắt): Dịch vụ sẽ bị Ẩn hoàn toàn khỏi Website (Rất hữu ích khi dịch vụ tạm ngưng, hoặc tạm hết nguyên liệu).
+
+---
+CÁC BƯỚC THAO TÁC HẰNG NGÀY:
+
+Bước 1. Định vị dịch vụ: Tìm đến tên dịch vụ bạn muốn cập nhật tại cột F (NAME_EN) hoặc mã dịch vụ tại cột A (ID).
+Bước 2. Thay đổi trạng thái:
+   - Di chuột vào các ô thuộc cột AN, AO, hoặc AP trên cùng hàng với dịch vụ đó.
+   - Click vào biểu tượng mũi tên trỏ xuống (Dropdown) có sẵn trong ô.
+   - Chọn TRUE nếu muốn Bật tính năng.
+   - Chọn FALSE nếu muốn Tắt tính năng.
+Bước 3. Đồng bộ / Lưu trữ: Sau khi bạn chọn xong giá trị mới, hệ thống sẽ ghi nhận trạng thái mới để cập nhật lên ứng dụng.

@@ -57,11 +57,26 @@ export const createBooking = async (data: BookingRequest, calculatedTotal: numbe
     try {
         const vnTimeStr = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
 
+        const now = new Date();
+        const dateCode = `${String(now.getDate()).padStart(2, '0')}${String(now.getMonth() + 1).padStart(2, '0')}${now.getFullYear()}`;
+
+        // Count to generate billCode
+        const { count } = await supabase
+            .from('Bookings')
+            .select('*', { count: 'exact', head: true })
+            .ilike('billCode', `%-${dateCode}`);
+
+        const nextNum = (count || 0) + 1;
+        const billNum = `${String(nextNum).padStart(3, '0')}-${dateCode}`;
+        const branchCode = '11NDK'; // TODO: Dynamically pass this from frontend later
+        const customId = `${branchCode}-${billNum}`;
+
         // 1. Chèn vào bảng 'Bookings'
         const { data: booking, error: bookingError } = await supabase
             .from('Bookings')
             .insert({
-                id: crypto.randomUUID(),
+                id: customId,
+                billCode: billNum,
                 customerName: data.customer.name,
                 customerPhone: data.customer.phone,
                 customerEmail: data.customer.email,
@@ -79,9 +94,9 @@ export const createBooking = async (data: BookingRequest, calculatedTotal: numbe
         // 2. Chèn các item vào bảng 'BookingItems'
         const { detailedItems } = await calculateOrderTotal(data.items);
 
-        const itemsToInsert = detailedItems.map(item => ({
-            id: crypto.randomUUID(),
-            bookingId: booking.id,
+        const itemsToInsert = detailedItems.map((item, index) => ({
+            id: `${customId}-item${index + 1}`,
+            bookingId: customId,
             serviceId: item.id,
             quantity: item.qty,
             price: item.priceOriginal

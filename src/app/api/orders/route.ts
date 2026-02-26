@@ -45,12 +45,13 @@ export async function POST(request: Request) {
         const { count } = await supabase
             .from('Bookings')
             .select('*', { count: 'exact', head: true })
-            .ilike('billCode', `%-req-${dateCode}%`);
+            .ilike('billCode', `%-${dateCode}`); // Đếm các mã kết thúc bằng chuỗi ngày (ví dụ: -23022026)
 
-        // Use a safe unique generator that guarantees no collision
+        // Tạo chuỗi dạng 001-23022026
         const nextNum = (count || 0) + 1;
-        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-        const billNum = `${String(nextNum).padStart(3, '0')}-req-${dateCode}-${randomStr}`;
+        const billNum = `${String(nextNum).padStart(3, '0')}-${dateCode}`;
+        const branchCode = '11NDK'; // TODO: Dynamically pass this from frontend later
+        const customId = `${branchCode}-${billNum}`;
 
         // 2. Prepare Data Items
         console.log(`[POST /api/orders] Processing order with status expected: PENDING`);
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
         const { data: booking, error: bookingError } = await supabase
             .from('Bookings')
             .insert({
-                id: crypto.randomUUID(),
+                id: customId,
                 customerName: customer.name || "Guest",
                 customerPhone: customer.phone || "",
                 customerEmail: customer.email || "",
@@ -105,9 +106,9 @@ export async function POST(request: Request) {
         if (bookingError) throw bookingError;
 
         // 4. Save to Supabase (Booking Items)
-        const itemsToInsert = processedItems.map((pi: any) => ({
-            id: crypto.randomUUID(),
-            bookingId: booking.id,
+        const itemsToInsert = processedItems.map((pi: any, index: number) => ({
+            id: `${customId}-item${index + 1}`,
+            bookingId: customId,
             serviceId: pi.id,
             quantity: pi.qty,
             price: pi.price,
