@@ -1,0 +1,84 @@
+# PHÂN TÍCH CHI TIẾT CÁC CHỨC NĂNG - WEB NỘI BỘ NGÂN HÀ SPA
+(Dựa trên Flowchart & Mockup UI)
+
+---
+## I. LUỒNG KHỞI TẠO & ĐĂNG NHẬP (ONBOARDING & LOGIN)
+1. Chọn Ngôn ngữ (Language Selection):
+   - Màn hình Splash Screen với hiệu ứng chuyển động Logo.
+   - Vòng tròn chọn ngôn ngữ (tiếng Việt, tiếng Anh, Nhật, Hàn...).
+
+2. Xác minh Tài khoản (Authentication):
+   - Màn hình "Welcome to Ngan Ha".
+   - Khuyến khích khách đăng nhập: "Bạn có muốn đăng nhập không? Tốt cho bạn!".
+   - Tính năng Login: Đăng nhập nhanh bằng Google (OAuth).
+   - Chế độ Guest (Khách vãng lai): Khách có thể ấn nút "Bỏ qua" để vào thẳng trải nghiệm đặt dịch vụ.
+   - Lợi ích đặc biệt khi đăng nhập: Khách có tài khoản sẽ tự động được điền thông tin phiếu dịch vụ (Guest phải tự điền ít nhất 1 thông tin Tên/Email/SĐT) và được quyền sử dụng các quyền lợi như Đổi nhân viên, Tích điểm,...
+
+3. Trải nghiệm Khách cũ (Returning User):
+   - Khách có email trên hệ thống được định danh là khách quay lại.
+   - Hiển thị danh sách "Your Visits" với đầy đủ lịch sử làm dịch vụ.
+   - Khả năng tương tác trên đơn cũ:
+     + "Modify Ticket": Sắp xếp/thay đổi một đơn đã lên lịch sẵn.
+     + "Rebook This": Một chạm để đặt lại toàn bộ combo/gói ngày cũ mà không cần chọn lại từ đầu.
+     + "+ Create New Booking": Bỏ trang lịch sử và tiến hành tạo đơn mới.
+
+---
+## II. LUỒNG CHỌN MENU VÀ ĐẶT LỊCH (MENU SELECTION & CART)
+1. Giao diện Chọn Thực Đơn (Main Menu):
+   - Chia 3 cuốn sách điện tử chủ đạo:
+     + Tiêu Chuẩn (Standard): Dành cho khách dùng Menu ngẫu nhiên (Giá cơ bản).
+     + Cao Cấp (Premium / VIP): Chỉ định nhân viên cao cấp, dành cho khách muốn thiết kế trải nghiệm riêng biệt.
+     + Home Spa.
+
+2. Tiện ích Gợi ý thông minh (Smart Suggestion):
+   - Hiển thị Popup (Không làm mờ nền màn hình) "Bạn mún làm dịch vụ nào nhỉ?".
+   - Hàng ngang trượt ngang (Carousel) phân loại Category.
+   - Khách có thể nhấp chọn nhiều mục cùng lúc, hệ thống sẽ đề xuất tự động ra được dịch vụ phù hợp nhất với mong muốn.
+
+3. Chi tiết Dịch Vụ & Tuỳ biến (Service Customization):
+   - Card hiển thị các môn (Aroma Oil, Deep Tissue...).
+   - Popup tùy chọn khi ấn vào dịch vụ (VD: Aroma Oil):
+     + Chọn mức thời lượng (60mins, 90mins, 120mins) - Có highlight tuỳ chọn nào được giá tiết kiệm hơn/Best Seller.
+     + Tùy biến sức tay ép (Strength): Nhẹ, Vừa, Mạnh.
+     + Cá nhân hoá y tế/sức khỏe: Khai báo Mang thai (Pregnant), Dị ứng (Allergy) hoặc ghi chú riêng.
+
+4. Giỏ Hàng & Thanh Toán (Cart & Checkout):
+   - Giao diện "Payment Information".
+   - Thu thập thông tin Khách (Họ Tên, Email, SĐT). Guest phải điền, Logged-in tự động điền.
+   - Confirming Order (Xác nhận hóa đơn): Hiển thị Tên môn, thời lượng, sức lực, số lượng người kèm theo Tổng Bill (bằng VNĐ). Chọn phương thức trả tiền Cash/Card/Bank.
+
+---
+## III. LUỒNG TRẢI NGHIỆM TẠI SPA (SERVICE EXECUTION)
+1. Màn hình Chờ Phòng (Waiting Room / Status):
+   - Tiêu đề: "Hành Trình Thư Giãn" & Mã Đơn Hàng lớn dễ nhìn để Lễ tân đối chiếu.
+   - Lời dặn dò hiển thị đồng thời với thanh Tiến trình load (Progress Bar 75%...): "Mời bạn ngâm chân thảo dược... cho chúng tôi ít phút để chuẩn bị phòng".
+
+2. Màn hình Đang Phục Vụ (Active Session):
+   - Khi KTV bắt đầu, khách thấy giao diện "DỊCH VỤ ĐANG THỰC HIỆN".
+   - Đếm ngược đồng hồ dịch vụ.
+   - Quyền lợi Tối thượng - Tính năng Đổi nhân viên (Staff Switch):
+     + CHỈ hiển thị với khách đang đăng nhập bằng Google. Không đăng nhập = không có nút hỗ trợ đổi!
+     + Chế độ Tiêu Chuẩn (Standard Menu): Được phép ĐỔI người trong 15 PHÚT ĐẦU TIÊN (giới hạn 1 lần đổi). Quản lý sẽ điều động theo thứ tự.
+     + Chế độ Cao Cấp (Premium Menu / VIP): Không được đổi nhân viên do tính cá nhân hoá cao.
+     + Nếu khách Tiêu Chuẩn nhấn đổi mà Hết Nhân Viên sẵn sàng -> Quản lý nhảy ra xin lỗi/giải quyết hoặc Hoàn Tiền (Refund).
+
+3. Đánh giá Tức thời (Live Feedback trong lúc làm):
+   - Thiết kế câu hỏi check-point (Bạn có cảm thấy đau quá không?, Nhiệt độ phòng vừa chứ?, v.v.).
+   - Khách bấm chọn trên máy, kết quả báo vạch đỏ Báo động lên Dashboard Quản trị NGAY LẬP TỨC để cấp cứu trải nghiệm.
+   - Bảng kết quả Feedback TỔNG (Cuối giờ) sẽ bị ghim/gom lại, và CHỈ KIỂM ĐỊNH MỞ GỬI CHO KTV 1 LẦN sau khi KTV đã hoàn thành trả khách. Tránh gửi lẻ tẻ khi khách đang làm => Ảnh hưởng tâm lý của KTV.
+
+---
+## IV. LUỒNG KẾT THÚC & ĐÁNH GIÁ (POST-SERVICE FLOW)
+1. Tự nhắc nhở Checking Tư Trang:
+   - Trước khi rời phòng, màn hình nhắc "Xin quý khách vui lòng kiểm tra kỹ tư trang (điện thoại, ví, trang sức...)". Bấm xác nhận "TÔI ĐÃ KIỂM TRA XONG" để đi tiếp.
+
+2. Đánh Giá Trải Nghiệm & Tiền Tip (Review & Tipping):
+   - Hiển thị Avt/Tên của Chuyên viên (KTV) - VD: Linh Nguyễn.
+   - Đánh giá sao (1-5 sao).
+   - Ô comment nhập lời nhắn gửi và nút biểu cảm.
+   - Sau khi hoàn tất: Giao diện "Xuất sắc! Cảm ơn vì sự hài lòng..." đóng lại hành trình dịch vụ một cách hoàn hảo.
+
+---
+## V. LƯU Ý GÓC ĐỘ QUẢN TRỊ & DATABASE TỪ LUỒNG NÀY
+- *Logic Mua Tiêu Chuẩn (Standard)*: Khách có thể note thời gian trên App. App sẽ đẩy đơn này thành Trạng thái Nhận Đơn (nhưng Pending KTV). Quản lý sẽ nhìn vào Note Khách để gắn tên bạn nhân viên rảnh vào.
+- *Logic Mua Thêm Giờ / Kéo dài (Cho khách làm Premium)*: "Nếu khách muốn nhân viên đang làm (KTV cũ), LÀM THÊM (extend) -> Bắt buộc họ phải mua Menu VIP -> Để hệ thống nhận diện khóa bạn KTV này lại cho riêng người khách đó, người khác book online không được lấy".

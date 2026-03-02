@@ -1,0 +1,86 @@
+# TỔNG HỢP DANH SÁCH CÔNG VIỆC KỸ THUẬT - APP KTV (NHÂN VIÊN)
+(Cập nhật tính năng Bào Giờ thông minh & Quy trình Đón/Đánh giá Khách)
+
+---
+## I. FRONTEND (GIAO DIỆN & UI COMPONENT - APP NHÂN VIÊN)
+
+1. Module Đăng Nhập KTV (Authentication):
+   - [ ] Giao diện Form Đăng nhập Truyền thống: Nhập Code nhân viên (VD: NH05) / SĐT và Mật khẩu PIN 4-6 số. (Đơn giản, dễ nhớ cho lao động phổ thông). Khuyên dùng thay vì Google OAuth (để chống việc lấy email linh tinh log vào).
+   - [ ] Xử lý Phân quyền Ngầm (Role-based Context): Khớp Data API xác định User này là "KTV_NHA" (In-house) hay "KTV_NGOAI" (External/Freelance).
+   - [ ] Tích hợp Middleware Next.js: Check cookie token. Nếu không phải KTV -> đá văng ra màn hình Access Denied.
+
+2. Giao diện Màn Hình Nhận Đơn (Dashboard):
+   - [ ] Lược bỏ hiển thị toàn bộ mã UUID/Hash bill code. Rút trích mã ngắn (VD: `05-27022026`).
+   - [ ] Thiết kế lại Block "Thông tin dịch vụ" theo hình mẫu (Scrollable). 
+
+2. Component Quy trình Mở Phòng (Interactive Checklist):
+   - [ ] Vẽ UI list Checklist Setup (Bật máy lạnh, khăn nóng, ánh sáng...).
+   - [ ] Chèn trường Upload Hình Ảnh Chụp Thực Tế phòng ốc bằng Camera App.
+   - [ ] Nút Submit "Xác nhận đã chuẩn bị xong" chặn flow. 
+
+3. Component Đồng Hồ (KTV Time-Tracking Core):
+   - [ ] Code Đồng hồ đếm lùi và Ring hình cung (Green) chạy phần trăm.
+   - [ ] Logic Găm Nút: Trạng thái Nút "BẮT ĐẦU" xám xịt 10 phút đầu. Lắp Countdown `10:00` đếm ngược ẩn hoặc nổi.
+   - [ ] Thuật Toán Bào Giờ (Calibration): Gói mốc ảo (VD 90p, 120p) nhưng Set Clock = 85p và 110p. Đồng bộ state này hiển thị GIỐNG NHAU trên máy tính bảng ở hai phòng Khách và Nhân viên bằng cách Subscribe qua Supabase Realtime Channel (`clock_sync_channel`).
+
+4. Màn Hình Nổ Thông Báo Đổi Người (Alert Overlay):
+   - [ ] Lắng nghe Broadcast từ bảng `bookings`. Nếu `status = switch_requested` && `technician_code = ME`.
+   - [ ] Bung Panel Alert Đỏ/Cam chặn mọi thao tác + Âm thanh báo động. Code Nút đóng Session bắt buộc ("Canh Tua Tiếp Nào").
+
+5. Màn Hình Đánh Giá Khách Hàng Chéo (Cross-Profilng Form):
+   - [ ] Giao diện Đánh Giá (Nhiều lựa chọn UI Checkbox Custom: Dễ chịu, Khó tính, Hướng nội...).
+   - [ ] Giao Diện Vinh Danh: Hiện Điểm Thưởng (Nếu được Tip) & Lời Cảm Ơn nhân viên nghỉ ngơi.
+
+---
+## II. DATABASE (THÊM/SỬA BẢNG TRÊN SUPABASE)
+
+1. Cập nhật Bảng `users` (Danh sách Cán bộ Nhân viên / KTV):
+   - Bảng này sẽ là nguồn quản lý tập trung và là Auth Provider Custom cho nhân sự. (Với KTV thì ko đưa lên bảng Customers, mà quản lý riêng ở Users).
+   - `id` (UUID, PK)
+   - `technician_code` (String, Unique - VD: "NH05", "CTV_01"). Dùng để đăng nhập thay User/Email.
+   - `pin_hash` (String - Mật khẩu mã hoá).
+   - `staff_type` (Enum: `INHOUSE` - KTV nhà, `EXTERNAL` - KTV ngoài/Cộng tác viên). Phục vụ tính toán Chia `%` Tour (Commission) rạch ròi. KTV Ngoài có thể hưởng % cao hơn vì ko có lương cứng.
+   - `role` (Enum: `ADMIN`, `RECEPTION`, `KTV`). 
+   - `is_active` (Boolean).
+
+2. Cập nhật Bảng `bookings`:
+   - `real_duration` (Int): Lưu thời gian BÀO GIỜ thực tế đếm lùi. (VD khách mua 90, sẽ lưu cột ảo này là 85).
+   - `room_setup_images` (Array Text - Nơi hứng link ảnh KTV setup giường).
+   - `staff_ready_at` (Timestamptz - Mốc KTV ấn nút Hoàn tất Setup).
+   - `start_locked_until` (Timestamptz - Mốc Thời gian 10 Phút quản lý cấp cho Setup).
+
+2. Bảng KTV Profiling Khách Hàng: `customer_profiles` (Lưu vết insight)
+   - Mục đích: Hệ thống học thói quen Khách.
+   - `id` (UUID, PK)
+   - `customer_email` (Foreign Key -> Liên kết khách Login). Hoặc `booking_id` với Guest.
+   - `technician_code` (Mã KTV)
+   - `behavior_tags` (Array String: `["dễ_xốm", "hướng_nội"]`)
+   - `staff_note` (Text: Lời dặn dò nội bộ)
+   - `created_at`
+
+3. Bảng Điểm Thưởng Nhân Viên: `technician_rewards` (Nếu muốn tracking điểm dài hạn)
+   - `id`, `technician_code`, `booking_id`.
+   - `bonus_points` (Int2: +25 điểm từ Tip 5 sao).
+   - `cash_bonus` (Int: VD được chia +100k tiền Tua).
+
+---
+## III. BACKEND & SUPABASE REALTIME (API DESIGN)
+
+1. API Đăng Nhập KTV - `/api/auth/ktv-login`
+   - Nhận payload: `technician_code` và `pin`.
+   - Đối chiếu hash password trong Db bảng `users`.
+   - Khởi tạo 1 thẻ Session có chứa `staff_type` (INHOUSE/EXTERNAL). Ký JWT xả Cookie về máy điện thoại.
+
+2. API Submit Tiền Trạm (Mở Phòng) - `/api/ktv/room-setup`
+   - Nhận Image URL và Checklist của KTV.
+   - Update `staff_ready_at`. Trả về Timestamp `start_locked_until` = `staff_ready_at` + 10 Phút. Nút bấm Bắt đầu bị khóa cho đến thời điểm đấy.
+
+2. API Bấm Bắt Đầu Đơn & Trigger Clock - `/api/ktv/start-session`
+   - Chỉ hoạt động khi API thỏa điều kiện `NOW() >= start_locked_until` (Hoặc bypass nếu Role Quản trị click châm chước).
+   - CẬP NHẬT `bookings`.`started_at` = `NOW()`.
+   - Dùng Thuật toán Mapping Thời gian bào:
+     + Nếu `booking.duration === 90` -> Cập nhật `real_duration = 85`.
+     + Phát Realtime tới kênh Phòng Khách để Tivi đếm ngược 85 phút. Không liên quan gì tới giao diện số 90 phút to đùng.
+
+3. API KTV Push Nhận Xét Khách Chéo - `/api/ktv/submit-profile`
+   - Bắn dữ liệu lên bảng Thói quen Khách Hàng. Trả về thông tin Tua và Point Điểm Thưởng lên màn hình Vinh Danh.

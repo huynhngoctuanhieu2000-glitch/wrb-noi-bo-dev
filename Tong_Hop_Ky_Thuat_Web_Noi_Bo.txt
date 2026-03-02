@@ -1,0 +1,110 @@
+# TỔNG HỢP DANH SÁCH CÔNG VIỆC KỸ THUẬT - WEB NỘI BỘ NGÂN HÀ SPA
+Dựa trên hình ảnh UI và logic vận hành đã thảo luận.
+
+---
+## I. FRONTEND (GIAO DIỆN & UI/UX COMPONENT)
+*Các trang/tính năng cần xây dựng mới hoặc nâng cấp trên Next.js App Router*
+
+1. Tích hợp Đăng nhập (Authentication UI):
+   - [ ] Thêm nút Đăng nhập hiển thị `Sign in with Google` (Dùng Supabase Auth hoặc NextAuth).
+   - [ ] Phân quyền Global State (Dùng Zustand hoặc React Context API) để chia rõ: Is_Auth_User (Khách VIP) và Is_Guest (Vãng lai).
+
+2. Popup Lọc Dịch Vụ Thông Minh (Smart Category Carousel):
+   - [ ] Tạo UI popup nổi hoặc trượt ngang (Không làm mờ màn hình) trước khi khách chọn Menu.
+   - [ ] Vẽ bộ Icon Category (Body Massage, Foot Nail, Ear Wash, Facial...).
+   - [ ] Code logic Local Filter: Bấm chọn Icon nào => Hiển thị ra Service Box tương ứng bên dưới.
+
+3. Module Checkout (Cart & Form):
+   - [ ] Component Form Điền Thông Tin: Validate các trường (Họ Tên, SĐT, Email).
+   - [ ] Tình trạng Autofill: Viết hook `useEffect` - Nếu State Auth có dữ liệu -> Gán `readonly` (Chỉ đọc) cho Form Tên + Email. Nhắc khách Guest tự nhập.
+   - [ ] Component Option Dịch vụ (Popup lúc chọn món): Tạo nút `+` / `-` số lượng người. Dropdown chọn Thời Lượng (60/90/120 phút) và Radio Button Sức Ấn (Nhẹ/Vừa/Mạnh).
+
+4. Component Đồng Hồ Đếm Ngược (Trang Đang Phục Vụ):
+   - [ ] Custom hook `useCountdown(start_time, duration)`. 
+   - [ ] Đếm lùi giao diện (00:59:00). Hiển thị thanh Progress Bar hình cung hoặc mảng nổi bật.
+   - [ ] Tạo UI hiển thị rõ cảnh báo thời gian Đổi Nhân Viên còn hiệu lực (Ví dụ thanh đỏ báo "Bạn còn 10 phút để yêu cầu đổi người").
+
+5. Nút Đảo Nhân Viên (Staff Switcher Component):
+   - [ ] Logic điều kiện hiển thị Button: (Is_Auth_User == true) && (Elapsed_Time < 15) && (Menu_Type == 'STANDARD').
+   - [ ] Trạng thái Loading (Chờ Quản lý xác nhận).
+
+6. Các Panel Đánh Giá (Live Checklist & Post-Review):
+   - [ ] Màn Feedback Giữa giờ (1 chiều): Hiện hộp List 5 câu hỏi Checklist để khách Click báo động lập tức.
+   - [ ] Màn Cảnh báo Tư trang: UI Pop-up "Tôi đã kiểm tra xong" chặn ngang màn hình.
+   - [ ] Màn Feedback Cuối giờ: Giao diện 5 Face Icons (Từ Giận dữ đến Yêu thích). 
+   - [ ] Modal Tipping: Bật Lên (Chỉ khi Face Icon == Đỉnh của chóp/Tuyệt vời).
+
+---
+## II. DATABASE (THÊM BẢNG MỚI TRÊN SUPABASE)
+*Không tính các bảng cũ (Categories, Services, Bookings, Booking Items). Thiết kế tối ưu cho PostgreSQL (Supabase)*
+
+2. Bảng Khách Hàng: `customers` (Nâng cấp luồng Đăng nhập)
+   - Mục đích: Lưu trữ độc lập thông tin khách vãng lai (Guest_xxx) và khách Login Google để định danh lúc checkout, theo dõi số khung giờ quay lại (History).
+   - `id` (UUID/String, Primary Key)
+   - `full_name` (String)
+   - `email` (String, Unique)
+   - `phone` (String, Nullable)
+   - `is_google_auth` (Boolean): True nếu khách đăng nhập bằng Google.
+   - `avatar_url` (String)
+   - `created_at`, `last_visited_at` (Timestamptz)
+
+3. Bảng Cấu hình Đánh Giá Động: `admin_question_configs`
+   - Mục đích: Lễ tân/Quản lý có thể thay đổi câu hỏi Live Checklist dễ dàng trên DB mà Frontend không phải hard code.
+   - `id` (UUID, Primary Key)
+   - `question_text` (String): ND câu hỏi (VD: "Nhân viên bấm điện thoại?")
+   - `question_type` (Enum): Loai "Live" hoặc "Post"
+   - `is_active` (Boolean): Cho phép bật/tắt câu hỏi hiển thị cho khách.
+   - `created_at`, `updated_at` (Timestamptz)
+
+2. Bảng Đánh Giá Tức Thời: `live_checkpoints`
+   - Mục đích: Nơi tiếp nhận Feedback ngay khi làm dịch vụ (Phát tín hiệu Real-time báo Admin).
+   - `id` (UUID, Primary Key)
+   - `booking_id` (UUID, Foreign Key -> `bookings(id)`): Map với phòng/khách hàng nào đang complaint.
+   - `question_id` (UUID, Foreign Key -> `admin_question_configs(id)`)
+   - `is_issue` (Boolean): Đánh dấu có bấm vô lỗi (True/False).
+   - `created_at` (Timestamptz)
+
+3. Bảng Feedback Tổng Hợp & Tip: `customer_feedbacks`
+   - Mục đích: Thu thập Data chốt ngày (Rating + Tiền boa).
+   - `id` (UUID, Primary Key)
+   - `booking_id` (UUID, Foreign Key -> `bookings(id)` - Unique: Mỗi bill đánh 1 lần)
+   - `customer_email` (String)
+   - `technician_code` (String): ID nhân viên đấm bóp (Lấy từ booking đổ qua).
+   - `rating_score` (Int2): Điểm số (1-5 sao/icon).
+   - `review_comment` (Text): Góp ý chữ.
+   - `tip_amount` (Numeric): Tiền Típ (Mặc định 0).
+   - `created_at` (Timestamptz)
+
+---
+## III. BACKEND (THIẾT KẾ & TÍCH HỢP NEXT.JS API / SUPABASE SDK)
+*Các Endpoint và Realtime Channel cần dựng*
+
+1. API Xác thực Khách & Sync Data - `/api/auth/customer-sync` (Post-Login Hook)
+   - Nhiệm vụ: Xử lý ngay sau khi Supabase Trả về Token Google thành công.
+   - Payload: Google Profile Data (`email`, `name`, `avatar`).
+   - Xử lý Upsert: Bắn vào bảng `customers`. Nếu email đã tồn tại -> Update `last_visited_at`. Nếu chưa -> Tạo mới khách hàng (`is_google_auth = true`).
+
+2. API Filter Dịch Vụ - `/api/services/filter` (Hoặc gọi qua Supabase JS Client)
+   - Nhiệm vụ: Xử lý tìm kiếm dựa trên bảng JSON `comboTags`.
+   - Payload đầu vào: `["body", "wash"]`.
+   - Xử lý: Select những `services` có `comboTags` chứa điều kiện mảng truyền vào (Dùng PostgreSQL JSON Operator `?&` hoặc `@>`).
+
+2. API Push Đánh Giá Tức Thời - `/api/feedbacks/live`
+   - Nhiệm vụ: Lưu dòng click checklist vào `live_checkpoints`.
+   - Không cần trả Data lớn, Code chuẩn REST: Trả Status 2xx để FE đóng popup thông báo là đủ.
+   - Cấu hình Broadcast/Channel Supabase: Kích hoạt Insert Record Trigger để kênh `postgres_changes` bắn notifi hỏa tốc cho Giao diện Lễ Tân nằm vùng.
+
+3. API Yêu cầu Cứu Gọi (Đổi Nhân Viên) - `/api/bookings/switch-staff`
+   - Nhiệm vụ: Xử lý khi khách bấm nút "Đổi KTV".
+   - Payload: `booking_id`, `reason`.
+   - Update bảng `bookings`: `status` = 'switch_requested' và `is_switched` = true (Tránh spam click).
+   - Bắn Pusher / Supabase Realtime cho Quản Lý.
+
+4. API Chốt Feedback Cuối Đơn - `/api/feedbacks/post`
+   - Nhiệm vụ: Ghi số sao vả Tiền Tip. Cập nhật Status hoàn chỉnh hóa đơn.
+   - Gom 2 lệnh (Transaction):
+     + Lệnh 1: Insert sang `customer_feedbacks` (Rating + Tip).
+     + Lệnh 2: Update `bookings`.`status` = 'completed'. (Việc gán Status completed rất quan trọng vì nhờ nó Màn hình KTV mới tải được Feedback của chính họ về để xem).
+
+5. Setup Real-time & Rules (Database Triggers & Policy)
+   - Cảnh báo RLS (Row Level Security): Tạo 1 policy khóa Read đối với KTV trên cụm bảng Feedback. Chỉ cấp quyền SELECT đối với record nào có `status` của Booking join theo bằng 'completed'. Mức Policy này cực quan trọng để bảo vệ KTV và Trải nghiệm khách hàng nội bộ.

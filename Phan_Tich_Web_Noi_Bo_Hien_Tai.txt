@@ -1,0 +1,62 @@
+# PHÂN TÍCH LUỒNG VẬN HÀNH HIỆN TẠI (ĐÃ BUILD TRONG CODE) - WEB NỘI BỘ NGÂN HÀ SPA
+
+---
+## I. LUỒNG KHỞI TẠO & PHÂN LOẠI KHÁCH HÀNG
+1. Màn hình Intro (Trang chủ /)
+   - Chức năng: Chọn 1 trong 5 ngôn ngữ (VN, EN, JP, CN, KR) với giao diện vòng tròn 3D Orbit quanh logo Ngân Hà.
+   - Luồng đi: Người dùng bắt buộc chọn ngôn ngữ để tiến vào hệ thống.
+
+2. Màn hình Phân loại Khách Hàng (Customer Type /customer-type)
+   - Chức năng: Xác định người dùng là "Khách Hới" hay "Khách Cũ".
+   - Luồng đi với Khách Mới (New/First-time Customer): Bấm Nút "I'm a new customer" -> Đi thẳng tới Trang Chọn Gói Dịch Vụ (Menu Type Selector).
+   - Luồng đi với Khách Cũ (Returning Customer):
+     - Bấm Nút "I'm a returning customer".
+     - Sẽ bật ra Form Popup (CheckUserModal) yêu cầu khách nhập Email để kiểm tra.
+     - Hệ thống sẽ gọi Database (thông qua hook `useCheckUserEmail`).
+       + Nếu email khớp/chính xác: Xác thực thành công -> Đi thẳng tới Trang Lịch Sử Đơn Hàng (History).
+       + Nếu sai/không tồn tại: Hiển thị lỗi đỏ báo "Email không tồn tại". Khách phải nhập lại hoặc quay về.
+
+---
+## II. LUỒNG KHÁCH MỚI: CHỌN GÓI VÀ ĐẶT DỊCH VỤ MỚI 
+1. Màn hình Chọn Loại Thực Đơn (Menu Type Selector /select-menu)
+   - Chức năng: Chọn 1 trong 2 loại thiết kế dịch vụ thông qua UI cuốn sách lật trang.
+   - Standard Service (Dịch vụ tiêu chuẩn):
+     - Gói giá rẻ.
+     - Nhân viên & Spa room thực hiện sẽ được máy/quản lý Auto xếp ngẫu nhiên (Random Staff & Room).
+     - Khách ấn vào cuốn "Standard" -> Sẽ nhảy qua luồng Danh sách dịch vụ Standard.
+   - Premium Service (Dịch vụ cao cấp):
+     - Giao diện có nút ấn nhưng đang hiển thị cờ "Coming Soon" và chưa code luồng thật bên dưới.
+
+2. Màn hình Xem Danh Sách Dịch Vụ (Menu View /menu/[menuType])
+   - Chức năng: Hiển thị toàn bộ các Item như Aroma Oil, Thai Massage,...
+   - Quản lý Category: Có Sidebar hoặc Header lọc các thẻ như Body Massage, Facial,...
+   - Các Cờ Hiển Thị (Display Flags):
+     - `isActive`: Nếu bằng Flash/False trên Database, dịch vụ đó bị Ẩn hoàn toàn khỏi app.
+     - `isBestSeller`: Nếu bật True, dịch vụ sẽ có cái Badge vàng.
+     - `isBestChoice`: Bật True thì dịch vụ sẽ nằm trong Box Gợi ý Ưu tiên ở tít trên đầu.
+
+3. Màn hình Checkout (Giỏ Hàng / Booking)
+   - Chức năng: Ghi nhận đơn và lưu vào Supabase.
+   - Field thông tin cần nhập: Họ Tên (Bắt buộc), Số Điện Thoại (Bắt buộc), Email, Giới tính, Ghi chú.
+   - Lựa chọn phương thức thanh toán (Cash, Card).
+   - Xác nhận Đơn hàng: Tính toán `total_amount` (Tổng tiền).
+   - Logic Chuyển Ngày Đơn (Cutoff logic): Nếu đơn tạo lúc 1h sáng, DB tự động lùi về ngày hôm trước (Set mặc định mốc chuyển ngày là 8:00 AM).
+   - Logic Tạo Bill Code: Mã hóa đơn được sinh tự động theo định dạng ví dụ `11NDK-001-23022026`.
+
+---
+## III. LUỒNG KHÁCH CŨ: XEM LỊCH SỬ & ĐẶT LẠI
+1. Màn hình Lịch Sử (History View /history/[email])
+   - Chức năng: Hiện các phiếu Booking đã thực hiện của một Email.
+   - Thao tác có thể làm trên đơn cũ:
+     - Tạo Đơn Mới Hoàn Toàn (+ Create New Booking): Cho khách nhảy về lại màn Chọn Sách Standard/Premium.
+     - Đặt Lại Đơn (Re-book): (Tính năng có nút nhưng API clone đang trong kế hoạch hoàn thiện).
+     - Chỉnh Sửa (Modify): Cập nhật lại ngày giờ đơn (API cập nhật đang được gắn vào DB mới).
+
+---
+## IV. CÁC TÍNH NĂNG VÀ LUỒNG "HIỆN TẠI ĐANG THIẾU" (CHƯA CODE TRONG WRB-NOI-BO-DEV/ CHƯA HOÀN THIỆN THEO MOCKUP MỚI)
+- Login Google Authenticator OAuth.
+- Popup Gợi ý Dịch vụ (Carousel) khi Lễ tân hỏi Khách muốn làm đau hay nhẹ.
+- Custom Sức Ấn & Chọn thời lượng phút (60/90/120mins) lúc Checkout.
+- Màn Thực Hành Đếm Giờ Đảo Nhân viên (15p đầu được quyền đổi KTV).
+- Màn hình Đánh giá Rating (Feedback Tips 1-5 sao).
+- Màn hình Nhắc Kiểm Tra Đồ (Leaving check).

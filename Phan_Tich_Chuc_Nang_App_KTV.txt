@@ -1,0 +1,56 @@
+# PHÂN TÍCH LUỒNG VẬN HÀNH APP KTV (NGÂN HÀ SPA TECH APP)
+Dựa trên hình ảnh UI & Logic đặc thù do Lễ Tân/Quản Lý yêu cầu
+
+---
+## I. LUỒNG NHẬN ĐƠN & VIEW ĐƠN HÀNG
+1. Nhận Đơn (Card Info):
+   - Màn hình chính nhận đơn hiển thị Mã Bill rút gọn. Thay vì hiển thị đoạn text dài `11NDK-001-23022026`, ứng dụng KTV sẽ lược bỏ phần ngẫu nhiên dư thừa, chỉ hiển thị số Bill ngắn gọn dễ nhớ: `05-27022026`.
+   - Thông tin hiển thị: Tên Khách Hàng, Gói Dịch Vụ, Menu Standard hay VIP, Lực ấn (Nhẹ/Vừa/Mạnh), ID Phòng - Số Giường.
+
+2. Component Mới: Menu Cuộn "Quy trình Dịch vụ":
+   - Thay vì show cục text rườm rà chiếm diện tích trên app điện thoại (như Shiatsu 90p: Mở máy lạnh, tinh dầu, khăn nóng...), UI sẽ rải các bước này thành 1 Component có thể Cuộn Xuống/Cuộn Lên (Scrollable Accordion).
+   - Mục đích: Tiết kiệm không gian màn hình thiết bị mobile của KTV, giữ giao diện sạch sẽ, tập trung vào Nút "Bắt Đầu" và Mã Đơn.
+
+3. Module "Quy trình Mở phòng" (Checklist chuẩn bị & Setup):
+   - Kỹ thuật viên bắt buộc phải kiểm tra (tick done) list công việc: Mở quạt/máy lạnh, ghim tủ nóng khăn, ghim đèn tinh dầu, setup khăn giường, check toilet.
+   - Bắt buộc chụp ảnh Phòng đã setup gửi vào Group nội bộ báo cáo trước khi đón khách.
+   - Nút "Xác nhận đã chuẩn bị xong" chặn lại quy trình. 
+
+---
+## II. LUỒNG KIỂM SOÁT THỜI GIAN (TIME-TRACKING LÕI)
+*Đây là trái tim của hệ thống vận hành nâng cao*
+
+1. Delay Nút "Bắt Đầu" 10 Phút:
+   - Khi KTV ấn "Nhận Đơn", nút "BẮT ĐẦU DỊCH VỤ" sẽ bị **VÔ HIỆU HÓA (Disabled)** hoặc **ẨN ĐI**.
+   - Phải đếm lùi đúng 10 phút, màn hình sẽ unlock (mở khóa) cho nút sáng lên xanh lá cây để KTV bấm. 
+   - Lý do: Bắt KTV phải nghỉ ngơi hoặc đi setup phòng đúng x chỉ tiêu thời gian, tránh việc các bạn lách luật ấn "Bắt Đầu" sớm ăn gian giờ của Lễ Tân/Quản Lý. Bắt buộc Mốc Bắt Đầu phải do Quản trị cài đè (ưu tiên thời gian thực trên Database không phụ thuộc vào KTV bấm sớm).
+
+2. Thuật Toán "Bào Giờ" (Time Calibration):
+   - Chỉ áp dụng đối với gói dịch vụ thời lượng từ 90 phút trở lên.
+   - Với Gói `90 phút`: Đồng hồ đếm lùi thực tế chỉ chạy **85 phút**. (Ăn gian 5 phút)
+   - Với Gói `120 phút`: Đồng hồ đếm lùi thực tế chỉ chạy **110 phút**. (Ăn gian 10 phút)
+   - Lưu ý Kỹ Thuật: Đồng hồ trên màn hình phòng Khách và màn hình App của KTV phải Sync Real-Time Nhau và hiển thị GIỐNG HỆT NHAU mốc (VD: Báo là đang chạy gói 90 phút, nhưng con số đếm lùi chỉ xuất phát từ 85:00 về 00:00). Tránh Khách và Nhân viên lệch giờ dẫn đến khiếu nại.
+
+---
+## III. LUỒNG SỰ CỐ & THÔNG BÁO TỨC THỜI
+1. Chắn Cảnh Báo Push "Thay Đổi Kỹ Thuật Viên":
+   - Khi khách hàng ở phòng làm bấm "Đổi Nhân Viên" trên màn hình của họ (Luồng KH).
+   - App của KTV đang phục vụ lập tức nổ màn hình Đỏ/Vàng Alert: *"THÔNG BÁO: Khách hàng yêu cầu thay đổi kỹ thuật viên. Đừng nhụt chí... hãy dọn dẹp và về phòng nghỉ ngơi."*
+   - KTV buộc phải ấn nút "CANH TUA TIẾP NÀO" -> Thoát phiên làm việc (Session ended), Clock dừng lại.
+
+---
+## IV. LUỒNG TỔNG KẾT & FEEDBACK (SAU DỊCH VỤ)
+1. Đánh giá Của KTV Về Khách Hàng:
+   - Khi hết giờ bíp, KTV bấm hoàn tất. 
+   - Hệ thống Nhắc nhở đỏ: *"NHẮC KHÁCH KIỂM TRA LẠI ĐIỆN THOẠI, VÍ TIỀN..."*
+   - KTV được quyền Feedback ngược lại khách: Tick chọn các option chuẩn bị sẵn:
+     + "Khách dễ xốm" / "Thoải mái tay chân"
+     + "Khách kỹ tính + khó chịu"
+     + "Khách dễ thương" (trò chuyện cởi mở)
+     + "Khách hướng nội / Hướng ngoại"
+   - Mục đích: Build Database profiling (Hồ sơ chân dung Khách hàng) gắn vào Email của khách để Lần sau khách đi nữa Lễ Tân/Quản lý biết đường mà cử Nhân viên phù hợp ra đấm bóp.
+
+2. Màn Hình Thưởng/Điểm Nhấn Xuyên Suốt:
+   - Kỹ Thuật viên bấm Hoàn thành -> Hiện bảng Pop-up lớn (Chúc mừng KTV).
+   - Chỉ số hiển thị: + Số tiền Tua nhận được (100k, 150k...).
+   - (Mới) Tính năng Tích điểm Nhân sự: *Hiển thị thông báo KTV vừa được thưởng 25 Điểm Nhờ đánh giá Tốt của khách...* => Khích lệ KTV. Màn hình rực rỡ bắn hoa tiêu xanh.
