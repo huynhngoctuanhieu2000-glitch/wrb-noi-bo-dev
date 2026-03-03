@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import crypto from 'node:crypto';
 
 const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
@@ -22,6 +22,7 @@ const toVietnamese = (text: string | null | undefined): string => {
 
 export async function POST(request: Request) {
     try {
+        const supabaseAdmin = getSupabaseAdmin();
         const body = await request.json();
         const { customer, items, paymentMethod, amountPaid, totalVND, lang } = body;
 
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
         const dateStrForSheet = `${year}-${month}-${day}`;
 
         // 1. Generate Bill Number (Based on today's count in Supabase)
-        const { count } = await supabase
+        const { count } = await supabaseAdmin
             .from('Bookings')
             .select('*', { count: 'exact', head: true })
             .ilike('billCode', `%-${dateCode}`); // Đếm các mã kết thúc bằng chuỗi ngày (ví dụ: -23022026)
@@ -83,12 +84,34 @@ export async function POST(request: Request) {
 
         const vnTimeStr = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
 
+        // 2.5 Generate Customer ID and Upsert to Customers Table FIRST
+        const customerId = customer.id || `CUS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const customerData = {
+            id: customerId,
+            fullName: customer.name || "Guest",
+            phone: customer.phone || "",
+            email: customer.email || "",
+            updatedAt: vnTimeStr
+        };
+
+        const { error: customerError } = await supabaseAdmin
+            .from('Customers')
+            .upsert(customerData, {
+                onConflict: 'id',
+                ignoreDuplicates: false
+            });
+
+        if (customerError) {
+            console.error("⚠️ [API Order] Lỗi lưu thông tin khách hàng (nhưng không lỗi tạo đơn):", customerError);
+        }
+
         // 3. Save to Supabase (Bookings)
-        const { data: booking, error: bookingError } = await supabase
+        const { data: booking, error: bookingError } = await supabaseAdmin
             .from('Bookings')
             .insert({
                 id: customId,
-                customerName: customer.name || "Guest",
+                customerId: customerId, // <-- FK logic mapping 
+                customerName: customer.name || "Guest", // Keep for redundancy if needed, or remove later
                 customerPhone: customer.phone || "",
                 customerEmail: customer.email || "",
                 totalAmount: totalVND,
@@ -96,8 +119,6 @@ export async function POST(request: Request) {
                 createdAt: vnTimeStr,
                 updatedAt: vnTimeStr,
                 status: 'NEW',
-                // Lưu thêm ID cũ vào trường note hoặc 1 trường custom nếu cần thiết cho re-order
-                // Tạm thời dùng id_legacy để lưu BillNum
                 billCode: billNum
             })
             .select()
@@ -122,11 +143,13 @@ export async function POST(request: Request) {
             }
         }));
 
-        const { error: itemsError } = await supabase
+        const { error: itemsError } = await supabaseAdmin
             .from('BookingItems')
             .insert(itemsToInsert);
 
         if (itemsError) throw itemsError;
+
+        // Customer upsert logic is handled before Booking insertion.
 
         return NextResponse.json({ success: true, billNum });
     } catch (error: any) {
@@ -137,6 +160,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
     try {
+        const supabaseAdmin = getSupabaseAdmin();
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
 
@@ -145,7 +169,7 @@ export async function GET(request: Request) {
         }
 
         // Lấy danh sách booking kèm theo items
-        const { data: bookings, error } = await supabase
+        const { data: bookings, error } = await supabaseAdmin
             .from('Bookings')
             .select(`
                 id,

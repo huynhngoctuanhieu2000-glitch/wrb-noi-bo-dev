@@ -55,7 +55,7 @@ export const useLanguageSelectorLogic = (overrideRadius?: number) => {
     localStorage.setItem("app_lang", langId);
 
     setTimeout(() => {
-      router.push(`/${langId}/customer-type`);
+      router.push(`/${langId}/auth`);
     }, 1500);
   };
 

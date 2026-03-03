@@ -8,6 +8,7 @@
 import type { Metadata } from "next";
 import "./globals.css"; // 👈 QUAN TRỌNG: Dòng này để tải file CSS nền đen, font chữ...
 import { MenuProvider } from "@/components/Menu/MenuContext";
+import { AuthProvider } from "@/components/Auth/AuthProvider";
 // Import component fix lỗi height cho iOS
 import IOSViewportFix from "@/components/IOSViewportFix";
 
@@ -50,12 +51,14 @@ export default function RootLayout({
         Nó sẽ tự động nhận các style từ globals.css
       */}
       <body className={`${beVietnamPro.className} antialiased w-full h-full`}>
-        <MenuProvider>
-          <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
-          <Analytics />
-          <SpeedInsights />
-          {children}
-        </MenuProvider>
+        <AuthProvider>
+          <MenuProvider>
+            <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
+            <Analytics />
+            <SpeedInsights />
+            {children}
+          </MenuProvider>
+        </AuthProvider>
       </body>
     </html>
   );

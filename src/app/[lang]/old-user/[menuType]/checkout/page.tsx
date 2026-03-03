@@ -3,6 +3,7 @@
 import React, { use, useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMenuData } from '@/components/Menu/MenuContext';
+import { useAuthStore } from '@/lib/authStore.logic';
 
 import CheckoutHeader from '@/components/Checkout/CheckoutHeader';
 import CustomerInfo from '@/components/Checkout/CustomerInfo';
@@ -16,6 +17,7 @@ import { getDictionary } from '@/lib/dictionaries';
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
     const { cart, updateAllCartItemOptions, updateCartItemOptions } = useMenuData();
+    const { user, isAuthUser } = useAuthStore();
 
     // Unwrap params
     const { lang: rawLang } = use(params);
@@ -69,29 +71,50 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         setAmountPaid('');
     }, [paymentMethod]);
 
-    // [NEW] Auto-fill Customer Info (OLD USER SPECIFIC)
+    // [NEW] Auto-fill Customer Info (OLD USER SPECIFIC & Google Login)
     useEffect(() => {
+        let authName = '';
+        let authEmail = '';
+        let authPhone = '';
+
+        // Ưu tiên dữ liệu từ Provider (Google Login) nếu đang có session online
+        if (isAuthUser && user) {
+            authName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+            authEmail = user.email || '';
+            authPhone = user.phone || '';
+        }
+
         try {
             const storedInfoIdx = localStorage.getItem('currentUserInfo');
             if (storedInfoIdx) {
                 const info = JSON.parse(storedInfoIdx);
                 setCustomerInfo(prev => ({
                     ...prev,
-                    name: info.name || prev.name,
-                    email: info.email || prev.email,
-                    phone: info.phone || prev.phone
+                    name: authName || info.name || prev.name,
+                    email: authEmail || info.email || prev.email,
+                    phone: authPhone || info.phone || prev.phone
                 }));
             } else {
                 // Fallback: try email only
                 const email = localStorage.getItem('currentUserEmail');
-                if (email) {
-                    setCustomerInfo(prev => ({ ...prev, email }));
-                }
+                setCustomerInfo(prev => ({
+                    ...prev,
+                    email: authEmail || email || prev.email,
+                    name: authName || prev.name,
+                    phone: authPhone || prev.phone
+                }));
             }
         } catch (e) {
             console.error("Failed to parse currentUserInfo", e);
+            // Fallback to auth data if JSON parsing fails
+            setCustomerInfo(prev => ({
+                ...prev,
+                name: authName || prev.name,
+                email: authEmail || prev.email,
+                phone: authPhone || prev.phone
+            }));
         }
-    }, []);
+    }, [isAuthUser, user]);
 
     // --- HANDLERS ---
     const handleBack = () => {

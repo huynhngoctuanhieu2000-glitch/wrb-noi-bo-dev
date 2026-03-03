@@ -60,6 +60,8 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
     handleRetry,
     closePopup,
     handleBack,           // <-- Lấy hàm quay lại
+    handleLogoutClick,    // <-- Lấy hàm đăng xuất
+    user,                 // <-- Lấy thông tin user đăng nhập
     getCommonAnimationClass,
     getPopupOverlayClass, // <-- Lấy animation popup
     getPopupContentClass  // <-- Lấy animation content
@@ -152,9 +154,9 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
           <ArrowRight size={30} className="text-yellow-600/50 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
         </button>
 
-        {/* --- NÚT QUAY LẠI --- */}
+        {/* --- NÚT QUAY LẠI / ĐĂNG XUẤT --- */}
         <button
-          onClick={handleBack}
+          onClick={user ? handleLogoutClick : handleBack}
           style={{
             marginTop: LAYOUT_CONFIG.backButton.marginTop,
             paddingTop: LAYOUT_CONFIG.backButton.paddingY,
@@ -163,10 +165,10 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
             paddingRight: LAYOUT_CONFIG.backButton.paddingX,
             fontSize: LAYOUT_CONFIG.backButton.fontSize
           }}
-          className="w-fit mx-auto rounded-[1.5rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-1 text-black hover:text-white uppercase tracking-widest transition-colors py-2"
+          className="w-fit mx-auto rounded-[1.5rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-1.5 text-black hover:text-white uppercase tracking-widest transition-colors py-2"
         >
           <ArrowLeft size={14} />
-          {t('btn_back')}
+          {user ? t('btn_logout') : t('btn_back')}
         </button>
 
       </div>

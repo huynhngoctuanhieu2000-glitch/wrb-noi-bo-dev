@@ -3,6 +3,7 @@
 import React, { use, useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMenuData } from '@/components/Menu/MenuContext';
+import { useAuthStore } from '@/lib/authStore.logic';
 
 import CheckoutHeader from '@/components/Checkout/CheckoutHeader';
 import CustomerInfo from '@/components/Checkout/CustomerInfo';
@@ -16,6 +17,7 @@ import { getDictionary } from '@/lib/dictionaries';
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
     const { cart, updateAllCartItemOptions, updateCartItemOptions } = useMenuData();
+    const { user, isAuthUser } = useAuthStore();
 
     // Unwrap params
     const { lang: rawLang } = use(params);
@@ -68,11 +70,25 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     }, [amountPaid, totalVND, totalUSD, currency]);
 
     // --- EFFECTS ---
+    // Ngăn truy cập trái phép nếu không có giỏ hàng
     useEffect(() => {
         if (!cart || cart.length === 0) {
             router.push('/');
         }
     }, [cart, router]);
+
+    // [NEW] Auto-fill Customer Info từ tài khoản đã đăng nhập
+    useEffect(() => {
+        if (isAuthUser && user) {
+            setCustomerInfo(prev => ({
+                ...prev,
+                // Ưu tiên lấy full_name từ metadata (Google), sau đó email, không thì rỗng
+                name: prev.name || user.user_metadata?.full_name || user.user_metadata?.name || '',
+                email: prev.email || user.email || '',
+                phone: prev.phone || user.phone || ''
+            }));
+        }
+    }, [isAuthUser, user]);
 
     // Reset amount paid when payment method changes
     useEffect(() => {

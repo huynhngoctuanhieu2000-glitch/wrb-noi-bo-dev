@@ -12,9 +12,13 @@ import { translations, TranslationKey } from "./CustomerType.i18n";
 import { getPopupOverlayClass, getPopupContentClass } from "./CustomerType.animation";
 // ✅ Import hàm check từ Service theo chuẩn Barrel File
 import { checkUserEmail } from "@/services/user";
+import { useAuthStore } from "@/lib/authStore.logic";
+import { useGoogleLogin } from "@/components/Auth/GoogleLoginBtn.logic";
 
 export const useCustomerTypeLogic = (lang: string) => {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const { handleLogout } = useGoogleLogin(lang);
 
   // --- 1. CÁC STATE QUẢN LÝ ---
   const [isExiting, setIsExiting] = useState(false); // Animation chuyển trang
@@ -82,6 +86,14 @@ export const useCustomerTypeLogic = (lang: string) => {
     setTimeout(() => router.push('/'), 500);
   };
 
+  const handleLogoutClick = () => {
+    setIsExiting(true);
+    setTimeout(async () => {
+      await handleLogout();
+      router.push(`/${lang}/auth`);
+    }, 500);
+  };
+
   const getCommonAnimationClass = () =>
     `transition-all duration-700 ease-out transform ${isExiting ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`;
 
@@ -101,6 +113,8 @@ export const useCustomerTypeLogic = (lang: string) => {
     handleRetry,
     closePopup,
     handleBack,
+    handleLogoutClick,
+    user,
 
     // Animation Helpers
     getCommonAnimationClass,

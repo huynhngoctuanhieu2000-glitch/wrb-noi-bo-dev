@@ -1,0 +1,30 @@
+export const t = {
+    vi: {
+        title: 'Đánh giá trải nghiệm',
+        subtitle: 'Mức độ hài lòng của bạn về dịch vụ hôm nay?',
+        score1: 'Tệ',
+        score2: 'Kém',
+        score3: 'Bình thường',
+        score4: 'Tốt',
+        score5: 'Tuyệt vời',
+        thanksMsg: 'Cảm ơn bạn đã đánh giá dịch vụ!',
+        tipTitle: 'Gửi một chút tiền Tip?',
+        tipDesc: 'Cảm ơn bạn đã tin tưởng dịch vụ. Nếu hài lòng, bạn có thể tip thêm cho Kỹ thuật viên.',
+        noThanks: 'Không, cảm ơn',
+        tipSubmit: 'Gửi Tip',
+    },
+    en: {
+        title: 'Rate Your Experience',
+        subtitle: 'How satisfied are you with the service today?',
+        score1: 'Terrible',
+        score2: 'Poor',
+        score3: 'Okay',
+        score4: 'Good',
+        score5: 'Excellent',
+        thanksMsg: 'Thank you for your feedback!',
+        tipTitle: 'Leave a Tip?',
+        tipDesc: 'Thank you for choosing our service. If you are satisfied, consider tipping the staff.',
+        noThanks: 'No, thanks',
+        tipSubmit: 'Send Tip',
+    }
+};
