@@ -14,7 +14,7 @@ const LAYOUT = {
 };
 
 const t = {
-    vi: {
+    vn: {
         welcome: 'Welcome to Ngân Hà',
         askLogin: 'Bạn có muốn đăng nhập không? Tại sao ?',
         benefit: 'Nếu đăng nhập bạn sẽ được đổi KTV 01 lần duy nhất trong vòng 15 phút đầu',
@@ -29,17 +29,42 @@ const t = {
         skip: 'Skip',
         noAccount: 'New to Ngân Hà? ',
         createAccount: 'Create an account',
+    },
+    jp: {
+        welcome: 'Ngan Ha へようこそ',
+        askLogin: 'ログインしますか？その理由は？',
+        benefit: 'ログインすると、最初の15分間に1回無料でスタッフの変更が可能です',
+        skip: 'スキップ',
+        noAccount: '初めてですか?',
+        createAccount: 'アカウントを作成',
+    },
+    kr: {
+        welcome: 'Ngan Ha 에 오신 것을 환영합니다',
+        askLogin: '로그인하시겠습니까? 이유는 무엇인가요?',
+        benefit: '로그인하시면 첫 15분 내에 1회 무료 직원 변경이 가능합니다',
+        skip: '건너뛰기',
+        noAccount: '처음이신가요? ',
+        createAccount: '계정 만들기',
+    },
+    cn: {
+        welcome: '欢迎来到 Ngan Ha',
+        askLogin: '您要登录吗？为什么？',
+        benefit: '登录后，您有资格在开始的前15分钟内免费更换一次技师',
+        skip: '跳过',
+        noAccount: '第一次来？',
+        createAccount: '创建账号',
     }
 };
 
-export default function AuthPage({ params }: { params: Promise<{ lang: 'vi' | 'en' }> }) {
+export default function AuthPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
-    const [lang, setLang] = useState<'vi' | 'en'>('en');
+    const [lang, setLang] = useState<string>('en');
     const { loginAsGuest, isAuthUser } = useAuthStore();
-    const localeText = t[lang];
+    // Default to 'en' texts if the selected language is not explicitly defined in `t`
+    const localeText = t[lang as keyof typeof t] || t['en'];
 
     useEffect(() => {
-        params.then((p) => setLang(p.lang as 'vi' | 'en' || 'en'));
+        params.then((p) => setLang(p.lang));
     }, [params]);
 
     // Handle flow when they are ALREADY authenticated (from Google Login callback/redirect)

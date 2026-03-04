@@ -47,10 +47,16 @@ export const useCustomerTypeLogic = (lang: string) => {
     }, 500);
   };
 
-  // --- 4. LOGIC XỬ LÝ KHÁCH HÀNG CŨ ---
+  // --- 4. LOGIC XỬ LÝ KHÁCH HÀNG CŨ (XEM LỊCH SỬ) ---
   const onSelectOldUser = () => {
-    setPopupStep('input');
-    setShowPopup(true);
+    if (user?.email) {
+      // Nếu đã có email từ Google Login -> Check luôn, bỏ qua popup
+      handleCheckUserEmail(user.email);
+    } else {
+      // Nếu không có email (Guest) -> Hiện popup kêu nhập email
+      setPopupStep('input');
+      setShowPopup(true);
+    }
   };
 
   // --- 5. LOGIC CHECK EMAIL VỚI FIREBASE ---

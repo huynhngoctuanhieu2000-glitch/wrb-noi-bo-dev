@@ -127,7 +127,7 @@ export default function CustomerTypePage({ params }: { params: Promise<{ lang: s
             {t('btn_old_title')}
           </span>
           <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <UserCheck size={LAYOUT_CONFIG.buttons.iconSize} />
+            <History size={LAYOUT_CONFIG.buttons.iconSize} />
           </div>
         </button>
 

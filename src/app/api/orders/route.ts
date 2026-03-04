@@ -82,15 +82,42 @@ export async function POST(request: Request) {
             };
         });
 
-        const vnTimeStr = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const vnTimeStr = new Date().toISOString();
 
-        // 2.5 Generate Customer ID and Upsert to Customers Table FIRST
-        const customerId = customer.id || `CUS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        // 2.5 Generate or find Customer ID
+        let customerId = customer.id;
+
+        // Try to find existing customer by email OR phone to avoid unique constraint violations
+        if (!customerId && (customer.email || customer.phone)) {
+            let query = supabaseAdmin.from('Customers').select('id');
+
+            if (customer.email && customer.phone) {
+                query = query.or(`email.eq.${customer.email},phone.eq.${customer.phone}`);
+            } else if (customer.email) {
+                query = query.eq('email', customer.email);
+            } else if (customer.phone) {
+                query = query.eq('phone', customer.phone);
+            }
+
+            const { data: existingCustomer } = await query.limit(1).maybeSingle();
+
+            if (existingCustomer) {
+                customerId = existingCustomer.id;
+            }
+        }
+
+        // If still no ID, create a new one
+        if (!customerId) {
+            customerId = `CUS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        }
+
+        const fallbackId = Date.now().toString();
         const customerData = {
             id: customerId,
             fullName: customer.name || "Guest",
-            phone: customer.phone || "",
-            email: customer.email || "",
+            phone: customer.phone?.trim() || `GUEST-${fallbackId}`,
+            email: customer.email?.trim() || `guest-${fallbackId}@no-email.com`,
+            createdAt: vnTimeStr,
             updatedAt: vnTimeStr
         };
 
@@ -176,7 +203,7 @@ export async function GET(request: Request) {
                 billCode,
                 totalAmount,
                 bookingDate,
-                BookingItems (
+                BookingItems!BookingItems_bookingId_fkey (
                     id,
                     serviceId,
                     quantity,

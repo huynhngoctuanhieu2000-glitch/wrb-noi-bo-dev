@@ -1,0 +1,17 @@
+{
+  "code": "PGRST201",
+  "details": [
+    {
+      "cardinality": "one-to-many",
+      "embedding": "Bookings with BookingItems",
+      "relationship": "BookingItems_bookingId_fkey using Bookings(id) and BookingItems(bookingId)"
+    },
+    {
+      "cardinality": "one-to-many",
+      "embedding": "Bookings with BookingItems",
+      "relationship": "fk_bookingitems_booking using Bookings(id) and BookingItems(bookingId)"
+    }
+  ],
+  "hint": "Try changing 'BookingItems' to one of the following: 'BookingItems!BookingItems_bookingId_fkey', 'BookingItems!fk_bookingitems_booking'. Find the desired relationship in the 'details' key.",
+  "message": "Could not embed because more than one relationship was found for 'Bookings' and 'BookingItems'"
+}
