@@ -23,6 +23,23 @@ export default function Feedback({ onComplete }: FeedbackProps) {
 
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 
+    // Restore from localStorage on mount (from ActiveService)
+    React.useEffect(() => {
+        try {
+            const saved = localStorage.getItem('spa_wrb_violations');
+            if (saved) {
+                const parsedViolations = JSON.parse(saved);
+                setSelectedViolations(parsedViolations);
+
+                // Pre-calculate rating constraints based on restored violations
+                const count = parsedViolations.length;
+                if (count >= 3) setRating(1);
+                else if (count >= 2) setRating(2);
+                else if (count >= 1) setRating(3);
+            }
+        } catch (e) { }
+    }, []);
+
     const toggleViolation = (index: number) => {
         setSelectedViolations(prevViolations => {
             const newViolations = prevViolations.includes(index)
@@ -37,15 +54,27 @@ export default function Feedback({ onComplete }: FeedbackProps) {
                 return prevRating;
             });
 
+            // Sync any new changes to localStorage just in case of reload
+            try {
+                localStorage.setItem('spa_wrb_violations', JSON.stringify(newViolations));
+            } catch (e) { }
+
             return newViolations;
         });
+    };
+
+    const clearStorageAndComplete = (data: { rating: number, violations: number[], tipAmount: number }) => {
+        try {
+            localStorage.removeItem('spa_wrb_violations');
+        } catch (e) { }
+        onComplete(data);
     };
 
     const handleSubmit = () => {
         if (rating === 4) { // 4 is 'Xuất sắc'
             setShowTip(true);
         } else {
-            onComplete({ rating: rating!, violations: selectedViolations, tipAmount: 0 });
+            clearStorageAndComplete({ rating: rating!, violations: selectedViolations, tipAmount: 0 });
         }
     };
 
@@ -151,7 +180,7 @@ export default function Feedback({ onComplete }: FeedbackProps) {
             {/* Tip Modal Overlay */}
             {showTip && <TipModal onClose={(tip) => {
                 setShowTip(false);
-                onComplete({ rating: rating!, violations: selectedViolations, tipAmount: tip });
+                clearStorageAndComplete({ rating: rating!, violations: selectedViolations, tipAmount: tip });
             }} />}
         </div>
     );

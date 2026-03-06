@@ -69,10 +69,23 @@ export default function ActiveService({ serviceName, totalDuration, timeStart, t
     };
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 
+    // Restore from localStorage on mount
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem('spa_wrb_violations');
+            if (saved) setSelectedViolations(JSON.parse(saved));
+        } catch (e) { }
+    }, []);
+
     const toggleViolation = (index: number) => {
-        setSelectedViolations(prev =>
-            prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
-        );
+        setSelectedViolations(prev => {
+            const next = prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index];
+            // Save to localStorage immediately
+            try {
+                localStorage.setItem('spa_wrb_violations', JSON.stringify(next));
+            } catch (e) { }
+            return next;
+        });
     };
 
     useEffect(() => {
