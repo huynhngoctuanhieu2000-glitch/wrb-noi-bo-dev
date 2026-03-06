@@ -12,7 +12,7 @@ export default function OldUserSelectMenuPage({ params }: { params: Promise<{ la
         params.then((p) => setLang(p.lang));
     }, [params]);
 
-    const handleSelectMenu = (type: 'standard' | 'vip') => {
+    const handleSelectMenu = (type: string) => {
         localStorage.setItem('selected_menu_type', type);
         // Redirect to OLD USER menu path
         router.push(`/${lang}/old-user/${type}/menu`);

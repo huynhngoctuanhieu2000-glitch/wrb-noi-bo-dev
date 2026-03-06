@@ -178,7 +178,7 @@ export async function POST(request: Request) {
 
         // Customer upsert logic is handled before Booking insertion.
 
-        return NextResponse.json({ success: true, billNum });
+        return NextResponse.json({ success: true, billNum, bookingId: customId });
     } catch (error: any) {
         console.error("❌ API Order Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

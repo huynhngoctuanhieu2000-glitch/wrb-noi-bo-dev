@@ -6,7 +6,7 @@ import { formatCurrency } from '@/components/Menu/utils';
 interface OrderConfirmModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (data: any) => void;
+    onConfirm: (data: any) => any;
     lang: string;
     dict: any; // Accept dict
     cart: CartItem[];
@@ -36,6 +36,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [bookingId, setBookingId] = useState<string | null>(null);
 
     // Calculations
     const totalVND = cart.reduce((sum, item) => sum + item.priceVND * item.qty, 0);
@@ -66,7 +67,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     const handleConfirm = async () => {
         setIsSubmitting(true);
         try {
-            await onConfirm({});
+            const returnedId = await onConfirm({});
+            if (returnedId) setBookingId(returnedId);
             setSuccess(true);
         } catch (error) {
             console.error("Submit error", error);
@@ -76,7 +78,11 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     };
 
     const handleDone = () => {
-        window.location.reload();
+        if (bookingId) {
+            window.location.href = `/${lang}/journey/${bookingId}`;
+        } else {
+            window.location.reload();
+        }
     };
 
     // --- Success View ---
@@ -130,7 +136,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                         onClick={handleDone}
                         className="w-full bg-[#0f172a] text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-black transition-all active:scale-95 text-sm"
                     >
-                        {dict.checkout.done}
+                        {lang === 'vi' ? 'Theo dõi tiến độ' : 'Track Progress'}
                     </button>
                 </div>
             </div>

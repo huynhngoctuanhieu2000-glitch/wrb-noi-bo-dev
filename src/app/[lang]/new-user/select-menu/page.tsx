@@ -19,7 +19,7 @@ export default function SelectMenuPage({ params }: { params: Promise<{ lang: str
     }, [params]);
 
     // Hàm xử lý khi user chọn gói
-    const handleSelectMenu = (type: 'standard' | 'vip') => {
+    const handleSelectMenu = (type: string) => {
         // 1. Lưu loại menu vào localStorage (để sau này dùng lại nếu cần)
         localStorage.setItem('selected_menu_type', type);
 

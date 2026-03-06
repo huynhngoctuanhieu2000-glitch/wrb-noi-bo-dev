@@ -191,6 +191,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             const err = await res.json();
             throw new Error(err.error || "Failed to submit");
         }
+
+        const data = await res.json();
+        return data.bookingId;
     };
 
     if (!cart) return null;

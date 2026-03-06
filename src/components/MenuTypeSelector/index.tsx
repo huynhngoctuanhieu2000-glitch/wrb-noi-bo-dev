@@ -6,6 +6,16 @@ import styles from "./style.module.css";
 import { ArrowLeft } from "lucide-react";
 
 // ============================================================================
+// 👇 KHU VỰC CẤU HÌNH ẢNH SÁCH (SỬA LINK ẢNH Ở ĐÂY) 👇
+// ============================================================================
+const BOOK_IMAGES = {
+    standard: "/assets/logos/menu-standard.webp",
+    vip: "/assets/logos/menu-premium.webp",
+    homespa: "/assets/logos/menu-premium.webp" // Thay link sách HomeSpa tại đây
+};
+// ============================================================================
+
+// ============================================================================
 // 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN (CHỈ CẦN SỬA SỐ Ở ĐÂY) 👇
 // ============================================================================
 const LAYOUT_CONFIG = {
@@ -21,8 +31,8 @@ const LAYOUT_CONFIG = {
 
     // 2. CẤU HÌNH CUỐN SÁCH MENU
     books: {
-        width: "165px",          // Tăng chiều rộng để không bị mất lò xo (giữ tỉ lệ ảnh chuẩn)
-        height: "210px",         // Chiều cao giữ nguyên
+        width: "155px",          // Giảm chiều rộng một chút để vừa 3 sách
+        height: "195px",         // Giảm chiều cao một chút để vừa màn hình điện thoại
         gap: "20px",             // Giảm khoảng cách giữa 2 sách
         titleSize: "20px",       // Cỡ chữ tên gói
         descSize: "11px",        // Cỡ chữ mô tả
@@ -42,16 +52,16 @@ const LAYOUT_CONFIG = {
 
 interface Props {
     lang: string;
-    onSelect: (type: 'standard' | 'vip') => void;
+    onSelect: (type: 'standard' | 'vip' | 'homespa') => void;
     onBack?: () => void;
 }
 
 const texts: Record<string, any> = {
-    en: { title: "Select Service Menu", std: "Standard", std_desc: "(Random Staff & Room)", vip: "Premium", vip_desc: "(Design your own journey)", btn_back: "Back" },
-    vn: { title: "Chọn Thực Đơn", std: "Tiêu Chuẩn", std_desc: "(KTV & Phòng Ngẫu nhiên)", vip: "Cao Cấp", vip_desc: "(Tự chọn KTV & Dịch vụ)", btn_back: "Quay lại" },
-    kr: { title: "서비스 메뉴 선택", std: "스탠다드", std_desc: "(직원 및 객실 무작위)", vip: "프리미엄", vip_desc: "(나만의 코스 설계)", btn_back: "돌아가기" },
-    cn: { title: "选择服务菜单", std: "标准", std_desc: "(随机员工和房间)", vip: "高级", vip_desc: "(定制您的旅程)", btn_back: "返回" },
-    jp: { title: "サービスメニュー", std: "標準", std_desc: "(スタッフ・部屋おまかせ)", vip: "プレミアム", vip_desc: "(カスタムコース)", btn_back: "戻る" }
+    en: { title: "Select Service Menu", std: "Standard", std_desc: "(Random Staff & Room)", vip: "Premium", vip_desc: "(Design your own journey)", hms: "HomeSpa", hms_desc: "(Spa at your place)", btn_back: "Back" },
+    vn: { title: "Chọn Thực Đơn", std: "Tiêu Chuẩn", std_desc: "(KTV & Phòng Ngẫu nhiên)", vip: "Cao Cấp", vip_desc: "(Tự chọn KTV & Dịch vụ)", hms: "HomeSpa", hms_desc: "(Spa tận nhà)", btn_back: "Quay lại" },
+    kr: { title: "서비스 메뉴 선택", std: "스탠다드", std_desc: "(직원 및 객실 무작위)", vip: "프리미엄", vip_desc: "(나만의 코스 설계)", hms: "홈스파", hms_desc: "(출장 스파)", btn_back: "돌아가기" },
+    cn: { title: "选择服务菜单", std: "标准", std_desc: "(随机员工和房间)", vip: "高级", vip_desc: "(定制您的旅程)", hms: "上门水疗", hms_desc: "(在家享受水疗)", btn_back: "返回" },
+    jp: { title: "サービスメニュー", std: "標準", std_desc: "(スタッフ・部屋おまかせ)", vip: "プレミアム", vip_desc: "(カスタムコース)", hms: "ホームスパ", hms_desc: "(出張スパ)", btn_back: "戻る" }
 };
 
 export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
@@ -111,7 +121,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     >
                         <div className={`${styles.bgCover} relative overflow-hidden`}>
                             <Image
-                                src="/assets/logos/menu-standard.webp"
+                                src={BOOK_IMAGES.standard}
                                 alt="Standard Menu Book"
                                 fill
                                 className="object-cover"
@@ -150,7 +160,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                     >
                         <div className={`${styles.bgCover} relative overflow-hidden`}>
                             <Image
-                                src="/assets/logos/menu-premium.webp"
+                                src={BOOK_IMAGES.vip}
                                 alt="Premium Menu Book"
                                 fill
                                 className="object-cover"
@@ -173,6 +183,46 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                                 style={{ fontSize: LAYOUT_CONFIG.books.descSize }}
                             >
                                 {t.vip_desc}
+                            </p>
+                            <div className="mt-3 w-12 bg-yellow-500 opacity-60 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* === BOOK 3: HOMESPA (NEW) === */}
+                <div
+                    onClick={() => onSelect('homespa')}
+                    className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-right-8 delay-500 fill-mode-forwards relative`}
+                >
+                    <div
+                        className={`${styles.bookCover} ${styles.perspective1000} relative`}
+                        style={{ width: LAYOUT_CONFIG.books.width, height: LAYOUT_CONFIG.books.height }}
+                    >
+                        <div className={`${styles.bgCover} relative overflow-hidden`}>
+                            <Image
+                                src={BOOK_IMAGES.homespa}
+                                alt="HomeSpa Menu Book"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 500px"
+                                priority
+                            />
+                        </div>
+                        <div className={styles.shineEffect} />
+
+                        {/* TEXT ON HOMESPA BOOK */}
+                        <div className="absolute left-[14%] top-[34%] w-[78%] h-[50%] z-20 flex flex-col items-center justify-center text-center">
+                            <h3
+                                className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125 mb-1"
+                                style={{ fontSize: LAYOUT_CONFIG.books.titleSize }}
+                            >
+                                {t.hms}
+                            </h3>
+                            <p
+                                className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125"
+                                style={{ fontSize: LAYOUT_CONFIG.books.descSize }}
+                            >
+                                {t.hms_desc}
                             </p>
                             <div className="mt-3 w-12 bg-yellow-500 opacity-60 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
                         </div>
