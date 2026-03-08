@@ -5,9 +5,19 @@ import TipModal from '@/components/Journey/TipModal';
 
 interface FeedbackProps {
     onComplete: (result: { rating: number, violations: number[], tipAmount: number }) => void;
+    staffName?: string;
+    staffAvatar?: string;
+    serviceName?: string;
+    duration?: number;
 }
 
-export default function Feedback({ onComplete }: FeedbackProps) {
+export default function Feedback({ 
+    onComplete, 
+    staffName, 
+    staffAvatar, 
+    serviceName, 
+    duration 
+}: FeedbackProps) {
     const [rating, setRating] = useState<number | null>(null);
     const [showTip, setShowTip] = useState(false);
 
@@ -84,13 +94,19 @@ export default function Feedback({ onComplete }: FeedbackProps) {
             <div className="w-full bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-6 flex items-center gap-4 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
                 <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-100 flex-shrink-0 z-10">
-                    <img src="https://i.pravatar.cc/150?img=32" alt="Therapist" className="w-full h-full object-cover" />
+                    <img 
+                        src={staffAvatar || "https://i.pravatar.cc/150?img=32"} 
+                        alt="Therapist" 
+                        className="w-full h-full object-cover" 
+                    />
                 </div>
                 <div className="flex-1 z-10">
-                    <h2 className="text-xl font-black text-gray-800">Linh Nguyễn</h2>
-                    <p className="text-gray-500 font-medium text-sm">Aromatherapy Massage • 90 min</p>
+                    <h2 className="text-xl font-black text-gray-800">{staffName || "Đang cập nhật..."}</h2>
+                    <p className="text-gray-500 font-medium text-sm">
+                        {serviceName || "Dịch vụ"} {duration ? `• ${duration} min` : ""}
+                    </p>
                     <div className="flex text-amber-500 text-sm mt-1">
-                        ★ ★ ★ ★ <span className="text-gray-300">★</span> <span className="text-gray-400 text-xs ml-1">(4.8)</span>
+                        ★ ★ ★ ★ ★ <span className="text-gray-400 text-xs ml-1">(5.0)</span>
                     </div>
                 </div>
             </div>

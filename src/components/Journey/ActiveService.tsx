@@ -8,25 +8,51 @@ interface ActiveServiceProps {
     timeStart?: string | null;
     timeEnd?: string | null;
     lang?: string;
+    staffName?: string;
+    staffAvatar?: string;
 }
 
-export default function ActiveService({ serviceName, totalDuration, timeStart, timeEnd, lang = 'vi' }: ActiveServiceProps) {
+
+export default function ActiveService({ 
+    serviceName, 
+    totalDuration, 
+    timeStart, 
+    timeEnd, 
+    lang = 'vi',
+    staffName,
+    staffAvatar
+}: ActiveServiceProps) {
+
     const totalSeconds = totalDuration * 60;
 
     // Calculate initial elapsed time
     const getInitialElapsed = () => {
         if (!timeStart) return 0;
-        const start = new Date(timeStart).getTime();
+        
+        // Ensure timeStart is treated as UTC if it doesn't have a timezone indicator
+        // This prevents the 7-hour offset issue (Vietnam UTC+7)
+        let normalizedStart = timeStart;
+        if (typeof timeStart === 'string' && !timeStart.includes('Z') && !timeStart.includes('+')) {
+            normalizedStart = timeStart.replace(' ', 'T') + 'Z';
+        }
+        
+        const start = new Date(normalizedStart).getTime();
 
         // If the service is already marked as ended, calculate total spent time instead of ticking
         if (timeEnd) {
-            const end = new Date(timeEnd).getTime();
+            let normalizedEnd = timeEnd;
+            if (typeof timeEnd === 'string' && !timeEnd.includes('Z') && !timeEnd.includes('+')) {
+                normalizedEnd = timeEnd.replace(' ', 'T') + 'Z';
+            }
+            const end = new Date(normalizedEnd).getTime();
             const diffInSeconds = Math.floor((end - start) / 1000);
             return Math.max(0, Math.min(diffInSeconds, totalSeconds));
         }
 
         const now = new Date().getTime();
         const diffInSeconds = Math.floor((now - start) / 1000);
+        
+        // Return elapsed seconds capped to totalSeconds
         return Math.max(0, Math.min(diffInSeconds, totalSeconds));
     };
 
@@ -172,14 +198,18 @@ export default function ActiveService({ serviceName, totalDuration, timeStart, t
             <div className="w-full max-w-sm space-y-4">
                 <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
                     <div className="w-14 h-14 bg-amber-100 rounded-xl overflow-hidden flex-shrink-0">
-                        {/* Mock Avatar */}
-                        <img src="https://i.pravatar.cc/150?img=32" alt="Therapist" className="w-full h-full object-cover" />
+                        <img 
+                            src={staffAvatar || "https://i.pravatar.cc/150?img=32"} 
+                            alt="Therapist" 
+                            className="w-full h-full object-cover" 
+                        />
                     </div>
                     <div className="flex-1">
                         <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block mb-0.5">{t.therapistLabel}</span>
-                        <span className="text-lg font-bold text-gray-800">NV008 - Mai Anh</span>
+                        <span className="text-lg font-bold text-gray-800">{staffName || "Đang cập nhật..."}</span>
                     </div>
                 </div>
+
 
                 <div className="grid grid-cols-2 gap-3 mt-4">
                     <button className="py-4 bg-amber-500 text-white font-bold rounded-2xl shadow-[0_5px_15px_rgba(245,158,11,0.3)] hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">

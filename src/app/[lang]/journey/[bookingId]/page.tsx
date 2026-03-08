@@ -150,11 +150,29 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 {state === 'PREPARING' && <WaitingRoom orderId={bookingId} lang={lang} />}
 
                 {/* Active Service requires actual parsing of duration or fallback to demo logic if not mapped in DB yet */}
-                {state === 'IN_PROGRESS' && <ActiveService serviceName="Dịch vụ Spa" totalDuration={90} timeStart={journeyData?.timeStart || null} lang={lang} />}
+                {state === 'IN_PROGRESS' && (
+                    <ActiveService 
+                        serviceName={journeyData?.items?.[0]?.service_name || "Dịch vụ Spa"} 
+                        totalDuration={journeyData?.totalDuration || 90} 
+                        timeStart={journeyData?.timeStart || null} 
+                        lang={lang} 
+                        staffName={journeyData?.staffName}
+                        staffAvatar={journeyData?.staffAvatar}
+                    />
+                )}
+
 
                 {state === 'COMPLETED' && <CheckBelongings onConfirm={() => advanceNextState('FEEDBACK')} />}
 
-                {state === 'FEEDBACK' && <Feedback onComplete={(feedbackData) => advanceNextState('DONE', feedbackData)} />}
+                {state === 'FEEDBACK' && (
+                    <Feedback 
+                        staffName={journeyData?.staffName}
+                        staffAvatar={journeyData?.staffAvatar}
+                        serviceName={journeyData?.items?.[0]?.service_name}
+                        duration={journeyData?.totalDuration}
+                        onComplete={(feedbackData) => advanceNextState('DONE', feedbackData)} 
+                    />
+                )}
 
                 {state === 'DONE' && (
                     <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in-95">
