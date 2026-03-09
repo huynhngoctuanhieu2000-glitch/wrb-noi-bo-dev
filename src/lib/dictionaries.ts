@@ -137,6 +137,8 @@ const dictionaries = {
             modify_btn: "Modify (New)",
             rebook_btn: "Rebook This",
             create_new_btn: "+ CREATE NEW BOOKING",
+            feedback_btn: "Rate Service",
+            resume_journey_btn: "Resume Journey",
             note_label: "Note"
         }
     },
@@ -268,6 +270,8 @@ const dictionaries = {
             modify_btn: "Chỉnh sửa (Mới)",
             rebook_btn: "Đặt lại đơn này",
             create_new_btn: "+ TẠO ĐƠN MỚI",
+            feedback_btn: "Đánh giá",
+            resume_journey_btn: "Quay lại lộ trình",
             note_label: "Lưu ý"
         }
     },
@@ -399,6 +403,8 @@ const dictionaries = {
             modify_btn: "수정 (신규)",
             rebook_btn: "다시 예약",
             create_new_btn: "+ 새 예약 만들기",
+            feedback_btn: "평가하기",
+            resume_journey_btn: "진행 상황 보기",
             note_label: "메모"
         }
     },
@@ -530,6 +536,8 @@ const dictionaries = {
             modify_btn: "修改 (新)",
             rebook_btn: "再次预订",
             create_new_btn: "+ 创建新预订",
+            feedback_btn: "评价服务",
+            resume_journey_btn: "返回行程",
             note_label: "备注"
         }
     },
@@ -661,6 +669,8 @@ const dictionaries = {
             modify_btn: "変更 (新規)",
             rebook_btn: "再予約",
             create_new_btn: "+ 新規予約作成",
+            feedback_btn: "サービスを評価",
+            resume_journey_btn: "現在の状況に戻る",
             note_label: "メモ"
         }
     }

@@ -46,14 +46,15 @@ export function useJourneyRealtime(bookingId: string) {
                 let staffAvatar = '';
                 
                 if (booking.technicianCode) {
+                    staffName = booking.technicianCode; // Display code (e.g. NV-001) instead of full name
+                    
                     const { data: staffData } = await supabase
                         .from('Staff')
-                        .select('full_name, avatar_url')
+                        .select('avatar_url')
                         .eq('id', booking.technicianCode)
                         .single();
                         
                     if (staffData) {
-                        staffName = staffData.full_name;
                         staffAvatar = staffData.avatar_url;
                     }
                 }
