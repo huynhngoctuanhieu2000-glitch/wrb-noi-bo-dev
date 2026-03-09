@@ -37,6 +37,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [bookingId, setBookingId] = useState<string | null>(null);
+    const [countdown, setCountdown] = useState(2); // Countdown display
 
     // Calculations
     const totalVND = cart.reduce((sum, item) => sum + item.priceVND * item.qty, 0);
@@ -84,6 +85,24 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
             window.location.reload();
         }
     };
+
+    // Auto-redirect effect
+    useEffect(() => {
+        if (success && bookingId) {
+            const timer = setTimeout(() => {
+                handleDone();
+            }, 1500); // 1.5s delay for pleasant success feedback
+
+            const interval = setInterval(() => {
+                setCountdown(prev => Math.max(0, prev - 1));
+            }, 700);
+
+            return () => {
+                clearTimeout(timer);
+                clearInterval(interval);
+            };
+        }
+    }, [success, bookingId]);
 
     // --- Success View ---
     if (success) {
@@ -134,10 +153,14 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
                     <button
                         onClick={handleDone}
-                        className="w-full bg-[#0f172a] text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-black transition-all active:scale-95 text-sm"
+                        className="w-full bg-[#0f172a] text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-black transition-all active:scale-95 text-sm flex items-center justify-center gap-2"
                     >
-                        {lang === 'vi' ? 'Theo dõi tiến độ' : 'Track Progress'}
+                        <span>{lang === 'vi' ? 'Đang chuyển hướng...' : 'Redirecting...'}</span>
+                        <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     </button>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                        {lang === 'vi' ? 'Tự động chuyển sau vài giây' : 'Auto-redirecting in a few seconds'}
+                    </p>
                 </div>
             </div>
         );
