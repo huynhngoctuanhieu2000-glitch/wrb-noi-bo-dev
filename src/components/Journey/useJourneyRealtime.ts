@@ -35,10 +35,19 @@ export function useJourneyRealtime(bookingId: string) {
             const { data: booking, error: fetchError } = await supabase
                 .from('Bookings')
                 .select('*')
-                .eq('id', bookingId)
-                .single();
+                .or(`id.eq.${bookingId},billCode.eq.${bookingId}`)
+                .maybeSingle();
 
-            if (fetchError) throw fetchError;
+            if (fetchError) {
+                console.error('Supabase fetch error:', fetchError);
+                throw fetchError;
+            }
+
+            if (!booking) {
+                setError('Không tìm thấy đơn hàng hoặc đơn hàng đã bị xóa.');
+                setLoading(false);
+                return;
+            }
 
             if (booking) {
                 // Fetch Staff details if technicianCode exists
@@ -48,12 +57,16 @@ export function useJourneyRealtime(bookingId: string) {
                 if (booking.technicianCode) {
                     staffName = booking.technicianCode; // Display code (e.g. NV-001) instead of full name
                     
-                    const { data: staffData } = await supabase
+                    const { data: staffData, error: staffError } = await supabase
                         .from('Staff')
                         .select('avatar_url')
                         .eq('id', booking.technicianCode)
-                        .single();
+                        .maybeSingle();
                         
+                    if (staffError) {
+                        console.warn('Error fetching staff member:', staffError);
+                    }
+
                     if (staffData) {
                         staffAvatar = staffData.avatar_url;
                     }

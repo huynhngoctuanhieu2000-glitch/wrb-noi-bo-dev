@@ -23,6 +23,7 @@ const toVietnamese = (text: string | null | undefined): string => {
 export async function POST(request: Request) {
     try {
         const supabaseAdmin = getSupabaseAdmin();
+        if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
         const body = await request.json();
         const { customer, items, paymentMethod, amountPaid, totalVND, lang } = body;
 
@@ -188,6 +189,7 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     try {
         const supabaseAdmin = getSupabaseAdmin();
+        if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
 
@@ -203,6 +205,8 @@ export async function GET(request: Request) {
                 billCode,
                 totalAmount,
                 bookingDate,
+                status,
+                rating,
                 BookingItems!BookingItems_bookingId_fkey (
                     id,
                     serviceId,
@@ -217,9 +221,11 @@ export async function GET(request: Request) {
         if (error) throw error;
 
         const result = bookings.map((b: any) => ({
-            id: b.billCode || b.id,
+            id: b.id,
             date: new Date(b.bookingDate).toISOString().split('T')[0],
             total: b.totalAmount,
+            status: b.status,
+            rating: b.rating,
             items: b.BookingItems.map((i: any) => ({
                 id: i.serviceId,
                 qty: i.quantity,
