@@ -20,7 +20,12 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
     // Default to PREPARING if no state is explicitly found, or map NEW to PREPARING
     const rawStatus = journeyData?.status || 'PREPARING';
-    const state = rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
+    let state = rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
+    
+    // Nếu đơn đã DONE nhưng chưa có rating thì ép về FEEDBACK để khách đánh giá
+    if (state === 'DONE' && !journeyData?.rating) {
+        state = 'FEEDBACK';
+    }
 
     // Translations for steps
     const t = {

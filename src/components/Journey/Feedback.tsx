@@ -20,6 +20,7 @@ export default function Feedback({
 }: FeedbackProps) {
     const [rating, setRating] = useState<number | null>(null);
     const [showTip, setShowTip] = useState(false);
+    const [isViolationsOpen, setIsViolationsOpen] = useState(false);
 
     // Checkbox state for violations
     const violations = [
@@ -120,23 +121,48 @@ export default function Feedback({
             </div>
 
             {/* Violations Checklist */}
-            <div className="w-full mb-10">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-gray-800 font-bold">Các lỗi dịch vụ (nếu có):</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">(Có thể bỏ qua)</span>
+            <div className={`w-full mb-10 transition-all duration-300 ${isViolationsOpen ? 'bg-gray-50/50 rounded-[32px] p-2 -mx-2' : ''}`}>
+                <div 
+                    onClick={() => setIsViolationsOpen(!isViolationsOpen)}
+                    className="flex items-center justify-between mb-2 p-4 bg-white rounded-3xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 cursor-pointer hover:bg-gray-50 active:scale-[0.98] transition-all"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${selectedViolations.length > 0 ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 className="text-gray-800 font-bold text-sm">Các lỗi dịch vụ (nếu có)</h3>
+                            {selectedViolations.length > 0 && (
+                                <p className="text-[10px] text-amber-600 font-bold tracking-wide uppercase">Đã chọn {selectedViolations.length} lỗi</p>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                        {selectedViolations.length === 0 && (
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-100">Bỏ qua</span>
+                        )}
+                        <svg 
+                            className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isViolationsOpen ? 'rotate-180' : ''}`} 
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
                 </div>
-                <div className="space-y-4">
+
+                <div className={`space-y-3 overflow-hidden transition-all duration-300 ease-in-out ${isViolationsOpen ? 'max-h-[1000px] opacity-100 mt-4 px-2 pb-4' : 'max-h-0 opacity-0 mt-0 pointer-events-none'}`}>
                     {violations.map((v, idx) => (
                         <div key={idx}
                             onClick={() => toggleViolation(idx)}
-                            className={`flex items-start gap-4 p-5 bg-white rounded-3xl cursor-pointer transition-shadow shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 hover:shadow-md`}
+                            className={`flex items-start gap-4 p-4 bg-white rounded-2xl cursor-pointer transition-all border ${selectedViolations.includes(idx) ? 'border-amber-200 shadow-sm ring-1 ring-amber-100' : 'border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.01)]'}`}
                         >
-                            <div className={`mt-0.5 w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${selectedViolations.includes(idx) ? 'border-amber-500 bg-amber-500' : 'border-gray-300 bg-white'}`}>
+                            <div className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-colors ${selectedViolations.includes(idx) ? 'border-amber-500 bg-amber-500' : 'border-gray-300 bg-white'}`}>
                                 {selectedViolations.includes(idx) && (
-                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                    <svg className="w-3.2 h-3.2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                                 )}
                             </div>
-                            <span className={`text-sm leading-snug font-medium ${selectedViolations.includes(idx) ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
+                            <span className={`text-[13px] leading-snug font-medium ${selectedViolations.includes(idx) ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
                         </div>
                     ))}
                 </div>
