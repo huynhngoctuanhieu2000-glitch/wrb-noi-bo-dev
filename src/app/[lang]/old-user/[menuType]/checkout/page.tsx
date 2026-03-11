@@ -161,15 +161,16 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
 
     const handleConfirmOrder = () => {
         if (!customerInfo.name || !customerInfo.email) {
-            alert(lang === 'vi' ? 'Vui lòng điền Tên và Email' : 'Please enter Full Name and Email');
+            alert(dict.checkout.alerts?.fill_name_email || 'Please enter Full Name and Email');
             return;
         }
         if (!paymentMethod) {
-            alert(lang === 'vi' ? 'Vui lòng chọn phương thức thanh toán' : 'Please select a payment method');
+            alert(dict.checkout.alerts?.select_payment || 'Please select a payment method');
             return;
         }
         setIsConfirmOpen(true);
     };
+
 
     const handleFinalSubmit = async () => {
         const payload = {

@@ -62,7 +62,7 @@ const NoteSection: React.FC<NoteSectionProps> = ({ lang, serviceData, notes, onC
                 value={notes.content}
                 onChange={(e) => onChange('content', e.target.value)}
                 placeholder={getText(serviceData.HINT || { en: 'Other notes...', vn: 'Ghi chú khác...' }, lang)}
-                className="w-full h-20 p-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black/20 focus:outline-none transition-colors resize-none"
+                className="w-full h-20 p-3 text-sm text-gray-900 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black/20 focus:outline-none transition-colors resize-none"
             />
         </div>
     );

@@ -93,9 +93,11 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                 </div>
 
                                 {/* Row 2: Duration */}
-                                <div className="text-gray-400 text-sm font-medium mb-3 border-b border-dashed border-gray-100 pb-3">
-                                    {item.timeValue}mins
-                                </div>
+                                {item.timeValue > 0 && (
+                                    <div className="text-gray-400 text-sm font-medium mb-3 border-b border-dashed border-gray-100 pb-3">
+                                        {item.timeValue}mins
+                                    </div>
+                                )}
 
                                 {/* Vertical Attributes Stack */}
                                 <div className="space-y-2 text-sm">

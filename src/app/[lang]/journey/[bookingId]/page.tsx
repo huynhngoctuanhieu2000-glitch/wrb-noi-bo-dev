@@ -6,6 +6,9 @@ import WaitingRoom from '@/components/Journey/WaitingRoom';
 import ActiveService from '@/components/Journey/ActiveService';
 import CheckBelongings from '@/components/Journey/CheckBelongings';
 import Feedback from '@/components/Journey/Feedback';
+import { translations, TranslationKey } from '@/components/Journey/Journey.i18n';
+
+
 
 export default function JourneyPage({ params }: { params: Promise<{ lang: string, bookingId: string }> }) {
     const resolvedParams = React.use(params);
@@ -29,17 +32,22 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
     // Translations for steps
     const t = {
-        preparing: lang === 'vi' ? 'Chờ phòng' : 'Preparing',
-        inProgress: lang === 'vi' ? 'Đang làm' : 'In Service',
-        completed: lang === 'vi' ? 'Kiểm đồ' : 'Check Items',
-        feedback: lang === 'vi' ? 'Đánh giá' : 'Feedback',
-        title: lang === 'vi' ? 'Hành trình thư giãn' : 'Relaxation Journey',
-        errorTitle: lang === 'vi' ? 'Đã xảy ra lỗi' : 'An error occurred',
-        retry: lang === 'vi' ? 'Thử lại' : 'Retry',
-        finishTitle: lang === 'vi' ? 'Hoàn tất!' : 'Finished!',
-        finishSub: lang === 'vi' ? 'Cảm ơn bạn đã trải nghiệm dịch vụ.' : 'Thank you for your experience with us.',
-        goHome: lang === 'vi' ? 'Về trang chủ' : 'Go to Home'
+        preparing: translations[lang]?.preparing || translations['en'].preparing,
+        inProgress: translations[lang]?.inProgress || translations['en'].inProgress,
+        completed: translations[lang]?.completed || translations['en'].completed,
+        feedback: translations[lang]?.feedback || translations['en'].feedback,
+        title: translations[lang]?.title || translations['en'].title,
+        errorTitle: translations[lang]?.errorTitle || translations['en'].errorTitle,
+        retry: translations[lang]?.retry || translations['en'].retry,
+        finishTitle: translations[lang]?.finishTitle || translations['en'].finishTitle,
+        finishSub: translations[lang]?.finishSub || translations['en'].finishSub,
+        goHome: translations[lang]?.goHome || translations['en'].goHome,
+        redirecting: translations[lang]?.redirecting || translations['en'].redirecting,
+        autoRedirect: translations[lang]?.autoRedirect || translations['en'].autoRedirect,
+        spa_service_fallback: translations[lang]?.spa_service_fallback || translations['en'].spa_service_fallback,
     };
+
+
 
     const steps = [
         {
@@ -157,7 +165,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 {/* Active Service requires actual parsing of duration or fallback to demo logic if not mapped in DB yet */}
                 {state === 'IN_PROGRESS' && (
                     <ActiveService 
-                        serviceName={journeyData?.items?.[0]?.service_name || "Dịch vụ Spa"} 
+                        serviceName={journeyData?.items?.[0]?.service_name || t.spa_service_fallback} 
                         totalDuration={journeyData?.totalDuration || 90} 
                         timeStart={journeyData?.timeStart || null} 
                         lang={lang} 

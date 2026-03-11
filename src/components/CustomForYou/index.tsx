@@ -34,9 +34,12 @@ export default function CustomForYouModal({
         therapist: 'random'
     });
 
+    const [activeTab, setActiveTab] = useState<'area' | 'preferences'>('area');
+
     // Reset or Load initial data when modal opens
     useEffect(() => {
         if (isOpen) {
+            setActiveTab('area'); // Always start with area tab
             if (initialData) {
                 // Safely merge initialData with defaults to prevent undefined errors
                 setPrefs({
@@ -73,15 +76,10 @@ export default function CustomForYouModal({
             let newAvoid = [...prev.bodyParts.avoid];
 
             if (area === 'CLEAR_ALL') {
-                // Clear all focus/avoid logic handled by logic below based on type
-                // But specifically for Full Body toggle logic which calls CLEAR_ALL on focus
                 return { ...prev, bodyParts: { focus: [], avoid: [] } };
             }
 
             if (area === 'FULL_BODY' && type === 'focus') {
-                // Select all available parts as focus
-                // We need to know available parts available in BodyMap, but usually we can infer from config
-                // Ideally BodyMap should pass the list, but here we can iterate serviceData.FOCUS_POSITION
                 const allParts = Object.keys(serviceData.FOCUS_POSITION || {}).filter(k => serviceData.FOCUS_POSITION?.[k as keyof typeof serviceData.FOCUS_POSITION]);
                 return { ...prev, bodyParts: { focus: allParts, avoid: [] } };
             }
@@ -92,7 +90,6 @@ export default function CustomForYouModal({
                     newFocus = newFocus.filter(k => k !== area);
                 } else {
                     newFocus.push(area);
-                    // Remove form avoid if present
                     newAvoid = newAvoid.filter(k => k !== area);
                 }
             } else { // avoid
@@ -100,7 +97,6 @@ export default function CustomForYouModal({
                     newAvoid = newAvoid.filter(k => k !== area);
                 } else {
                     newAvoid.push(area);
-                    // Remove form focus if present
                     newFocus = newFocus.filter(k => k !== area);
                 }
             }
@@ -118,9 +114,6 @@ export default function CustomForYouModal({
     };
 
     // Check if we should render Body Map
-    // Logic: 
-    // - Nếu FOCUS_POSITION tồn tại: Chỉ hiện nếu có ít nhất 1 cái true
-    // - Nếu FOCUS_POSITION không tồn tại (Data cũ): Mặc định HIỆN (để test) hoặc dựa vào Category (Tạm thời hiện hết)
     const showBodyMap = !serviceData.FOCUS_POSITION || Object.values(serviceData.FOCUS_POSITION).some(v => v === true);
 
     return (
@@ -131,11 +124,11 @@ export default function CustomForYouModal({
                 onClick={onClose}
             />
 
-            {/* Modal Content - Expanded Width */}
-            <div className="relative w-full sm:w-[95vw] max-w-4xl bg-white rounded-t-[32px] rounded-b-none sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col h-[95vh] sm:h-auto sm:max-h-[90vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
+            {/* Modal Content - Fixed Height for no scroll */}
+            <div className="relative w-full sm:w-[95vw] max-w-2xl bg-white rounded-t-[32px] rounded-b-none sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white z-10">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white z-20">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900">{dict.custom_for_you?.title}</h2>
                         <p className="text-sm text-gray-500 font-medium">
@@ -150,48 +143,65 @@ export default function CustomForYouModal({
                     </button>
                 </div>
 
-                {/* Scrollable Body */}
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                    {/* Body Map Section */}
-                    {showBodyMap && (
-                        <div className="mb-8">
-                            <h4 className="flex items-center gap-2 text-xs font-bold text-green-700 uppercase tracking-wider mb-4">
-                                <span className="bg-green-100 p-1 rounded">👤</span>
-                                {getText({ en: 'Massage Area', vn: 'Vị trí Massage', jp: 'マッサージ部位', kr: '마사지 부위', cn: '按摩部位' }, lang)}
-                            </h4>
-                            <BodyMap
-                                focus={prefs.bodyParts?.focus || []}
-                                avoid={prefs.bodyParts?.avoid || []}
-                                lang={lang}
-                                serviceData={serviceData}
-                                onToggle={handleBodyToggle}
-                            />
-                        </div>
-                    )}
+                {/* Tabs Navigation */}
+                <div className="flex px-6 bg-white border-b border-gray-100 z-10">
+                    <button
+                        onClick={() => setActiveTab('area')}
+                        className={`flex-1 py-4 text-sm font-bold transition-all border-b-2 ${activeTab === 'area'
+                                ? 'border-green-600 text-green-600'
+                                : 'border-transparent text-gray-400 hover:text-gray-600'
+                            }`}
+                    >
+                        {dict.custom_for_you?.tab_area}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('preferences')}
+                        className={`flex-1 py-4 text-sm font-bold transition-all border-b-2 ${activeTab === 'preferences'
+                                ? 'border-green-600 text-green-600'
+                                : 'border-transparent text-gray-400 hover:text-gray-600'
+                            }`}
+                    >
+                        {dict.custom_for_you?.tab_preferences}
+                    </button>
+                </div>
 
-                    {/* Notes & Preferences */}
-                    <div className="space-y-6">
-                        <NoteSection
-                            lang={lang}
-                            serviceData={serviceData}
-                            notes={prefs.notes}
-                            onChange={handleNoteChange}
-                        />
-
-                        <Preferences
-                            lang={lang}
-                            showStrength={!!serviceData.SHOW_STRENGTH}
-                            values={{ strength: prefs.strength, therapist: prefs.therapist }}
-                            onChange={handlePrefChange}
-                        />
+                {/* Content Area - Hidden overflow and flex to fit */}
+                <div className="flex-1 overflow-hidden relative">
+                    <div className="absolute inset-0 overflow-y-auto px-6 py-4 custom-scrollbar">
+                        {activeTab === 'area' ? (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-left-2 duration-300">
+                                {showBodyMap && (
+                                    <BodyMap
+                                        focus={prefs.bodyParts?.focus || []}
+                                        avoid={prefs.bodyParts?.avoid || []}
+                                        lang={lang}
+                                        serviceData={serviceData}
+                                        onToggle={handleBodyToggle}
+                                    />
+                                )}
+                                <NoteSection
+                                    lang={lang}
+                                    serviceData={serviceData}
+                                    notes={prefs.notes}
+                                    onChange={handleNoteChange}
+                                />
+                            </div>
+                        ) : (
+                            <div className="animate-in fade-in slide-in-from-right-2 duration-300">
+                                <Preferences
+                                    lang={lang}
+                                    showStrength={!!serviceData.SHOW_STRENGTH}
+                                    values={{ strength: prefs.strength, therapist: prefs.therapist }}
+                                    onChange={handlePrefChange}
+                                />
+                            </div>
+                        )}
+                        <div className="h-4" />
                     </div>
-
-                    {/* Bottom Padding for scroll */}
-                    <div className="h-4" />
                 </div>
 
                 {/* Footer Action */}
-                <div className="border-t border-gray-100 bg-gray-50 pb-[env(safe-area-inset-bottom)]">
+                <div className="border-t border-gray-100 bg-gray-50 pb-[env(safe-area-inset-bottom)] z-20">
                     <button
                         onClick={() => onSave(prefs)}
                         className="w-full bg-[#1a1c2e] hover:bg-[#2e314a] text-white font-bold py-5 rounded-none sm:rounded-b-[32px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-black/10"

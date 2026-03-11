@@ -47,7 +47,8 @@ const TEXT = {
     add_to_cart: { vn: 'Thêm Vào Giỏ', en: 'Add to Cart', cn: '加入购物车', jp: 'カートに追加', kr: '장바구니 담기' },
     mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
     custom_for_you: { vn: 'Tùy chỉnh dịch vụ', en: 'Custom for you', cn: '定制服务', jp: 'カスタムサービス', kr: '맞춤 서비스' },
-    custom_selected: { vn: 'Đã tùy chỉnh', en: 'Customized', cn: '已定制', jp: 'カスタマイズ済み', kr: '맞춤 설정됨' }
+    custom_selected: { vn: 'Đã tùy chỉnh', en: 'Customized', cn: '已定制', jp: 'カスタマイズ済み', kr: '맞춤 설정됨' },
+    recommended: { vn: 'Gợi ý', en: 'Recommended', cn: '推荐', jp: 'おすすめ', kr: '추천' }
 };
 
 export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToCart }: MainSheetProps) {
@@ -167,9 +168,10 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent"></div>
                         <div className="absolute bottom-4 left-5 right-5">
                             <h2 className="text-2xl font-bold text-white font-luxury leading-tight">{groupName}</h2>
-                            <p className="text-sm text-gray-300 line-clamp-1 mt-1 opacity-80">
+                            <p className="text-sm text-gray-300 mt-1 opacity-80 leading-snug">
                                 {selectedService.descriptions[lang as keyof typeof selectedService.descriptions] || selectedService.descriptions['en']}
                             </p>
+
                         </div>
                     </div>
                 )}
@@ -193,8 +195,12 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                     <div key={svc.id} className="bg-gray-800/80 p-4 rounded-xl border border-gray-700 flex justify-between items-center group hover:border-gray-500 transition-colors">
                                         <div>
                                             <div className="flex items-baseline gap-2">
-                                                <span className="text-yellow-500 font-bold text-xl">{svc.timeValue}{t('mins')}</span>
-                                                <span className="text-gray-500 text-xs uppercase tracking-wider">{t('duration')}</span>
+                                                {svc.timeValue > 0 && (
+                                                    <>
+                                                        <span className="text-yellow-500 font-bold text-xl">{svc.timeValue}{t('mins')}</span>
+                                                        <span className="text-gray-500 text-xs uppercase tracking-wider">{t('duration')}</span>
+                                                    </>
+                                                )}
                                             </div>
                                             <div className="text-white font-medium mt-1">
                                                 {formatCurrency(svc.priceVND)} VND <span className="text-gray-600">/</span> <span className="text-red-400">{svc.priceUSD} USD</span>
@@ -267,14 +273,16 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                             >
                                                 {/* [LOGIC NEW] Badge Best Choice */}
                                                 {svc.BEST_CHOICE && (
-                                                    <div className="absolute top-0 left-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-br-md z-10 uppercase tracking-wider">
-                                                        BEST CHOICE
+                                                    <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-md z-10 uppercase tracking-wider">
+                                                        {t('recommended')}
                                                     </div>
                                                 )}
 
-                                                <span className={`text-xl font-bold mb-1 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
-                                                    {svc.timeValue}{t('mins')}
-                                                </span>
+                                                {svc.timeValue > 0 && (
+                                                    <span className={`text-xl font-bold mb-1 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
+                                                        {svc.timeValue}{t('mins')}
+                                                    </span>
+                                                )}
                                                 <div className="text-sm font-medium flex gap-1 items-center justify-center w-full">
                                                     <span className="text-yellow-500 font-bold">{formatCurrency(svc.priceVND)}</span>
                                                     <span className="text-gray-500">/</span>

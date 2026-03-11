@@ -73,9 +73,10 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
             setSuccess(true);
         } catch (error) {
             console.error("Submit error", error);
-            alert("Error sending order. Please try again.");
+            alert(dict.checkout.alerts?.order_error || "Error sending order. Please try again.");
             setIsSubmitting(false);
         }
+
     };
 
     const handleDone = () => {
@@ -155,12 +156,13 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                         onClick={handleDone}
                         className="w-full bg-[#0f172a] text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-black transition-all active:scale-95 text-sm flex items-center justify-center gap-2"
                     >
-                        <span>{lang === 'vi' ? 'Đang chuyển hướng...' : 'Redirecting...'}</span>
+                        <span>{dict.checkout.alerts?.redirecting || 'Redirecting...'}</span>
                         <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     </button>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                        {lang === 'vi' ? 'Tự động chuyển sau vài giây' : 'Auto-redirecting in a few seconds'}
+                        {dict.checkout.alerts?.auto_redirect || 'Auto-redirecting in a few seconds'}
                     </p>
+
                 </div>
             </div>
         );
@@ -254,7 +256,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             <span className="font-bold text-gray-900 text-[15px]">{idx + 1}. {item.names[lang] || item.names.en}</span>
                                             <span className="font-bold text-gray-900 text-[15px]">{formatCurrency(item.priceVND * item.qty)} VND</span>
                                         </div>
-                                        <div className="text-xs text-gray-400 font-medium mb-3 border-b border-dashed border-gray-100 pb-2">{item.timeValue}mins</div>
+                                        {item.timeValue > 0 && (
+                                            <div className="text-xs text-gray-400 font-medium mb-3 border-b border-dashed border-gray-100 pb-2">{item.timeValue}mins</div>
+                                        )}
 
                                         {/* Attributes */}
                                         <div className="space-y-2">

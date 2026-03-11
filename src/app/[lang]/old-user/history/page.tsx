@@ -129,7 +129,8 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
         router.push(`/${lang}/old-user/standard/checkout`);
     };
 
-    if (!dict) return <div className="min-h-screen bg-[#000000] flex items-center justify-center text-white">Loading Dictionary...</div>;
+    if (!dict) return <div className="min-h-screen bg-[#000000] flex items-center justify-center text-white"></div>;
+
 
     return (
         <div className="min-h-screen bg-[#000000] text-white flex flex-col font-sans">
@@ -151,12 +152,13 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                 {loading ? (
                     <div className="flex flex-col items-center justify-center pt-20 text-gray-500 gap-2">
                         <Loader2 className="animate-spin" size={32} />
-                        <span className="text-sm">Loading visits...</span>
+                        <span className="text-sm">{dict.history.loading_visits}</span>
                     </div>
                 ) : orders.length === 0 ? (
                     <div className="text-center pt-20 text-gray-500 italic">
-                        No visits found.
+                        {dict.history.no_visits}
                     </div>
+
                 ) : (
                     orders.map((visit) => (
                         <div key={visit.id} className="bg-[#131722] rounded-3xl p-5 border border-[#1f2430]">

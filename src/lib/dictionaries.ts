@@ -60,8 +60,17 @@ const dictionaries = {
             done: "DONE",
             processing: "Processing...",
             send_request: "Send Request",
-            edit: "EDIT"
+            edit: "EDIT",
+            alerts: {
+                fill_name_email: "Please enter Full Name and Email",
+                select_payment: "Please select a payment method",
+                order_error: "Error sending order. Please try again.",
+                redirecting: "Redirecting...",
+                auto_redirect: "Auto-redirecting in a few seconds"
+            }
         },
+
+
         payment_methods: {
             cash_vnd: "Cash VND",
             cash_usd: "Cash USD",
@@ -98,7 +107,9 @@ const dictionaries = {
         custom_for_you: {
             title: "Custom for you",
             full_body: "Full Body",
-            partly: "Partly"
+            partly: "Partly",
+            tab_area: "Area",
+            tab_preferences: "Therapist / Strength"
         },
         body_parts: {
             foot: "Foot",
@@ -139,9 +150,12 @@ const dictionaries = {
             create_new_btn: "+ CREATE NEW BOOKING",
             feedback_btn: "Rate Service",
             resume_journey_btn: "Resume Journey",
-            note_label: "Note"
+            note_label: "Note",
+            loading_visits: "Loading visits...",
+            no_visits: "No visits found."
         }
     },
+
     vi: {
         checkout: {
             title: "Thông tin thanh toán",
@@ -193,8 +207,17 @@ const dictionaries = {
             done: "Hoàn tất",
             processing: "Đang xử lý...",
             send_request: "Gửi yêu cầu",
-            edit: "CHỈNH SỬA"
+            edit: "CHỈNH SỬA",
+            alerts: {
+                fill_name_email: "Vui lòng điền Tên và Email",
+                select_payment: "Vui lòng chọn phương thức thanh toán",
+                order_error: "Lỗi gửi đơn. Vui lòng thử lại.",
+                redirecting: "Đang chuyển hướng...",
+                auto_redirect: "Tự động chuyển sau vài giây"
+            }
         },
+
+
         payment_methods: {
             cash_vnd: "Tiền mặt (VND)",
             cash_usd: "Tiền mặt (USD)",
@@ -231,7 +254,9 @@ const dictionaries = {
         custom_for_you: {
             title: "Tùy chỉnh cho bạn",
             full_body: "Toàn thân",
-            partly: "Một phần"
+            partly: "Một phần",
+            tab_area: "Vị trí",
+            tab_preferences: "Kỹ thuật viên / Lực"
         },
         body_parts: {
             foot: "Chân",
@@ -272,9 +297,12 @@ const dictionaries = {
             create_new_btn: "+ TẠO ĐƠN MỚI",
             feedback_btn: "Đánh giá",
             resume_journey_btn: "Quay lại lộ trình",
-            note_label: "Lưu ý"
+            note_label: "Lưu ý",
+            loading_visits: "Đang tải lịch sử...",
+            no_visits: "Không tìm thấy chuyến ghé thăm nào."
         }
     },
+
     kr: {
         checkout: {
             title: "결제 정보",
@@ -326,8 +354,17 @@ const dictionaries = {
             done: "완료",
             processing: "처리 중...",
             send_request: "요청 보내기",
-            edit: "편집"
+            edit: "편집",
+            alerts: {
+                fill_name_email: "이름과 이메일을 입력해 주세요",
+                select_payment: "결제 방법을 선택해 주세요",
+                order_error: "주문 전송 오류. 다시 시도해 주세요.",
+                redirecting: "리다이렉트 중...",
+                auto_redirect: "잠시 후 자동으로 이동합니다"
+            }
         },
+
+
         payment_methods: {
             cash_vnd: "현금 (VND)",
             cash_usd: "현금 (USD)",
@@ -364,7 +401,9 @@ const dictionaries = {
         custom_for_you: {
             title: "맞춤 설정",
             full_body: "전신",
-            partly: "부분"
+            partly: "부분",
+            tab_area: "부위",
+            tab_preferences: "테라피스트 / 강도"
         },
         body_parts: {
             foot: "발",
@@ -405,9 +444,12 @@ const dictionaries = {
             create_new_btn: "+ 새 예약 만들기",
             feedback_btn: "평가하기",
             resume_journey_btn: "진행 상황 보기",
-            note_label: "메모"
+            note_label: "메모",
+            loading_visits: "방문 기록 로딩 중...",
+            no_visits: "방문 기록이 없습니다."
         }
     },
+
     cn: {
         checkout: {
             title: "支付信息",
@@ -459,8 +501,17 @@ const dictionaries = {
             done: "完成",
             processing: "处理中...",
             send_request: "发送请求",
-            edit: "编辑"
+            edit: "编辑",
+            alerts: {
+                fill_name_email: "请输入姓名和电子邮箱",
+                select_payment: "请选择支付方式",
+                order_error: "发送订单时出错。请重试。",
+                redirecting: "正在跳转...",
+                auto_redirect: "几秒后自动跳转"
+            }
+
         },
+
         payment_methods: {
             cash_vnd: "现金 (VND)",
             cash_usd: "现金 (USD)",
@@ -497,7 +548,9 @@ const dictionaries = {
         custom_for_you: {
             title: "为您定制",
             full_body: "全身",
-            partly: "部分"
+            partly: "部分",
+            tab_area: "部位",
+            tab_preferences: "技师 / 力度"
         },
         body_parts: {
             foot: "脚",
@@ -538,9 +591,12 @@ const dictionaries = {
             create_new_btn: "+ 创建新预订",
             feedback_btn: "评价服务",
             resume_journey_btn: "返回行程",
-            note_label: "备注"
+            note_label: "备注",
+            loading_visits: "正在加载访问记录...",
+            no_visits: "未找到访问记录。"
         }
     },
+
     jp: {
         checkout: {
             title: "お支払い情報",
@@ -592,8 +648,17 @@ const dictionaries = {
             done: "完了",
             processing: "処理中...",
             send_request: "リクエスト送信",
-            edit: "編集"
+            edit: "編集",
+            alerts: {
+                fill_name_email: "お名前とメールアドレスを入力してください",
+                select_payment: "お支払い方法を選択してください",
+                order_error: "注文の送信中にエラーが発生しました。もう一度お試しください。",
+                redirecting: "リダイレクト中...",
+                auto_redirect: "数秒後に自動的に移動します"
+            }
         },
+
+
         payment_methods: {
             cash_vnd: "現金 (VND)",
             cash_usd: "現金 (USD)",
@@ -630,7 +695,9 @@ const dictionaries = {
         custom_for_you: {
             title: "カスタム",
             full_body: "全身",
-            partly: "部分"
+            partly: "部分",
+            tab_area: "部位",
+            tab_preferences: "セラピスト / 強さ"
         },
         body_parts: {
             foot: "足",
@@ -671,7 +738,10 @@ const dictionaries = {
             create_new_btn: "+ 新規予約作成",
             feedback_btn: "サービスを評価",
             resume_journey_btn: "現在の状況に戻る",
-            note_label: "メモ"
+            note_label: "メモ",
+            loading_visits: "履歴を読み込み中...",
+            no_visits: "訪問履歴が見つかりません。"
         }
     }
 };
+

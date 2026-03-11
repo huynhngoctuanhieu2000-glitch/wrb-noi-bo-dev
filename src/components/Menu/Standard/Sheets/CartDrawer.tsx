@@ -16,6 +16,9 @@ import { X, Minus, Plus } from 'lucide-react';
 import { useMenuData } from '@/components/Menu/MenuContext';
 import { Service, CartState, CartItem } from '@/components/Menu/types';
 import { formatCurrency as formatMoney, formatCurrency } from '@/components/Menu/utils'; // Alias formatMoney to formatCurrency
+import CustomForYouModal from '@/components/CustomForYou';
+import { ServiceData, CustomPreferences, LanguageCode } from '@/components/CustomForYou/types';
+import { ServiceOptions } from '@/components/Menu/types';
 
 interface CartDrawerProps {
     cart: CartState;
@@ -35,14 +38,20 @@ const TEXT = {
     close: { vn: 'ĐÓNG', en: 'CLOSE', cn: '关闭', jp: '閉じる', kr: '닫기' },
     continue: { vn: 'TIẾP TỤC', en: 'CONTINUE', cn: '继续', jp: '継続する', kr: '계속' },
     empty: { vn: 'Giỏ hàng trống', en: 'Your cart is empty', cn: '购物车为空', jp: 'カートは空です', kr: '장바구니가 비어 있습니다' },
-    alert_empty: { vn: 'Vui lòng chọn ít nhất 1 dịch vụ!', en: 'Please select at least 1 service!', cn: '请至少选择一项服务！', jp: '少なくとも1つのサービスを選択してください！', kr: '최소 1개의 서비스를 선택해주세요!' }
+    alert_empty: { vn: 'Vui lòng chọn ít nhất 1 dịch vụ!', en: 'Please select at least 1 service!', cn: '请至少选择一项服务！', jp: '少なくとも1つのサービスを選択してください！', kr: '최소 1개의 서비스를 chuyên vụ!' },
+    custom_for_you_btn: { vn: 'TÙY CHỈNH CHO BẠN', en: 'CUSTOM FOR YOU', cn: '为你定制', jp: 'あなたのためのカスタム', kr: '당신을 위한 맞춤' }
 };
 
 export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUpdateCart, onCheckout }: CartDrawerProps) {
     const [isClosing, setIsClosing] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
 
-    // Animation Logic
+    // [LOGIC NEW] Customization State
+    const [editingItem, setEditingItem] = useState<CartItem | null>(null);
+    const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+
+    const { addToCart, removeFromCart, updateCartItemOptions } = useMenuData();
+
     useEffect(() => {
         if (isOpen) {
             setIsVisible(false); // Reset trước
@@ -96,27 +105,6 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
         // Checkout page: `cart.map...` -> If one row has qty 2, it shows as one row.
         // The user requirement is: "Group in Cart, Split in Checkout".
         // This means in Context state, we should have multiple rows (Qty 1 each) or One row (Qty N).
-
-        // If we want split in Checkout, best to have multiple rows in Context.
-        // So (+) click should call `addToCart`.
-        // But `CartDrawer` prop `onUpdateCart` is limited.
-
-        // Let's look at `CartDrawerProps`: it has `onUpdateCart`.
-        // We should probably add `onAddToCart` prop or use context directly?
-        // `CartDrawer` is a component, might be better to use `useMenuData` directly if allowed or pass `addToCart`.
-        // The file imports `useMenuData` inside `MenuContext`, but `CartDrawer` is a dumb component receiving props.
-        // Actually `CartDrawer` is imported in `MainSheet`.
-
-        // Let's assume for now we use the `onUpdateCart` to just increase quantity of the FIRST item found in that group.
-        // AND we rely on the fact that `MenuContext` logic might need adjustment if we strictly want distinct rows.
-        // BUT, the plan said: "Visual grouping".
-        // So:
-        // - Display: Sum of Qty.
-        // - Action (+): Add NEW item (need `addToCart`) OR increase Qty of one existing item.
-        // If we increase Qty of existing item, then Checkout page receives [Item A (Qty 2)].
-        // Does Checkout page split it? Request says: "khi chuyển qua trang check out mới tách lẻ".
-        // So if Context has [Item A (Qty 2)], Checkout needs to split it into [Item A (Qty 1), Item A (Qty 1)].
-        // OR Context should separate them from the start [Item A (Qty 1), Item A (Qty 1)].
 
         // OPTION 1: Context keeps distinct rows. CartDrawer groups them visually.
         // Click (+): We need to call `addToCart` to add a new distinct row.
@@ -174,7 +162,41 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
     // - Red USD
     // - Remove 'Customized'
 
-    const { addToCart, removeFromCart } = useMenuData();
+    // Done: Added updateCartItemOptions to hook above.
+
+    const handleOpenCustomModal = (item: CartItem) => {
+        setEditingItem(item);
+        setIsCustomModalOpen(true);
+    };
+
+    const handleSaveCustom = (prefs: CustomPreferences) => {
+        if (!editingItem) return;
+
+        // Map CustomPreferences back to ServiceOptions
+        const options: ServiceOptions = {
+            strength: prefs.strength,
+            therapist: prefs.therapist,
+            bodyParts: prefs.bodyParts,
+            notes: prefs.notes
+        };
+
+        updateCartItemOptions(editingItem.cartId, options);
+        setIsCustomModalOpen(false);
+        setEditingItem(null);
+    };
+
+    const mapCartItemToServiceData = (item: CartItem): ServiceData => {
+        return {
+            ID: item.id,
+            NAMES: item.names as any, // Cast to Record<string, string>
+            FOCUS_POSITION: item.FOCUS_POSITION as any,
+            TAGS: item.TAGS as any,
+            SHOW_STRENGTH: item.SHOW_STRENGTH,
+            HINT: item.HINT as any,
+            PRICE_VN: item.priceVND,
+            PRICE_USD: item.priceUSD
+        };
+    };
 
     const handlePlus = (item: Service) => {
         addToCart(item, 1);
@@ -250,10 +272,24 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
                                 {/* Info */}
                                 <div className="flex-1">
-                                    <h4 className="font-bold text-yellow-500 line-clamp-1">{item.names[lang]}</h4>
-                                    <div className="text-xs text-gray-400 mb-2">
-                                        <span>{item.timeDisplay || `${item.timeValue} mins`}</span>
+                                    <h4 className="font-bold text-yellow-500 leading-tight">{item.names[lang]}</h4>
+
+                                    {(item.timeValue > 0 || item.timeDisplay) && (
+                                        <div className="text-xs text-gray-400 mb-2 flex items-center justify-between">
+                                            <span>{item.timeDisplay || `${item.timeValue} mins`}</span>
+                                        </div>
+                                    )}
+
+                                    {/* [LOGIC NEW] Custom For You Button */}
+                                    <div className="mb-3">
+                                        <button 
+                                            onClick={() => handleOpenCustomModal(item)}
+                                            className="text-[10px] font-bold text-yellow-500/80 border border-yellow-500/30 px-2 py-1 rounded-md hover:bg-yellow-500/10 transition-colors uppercase tracking-wider"
+                                        >
+                                            {t('custom_for_you_btn')}
+                                        </button>
                                     </div>
+
 
                                     {/* Controls */}
                                     <div className="flex items-center justify-between">
@@ -314,6 +350,21 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                 </div>
 
             </div>
+
+            {/* Custom For You Modal */}
+            {editingItem && (
+                <CustomForYouModal
+                    isOpen={isCustomModalOpen}
+                    onClose={() => {
+                        setIsCustomModalOpen(false);
+                        setEditingItem(null);
+                    }}
+                    onSave={handleSaveCustom}
+                    serviceData={mapCartItemToServiceData(editingItem)}
+                    lang={lang as LanguageCode}
+                    initialData={editingItem.options as any}
+                />
+            )}
         </>
     );
 }
