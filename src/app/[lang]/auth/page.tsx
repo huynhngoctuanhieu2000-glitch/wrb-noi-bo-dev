@@ -11,6 +11,7 @@ const LAYOUT = {
     headerHeight: '60px',
     imageSize: '160px', // Circular image size
     btnGap: '16px',
+    bottomPadding: 'pb-32', // Adjust button vertical position
 };
 
 const t = {
@@ -19,40 +20,30 @@ const t = {
         askLogin: 'Bạn có muốn đăng nhập không? Tại sao ?',
         benefit: 'Nếu đăng nhập bạn sẽ được đổi KTV 01 lần duy nhất trong vòng 15 phút đầu',
         skip: 'Bỏ qua',
-        noAccount: 'New to Ngân Hà? ',
-        createAccount: 'Create an account',
     },
     en: {
         welcome: 'Welcome to Ngân Hà',
         askLogin: 'Do you want to sign in? Why ?',
         benefit: 'By signing in, you are eligible for 1 free staff switch within the first 15 minutes of your session',
         skip: 'Skip',
-        noAccount: 'New to Ngân Hà? ',
-        createAccount: 'Create an account',
     },
     jp: {
         welcome: 'Ngan Ha へようこそ',
         askLogin: 'ログインしますか？その理由は？',
         benefit: 'ログインすると、最初の15分間に1回無料でスタッフの変更が可能です',
         skip: 'スキップ',
-        noAccount: '初めてですか?',
-        createAccount: 'アカウントを作成',
     },
     kr: {
         welcome: 'Ngan Ha 에 오신 것을 환영합니다',
         askLogin: '로그인하시겠습니까? 이유는 무엇인가요?',
         benefit: '로그인하시면 첫 15분 내에 1회 무료 직원 변경이 가능합니다',
         skip: '건너뛰기',
-        noAccount: '처음이신가요? ',
-        createAccount: '계정 만들기',
     },
     cn: {
         welcome: '欢迎来到 Ngan Ha',
         askLogin: '您要登录吗？为什么？',
         benefit: '登录后，您有资格在开始的前15分钟内免费更换一次技师',
         skip: '跳过',
-        noAccount: '第一次来？',
-        createAccount: '创建账号',
     }
 };
 
@@ -90,10 +81,6 @@ export default function AuthPage({ params }: { params: Promise<{ lang: string }>
         router.push('/'); // Quay lại intro
     };
 
-    const handleCreateAccount = () => {
-        // Just visually for now, usually create account would bounce to the same Google Login or email register
-        alert('Vui lòng Đăng nhập với Google để tạo tài khoản nhé!');
-    };
 
     return (
         <div className="w-full h-[100dvh] flex flex-col items-center bg-[#FAF9F6] relative overflow-hidden font-sans pb-[env(safe-area-inset-bottom)]">
@@ -154,7 +141,7 @@ export default function AuthPage({ params }: { params: Promise<{ lang: string }>
                 </div>
 
                 {/* ACTIONS */}
-                <div className="w-full flex flex-col pb-8 animate-fade-in-up delay-300" style={{ gap: LAYOUT.btnGap }}>
+                <div className={`w-full flex flex-col animate-fade-in-up delay-300 ${LAYOUT.bottomPadding}`} style={{ gap: LAYOUT.btnGap }}>
                     <div className="w-full shadow-lg rounded-[8px]">
                         <GoogleLoginBtn lang={lang} />
                     </div>
@@ -166,15 +153,6 @@ export default function AuthPage({ params }: { params: Promise<{ lang: string }>
                         {localeText.skip}
                     </button>
 
-                    {/* Link đăng ký */}
-                    <div className="mt-4 pb-2">
-                        <span className="text-sm font-medium text-gray-500">
-                            {localeText.noAccount}
-                            <button onClick={handleCreateAccount} className="text-amber-600 font-bold hover:underline underline-offset-4 ml-1">
-                                {localeText.createAccount}
-                            </button>
-                        </span>
-                    </div>
                 </div>
 
             </div>

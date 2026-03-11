@@ -30,6 +30,16 @@ interface CartDrawerProps {
     onCheckout: () => void; // New prop for checkout navigation
 }
 
+// 🔧 UI CONFIGURATION
+const CONFIG = {
+    ANIMATION_DURATION: 300,
+    BORDER_RADIUS: '30px',
+    MAX_HEIGHT: '85vh',
+    OVERLAY_COLOR: 'bg-black/60',
+    BG_COLOR: 'bg-[#1e293b]',
+    FOOTER_BG: 'bg-[#0f172a]',
+};
+
 // Translate Text
 const TEXT = {
     title: { vn: 'Dịch vụ đã chọn', en: 'Services Selected', cn: '已选服务', jp: '選択されたサービス', kr: '선택된 서비스' },
@@ -234,16 +244,16 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
         <>
             {/* Overlay */}
             <div
-                className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
+                className={`fixed inset-0 ${CONFIG.OVERLAY_COLOR} z-40 transition-opacity duration-${CONFIG.ANIMATION_DURATION} ${isClosing ? 'opacity-0' : 'opacity-100'}`}
                 onClick={handleClose}
             />
 
             {/* Drawer Container */}
             <div className={`
-                fixed bottom-0 left-0 w-full bg-[#1e293b] rounded-t-[30px] z-50 overflow-hidden flex flex-col max-h-[85vh] shadow-2xl
-                transform transition-transform duration-300 ease-out pb-safe
+                fixed bottom-0 left-0 w-full ${CONFIG.BG_COLOR} rounded-t-[${CONFIG.BORDER_RADIUS}] z-50 overflow-hidden flex flex-col shadow-2xl
+                transform transition-transform duration-${CONFIG.ANIMATION_DURATION} ease-out pb-safe
                 ${(isClosing || !isVisible) ? 'translate-y-full' : 'translate-y-0'}
-            `}>
+            `} style={{ maxHeight: CONFIG.MAX_HEIGHT }}>
 
                 {/* Header handle bar */}
                 <div className="w-full flex justify-center pt-3 pb-1">
@@ -320,7 +330,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                 </div>
 
                 {/* Footer Totals & Actions */}
-                <div className="p-5 bg-[#0f172a] border-t border-gray-800">
+                <div className={`p-5 ${CONFIG.FOOTER_BG} border-t border-gray-800`}>
 
                     {/* Total Row */}
                     <div className="flex justify-between items-end mb-6">

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface TipModalProps {
     onClose: (tipAmount: number) => void;
@@ -9,6 +10,7 @@ interface TipModalProps {
 export default function TipModal({ onClose }: TipModalProps) {
     const tips = ["50.000vnd", "100.000vnd", "200.000vnd", "500.000vnd"];
     const [selectedTip, setSelectedTip] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -35,11 +37,12 @@ export default function TipModal({ onClose }: TipModalProps) {
                         {tips.map((amount) => (
                             <button
                                 key={amount}
+                                disabled={isSubmitting}
                                 onClick={() => setSelectedTip(amount)}
                                 className={`py-4 px-2 rounded-2xl font-bold border-2 transition-all ${selectedTip === amount
                                     ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-md'
                                     : 'bg-white border-gray-100 text-gray-700 hover:border-gray-300'
-                                    }`}
+                                    } ${isSubmitting ? 'opacity-50 grayscale' : ''}`}
                             >
                                 {amount}
                             </button>
@@ -49,21 +52,33 @@ export default function TipModal({ onClose }: TipModalProps) {
                     {/* Actions */}
                     <div className="w-full space-y-4">
                         <button
-                            onClick={() => {
+                            onClick={async () => {
+                                setIsSubmitting(true);
                                 const amountNumber = parseInt(selectedTip?.replace(/\D/g, '') || '0');
+                                await new Promise(r => setTimeout(r, 800)); // Visual feedback
                                 onClose(amountNumber);
                             }}
                             className={`w-full py-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${selectedTip
                                 ? 'bg-gray-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.2)] hover:bg-black'
                                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
-                            disabled={!selectedTip}
+                            disabled={!selectedTip || isSubmitting}
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                            Gửi tiền tip
+                            {isSubmitting ? (
+                                <><Loader2 className="animate-spin" size={20} /> Đang xử lý...</>
+                            ) : (
+                                <>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    Gửi tiền tip
+                                </>
+                            )}
                         </button>
 
-                        <button onClick={() => onClose(0)} className="w-full py-2 text-gray-400 font-semibold text-sm hover:text-gray-600">
+                        <button 
+                            disabled={isSubmitting}
+                            onClick={() => onClose(0)} 
+                            className="w-full py-2 text-gray-400 font-semibold text-sm hover:text-gray-600 disabled:opacity-0"
+                        >
                             Bỏ qua
                         </button>
                     </div>

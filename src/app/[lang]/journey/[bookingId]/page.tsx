@@ -77,15 +77,23 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     // Call API to advance journey state
     const advanceNextState = async (nextStatus: string, additionalData: any = {}) => {
         try {
-            await fetch('/api/journey/update', {
+            const res = await fetch('/api/journey/update', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ bookingId, status: nextStatus, ...additionalData })
             });
-            // Immediately fetch newest state in case realtime socket is failing
-            refresh();
+            
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Failed to update state');
+            }
+
+            // Immediately fetch newest state
+            await refresh();
+            return true;
         } catch (e) {
             console.error("Failed to advance state:", e);
+            throw e; // Re-throw so child components can handle it
         }
     };
 

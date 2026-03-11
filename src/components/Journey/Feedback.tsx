@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import TipModal from '@/components/Journey/TipModal';
 
 interface FeedbackProps {
@@ -21,6 +22,8 @@ export default function Feedback({
     const [rating, setRating] = useState<number | null>(null);
     const [showTip, setShowTip] = useState(false);
     const [isViolationsOpen, setIsViolationsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     // Checkbox state for violations
     const violations = [
@@ -34,8 +37,16 @@ export default function Feedback({
 
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 
+    // 🔧 UI CONFIGURATION
+    const UI_CONFIG = {
+        SELECTED_BG: 'bg-gray-400/90 shadow-[inset_0_2px_10px_rgba(0,0,0,0.1)] border-gray-400', // Darker gray for selected
+        UNSELECTED_BG: 'bg-gray-100 hover:bg-gray-200',
+        TRANSITION: 'transition-all duration-300',
+        SUCCESS_DELAY: 800,
+    };
+
     // Restore from localStorage on mount (from ActiveService)
-    React.useEffect(() => {
+    useEffect(() => {
         try {
             const saved = localStorage.getItem('spa_wrb_violations');
             if (saved) {
@@ -74,11 +85,26 @@ export default function Feedback({
         });
     };
 
-    const clearStorageAndComplete = (data: { rating: number, violations: number[], tipAmount: number }) => {
+    const clearStorageAndComplete = async (data: { rating: number, violations: number[], tipAmount: number }) => {
+        setIsLoading(true);
         try {
-            localStorage.removeItem('spa_wrb_violations');
-        } catch (e) { }
-        onComplete(data);
+            // 1. Actually wait for the API call in parent to complete
+            await onComplete(data);
+            
+            // 2. Success path
+            setIsLoading(false);
+            setIsSuccess(true);
+            
+            try {
+                localStorage.removeItem('spa_wrb_violations');
+            } catch (e) { }
+
+            // No need for long delay, parent state change will unmount this
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Feedback submission error:", error);
+            alert("Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.");
+        }
     };
 
     const handleSubmit = () => {
@@ -173,36 +199,37 @@ export default function Feedback({
 
             <div className="grid grid-cols-2 gap-4 w-full mb-10">
                 <button
+                    disabled={isLoading || isSuccess}
                     onClick={() => setRating(1)}
-                    className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 transition-all ${rating === 1 ? 'bg-red-50 border-2 border-red-200 scale-105' : 'bg-gray-50 border-2 border-transparent opacity-70 hover:opacity-100'}`}
+                    className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 ${UI_CONFIG.TRANSITION} ${rating === 1 ? 'bg-red-200 border-2 border-red-400 scale-105 shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]' : rating !== null ? UI_CONFIG.UNSELECTED_BG : 'bg-gray-50 opacity-70'}`}
                 >
-                    <span className="text-4xl">😡</span>
-                    <span className="font-bold text-red-500 text-sm">Tệ</span>
+                    <span className="text-4xl text-gray-900">😡</span>
+                    <span className="font-extrabold text-red-700 text-sm">Tệ</span>
                 </button>
                 <button
-                    disabled={selectedViolations.length >= 3}
+                    disabled={selectedViolations.length >= 3 || isLoading || isSuccess}
                     onClick={() => setRating(2)}
-                    className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 transition-all ${selectedViolations.length >= 3 ? 'bg-gray-100 border-2 border-transparent opacity-40 grayscale cursor-not-allowed' : rating === 2 ? 'bg-orange-50 border-2 border-orange-200 scale-105' : 'bg-gray-50 border-2 border-transparent opacity-70 hover:opacity-100'}`}
+                    className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 ${UI_CONFIG.TRANSITION} ${selectedViolations.length >= 3 ? 'bg-gray-100 opacity-40 grayscale cursor-not-allowed' : rating === 2 ? 'bg-gray-400 border-2 border-gray-600 scale-105 shadow-[inset_0_2px_8px_rgba(0,0,0,0.2)]' : UI_CONFIG.UNSELECTED_BG}`}
                 >
-                    <span className="text-4xl">😐</span>
-                    <span className="font-bold text-orange-500 text-sm">Bình thường</span>
+                    <span className="text-4xl text-gray-900">😐</span>
+                    <span className="font-extrabold text-gray-800 text-sm">Bình thường</span>
                 </button>
                 <button
-                    disabled={selectedViolations.length >= 2}
+                    disabled={selectedViolations.length >= 2 || isLoading || isSuccess}
                     onClick={() => setRating(3)}
-                    className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 transition-all ${selectedViolations.length >= 2 ? 'bg-gray-100 border-2 border-transparent opacity-40 grayscale cursor-not-allowed' : rating === 3 ? 'bg-amber-50 border-2 border-amber-200 scale-105' : 'bg-gray-50 border-2 border-transparent opacity-70 hover:opacity-100'}`}
+                    className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 ${UI_CONFIG.TRANSITION} ${selectedViolations.length >= 2 ? 'bg-gray-100 opacity-40 grayscale cursor-not-allowed' : rating === 3 ? 'bg-amber-300 border-2 border-amber-500 scale-105 shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]' : UI_CONFIG.UNSELECTED_BG}`}
                 >
-                    <span className="text-4xl">🙂</span>
-                    <span className="font-bold text-amber-500 text-sm">Tốt</span>
+                    <span className="text-4xl text-gray-900">🙂</span>
+                    <span className="font-extrabold text-amber-800 text-sm">Tốt</span>
                 </button>
                 <button
-                    disabled={selectedViolations.length >= 1}
+                    disabled={selectedViolations.length >= 1 || isLoading || isSuccess}
                     onClick={() => setRating(4)}
-                    className={`relative p-4 rounded-3xl flex flex-col items-center justify-center gap-2 transition-all ${selectedViolations.length >= 1 ? 'bg-gray-100 border-2 border-transparent opacity-40 grayscale cursor-not-allowed' : rating === 4 ? 'bg-amber-100 border-2 border-amber-300 shadow-md scale-105' : 'bg-gray-50 border-2 border-transparent opacity-70 hover:opacity-100'}`}
+                    className={`relative p-4 rounded-3xl flex flex-col items-center justify-center gap-2 ${UI_CONFIG.TRANSITION} ${selectedViolations.length >= 1 ? 'bg-gray-100 opacity-40 grayscale cursor-not-allowed' : rating === 4 ? 'bg-amber-400 border-2 border-amber-600 shadow-md scale-105 shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]' : UI_CONFIG.UNSELECTED_BG}`}
                 >
-                    <div className="absolute -top-3 -right-2 bg-amber-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded-full shadow-sm transform rotate-12">Top</div>
-                    <span className="text-4xl">🤩</span>
-                    <span className="font-bold text-amber-600 text-sm">Xuất sắc</span>
+                    <div className="absolute -top-3 -right-2 bg-amber-600 text-white text-[10px] font-black uppercase px-2 py-1 rounded-full shadow-sm transform rotate-12">Top</div>
+                    <span className="text-4xl text-gray-900">🤩</span>
+                    <span className="font-extrabold text-amber-900 text-sm">Xuất sắc</span>
                 </button>
             </div>
 
@@ -210,11 +237,17 @@ export default function Feedback({
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100 z-50">
                 <div className="max-w-md mx-auto">
                     <button
-                        disabled={rating === null}
+                        disabled={rating === null || isLoading || isSuccess}
                         onClick={handleSubmit}
-                        className={`w-full py-4 rounded-2xl font-bold text-lg transition-all ${rating !== null ? 'bg-gray-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.2)] hover:bg-black' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                        className={`w-full py-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-3 ${isSuccess ? 'bg-green-600 text-white' : rating !== null ? 'bg-gray-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.2)] hover:bg-black' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
                     >
-                        {rating !== null ? 'Gửi đánh giá' : 'Chọn mức độ hài lòng để Gửi'}
+                        {isSuccess ? (
+                            <>Đã gửi thành công <CheckCircle2 size={24} /></>
+                        ) : isLoading ? (
+                            <><Loader2 className="animate-spin" size={24} /> Đang xử lý...</>
+                        ) : (
+                            rating !== null ? 'Gửi đánh giá' : 'Chọn mức độ hài lòng để Gửi'
+                        )}
                     </button>
                 </div>
             </div>

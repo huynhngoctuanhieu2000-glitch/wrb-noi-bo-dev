@@ -7,6 +7,16 @@ import { getDictionary } from '@/lib/dictionaries';
 import { formatCurrency } from '@/components/Menu/utils';
 import { useMenuData } from '@/components/Menu/MenuContext';
 
+// 🔧 UI CONFIGURATION
+const HISTORY_CONFIG = {
+    ITEM_BORDER_RADIUS: 'rounded-3xl',
+    BOTTOM_BAR_PADDING: 'pb-[calc(1rem+env(safe-area-inset-bottom))]',
+    LIST_BOTTOM_PADDING: 'pb-28',
+    HEADER_BG: 'bg-[#000000]/90',
+    ITEM_BG: 'bg-[#131722]',
+    ITEM_BORDER: 'border-[#1f2430]',
+};
+
 export default function HistoryPage({ params }: { params: Promise<{ lang: string }> }) {
     const [lang, setLang] = useState<string>('en');
     const [dict, setDict] = useState<any>(null);
@@ -135,7 +145,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
     return (
         <div className="min-h-screen bg-[#000000] text-white flex flex-col font-sans">
             {/* Header */}
-            <div className="flex items-center p-4 sticky top-0 bg-[#000000]/90 backdrop-blur-md z-20 border-b border-white/5">
+            <div className={`flex items-center p-4 sticky top-0 ${HISTORY_CONFIG.HEADER_BG} backdrop-blur-md z-20 border-b border-white/5`}>
                 <button
                     onClick={() => router.back()}
                     className="w-10 h-10 bg-[#1f2430] rounded-full flex items-center justify-center hover:bg-[#2a3040] transition-colors"
@@ -148,7 +158,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             </div>
 
             {/* List */}
-            <div className="flex-1 p-4 pb-28 space-y-4 overflow-y-auto">
+            <div className={`flex-1 p-4 space-y-4 overflow-y-auto ${HISTORY_CONFIG.LIST_BOTTOM_PADDING}`}>
                 {loading ? (
                     <div className="flex flex-col items-center justify-center pt-20 text-gray-500 gap-2">
                         <Loader2 className="animate-spin" size={32} />
@@ -161,7 +171,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
 
                 ) : (
                     orders.map((visit) => (
-                        <div key={visit.id} className="bg-[#131722] rounded-3xl p-5 border border-[#1f2430]">
+                        <div key={visit.id} className={`${HISTORY_CONFIG.ITEM_BG} ${HISTORY_CONFIG.ITEM_BORDER_RADIUS} p-5 border ${HISTORY_CONFIG.ITEM_BORDER}`}>
                             {/* Header Row: Date | ID ---------- Price */}
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex flex-col text-sm">
@@ -237,7 +247,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             </div>
 
             {/* Bottom Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-black via-black/90 to-transparent z-20">
+            <div className={`fixed bottom-0 left-0 right-0 p-4 ${HISTORY_CONFIG.BOTTOM_BAR_PADDING} bg-gradient-to-t from-black via-black/90 to-transparent z-20`}>
                 <button
                     onClick={handleCreateNew}
                     className="w-full bg-[#1f2430] hover:bg-[#2a3040] border border-white/10 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 uppercase tracking-wide transition-all active:scale-[0.98]"

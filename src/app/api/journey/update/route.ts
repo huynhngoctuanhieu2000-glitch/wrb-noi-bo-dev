@@ -21,6 +21,10 @@ export async function PATCH(request: Request) {
 
         // Perform the update using the Service Role admin client (bypasses RLS if needed, or enforces secure server-side logic)
         const supabaseAdmin = getSupabaseAdmin();
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
+        }
+
         const { data, error } = await supabaseAdmin
             .from('Bookings')
             .update(updatePayload)

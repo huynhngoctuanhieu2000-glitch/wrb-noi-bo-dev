@@ -2,6 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { X, ClipboardList, Clock, ArrowRight, Check, User, HeartPulse, Ban, GripHorizontal, AlertCircle, Phone, Mail, Hand } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
+const UI_CONFIG = {
+    MODAL_MAX_WIDTH: '480px',
+    SUCCESS_MODAL_MAX_WIDTH: '400px',
+    BORDER_RADIUS: '32px',
+    REDIRECT_DELAY: 1500,
+    COUNTDOWN_INTERVAL: 700,
+    ESTIMATED_START_OFFSET: 15, // minutes
+    ANIMATION_DURATION: '300ms',
+};
 
 interface OrderConfirmModalProps {
     isOpen: boolean;
@@ -31,13 +40,41 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     paymentMethod,
     amountPaid,
 }) => {
-    // Prevent interaction if closed
-    if (!isOpen) return null;
-
+    // 1. Move all hooks to the top (React requirement)
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [bookingId, setBookingId] = useState<string | null>(null);
     const [countdown, setCountdown] = useState(2); // Countdown display
+
+    // --- Helper Functions (Hoisted or defined before use) ---
+    const handleDone = () => {
+        if (bookingId) {
+            window.location.href = `/${lang}/journey/${bookingId}`;
+        } else {
+            window.location.reload();
+        }
+    };
+
+    // Auto-redirect effect - MUST be before any conditional returns
+    useEffect(() => {
+        if (success && bookingId) {
+            const timer = setTimeout(() => {
+                handleDone();
+            }, UI_CONFIG.REDIRECT_DELAY);
+
+            const interval = setInterval(() => {
+                setCountdown(prev => Math.max(0, prev - 1));
+            }, UI_CONFIG.COUNTDOWN_INTERVAL);
+
+            return () => {
+                clearTimeout(timer);
+                clearInterval(interval);
+            };
+        }
+    }, [success, bookingId, lang]);
+
+    // Prevent interaction if closed - This MUST be after hooks but before JSX
+    if (!isOpen) return null;
 
     // Calculations
     const totalVND = cart.reduce((sum, item) => sum + item.priceVND * item.qty, 0);
@@ -56,9 +93,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
     // Times (Estimated)
     const now = new Date();
-    // Assuming user wants to see START TIME as Current + 15m (Mock logic per previous request)
-    // Or if booking system integration is real, use that. Staying with +15m logic.
-    const startTimeComp = new Date(now.getTime() + 15 * 60000);
+    const startTimeComp = new Date(now.getTime() + UI_CONFIG.ESTIMATED_START_OFFSET * 60000);
     const endTimeComp = new Date(startTimeComp.getTime() + totalTime * 60000);
 
     const formatTime = (date: Date) => {
@@ -66,50 +101,26 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     };
 
     const handleConfirm = async () => {
+        setSuccess(true); // Switch to success UI immediately
         setIsSubmitting(true);
         try {
             const returnedId = await onConfirm({});
             if (returnedId) setBookingId(returnedId);
-            setSuccess(true);
+            // SUCCESS is already true
         } catch (error) {
             console.error("Submit error", error);
             alert(dict.checkout.alerts?.order_error || "Error sending order. Please try again.");
             setIsSubmitting(false);
-        }
-
-    };
-
-    const handleDone = () => {
-        if (bookingId) {
-            window.location.href = `/${lang}/journey/${bookingId}`;
-        } else {
-            window.location.reload();
+            setSuccess(false); // Revert if error
         }
     };
-
-    // Auto-redirect effect
-    useEffect(() => {
-        if (success && bookingId) {
-            const timer = setTimeout(() => {
-                handleDone();
-            }, 1500); // 1.5s delay for pleasant success feedback
-
-            const interval = setInterval(() => {
-                setCountdown(prev => Math.max(0, prev - 1));
-            }, 700);
-
-            return () => {
-                clearTimeout(timer);
-                clearInterval(interval);
-            };
-        }
-    }, [success, bookingId]);
-
-    // --- Success View ---
     if (success) {
         return (
             <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-                <div className="bg-white w-full max-w-[400px] rounded-[32px] p-8 shadow-2xl flex flex-col items-center text-center space-y-6 m-4 relative overflow-hidden animate-in zoom-in-95 duration-300">
+                <div 
+                    className="bg-white w-full p-8 shadow-2xl flex flex-col items-center text-center space-y-6 m-4 relative overflow-hidden animate-in zoom-in-95 duration-300"
+                    style={{ maxWidth: UI_CONFIG.SUCCESS_MODAL_MAX_WIDTH, borderRadius: UI_CONFIG.BORDER_RADIUS }}
+                >
                     {/* Green Glow Background */}
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-green-100 rounded-full blur-3xl -z-10 opacity-50"></div>
 
@@ -122,20 +133,32 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     </h2>
 
                     <div className="w-full space-y-4">
-                        {/* Summary Card for Success */}
-                        <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3 text-left">
-                            <div className="flex justify-between items-start border-b border-gray-100 pb-3 mb-3">
-                                <div className="font-bold text-gray-900">1. {cart[0]?.names?.[lang] || cart[0]?.names?.en || 'Service'}</div>
-                                <div className="font-bold text-gray-900">{formatCurrency(cart[0]?.priceVND * cart[0]?.qty)} VND</div>
+                        {/* Summary Card for Success - LIST ALL ITEMS */}
+                        <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3 text-left max-h-[30vh] overflow-y-auto custom-scrollbar">
+                            <div className="space-y-3">
+                                {cart.map((item, idx) => (
+                                    <div key={item.cartId || idx} className="flex justify-between items-start border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                                        <div className="font-bold text-gray-900 pr-4">
+                                            {idx + 1}. {item.names?.[lang] || item.names?.en || 'Service'}
+                                            {item.qty > 1 && <span className="text-gray-400 text-xs ml-2">x{item.qty}</span>}
+                                        </div>
+                                        <div className="font-bold text-gray-900 shrink-0">{formatCurrency(item.priceVND * item.qty)} VND</div>
+                                    </div>
+                                ))}
                             </div>
-                            {/* Simplified view for success - just showing top level info */}
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">{dict.checkout.payment_method}</span>
-                                <span className="font-bold text-gray-900 uppercase">Cash (VND)</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">{dict.checkout.total_bill}</span>
-                                <span className="font-bold text-amber-600 text-lg">{formatCurrency(totalVND)} VND</span>
+
+                            {/* Payment Totals */}
+                            <div className="pt-2 mt-2 border-t border-gray-100 space-y-1">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-gray-500 font-medium">{dict.checkout.payment_method}</span>
+                                    <span className="font-bold text-gray-900 uppercase">
+                                        {dict.payment_methods?.[paymentMethod] || 'Cash'}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500 font-bold">{dict.checkout.total_bill}</span>
+                                    <span className="font-bold text-amber-600 text-lg">{formatCurrency(totalVND)} VND</span>
+                                </div>
                             </div>
                         </div>
                         {/* Expected Time Card */}
@@ -154,13 +177,22 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
                     <button
                         onClick={handleDone}
-                        className="w-full bg-[#0f172a] text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-black transition-all active:scale-95 text-sm flex items-center justify-center gap-2"
+                        disabled={!bookingId}
+                        className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg transition-all active:scale-95 text-sm flex items-center justify-center gap-2 ${bookingId ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-[#0f172a] text-white opacity-90'}`}
                     >
-                        <span>{dict.checkout.alerts?.redirecting || 'Redirecting...'}</span>
+                        <span>
+                            {!bookingId 
+                                ? (dict.checkout.alerts?.submitting || 'Submitting...') 
+                                : (dict.checkout.alerts?.redirecting || 'Redirecting...')
+                            }
+                        </span>
                         <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     </button>
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                        {dict.checkout.alerts?.auto_redirect || 'Auto-redirecting in a few seconds'}
+                        {!bookingId 
+                            ? (dict.checkout.alerts?.processing_wait || 'Please wait while we process your order')
+                            : (dict.checkout.alerts?.auto_redirect || 'Auto-redirecting in a few seconds')
+                        }
                     </p>
 
                 </div>
@@ -176,7 +208,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     return (
         <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in pb-0 sm:pb-0">
             <div
-                className="bg-white w-full max-w-[480px] max-h-[90vh] sm:h-auto rounded-t-[32px] sm:rounded-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300"
+                className="bg-white w-full max-h-[90vh] sm:h-auto rounded-t-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300"
+                style={{ maxWidth: UI_CONFIG.MODAL_MAX_WIDTH, borderRadius: UI_CONFIG.BORDER_RADIUS }}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}

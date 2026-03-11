@@ -26,6 +26,16 @@ interface MainSheetProps {
     onAddToCart: (id: string, quantity: number, options?: any) => void;
 }
 
+// 🔧 UI CONFIGURATION
+const CONFIG = {
+    ANIMATION_DURATION: 300,
+    BORDER_RADIUS: '30px',
+    MAX_HEIGHT: '85vh',
+    HEADER_IMAGE_HEIGHT: '12rem', // h-48 = 12rem = 192px
+    OVERLAY_COLOR: 'bg-black/60',
+    BG_COLOR: 'bg-[#1e293b]',
+};
+
 // DICTIONARY
 const TEXT = {
     selected_options: { vn: 'Dịch vụ đã chọn', en: 'Selected Options', cn: '已选服务', jp: '選択されたサービス', kr: '선택된 서비스' },
@@ -139,16 +149,16 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
     // --- RENDER GIAO DIỆN ---
     return (
         <>
-            <div className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`} onClick={handleClose} />
+            <div className={`fixed inset-0 ${CONFIG.OVERLAY_COLOR} z-40 transition-opacity duration-${CONFIG.ANIMATION_DURATION} ${isClosing ? 'opacity-0' : 'opacity-100'}`} onClick={handleClose} />
 
             <div className={`
-          fixed bottom-0 left-0 w-full bg-[#1e293b] rounded-t-[30px] z-50 overflow-hidden flex flex-col max-h-[85vh] shadow-2xl
+          fixed bottom-0 left-0 w-full ${CONFIG.BG_COLOR} rounded-t-[${CONFIG.BORDER_RADIUS}] z-50 overflow-hidden flex flex-col shadow-2xl
           transform transition-transform 
-          duration-300  /* <-- ⏱️ CHỈNH TỐC ĐỘ Ở ĐÂY (ms) */
-          ease-out      /* <-- 🌊 CHỈNH KIỂU CHUYỂN ĐỘNG (ease-in, linear...) */
+          duration-${CONFIG.ANIMATION_DURATION}
+          ease-out
           pb-safe
           ${(isClosing || !isVisible) ? 'translate-y-full' : 'translate-y-0'}
-        `}>
+        `} style={{ maxHeight: CONFIG.MAX_HEIGHT }}>
 
                 {/* Nút đóng */}
                 <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center text-white z-20 hover:bg-black/40 transition-colors">
@@ -161,9 +171,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                 */}
 
                 {viewMode === 'ADD' && selectedService && (
-                    /* 👇 CHÚ THÍCH: Chỉnh chiều cao ảnh ở đây */
-                    /* Có thể dùng: aspect-video (16:9), aspect-square (1:1), hoặc h-48 (chiều cao cố định ~192px) */
-                    <div className="w-full h-48 relative shrink-0">
+                    <div className="w-full relative shrink-0" style={{ height: CONFIG.HEADER_IMAGE_HEIGHT }}>
                         <img src={selectedService.img} className="w-full h-full object-cover" alt={groupName} />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent"></div>
                         <div className="absolute bottom-4 left-5 right-5">

@@ -12,6 +12,18 @@ interface ActiveServiceProps {
     staffAvatar?: string;
 }
 
+// 🔧 UI CONFIGURATION
+const TIMER_CONFIG = {
+    CIRCULAR_SIZE: 300,
+    INNER_SIZE: 200,
+    RADIUS: 120,
+    ANIMATION_DURATION: 500,
+    MIN_HEIGHT: '80vh',
+    AMBER_DARK: 'text-amber-900',
+    AMBER_MAIN: '#F59E0B',
+    AMBER_LIGHT: '#FFFBEB',
+};
+
 
 export default function ActiveService({ 
     serviceName, 
@@ -134,23 +146,26 @@ export default function ActiveService({
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
     return (
-        <div className="flex flex-col items-center w-full animate-in fade-in duration-500 min-h-[80vh] justify-center py-10">
+        <div className={`flex flex-col items-center w-full animate-in fade-in duration-${TIMER_CONFIG.ANIMATION_DURATION} justify-center py-10`} style={{ minHeight: TIMER_CONFIG.MIN_HEIGHT }}>
             <h2 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-12">{t.activeService}</h2>
 
             {/* Circular Progress Indicator */}
             <div className="relative flex items-center justify-center mb-10">
                 {/* SVG Ring */}
-                <svg className="absolute w-[300px] h-[300px] -rotate-90 transform drop-shadow-xl" viewBox="0 0 280 280">
+                <svg className="absolute -rotate-90 transform drop-shadow-xl" 
+                     width={TIMER_CONFIG.CIRCULAR_SIZE} 
+                     height={TIMER_CONFIG.CIRCULAR_SIZE} 
+                     viewBox="0 0 280 280">
                     <circle
-                        cx="140" cy="140" r={radius}
+                        cx="140" cy="140" r={TIMER_CONFIG.RADIUS}
                         fill="none"
-                        stroke="#FFFBEB"
+                        stroke={TIMER_CONFIG.AMBER_LIGHT}
                         strokeWidth="8"
                     />
                     <circle
-                        cx="140" cy="140" r={radius}
+                        cx="140" cy="140" r={TIMER_CONFIG.RADIUS}
                         fill="none"
-                        stroke="#F59E0B" // amber-500
+                        stroke={TIMER_CONFIG.AMBER_MAIN}
                         strokeWidth="12"
                         strokeLinecap="round"
                         strokeDasharray={circumference}
@@ -160,8 +175,11 @@ export default function ActiveService({
                 </svg>
 
                 {/* Inner Content (Timer) */}
-                <div className="w-[200px] h-[200px] rounded-full shadow-[0_10px_30px_rgba(245,158,11,0.2)] bg-amber-50 flex items-center justify-center">
-                    <span className="text-6xl font-black tracking-tighter text-amber-900">{formattedTime}</span>
+                <div 
+                    className="rounded-full shadow-[0_10px_30px_rgba(245,158,11,0.2)] bg-amber-50 flex items-center justify-center"
+                    style={{ width: TIMER_CONFIG.INNER_SIZE, height: TIMER_CONFIG.INNER_SIZE }}
+                >
+                    <span className={`text-6xl font-black tracking-tighter ${TIMER_CONFIG.AMBER_DARK}`}>{formattedTime}</span>
                 </div>
             </div>
 

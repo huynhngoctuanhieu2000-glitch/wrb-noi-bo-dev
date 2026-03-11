@@ -14,6 +14,14 @@ import CustomForYouModal from '@/components/CustomForYou';
 import { ServiceOptions, CartItem } from '@/components/Menu/types';
 import { getDictionary } from '@/lib/dictionaries';
 
+// 🔧 UI CONFIGURATION
+const PAGE_CONFIG = {
+    BOTTOM_PADDING: 'pb-32',
+    ANIMATION_DURATION: 'duration-500',
+    MAX_WIDTH: 'max-w-6xl',
+    BG_COLOR: 'bg-[#f8fafc]',
+};
+
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
     const { cart, updateAllCartItemOptions, updateCartItemOptions } = useMenuData();
@@ -188,14 +196,14 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         : [totalVND, 500000, 1000000];
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] text-black pb-32 font-sans animate-in fade-in duration-500">
+        <div className={`min-h-screen ${PAGE_CONFIG.BG_COLOR} text-black font-sans animate-in fade-in ${PAGE_CONFIG.ANIMATION_DURATION} ${PAGE_CONFIG.BOTTOM_PADDING}`}>
             <CheckoutHeader
                 title={dict.checkout.title}
                 backLabel={dict.common?.back_to_menu}
                 onBack={handleBack}
             />
 
-            <main className="p-4 lg:p-8 max-w-6xl mx-auto min-h-screen">
+            <main className={`p-4 lg:p-8 mx-auto min-h-screen ${PAGE_CONFIG.MAX_WIDTH}`}>
                 <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:gap-8">
 
                     {/* 1. Customer Info (Mobile: Item 1, Desktop: Left Col Row 1) */}
