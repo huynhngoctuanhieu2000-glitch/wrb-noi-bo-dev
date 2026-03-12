@@ -22,7 +22,7 @@ interface MenuContextType {
 
     // --- Cart Logic ---
     cart: CartItem[];
-    addToCart: (service: Service, qty: number, options?: ServiceOptions) => void;
+    addToCart: (service: Service, qty: number, options?: ServiceOptions) => string;
     updateCartItem: (cartId: string, qty: number) => void;
     updateCartItemOptions: (cartId: string, options: ServiceOptions) => void;
     updateAllCartItemOptions: (options: ServiceOptions) => void;
@@ -64,25 +64,17 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
 
     // 1. Thêm món (Tạo cartId mới hoặc cộng dồn nếu option giống hệt - tạm thời cứ tạo mới để dễ custom)
     const addToCart = (service: Service, qty: number, options?: ServiceOptions) => {
+        const cartId = `${service.id}-${Date.now()}-${Math.random()}`;
         setCart(prev => {
-            // Logic: Nếu cùng ID và chưa có options thì cộng dồn? 
-            // Hiện tại để đơn giản cho tính năng Custom: Mỗi lần Add là 1 dòng mới nếu muốn
-            // Nhưng với luồng Menu hiện tại (MainSheet), user chọn số lượng.
-            // Tạm thời: Cộng dồn nếu chưa có CartId (logic cũ) -> Sẽ điều chỉnh khi ráp Custom Modal.
-            // Để tương thích code cũ: Tìm xem có item nào cùng serviceId không.
-
-            // Cách đơn giản nhất để tương thích MainSheet:
-            // MainSheet đang truyền (id, qty).
-            // Ta cần map id -> service object.
-
             const newItem: CartItem = {
                 ...service,
-                cartId: `${service.id}-${Date.now()}-${Math.random()}`,
+                cartId,
                 qty,
                 options: options || {}
             };
             return [...prev, newItem];
         });
+        return cartId;
     };
 
     // Cập nhật số lượng

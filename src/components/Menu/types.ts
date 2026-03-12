@@ -86,7 +86,7 @@ export type CartState = CartItem[]; // Chuyển sang dùng mảng để lưu chi
 
 // 5. QUẢN LÝ TRẠNG THÁI SHEET (Bảng trượt) - MỚI
 // Đây là phần quan trọng để điều khiển MainSheet và ReviewSheet
-export type SheetType = 'MAIN' | 'REVIEW' | 'CART' | null;
+export type SheetType = 'MAIN' | 'REVIEW' | 'CART' | 'CUSTOM' | null;
 
 export interface SheetState {
   isOpen: boolean;

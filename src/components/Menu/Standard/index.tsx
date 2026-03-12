@@ -21,7 +21,9 @@ import Footer from './Footer';
 // Import các Sheet
 import MainSheet from './Sheets/MainSheet';
 import ReviewSheet from './Sheets/ReviewSheet';
-import CartDrawer from './Sheets/CartDrawer'; // Import CartDrawer
+import CartDrawer from './Sheets/CartDrawer';
+import CustomForYouModal from '@/components/CustomForYou';
+import { CustomPreferences } from '@/components/CustomForYou/types';
 
 // 2. Import Logic & Data
 import { CATEGORIES } from '@/components/Menu/constants';
@@ -50,8 +52,10 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
         data: null
     });
 
+    const [lastAddedCartIds, setLastAddedCartIds] = useState<string[]>([]);
+
     // --- 1. LẤY DATA TỪ CONTEXT ---
-    const { services: allServices, loading: contextLoading, cart, addToCart: contextAddToCart, updateCartItem, removeFromCart } = useMenuData();
+    const { services: allServices, loading: contextLoading, cart, addToCart: contextAddToCart, updateCartItem, updateCartItemOptions, removeFromCart } = useMenuData();
 
     useEffect(() => {
         if (!contextLoading && allServices.length > 0) {
@@ -98,8 +102,6 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
         updateCartItem(cartId, qty);
     };
 
-    // Hàm Add đặc biệt cho MainSheet
-    // Logic mới: XÓA CŨ -> THÊM MỚI TÁCH LẺ (Để mỗi item là 1 dòng riêng biệt cho phép Custom)
     const handleAddToCart = (id: string, qty: number, options?: any) => {
         const service = services.find(s => s.id === id);
         if (service) {
@@ -112,11 +114,29 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
             });
 
             // 3. Thêm mới: Chạy vòng lặp để thêm từng item lẻ (qty = 1)
-            // Ví dụ: Chọn 3 -> Thêm 3 lần (Mỗi lần 1 item contextAddToCart sẽ tạo cartId mới)
+            const newAddedIds: string[] = [];
             for (let i = 0; i < qty; i++) {
-                contextAddToCart(service, 1, options);
+                const newId = contextAddToCart(service, 1, options);
+                newAddedIds.push(newId);
             }
+
+            // 4. CHUYỂN SANG BƯỚC CUSTOM
+            setLastAddedCartIds(newAddedIds);
+            setSheet({ isOpen: true, type: 'CUSTOM', data: service });
         }
+    };
+
+    // Hàm lưu custom cho các item vừa thêm
+    const handleSaveCustom = (prefs: CustomPreferences) => {
+        // Áp dụng cho danh sách các item mới
+        lastAddedCartIds.forEach(cartId => {
+            updateCartItemOptions(cartId, {
+                strength: prefs.strength,
+                therapist: prefs.therapist,
+                bodyParts: prefs.bodyParts,
+                notes: prefs.notes
+            });
+        });
         closeSheet();
     };
 
@@ -205,6 +225,26 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
                     onClose={closeSheet}
                     onUpdateCart={handleUpdateCart}
                     onCheckout={onCheckout}
+                />
+            )}
+
+            {/* 4. Custom For You Modal (Mới tích hợp vào quy trình) */}
+            {sheet.isOpen && sheet.type === 'CUSTOM' && !Array.isArray(sheet.data) && sheet.data && (
+                <CustomForYouModal
+                    isOpen={sheet.isOpen}
+                    onClose={closeSheet}
+                    onSave={handleSaveCustom}
+                    serviceData={{
+                        ID: sheet.data.id,
+                        NAMES: sheet.data.names as Record<string, string>,
+                        FOCUS_POSITION: sheet.data.FOCUS_POSITION as any,
+                        TAGS: sheet.data.TAGS as any,
+                        SHOW_STRENGTH: sheet.data.SHOW_STRENGTH,
+                        HINT: sheet.data.HINT as Record<string, string>,
+                        PRICE_VN: sheet.data.priceVND,
+                        PRICE_USD: sheet.data.priceUSD
+                    }}
+                    lang={lang as any}
                 />
             )}
 

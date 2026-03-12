@@ -129,9 +129,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
     const handleConfirm = () => {
         if (selectedService) {
             onAddToCart(selectedService.id, qty);
-            // Sau khi add xong, nếu muốn đóng luôn thì gọi handleClose()
-            // Nếu muốn quay lại list thì setViewMode('LIST') (tùy nhu cầu, ở đây mình đóng luôn cho gọn)
-            handleClose();
+            // logic đóng sheet sẽ được StandardMenu quản lý (chuyển sang CUSTOM hoặc đóng)
         }
     };
 

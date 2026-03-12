@@ -21,7 +21,6 @@ export default function Feedback({
 }: FeedbackProps) {
     const [rating, setRating] = useState<number | null>(null);
     const [showTip, setShowTip] = useState(false);
-    const [isViolationsOpen, setIsViolationsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
@@ -147,37 +146,17 @@ export default function Feedback({
             </div>
 
             {/* Violations Checklist */}
-            <div className={`w-full mb-10 transition-all duration-300 ${isViolationsOpen ? 'bg-gray-50/50 rounded-[32px] p-2 -mx-2' : ''}`}>
-                <div 
-                    onClick={() => setIsViolationsOpen(!isViolationsOpen)}
-                    className="flex items-center justify-between mb-2 p-4 bg-white rounded-3xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 cursor-pointer hover:bg-gray-50 active:scale-[0.98] transition-all"
-                >
+            <div className="w-full mb-10">
+                <div className="flex items-center justify-between mb-4 px-2">
                     <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${selectedViolations.length > 0 ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
-                        <div>
-                            <h3 className="text-gray-800 font-bold text-sm">Các lỗi dịch vụ (nếu có)</h3>
-                            {selectedViolations.length > 0 && (
-                                <p className="text-[10px] text-amber-600 font-bold tracking-wide uppercase">Đã chọn {selectedViolations.length} lỗi</p>
-                            )}
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                        {selectedViolations.length === 0 && (
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-100">Bỏ qua</span>
-                        )}
-                        <svg 
-                            className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isViolationsOpen ? 'rotate-180' : ''}`} 
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
+                        <h3 className="text-gray-800 font-bold text-base">Các lỗi dịch vụ (nếu có)</h3>
                     </div>
                 </div>
 
-                <div className={`space-y-3 overflow-hidden transition-all duration-300 ease-in-out ${isViolationsOpen ? 'max-h-[1000px] opacity-100 mt-4 px-2 pb-4' : 'max-h-0 opacity-0 mt-0 pointer-events-none'}`}>
+                <div className="space-y-3 px-1">
                     {violations.map((v, idx) => (
                         <div key={idx}
                             onClick={() => toggleViolation(idx)}
