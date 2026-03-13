@@ -1,24 +1,11 @@
-/*
- * File: Standard/Sheets/CartDrawer.tsx
- * Chức năng: Giỏ hàng tổng (Selected Services).
- * Logic chi tiết:
- * - Liệt kê toàn bộ các món đang có trong Cart.
- * - Tính tổng tiền (VND & USD) realtime.
- * - Nút +/- điều chỉnh số lượng trực tiếp mà KHÔNG đóng Drawer (giữ trải nghiệm liền mạch).
- * - Hỗ trợ hiển thị đa ngôn ngữ cho các nhãn (Title, Total, Button...).
- * Tác giả: TunHisu
- * Ngày cập nhật: 2026-01-31
- */
-'use client';
-
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Minus, Plus } from 'lucide-react';
+import { X, Minus, Plus, Hand, User, Heart, Ban, Tag, MessageSquare } from 'lucide-react';
 import { useMenuData } from '@/components/Menu/MenuContext';
-import { Service, CartState, CartItem } from '@/components/Menu/types';
+import { Service, CartState, CartItem, ServiceOptions } from '@/components/Menu/types';
 import { formatCurrency as formatMoney, formatCurrency } from '@/components/Menu/utils'; // Alias formatMoney to formatCurrency
 import CustomForYouModal from '@/components/CustomForYou';
 import { ServiceData, CustomPreferences, LanguageCode } from '@/components/CustomForYou/types';
-import { ServiceOptions } from '@/components/Menu/types';
+import { getDictionary } from '@/lib/dictionaries';
 
 interface CartDrawerProps {
     cart: CartState;
@@ -43,13 +30,105 @@ const CONFIG = {
 // Translate Text
 const TEXT = {
     title: { vn: 'Dịch vụ đã chọn', en: 'Services Selected', cn: '已选服务', jp: '選択されたサービス', kr: '선택된 서비스' },
-    mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
+    mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '分' },
     total: { vn: 'TỔNG CỘNG', en: 'TOTAL', cn: '总计', jp: '合計', kr: '합계' },
     close: { vn: 'ĐÓNG', en: 'CLOSE', cn: '关闭', jp: '閉じる', kr: '닫기' },
     continue: { vn: 'TIẾP TỤC', en: 'CONTINUE', cn: '继续', jp: '継続する', kr: '계속' },
     empty: { vn: 'Giỏ hàng trống', en: 'Your cart is empty', cn: '购物车为空', jp: 'カートは空です', kr: '장바구니가 비어 있습니다' },
-    alert_empty: { vn: 'Vui lòng chọn ít nhất 1 dịch vụ!', en: 'Please select at least 1 service!', cn: '请至少选择一项服务！', jp: '少なくとも1つのサービスを選択してください！', kr: '최소 1개의 서비스를 chuyên vụ!' },
-    custom_for_you_btn: { vn: 'TÙY CHỈNH CHO BẠN', en: 'CUSTOM FOR YOU', cn: '为你定制', jp: 'あなたのためのカスタム', kr: '당신을 위한 맞춤' }
+    alert_empty: { vn: 'Vui lòng chọn ít nhất 1 dịch vụ!', en: 'Please select at least 1 service!', cn: '请 ít nhất 1 dịch vụ!', jp: '少なくとも1つのサービスを選択してください！', kr: '최소 1개의 서비스를 chuyên vụ!' },
+};
+
+/**
+ * [NEW] CustomizationSummary Component
+ * Displays the details of "Custom For You" options.
+ */
+const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOptions; lang: string; onClick?: () => void }) => {
+    if (!options) return null;
+    const dict = getDictionary(lang);
+
+    const hasAnyOption = options.strength || options.therapist || 
+                         (options.bodyParts?.focus && options.bodyParts.focus.length > 0) || 
+                         (options.bodyParts?.avoid && options.bodyParts.avoid.length > 0) ||
+                         options.notes?.tag0 || options.notes?.tag1 || options.notes?.content;
+
+    if (!hasAnyOption) return null;
+
+    const translatePart = (key: string) => {
+        return dict.body_parts[key] || key;
+    };
+
+    return (
+        <div 
+            onClick={onClick}
+            className="mt-1 p-3 bg-black/30 rounded-xl border border-white/5 space-y-2.5 cursor-pointer hover:bg-black/40 active:scale-[0.99] transition-all"
+        >
+            {/* Strength & Therapist Row */}
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-[12px]">
+                {options.strength && (
+                    <div className="flex items-center gap-1.5 min-w-fit">
+                        <Hand size={13} className="text-gray-400" />
+                        <span className="text-gray-400">{dict.checkout?.strength}:</span>
+                        <span className="font-bold text-red-500">{dict.options?.strength_levels?.[options.strength] || options.strength}</span>
+                    </div>
+                )}
+                {options.therapist && (
+                    <div className="flex items-center gap-1.5 min-w-fit">
+                        <User size={13} className="text-gray-400" />
+                        <span className="text-gray-400">{dict.checkout?.therapist}:</span>
+                        <span className="font-bold text-purple-400">{dict.options?.therapist_options?.[options.therapist] || options.therapist}</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Focus / Avoid */}
+            {((options.bodyParts?.focus || []).length > 0 || (options.bodyParts?.avoid || []).length > 0) && (
+                <div className="space-y-1.5">
+                    {options.bodyParts?.focus && options.bodyParts.focus.length > 0 && (
+                        <div className="flex gap-2 text-[12px]">
+                            <Heart size={13} className="text-green-500 shrink-0 mt-0.5" />
+                            <div className="flex flex-wrap gap-1">
+                                <span className="text-green-500 font-bold">{dict.checkout?.focus}:</span>
+                                <span className="text-gray-300">{options.bodyParts.focus.map(translatePart).join(', ')}</span>
+                            </div>
+                        </div>
+                    )}
+                    {options.bodyParts?.avoid && options.bodyParts.avoid.length > 0 && (
+                        <div className="flex gap-2 text-[12px]">
+                            <Ban size={13} className="text-red-500 shrink-0 mt-0.5" />
+                            <div className="flex flex-wrap gap-1">
+                                <span className="text-red-500 font-bold">{dict.checkout?.avoid}:</span>
+                                <span className="text-gray-300">{options.bodyParts.avoid.map(translatePart).join(', ')}</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Tags & Content */}
+            {(options.notes?.tag0 || options.notes?.tag1 || options.notes?.content) && (
+                <div className="space-y-2 pt-1 border-t border-white/5">
+                    <div className="flex flex-wrap gap-2">
+                        {options.notes?.tag0 && (
+                            <span className="bg-yellow-500/20 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-yellow-500/30">
+                                {dict.tags?.pregnant}
+                            </span>
+                        )}
+                        {options.notes?.tag1 && (
+                            <span className="bg-yellow-500/20 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-yellow-500/30">
+                                {dict.tags?.allergy}
+                            </span>
+                        )}
+                    </div>
+                    {options.notes?.content && (
+                        <div className="flex gap-2 text-[11px] italic text-gray-400">
+                            <MessageSquare size={11} className="shrink-0 mt-1" />
+                            <span>{options.notes.content}</span>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUpdateCart, onCheckout }: CartDrawerProps) {
@@ -78,101 +157,26 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
         setTimeout(onClose, 300);
     };
 
-    // Group items logic
+    /**
+     * Group items logic:
+     * Now group by ID AND Options to ensure unique customizations are shown separately.
+     */
     const groupedCart = useMemo(() => {
-        const groups: { [key: string]: CartItem & { totalQty: number } } = {};
+        const groups: { [key: string]: CartItem & { totalQty: number; displayKey: string } } = {};
 
         cart.forEach(item => {
-            if (!groups[item.id]) {
-                groups[item.id] = { ...item, totalQty: 0 };
+            // Create a unique key based on ID and serialized options
+            const optionsKey = JSON.stringify(item.options || {});
+            const displayKey = `${item.id}-${optionsKey}`;
+
+            if (!groups[displayKey]) {
+                groups[displayKey] = { ...item, totalQty: 0, displayKey };
             }
-            groups[item.id].totalQty += item.qty;
+            groups[displayKey].totalQty += item.qty;
         });
 
         return Object.values(groups);
     }, [cart]);
-
-    const handleIncrease = (item: CartItem) => {
-        // Add a new item with same details to context
-        // We use onUpdateCart to add quantity? No, context addToCart is better but props only give onUpdateCart.
-        // Looking at MenuContext: addToCart adds new item. updateCartItem updates specific cartId.
-        // Since we want to support splitting later, adding a new item (row) is better than increasing qty of existing row if the existing row logic is 1 row = 1 person.
-        // However, the current Context addToCart implementation ADDS a new row.
-        // But here we are passed `onUpdateCart`. Let's check parent usage.
-        // If parent is StandardMenu, it passes `updateCartItem`.
-
-        // Wait, if we use `updateCartItem(cartId, qty + 1)`, it updates that specific row.
-        // If we want to "add another one", we essentially need `addToCart`.
-        // But `CartDrawer` props only have `onUpdateCart`.
-
-        // Let's look at how `MenuContext` handles `addToCart`.
-        // It creates a new unique `cartId`.
-
-        // In this Drawer, if I press (+), logically I want another instance of this service.
-        // Since `onUpdateCart` takes a `cartId`, I can only update an existing row.
-        // If I update an existing row's qty to 2, it is still 1 row.
-        // When checking out, does it split?
-        // Checkout page: `cart.map...` -> If one row has qty 2, it shows as one row.
-        // The user requirement is: "Group in Cart, Split in Checkout".
-        // This means in Context state, we should have multiple rows (Qty 1 each) or One row (Qty N).
-
-        // OPTION 1: Context keeps distinct rows. CartDrawer groups them visually.
-        // Click (+): We need to call `addToCart` to add a new distinct row.
-        // Click (-): We find *any* row with that ServiceID and remove it (or decrease qty).
-
-        // Currently `CartDrawer` does NOT receive `addToCart`.
-        // I should probably use `useMenuData` inside `CartDrawer` (since it is 'use client') or pass it down.
-        // `CartDrawer` *is* used in `Standard/Sheets/index.js` (or similar).
-        // Let's check imports. `CartDrawer` imports `Service`, `CartState`.
-
-        // Let's modify `CartDrawer` to use `useMenuData` directly for actions? 
-        // Or simple: Just display grouped.
-        // If I update `cart[0].qty` to 2. Visual shows 2.
-        // Checkout shows 1 row with Qty 2. 
-        // User says: "Checkout mới tách lẻ". 
-        // So Checkout Page needs to handle the splitting? 
-        // "khi chuyển qua trang check out mới tách lẻ để custom theo ý khách nhé"
-        // THIS IMPLIES: Checkout page logic should split items.
-
-        // So, for now in CartDrawer, I just need to group VISUALLY.
-        // If I increment Qty, I can just increment the Qty of the/one item?
-        // NO, if I increment, I want to allow splitting later.
-
-        // Best approach:
-        // Use `useMenuData` hook inside CartDrawer to get `addToCart` and `removeFromCart`.
-        // Ignore the passed `onUpdateCart` for `+` action if we want new rows.
-        // Wait, `MenuContext` `addToCart` implementation:
-        // `const newItem = { ...service, cartId: unique, qty: qty ... }` -> Adds new row.
-
-        // Let's use `useMenuData` inside `CartDrawer` to interact with context.
-        // Remove `cart` prop? No, keep props for now, just add hook.
-    };
-
-    // Refactor: Use hook to get actions
-    // But wait, `CartDrawer` takes specific props from parent.
-    // Let's stick to using the `cart` prop for data.
-    // For actions: `addToCart` is needed.
-    // I can import `useMenuData` here? Yes, it is exported.
-
-    // Changing standard component pattern...
-    // Let's try to match existing pattern.
-    // Existing `onUpdateCart` is `(id: string, quantity: number) => void`.
-    // It updates a specific `cartId`.
-
-    // If I group items { id: 'NHS1', items: [row1, row2], totalQty: 2 }
-    // (+) Click: I want to add another 'NHS1'.
-    // Use `addToCart(service, 1)`.
-    // (-) Click: I want to remove 'row1' (or decrease its qty).
-
-    // So I need access to `addToCart`.
-    // I will add `const { addToCart, removeFromCart } = useMenuData();`
-
-    // Visual changes:
-    // - Loop `groupedCart`
-    // - Red USD
-    // - Remove 'Customized'
-
-    // Done: Added updateCartItemOptions to hook above.
 
     const handleOpenCustomModal = (item: CartItem) => {
         setEditingItem(item);
@@ -184,8 +188,8 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
         // Map CustomPreferences back to ServiceOptions
         const options: ServiceOptions = {
-            strength: prefs.strength,
-            therapist: prefs.therapist,
+            strength: prefs.strength as any,
+            therapist: prefs.therapist as any,
             bodyParts: prefs.bodyParts,
             notes: prefs.notes
         };
@@ -198,7 +202,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
     const mapCartItemToServiceData = (item: CartItem): ServiceData => {
         return {
             ID: item.id,
-            NAMES: item.names as any, // Cast to Record<string, string>
+            NAMES: item.names as any,
             FOCUS_POSITION: item.FOCUS_POSITION as any,
             TAGS: item.TAGS as any,
             SHOW_STRENGTH: item.SHOW_STRENGTH,
@@ -208,15 +212,19 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
         };
     };
 
-    const handlePlus = (item: Service) => {
-        addToCart(item, 1);
+    const handlePlus = (item: CartItem) => {
+        // [MODIFIED] Preserve options when adding quantity
+        addToCart(item as any, 1, item.options);
     };
 
-    const handleMinus = (itemId: string) => {
-        // Find the last instance of this item in the cart to remove
-        // We want to remove one instance (LIFO or FIFO doesn't matter much here, maybe LIFO to keep recent customizations?)
-        // Let's find one instance with this Service ID.
-        const instance = cart.find(c => c.id === itemId);
+    const handleMinus = (displayKey: string) => {
+        // Find the last instance in the cart that matches this group's displayKey
+        // In grouped view, the "displayKey" identifies items with same ID and Options.
+        const instance = cart.find(c => {
+            const optionsKey = JSON.stringify(c.options || {});
+            return `${c.id}-${optionsKey}` === displayKey;
+        });
+
         if (instance) {
             removeFromCart(instance.cartId);
         }
@@ -274,56 +282,57 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                         </div>
                     ) : (
                         groupedCart.map((item) => (
-                            <div key={item.id} className="flex gap-4 bg-gray-900/50 p-3 rounded-xl border border-white/10">
-                                {/* Ảnh */}
-                                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                                    <img src={item.img} alt={item.names[lang]} className="w-full h-full object-cover" />
-                                </div>
-
-                                {/* Info */}
-                                <div className="flex-1">
-                                    <h4 className="font-bold text-yellow-500 leading-tight">{item.names[lang]}</h4>
-
-                                    {(item.timeValue > 0 || item.timeDisplay) && (
-                                        <div className="text-xs text-gray-400 mb-2 flex items-center justify-between">
-                                            <span>{item.timeDisplay || `${item.timeValue} mins`}</span>
-                                        </div>
-                                    )}
-
-                                    {/* [LOGIC NEW] Custom For You Button */}
-                                    <div className="mb-3">
-                                        <button 
-                                            onClick={() => handleOpenCustomModal(item)}
-                                            className="text-[10px] font-bold text-yellow-500/80 border border-yellow-500/30 px-2 py-1 rounded-md hover:bg-yellow-500/10 transition-colors uppercase tracking-wider"
-                                        >
-                                            {t('custom_for_you_btn')}
-                                        </button>
+                            <div key={item.displayKey} className="flex flex-col gap-3 bg-gray-900/50 p-4 rounded-2xl border border-white/10 shadow-lg relative">
+                                <div className="flex gap-4">
+                                    {/* Ảnh */}
+                                    <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-white/5">
+                                        <img src={item.img} alt={item.names[lang]} className="w-full h-full object-cover" />
                                     </div>
 
-
-                                    {/* Controls */}
-                                    <div className="flex items-center justify-between">
-                                        <div className="font-bold text-white">
-                                            {formatMoney(item.priceVND * item.totalQty)}
+                                    {/* Info Middle */}
+                                    <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
+                                        {/* Row 1: Name and Price */}
+                                        <div className="flex justify-between items-start">
+                                            <h4 className="font-bold text-yellow-500 leading-tight truncate text-[16px]">{item.names[lang]}</h4>
+                                            <div className="font-bold text-white text-[15px] shrink-0 ml-2">
+                                                {formatMoney(item.priceVND * item.totalQty)} VND
+                                            </div>
                                         </div>
 
-                                        <div className="flex items-center gap-3 bg-gray-800 rounded-lg px-2 py-1">
-                                            <button
-                                                onClick={() => handleMinus(item.id)}
-                                                className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white"
-                                            >
-                                                -
-                                            </button>
-                                            <span className="font-bold text-white w-4 text-center">{item.totalQty}</span>
-                                            <button
-                                                onClick={() => handlePlus(item)}
-                                                className="w-6 h-6 flex items-center justify-center text-yellow-500 hover:text-yellow-400"
-                                            >
-                                                +
-                                            </button>
+                                        {/* Row 2: Time and Quantity */}
+                                        <div className="flex justify-between items-center mt-1">
+                                            {(item.timeValue > 0 || item.timeDisplay) && (
+                                                <div className="text-xs text-gray-400">
+                                                    <span>{item.timeDisplay || `${item.timeValue} mins`}</span>
+                                                </div>
+                                            )}
+                                            
+                                            {/* Quantity Controls (Condensed Pill Shape) */}
+                                            <div className="flex items-center gap-2 bg-gray-800 rounded-full px-2 py-0.5 border border-white/5">
+                                                <button
+                                                    onClick={() => handleMinus(item.displayKey)}
+                                                    className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+                                                >
+                                                    <Minus size={12} />
+                                                </button>
+                                                <span className="font-bold text-white w-4 text-center text-[13px]">{item.totalQty}</span>
+                                                <button
+                                                    onClick={() => handlePlus(item)}
+                                                    className="w-7 h-7 flex items-center justify-center text-yellow-500 hover:text-yellow-400 transition-colors"
+                                                >
+                                                    <Plus size={12} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* [LOGIC NEW] Customization Summary (Clickable to Edit) */}
+                                <CustomizationSummary 
+                                    options={item.options} 
+                                    lang={lang} 
+                                    onClick={() => handleOpenCustomModal(item)}
+                                />
                             </div>
                         ))
                     )}
@@ -334,25 +343,25 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
                     {/* Total Row */}
                     <div className="flex justify-between items-end mb-6">
-                        <span className="text-gray-400 font-bold tracking-widest text-sm mb-1">{t('total')}</span>
+                        <span className="text-gray-400 font-bold tracking-widest text-sm mb-1 uppercase">{t('total')}</span>
                         <div className="text-right">
                             <div className="text-xl font-bold text-yellow-500">
-                                {formatCurrency(totalVND)} VND <span className="text-sm font-normal text-gray-400">/</span> <span className="text-red-500">{totalUSD} USD</span>
+                                {formatCurrency(totalVND)} VND <span className="text-sm font-normal text-gray-400">/</span> <span className="text-red-500 font-bold">{totalUSD} USD</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3">
+                    <div className="flex gap-4">
                         <button
                             onClick={handleClose}
-                            className="flex-1 py-4 rounded-xl border border-gray-600 text-gray-300 font-bold uppercase hover:bg-gray-800 transition-colors"
+                            className="flex-1 py-4 rounded-2xl border border-gray-700 text-gray-400 font-bold uppercase hover:bg-gray-800 hover:text-white transition-all active:scale-95"
                         >
                             {t('close')}
                         </button>
                         <button
                             onClick={handleContinue}
-                            className="flex-[2] py-4 rounded-xl bg-yellow-600 text-black font-bold uppercase shadow-lg shadow-yellow-600/20 hover:bg-yellow-500 transition-colors"
+                            className="flex-[1.5] py-4 rounded-2xl bg-yellow-600 text-black font-bold uppercase shadow-lg shadow-yellow-600/20 hover:bg-yellow-500 transition-all active:scale-95"
                         >
                             {t('continue')}
                         </button>
