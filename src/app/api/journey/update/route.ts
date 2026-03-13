@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 export async function PATCH(request: Request) {
     try {
         const body = await request.json();
-        const { bookingId, status, violations, rating, tipAmount } = body;
+        const { bookingId, status, violations, rating, tipAmount, feedbackNote } = body;
 
         if (!bookingId) {
             return NextResponse.json({ error: 'Missing bookingId' }, { status: 400 });
@@ -18,6 +18,7 @@ export async function PATCH(request: Request) {
         if (violations !== undefined) updatePayload.violations = violations;
         if (rating !== undefined) updatePayload.rating = rating;
         if (tipAmount !== undefined) updatePayload.tipAmount = tipAmount;
+        if (feedbackNote !== undefined) updatePayload.feedbackNote = feedbackNote;
 
         // Perform the update using the Service Role admin client (bypasses RLS if needed, or enforces secure server-side logic)
         const supabaseAdmin = getSupabaseAdmin();

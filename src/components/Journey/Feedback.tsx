@@ -5,7 +5,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 import TipModal from '@/components/Journey/TipModal';
 
 interface FeedbackProps {
-    onComplete: (result: { rating: number, violations: number[], tipAmount: number }) => void;
+    onComplete: (result: { rating: number, violations: number[], tipAmount: number, feedbackNote?: string }) => void;
     staffName?: string;
     staffAvatar?: string;
     serviceName?: string;
@@ -84,7 +84,7 @@ export default function Feedback({
         });
     };
 
-    const clearStorageAndComplete = async (data: { rating: number, violations: number[], tipAmount: number }) => {
+    const clearStorageAndComplete = async (data: { rating: number, violations: number[], tipAmount: number, feedbackNote?: string }) => {
         setIsLoading(true);
         try {
             // 1. Actually wait for the API call in parent to complete

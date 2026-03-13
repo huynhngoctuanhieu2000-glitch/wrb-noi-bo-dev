@@ -14,7 +14,11 @@ export const translations: Record<string, any> = {
         goHome: 'Về trang chủ',
         redirecting: 'Đang chuyển hướng...',
         autoRedirect: 'Tự động chuyển sau vài giây',
-        spa_service_fallback: 'Dịch vụ Spa'
+        spa_service_fallback: 'Dịch vụ Spa',
+        sos: 'KHẨN CẤP',
+        sosConfirm: 'Bạn cần hỗ trợ gấp tại phòng?',
+        sosSending: 'Đang báo quầy...',
+        sosSent: 'Đã báo lễ tân!'
     },
     en: {
         preparing: 'Preparing',
@@ -29,7 +33,11 @@ export const translations: Record<string, any> = {
         goHome: 'Go Home',
         redirecting: 'Redirecting...',
         autoRedirect: 'Redirecting automatically in a few seconds',
-        spa_service_fallback: 'Spa Service'
+        spa_service_fallback: 'Spa Service',
+        sos: 'EMERGENCY',
+        sosConfirm: 'Do you need urgent assistance in the room?',
+        sosSending: 'Notifying...',
+        sosSent: 'Reception Notified!'
     },
 
 
@@ -46,7 +54,11 @@ export const translations: Record<string, any> = {
         goHome: '홈으로 이동',
         redirecting: '리다이렉트 중...',
         autoRedirect: '잠시 후 자동으로 이동합니다',
-        spa_service_fallback: '스파 서비스'
+        spa_service_fallback: '스파 서비스',
+        sos: '비상',
+        sosConfirm: '객실 내 긴급 지원이 필요하십니까?',
+        sosSending: '알리는 중...',
+        sosSent: '리셉션 알림 완료!'
     },
     jp: {
         preparing: '準備中',
@@ -61,7 +73,11 @@ export const translations: Record<string, any> = {
         goHome: 'ホームへ戻る',
         redirecting: 'リダイレクト中...',
         autoRedirect: '数秒後に自動的に移動します',
-        spa_service_fallback: 'スパサービス'
+        spa_service_fallback: 'スパサービス',
+        sos: '緊急',
+        sosConfirm: 'お部屋での緊急なサポートが必要ですか？',
+        sosSending: '通知中...',
+        sosSent: '受付に通知しました！'
     },
     cn: {
         preparing: '准备中',
@@ -76,7 +92,11 @@ export const translations: Record<string, any> = {
         goHome: '返回首页',
         redirecting: '正在跳转...',
         autoRedirect: '几秒后自动跳转',
-        spa_service_fallback: '水疗服务'
+        spa_service_fallback: '水疗服务',
+        sos: '紧急',
+        sosConfirm: '您在房间内需要紧急协助吗？',
+        sosSending: '正在通知...',
+        sosSent: '已通知前台！'
     }
 
 };
