@@ -117,17 +117,21 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 body: JSON.stringify({ 
                     bookingId, 
                     customerName: journeyData?.id || 'Khách hàng',
-                    message: `Khách hàng (Booking: ${bookingId}) nhấn nút KHẨN CẤP tại phòng.`
+                    message: `🚨 KHẨN CẤP: Khách hàng tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} nhấn nút báo động.`
                 })
             });
 
-            if (!res.ok) throw new Error('Failed to send SOS');
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.error('🚨 SOS API Error details:', errorData);
+                throw new Error(errorData.error || 'Failed to send SOS');
+            }
 
             setSosSent(true);
             setTimeout(() => setSosSent(false), 5000); // Ẩn trạng thái thành công sau 5s
-        } catch (err) {
+        } catch (err: any) {
             console.error('SOS Error:', err);
-            alert('Lỗi khi gửi yêu cầu khẩn cấp. Vui lòng thử lại hoặc gọi trực tiếp nhân viên.');
+            alert(t.sosConfirm === translations[lang]?.sosConfirm ? 'Gửi yêu cầu thất bại. Vui lòng thử lại hoặc gọi nhân viên.' : 'Failed to send request. Please try again or call staff.');
         } finally {
             setIsSosLoading(false);
         }
@@ -215,11 +219,14 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         lang={lang} 
                         staffName={journeyData?.staffName}
                         staffAvatar={journeyData?.staffAvatar}
+                        onSOS={handleSOS}
+                        isSosLoading={isSosLoading}
+                        sosSent={sosSent}
                     />
                 )}
 
 
-                {state === 'COMPLETED' && <CheckBelongings onConfirm={() => advanceNextState('FEEDBACK')} />}
+                {state === 'COMPLETED' && <CheckBelongings onConfirm={() => advanceNextState('FEEDBACK')} lang={lang} />}
 
                 {state === 'FEEDBACK' && (
                     <Feedback 
@@ -242,37 +249,6 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                     </div>
                 )}
             </main>
-
-            {/* SOS / Emergency Floating Button */}
-            {state !== 'DONE' && (
-                <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-                    {sosSent && (
-                        <div className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg animate-in slide-in-from-right-full">
-                            {t.sosSent}
-                        </div>
-                    )}
-                    <button
-                        onClick={handleSOS}
-                        disabled={isSosLoading || sosSent}
-                        className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-90 ${isSosLoading ? 'bg-gray-400 rotate-12' : sosSent ? 'bg-green-500' : 'bg-red-600 hover:bg-red-700 animate-pulse'
-                            }`}
-                    >
-                        {isSosLoading ? (
-                            <svg className="animate-spin w-8 h-8 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                            </svg>
-                        ) : sosSent ? (
-                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                        ) : (
-                            <div className="flex flex-col items-center">
-                                <svg className="w-6 h-6 text-white mb-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
-                                <span className="text-[10px] text-white font-black leading-none">{t.sos}</span>
-                            </div>
-                        )}
-                    </button>
-                </div>
-            )}
         </div>
     );
 }

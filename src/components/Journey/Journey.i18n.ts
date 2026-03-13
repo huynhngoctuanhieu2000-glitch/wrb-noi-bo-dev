@@ -18,7 +18,12 @@ export const translations: Record<string, any> = {
         sos: 'KHẨN CẤP',
         sosConfirm: 'Bạn cần hỗ trợ gấp tại phòng?',
         sosSending: 'Đang báo quầy...',
-        sosSent: 'Đã báo lễ tân!'
+        sosSent: 'Đã báo lễ tân!',
+        check_phone: 'Điện thoại',
+        check_wallet: 'Ví tiền',
+        check_belongings: 'Tư trang',
+        check_message: 'Xin quý khách trước khi rời phòng vui lòng kiểm tra kỹ tư trang (điện thoại, ví, trang sức...) để đảm bảo không bỏ quên món đồ nào nhé!',
+        check_confirm: 'Tôi đã kiểm tra xong'
     },
     en: {
         preparing: 'Preparing',
@@ -37,7 +42,12 @@ export const translations: Record<string, any> = {
         sos: 'EMERGENCY',
         sosConfirm: 'Do you need urgent assistance in the room?',
         sosSending: 'Notifying...',
-        sosSent: 'Reception Notified!'
+        sosSent: 'Reception Notified!',
+        check_phone: 'Phone',
+        check_wallet: 'Wallet',
+        check_belongings: 'Personal Belongings',
+        check_message: 'Please double-check your personal belongings (phone, wallet, jewelry...) before leaving the room to ensure nothing is left behind.',
+        check_confirm: 'I have checked everything'
     },
 
 
@@ -58,7 +68,12 @@ export const translations: Record<string, any> = {
         sos: '비상',
         sosConfirm: '객실 내 긴급 지원이 필요하십니까?',
         sosSending: '알리는 중...',
-        sosSent: '리셉션 알림 완료!'
+        sosSent: '리셉션 알림 완료!',
+        check_phone: '휴대폰',
+        check_wallet: '지갑',
+        check_belongings: '소지품',
+        check_message: '객실을 떠나기 전에 소지품(휴대폰, 지갑, 귀중품 등)을 다시 한 lần 확인하여 두고 가는 물건이 없는지 확인해 주세요.',
+        check_confirm: '확인을 완료했습니다'
     },
     jp: {
         preparing: '準備中',
@@ -77,7 +92,12 @@ export const translations: Record<string, any> = {
         sos: '緊急',
         sosConfirm: 'お部屋での緊急なサポートが必要ですか？',
         sosSending: '通知中...',
-        sosSent: '受付に通知しました！'
+        sosSent: '受付に通知しました！',
+        check_phone: '電話',
+        check_wallet: '財布',
+        check_belongings: '手荷物',
+        check_message: 'お忘れ物がないよう、退室前に身の回りの品（携帯電話、財布、アクセサリーなど）を今一度ご確認ください。',
+        check_confirm: '確認しました'
     },
     cn: {
         preparing: '准备中',
@@ -96,7 +116,12 @@ export const translations: Record<string, any> = {
         sos: '紧急',
         sosConfirm: '您在房间内需要紧急协助吗？',
         sosSending: '正在通知...',
-        sosSent: '已通知前台！'
+        sosSent: '已通知前台！',
+        check_phone: '手机',
+        check_wallet: '钱包',
+        check_belongings: '个人物品',
+        check_message: '在离开房间前，请仔细检查您的个人物品（手机、钱包、首饰等），确保没有遗漏任何东西。',
+        check_confirm: '我已检查完毕'
     }
 
 };

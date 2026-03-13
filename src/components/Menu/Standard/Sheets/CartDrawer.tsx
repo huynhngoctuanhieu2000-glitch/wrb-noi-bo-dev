@@ -54,7 +54,8 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
     if (!hasAnyOption) return null;
 
     const translatePart = (key: string) => {
-        return dict.body_parts[key] || key;
+        const bodyPartsDict = dict.body_parts as Record<string, string>;
+        return bodyPartsDict[key] || key;
     };
 
     return (

@@ -16,6 +16,8 @@ export interface JourneyData {
     createdAt?: string;
     totalDuration: number; // Phút
     items: any[];
+    roomName?: string;
+    bedId?: string;
 }
 
 
@@ -110,10 +112,11 @@ export function useJourneyRealtime(bookingId: string) {
                     rating: booking.rating || null,
                     violations: booking.violations || null,
                     tipAmount: booking.tipAmount || null,
-                    staffName,
                     staffAvatar,
                     totalDuration: totalDuration || 60,
-                    items: processedItems
+                    items: processedItems,
+                    roomName: booking.roomName || null,
+                    bedId: booking.bedId || null
                 });
             } else {
 

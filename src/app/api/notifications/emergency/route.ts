@@ -15,30 +15,43 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
         }
 
-        // Tạo thông báo cho nhân viên
+        /**
+         * UPDATED SCHEMA (Based on debug discovery):
+         * - id: UUID (PK)
+         * - bookingId: TEXT
+         * - type: TEXT (e.g. 'EMERGENCY')
+         * - message: TEXT
+         * - isRead: BOOLEAN
+         * - createdAt: TIMESTAMPTZ
+         * - employeeId: TEXT (optional)
+         * NOTE: 'title' column does not exist.
+         */
         const { data, error } = await supabaseAdmin
             .from('StaffNotifications')
             .insert({
                 bookingId,
-                title: type === 'EMERGENCY' ? '🚨 YÊU CẦU KHẨN CẤP' : 'Thông báo mới',
-                message: message || `Khách hàng ${customerName || 'vô danh'} yêu cầu hỗ trợ khẩn cấp tại phòng.`,
                 type,
-                status: 'UNREAD',
+                message: message || `Khách hàng ${customerName || 'vô danh'} yêu cầu hỗ trợ khẩn cấp tại phòng.`,
+                isRead: false,
                 createdAt: new Date().toISOString()
             })
             .select()
             .single();
 
         if (error) {
-            console.error('Supabase notification insert error:', error);
-            // Nếu bảng StaffNotifications chưa tồn tại, ta có thể log lỗi nhưng vẫn trả về success giả định nếu muốn flow không gãy
-            return NextResponse.json({ error: error.message }, { status: 500 });
+            console.error('🚨 [Emergency API] Supabase error:', error);
+            return NextResponse.json({ 
+                error: error.message, 
+                code: error.code,
+                details: error.details,
+                hint: error.hint 
+            }, { status: 500 });
         }
 
         return NextResponse.json({ success: true, notification: data }, { status: 200 });
 
     } catch (error: any) {
-        console.error('API Error sending emergency notification:', error);
+        console.error('❌ [Emergency API] Critical Error:', error);
         return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
     }
 }

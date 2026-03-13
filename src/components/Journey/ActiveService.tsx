@@ -10,6 +10,10 @@ interface ActiveServiceProps {
     lang?: string;
     staffName?: string;
     staffAvatar?: string;
+    // [SOS PROPS]
+    onSOS?: () => void;
+    isSosLoading?: boolean;
+    sosSent?: boolean;
 }
 
 // 🔧 UI CONFIGURATION
@@ -32,7 +36,10 @@ export default function ActiveService({
     timeEnd, 
     lang = 'vi',
     staffName,
-    staffAvatar
+    staffAvatar,
+    onSOS,
+    isSosLoading,
+    sosSent
 }: ActiveServiceProps) {
 
     const totalSeconds = totalDuration * 60;
@@ -103,7 +110,9 @@ export default function ActiveService({
         optional: lang === 'vi' ? '(Tùy chọn)' : '(Optional)',
         therapistLabel: lang === 'vi' ? 'Nhân viên' : 'Therapist',
         addService: lang === 'vi' ? 'Thêm dịch vụ' : 'Add Service',
-        changeTherapist: lang === 'vi' ? 'Đổi nhân viên' : 'Change Therapist'
+        changeTherapist: lang === 'vi' ? 'Đổi nhân viên' : 'Change Therapist',
+        sos: lang === 'vi' ? 'BÁO KHẨN CẤP' : 'EMERGENCY SOS',
+        sosSent: lang === 'vi' ? 'ĐÃ BÁO LỄ TÂN' : 'RECEPTION NOTIFIED'
     };
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 
@@ -229,15 +238,43 @@ export default function ActiveService({
                 </div>
 
 
-                <div className="grid grid-cols-2 gap-3 mt-4">
-                    <button className="py-4 bg-amber-500 text-white font-bold rounded-2xl shadow-[0_5px_15px_rgba(245,158,11,0.3)] hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        {t.addService}
+                <div className="flex flex-col gap-3 mt-4">
+                    <div className="grid grid-cols-2 gap-3">
+                        <button className="py-4 bg-amber-500 text-white font-bold rounded-2xl shadow-[0_5px_15px_rgba(245,158,11,0.3)] hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            {t.addService}
+                        </button>
+                        <button className="py-4 bg-white text-gray-800 border-2 border-gray-100 font-bold rounded-2xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                            {t.changeTherapist}
+                        </button>
+                    </div>
+
+                    {/* SOS / Emergency Button (New Location) */}
+                    <button
+                        onClick={onSOS}
+                        disabled={isSosLoading || sosSent}
+                        className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 ${
+                            isSosLoading ? 'bg-gray-200 text-gray-400' : 
+                            sosSent ? 'bg-green-500 text-white shadow-green-200' : 
+                            'bg-red-600 text-white shadow-red-200 hover:bg-red-700 animate-pulse'
+                        }`}
+                    >
+                        {isSosLoading ? (
+                            <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        ) : sosSent ? (
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                        ) : (
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+                        )}
+                        <span className="tracking-widest uppercase">{sosSent ? t.sosSent : t.sos}</span>
                     </button>
-                    <button className="py-4 bg-white text-gray-800 border-2 border-gray-100 font-bold rounded-2xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                        {t.changeTherapist}
-                    </button>
+                    {sosSent && (
+                       <p className="text-[10px] text-green-600 font-bold text-center mt-1 uppercase tracking-tighter">🔔 {t.sosSent}</p>
+                    )}
                 </div>
 
             </div>
