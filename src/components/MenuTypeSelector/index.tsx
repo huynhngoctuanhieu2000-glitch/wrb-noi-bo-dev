@@ -58,7 +58,7 @@ interface Props {
 
 const texts: Record<string, any> = {
     en: { title: "Select Service Menu", std: "Standard", std_desc: "(Random Staff & Room)", vip: "Premium", vip_desc: "(Design your own journey)", hms: "HomeSpa", hms_desc: "(Spa at your place)", btn_back: "Back" },
-    vn: { title: "Chọn Thực Đơn", std: "Tiêu Chuẩn", std_desc: "(KTV & Phòng Ngẫu nhiên)", vip: "Cao Cấp", vip_desc: "(Tự chọn KTV & Dịch vụ)", hms: "HomeSpa", hms_desc: "(Spa tận nhà)", btn_back: "Quay lại" },
+    vi: { title: "Chọn Thực Đơn", std: "Tiêu Chuẩn", std_desc: "(KTV & Phòng Ngẫu nhiên)", vip: "Cao Cấp", vip_desc: "(Tự chọn KTV & Dịch vụ)", hms: "HomeSpa", hms_desc: "(Spa tận nhà)", btn_back: "Quay lại" },
     kr: { title: "서비스 메뉴 선택", std: "스탠다드", std_desc: "(직원 및 객실 무작위)", vip: "프리미엄", vip_desc: "(나만의 코스 설계)", hms: "홈스파", hms_desc: "(출장 스파)", btn_back: "돌아가기" },
     cn: { title: "选择服务菜单", std: "标准", std_desc: "(随机员工和房间)", vip: "高级", vip_desc: "(定制您的旅程)", hms: "上门水疗", hms_desc: "(在家享受水疗)", btn_back: "返回" },
     jp: { title: "サービスメニュー", std: "標準", std_desc: "(スタッフ・部屋おまかせ)", vip: "プレミアム", vip_desc: "(カスタムコース)", hms: "ホームスパ", hms_desc: "(出張スパ)", btn_back: "戻る" }

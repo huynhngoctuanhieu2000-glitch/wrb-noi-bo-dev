@@ -4,8 +4,9 @@ const BTN_HEIGHT = '44px';
 const ICON_SIZE = 20;
 
 export const t = {
-    vn: {
-        loginWithGoogle: 'Đăng nhập với Google',
+    vi: {
+        loginWithGoogle: 'Đăng nhập Google',
+
         logout: 'Đăng xuất',
     },
     en: {

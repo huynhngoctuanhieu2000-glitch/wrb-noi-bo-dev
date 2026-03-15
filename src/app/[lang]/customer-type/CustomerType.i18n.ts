@@ -33,7 +33,7 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     btn_register_new: 'Register New Customer',
     btn_logout: 'Switch Account / Logout'
   },
-  vn: {
+  vi: {
     wc_title: 'Chào mừng',
     wc_desc: 'Bạn muốn thực hiện điều gì?',
     btn_new_title: 'Đơn hàng mới',

@@ -27,7 +27,7 @@ export const languages: Language[] = [
     flag: "/assets/flags/gb.webp"
   },
   {
-    id: "vn",
+    id: "vi",
     name: "Tiếng Việt",
     greeting: "Ngân Hà Xin Chào",
     flag: "/assets/flags/vn.webp"

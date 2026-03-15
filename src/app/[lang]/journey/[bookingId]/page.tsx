@@ -7,21 +7,19 @@ import ActiveService from '@/components/Journey/ActiveService';
 import CheckBelongings from '@/components/Journey/CheckBelongings';
 import Feedback from '@/components/Journey/Feedback';
 import { translations, TranslationKey } from '@/components/Journey/Journey.i18n';
-
-
+import { useAuthStore } from '@/lib/authStore.logic';
 
 export default function JourneyPage({ params }: { params: Promise<{ lang: string, bookingId: string }> }) {
     const resolvedParams = React.use(params);
     const bookingId = resolvedParams.bookingId;
     const lang = resolvedParams.lang === 'vn' ? 'vi' : resolvedParams.lang;
 
-    // Note: Journey uses a separate simple lang dictionary if needed, 
-    // but for now let's just use inline translation based on lang for quick fix, 
-    // or pass lang down if dictionary has it.
-
     const { data: journeyData, loading, error, refresh } = useJourneyRealtime(bookingId);
+    const { isAuthUser } = useAuthStore();
     const [isSosLoading, setIsSosLoading] = React.useState(false);
     const [sosSent, setSosSent] = React.useState(false);
+    const [isActionLoading, setIsActionLoading] = React.useState(false);
+    const [actionSuccess, setActionSuccess] = React.useState<string | null>(null);
 
     // Default to PREPARING if no state is explicitly found, or map NEW to PREPARING
     const rawStatus = journeyData?.status || 'PREPARING';
@@ -52,8 +50,6 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         sosSending: translations[lang]?.sosSending || translations['en'].sosSending,
         sosSent: translations[lang]?.sosSent || translations['en'].sosSent,
     };
-
-
 
     const steps = [
         {
@@ -116,7 +112,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     bookingId, 
-                    customerName: journeyData?.id || 'Khách hàng',
+                    customerName: journeyData?.roomName || 'Khách',
                     message: `🚨 KHẨN CẤP: Khách hàng tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} nhấn nút báo động.`
                 })
             });
@@ -134,6 +130,58 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
             alert(t.sosConfirm === translations[lang]?.sosConfirm ? 'Gửi yêu cầu thất bại. Vui lòng thử lại hoặc gọi nhân viên.' : 'Failed to send request. Please try again or call staff.');
         } finally {
             setIsSosLoading(false);
+        }
+    };
+
+    const handleAddService = async () => {
+        if (isActionLoading) return;
+        setIsActionLoading(true);
+        try {
+            const res = await fetch('/api/notifications/normal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bookingId,
+                    customerName: journeyData?.roomName || 'Khách',
+                    message: `🔔 YÊU CẦU: Khách tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} muốn MUA THÊM DỊCH VỤ.`
+                })
+            });
+            if (res.ok) {
+                setActionSuccess('ADD_SERVICE');
+                setTimeout(() => setActionSuccess(null), 3000);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleChangeStaff = async () => {
+        if (isActionLoading) return;
+        
+        const ok = window.confirm(lang === 'vi' ? 'Bạn muốn yêu cầu đổi nhân viên?' : 'Do you want to request a staff change?');
+        if (!ok) return;
+
+        setIsActionLoading(true);
+        try {
+            const res = await fetch('/api/notifications/emergency', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bookingId,
+                    customerName: journeyData?.roomName || 'Khách',
+                    message: `🚨 ĐỔI NGƯỜI: Khách tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} yêu cầu ĐỔI NHÂN VIÊN.`
+                })
+            });
+            if (res.ok) {
+                setActionSuccess('CHANGE_STAFF');
+                setTimeout(() => setActionSuccess(null), 3000);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
@@ -222,6 +270,12 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         onSOS={handleSOS}
                         isSosLoading={isSosLoading}
                         sosSent={sosSent}
+                        // New Props
+                        isAuthUser={isAuthUser}
+                        onAddService={handleAddService}
+                        onChangeStaff={handleChangeStaff}
+                        isActionLoading={isActionLoading}
+                        actionSuccess={actionSuccess}
                     />
                 )}
 

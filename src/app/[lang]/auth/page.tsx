@@ -15,7 +15,7 @@ const LAYOUT = {
 };
 
 const t = {
-    vn: {
+    vi: {
         welcome: 'Welcome to Ngân Hà',
         askLogin: 'Bạn có muốn đăng nhập không? Tại sao ?',
         benefit: 'Nếu đăng nhập bạn sẽ được đổi KTV 01 lần duy nhất trong vòng 15 phút đầu',

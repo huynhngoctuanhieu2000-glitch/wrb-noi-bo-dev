@@ -14,6 +14,12 @@ interface ActiveServiceProps {
     onSOS?: () => void;
     isSosLoading?: boolean;
     sosSent?: boolean;
+    // [NEW PROPS]
+    isAuthUser?: boolean;
+    onAddService?: () => void;
+    onChangeStaff?: () => void;
+    isActionLoading?: boolean;
+    actionSuccess?: string | null;
 }
 
 // 🔧 UI CONFIGURATION
@@ -39,7 +45,12 @@ export default function ActiveService({
     staffAvatar,
     onSOS,
     isSosLoading,
-    sosSent
+    sosSent,
+    isAuthUser,
+    onAddService,
+    onChangeStaff,
+    isActionLoading,
+    actionSuccess
 }: ActiveServiceProps) {
 
     const totalSeconds = totalDuration * 60;
@@ -48,8 +59,6 @@ export default function ActiveService({
     const getInitialElapsed = () => {
         if (!timeStart) return 0;
         
-        // Ensure timeStart is treated as UTC if it doesn't have a timezone indicator
-        // This prevents the 7-hour offset issue (Vietnam UTC+7)
         let normalizedStart = timeStart;
         if (typeof timeStart === 'string' && !timeStart.includes('Z') && !timeStart.includes('+')) {
             normalizedStart = timeStart.replace(' ', 'T') + 'Z';
@@ -57,7 +66,6 @@ export default function ActiveService({
         
         const start = new Date(normalizedStart).getTime();
 
-        // If the service is already marked as ended, calculate total spent time instead of ticking
         if (timeEnd) {
             let normalizedEnd = timeEnd;
             if (typeof timeEnd === 'string' && !timeEnd.includes('Z') && !timeEnd.includes('+')) {
@@ -71,18 +79,15 @@ export default function ActiveService({
         const now = new Date().getTime();
         const diffInSeconds = Math.floor((now - start) / 1000);
         
-        // Return elapsed seconds capped to totalSeconds
         return Math.max(0, Math.min(diffInSeconds, totalSeconds));
     };
 
     const [elapsedSeconds, setElapsedSeconds] = useState(getInitialElapsed());
 
-    // Update elapsed if start time changes from realtime
     useEffect(() => {
         setElapsedSeconds(getInitialElapsed());
     }, [timeStart, timeEnd, totalSeconds]);
 
-    // Checkbox state for violations mid-service
     const vnViolations = [
         "1. Nhân viên sử dụng điện thoại riêng trong giờ làm?",
         "2. Nhân viên gợi ý hoặc xin tiền thưởng (tip)?",
@@ -112,11 +117,11 @@ export default function ActiveService({
         addService: lang === 'vi' ? 'Thêm dịch vụ' : 'Add Service',
         changeTherapist: lang === 'vi' ? 'Đổi nhân viên' : 'Change Therapist',
         sos: lang === 'vi' ? 'BÁO KHẨN CẤP' : 'EMERGENCY SOS',
-        sosSent: lang === 'vi' ? 'ĐÃ BÁO LỄ TÂN' : 'RECEPTION NOTIFIED'
+        sosSent: lang === 'vi' ? 'ĐÃ BÁO LỄ TÂN' : 'RECEPTION NOTIFIED',
+        notified: lang === 'vi' ? 'ĐÃ BÁO QUẦY' : 'NOTIFIED'
     };
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 
-    // Restore from localStorage on mount
     useEffect(() => {
         try {
             const saved = localStorage.getItem('spa_wrb_violations');
@@ -127,7 +132,6 @@ export default function ActiveService({
     const toggleViolation = (index: number) => {
         setSelectedViolations(prev => {
             const next = prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index];
-            // Save to localStorage immediately
             try {
                 localStorage.setItem('spa_wrb_violations', JSON.stringify(next));
             } catch (e) { }
@@ -150,9 +154,11 @@ export default function ActiveService({
 
     const formattedTime = `${remainingMinutes.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
 
-    const radius = 120;
-    const circumference = 2 * Math.PI * radius;
+    const circumference = 2 * Math.PI * TIMER_CONFIG.RADIUS;
     const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+    // Logic: Disable change staff after 15 mins
+    const isChangeStaffDisabled = elapsedMinutes >= 15;
 
     return (
         <div className={`flex flex-col items-center w-full animate-in fade-in duration-${TIMER_CONFIG.ANIMATION_DURATION} justify-center py-10`} style={{ minHeight: TIMER_CONFIG.MIN_HEIGHT }}>
@@ -160,7 +166,6 @@ export default function ActiveService({
 
             {/* Circular Progress Indicator */}
             <div className="relative flex items-center justify-center mb-10">
-                {/* SVG Ring */}
                 <svg className="absolute -rotate-90 transform drop-shadow-xl" 
                      width={TIMER_CONFIG.CIRCULAR_SIZE} 
                      height={TIMER_CONFIG.CIRCULAR_SIZE} 
@@ -183,7 +188,6 @@ export default function ActiveService({
                     />
                 </svg>
 
-                {/* Inner Content (Timer) */}
                 <div 
                     className="rounded-full shadow-[0_10px_30px_rgba(245,158,11,0.2)] bg-amber-50 flex items-center justify-center"
                     style={{ width: TIMER_CONFIG.INNER_SIZE, height: TIMER_CONFIG.INNER_SIZE }}
@@ -197,7 +201,7 @@ export default function ActiveService({
                 <h1 className="text-3xl font-black text-gray-800 mb-2">{serviceName}</h1>
             </div>
 
-            {/* Real-time violations report for Staff course-correction */}
+            {/* Quick feedback */}
             <div className="w-full max-w-sm mb-12">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-gray-800 font-bold text-base">{t.feedbackTitle}</h3>
@@ -221,7 +225,6 @@ export default function ActiveService({
             </div>
 
             {/* Therapist Info & Actions */}
-
             <div className="w-full max-w-sm space-y-4">
                 <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
                     <div className="w-14 h-14 bg-amber-100 rounded-xl overflow-hidden flex-shrink-0">
@@ -240,17 +243,44 @@ export default function ActiveService({
 
                 <div className="flex flex-col gap-3 mt-4">
                     <div className="grid grid-cols-2 gap-3">
-                        <button className="py-4 bg-amber-500 text-white font-bold rounded-2xl shadow-[0_5px_15px_rgba(245,158,11,0.3)] hover:bg-amber-600 transition-colors flex items-center justify-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            {t.addService}
+                        {/* ADD SERVICE BUTTON */}
+                        <button 
+                            onClick={onAddService}
+                            disabled={isActionLoading || actionSuccess === 'ADD_SERVICE'}
+                            className={`py-4 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-md active:scale-95 ${
+                                actionSuccess === 'ADD_SERVICE' ? 'bg-green-500 text-white' : 'bg-amber-500 text-white hover:bg-amber-600'
+                            }`}
+                        >
+                            {actionSuccess === 'ADD_SERVICE' ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                            ) : (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            )}
+                            {actionSuccess === 'ADD_SERVICE' ? t.notified : t.addService}
                         </button>
-                        <button className="py-4 bg-white text-gray-800 border-2 border-gray-100 font-bold rounded-2xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                            {t.changeTherapist}
-                        </button>
+
+                        {/* CHANGE THERAPIST BUTTON (Only for Auth/Google users) */}
+                        {isAuthUser && (
+                            <button 
+                                onClick={onChangeStaff}
+                                disabled={isActionLoading || isChangeStaffDisabled || actionSuccess === 'CHANGE_STAFF'}
+                                className={`py-4 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 border-2 shadow-sm active:scale-95 ${
+                                    isChangeStaffDisabled ? 'bg-gray-50 text-gray-300 border-gray-100 grayscale opacity-50 cursor-not-allowed' :
+                                    actionSuccess === 'CHANGE_STAFF' ? 'bg-green-50 text-green-600 border-green-200' :
+                                    'bg-white text-gray-800 border-gray-100 hover:bg-gray-50'
+                                }`}
+                            >
+                                {actionSuccess === 'CHANGE_STAFF' ? (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                ) : (
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                )}
+                                {actionSuccess === 'CHANGE_STAFF' ? t.notified : t.changeTherapist}
+                            </button>
+                        )}
                     </div>
 
-                    {/* SOS / Emergency Button (New Location) */}
+                    {/* SOS / Emergency Button */}
                     <button
                         onClick={onSOS}
                         disabled={isSosLoading || sosSent}
