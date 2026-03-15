@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { UserCheck, ArrowRight, X, Loader2, ArrowLeft, History, Search } from "lucide-react";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
 
@@ -41,13 +42,10 @@ const LAYOUT_CONFIG = {
 };
 // ============================================================================
 
-export default function CustomerTypePage({ params }: { params: Promise<{ lang: string }> }) {
-  const [lang, setLang] = useState<string>("en");
+export default function CustomerTypePage() {
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [inputEmail, setInputEmail] = useState("");
-
-  useEffect(() => {
-    params.then((p) => setLang(p.lang));
-  }, [params]);
 
   const {
     t,                    // <-- Lấy hàm dịch

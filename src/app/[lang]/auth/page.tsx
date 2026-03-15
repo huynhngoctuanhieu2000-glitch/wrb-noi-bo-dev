@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { X, ArrowRight } from 'lucide-react';
 import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
 import { useAuthStore } from '@/lib/authStore.logic';
@@ -47,16 +47,13 @@ const t = {
     }
 };
 
-export default function AuthPage({ params }: { params: Promise<{ lang: string }> }) {
+export default function AuthPage() {
     const router = useRouter();
-    const [lang, setLang] = useState<string>('en');
+    const params = useParams();
+    const lang = (params?.lang as string) || 'en';
     const { loginAsGuest, isAuthUser } = useAuthStore();
     // Default to 'en' texts if the selected language is not explicitly defined in `t`
     const localeText = t[lang as keyof typeof t] || t['en'];
-
-    useEffect(() => {
-        params.then((p) => setLang(p.lang));
-    }, [params]);
 
     // Handle flow when they are ALREADY authenticated (from Google Login callback/redirect)
     useEffect(() => {
