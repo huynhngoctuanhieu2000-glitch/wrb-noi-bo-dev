@@ -380,19 +380,23 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                             <span className="font-bold text-gray-700 text-lg">{dict.checkout.total_bill}</span>
                             <span className="font-bold text-amber-600 text-xl">{formatCurrency(totalVND)} VND</span>
                         </div>
-                        <div className="flex justify-between items-center text-sm">
-                            <span className="font-medium text-gray-500">{dict.checkout.amount_paid}</span>
-                            <span className="font-bold text-green-600">{formatCurrency(amountPaid)} VND</span>
-                        </div>
-                        <div className="flex justify-between items-center text-base pt-1">
-                            <span className="font-bold text-gray-500">{dict.checkout.change_due}</span>
-                            <span className={`font-bold ${changeAmount >= 0 ? 'text-gray-900' : 'text-red-500'}`}>
-                                {changeAmount >= 0
-                                    ? <span>{formatCurrency(changeAmount)} VND</span>
-                                    : <span>{dict.checkout.missing} {formatCurrency(Math.abs(changeAmount))} VND</span>
-                                }
-                            </span>
-                        </div>
+                        {amountPaid > 0 && (
+                            <>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="font-medium text-gray-500">{dict.checkout.amount_paid}</span>
+                                    <span className="font-bold text-green-600">{formatCurrency(amountPaid)} VND</span>
+                                </div>
+                                <div className="flex justify-between items-center text-base pt-1">
+                                    <span className="font-bold text-gray-500">{dict.checkout.change_due}</span>
+                                    <span className={`font-bold ${changeAmount >= 0 ? 'text-gray-900' : 'text-red-500'}`}>
+                                        {changeAmount >= 0
+                                            ? <span>{formatCurrency(changeAmount)} VND</span>
+                                            : <span>{dict.checkout.missing} {formatCurrency(Math.abs(changeAmount))} VND</span>
+                                        }
+                                    </span>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* General Notes Alert */}
