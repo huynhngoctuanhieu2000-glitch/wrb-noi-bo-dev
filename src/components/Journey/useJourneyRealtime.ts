@@ -118,18 +118,16 @@ export function useJourneyRealtime(bookingId: string) {
                     const itemDuration = i.duration || svc?.duration || 60;
 
                     // Priority: use item-level timeStart from DB (KTV app sets this per-item)
-                    // Fallback: for single-service bookings, use booking.timeStart
-                    // Multi-service without per-item timeStart: null (service not started yet)
+                    // Fallback: use booking-level timeStart for all items
                     let computedTimeStart: string | null = null;
 
                     if (i.timeStart) {
                         // Item has its own start time (set by KTV when they start this specific service)
                         computedTimeStart = i.timeStart;
-                    } else if (itemCount === 1 && booking.timeStart) {
-                        // Single service: safe to use booking-level timeStart
+                    } else if (booking.timeStart) {
+                        // Fallback: all services share booking-level timeStart
                         computedTimeStart = booking.timeStart;
                     }
-                    // Multi-service without per-item timeStart → stays null → timer shows full duration
 
                     processedItems.push({
                         id: i.id,
