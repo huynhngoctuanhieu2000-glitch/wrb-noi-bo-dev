@@ -3,6 +3,21 @@ import { createClient } from '@/lib/supabase';
 
 export type JourneyStatus = 'NEW' | 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'FEEDBACK' | 'DONE';
 
+// Enriched service item with computed fields for per-service timer
+export interface ServiceItem {
+    id: string;
+    serviceId: string;
+    service_name: string;
+    duration: number; // in minutes
+    technicianCode: string;
+    staffName: string;
+    staffAvatar: string;
+    computedTimeStart: string | null; // ISO string - sequential offset from booking timeStart
+    quantity: number;
+    price: number;
+    options?: any;
+}
+
 export interface JourneyData {
     id: string;
     status: JourneyStatus;
@@ -15,7 +30,7 @@ export interface JourneyData {
     staffAvatar?: string;
     createdAt?: string;
     totalDuration: number; // Phút
-    items: any[];
+    items: ServiceItem[];
     roomName?: string;
     bedId?: string;
 }
@@ -57,11 +72,11 @@ export function useJourneyRealtime(bookingId: string) {
                 let staffAvatar = '';
                 
                 if (booking.technicianCode) {
-                    staffName = booking.technicianCode; // Display code (e.g. NV-001) instead of full name
+                    staffName = booking.technicianCode; // Fallback to code
                     
                     const { data: staffData, error: staffError } = await supabase
                         .from('Staff')
-                        .select('avatar_url')
+                        .select('avatar_url, fullName')
                         .eq('id', booking.technicianCode)
                         .maybeSingle();
                         
@@ -71,6 +86,7 @@ export function useJourneyRealtime(bookingId: string) {
 
                     if (staffData) {
                         staffAvatar = staffData.avatar_url;
+                        if (staffData.fullName) staffName = staffData.fullName;
                     }
                 }
 
@@ -92,17 +108,45 @@ export function useJourneyRealtime(bookingId: string) {
                     });
                 }
 
-                const processedItems = (items || []).map((i: any) => {
+
+                const processedItems: ServiceItem[] = [];
+                const itemCount = (items || []).length;
+
+                (items || []).forEach((i: any) => {
                     const sId = String(i.serviceId || '').trim().toLowerCase();
                     const svc = svcMap.get(sId);
-                    return {
-                        ...i,
+                    const itemDuration = i.duration || svc?.duration || 60;
+
+                    // Priority: use item-level timeStart from DB (KTV app sets this per-item)
+                    // Fallback: for single-service bookings, use booking.timeStart
+                    // Multi-service without per-item timeStart: null (service not started yet)
+                    let computedTimeStart: string | null = null;
+
+                    if (i.timeStart) {
+                        // Item has its own start time (set by KTV when they start this specific service)
+                        computedTimeStart = i.timeStart;
+                    } else if (itemCount === 1 && booking.timeStart) {
+                        // Single service: safe to use booking-level timeStart
+                        computedTimeStart = booking.timeStart;
+                    }
+                    // Multi-service without per-item timeStart → stays null → timer shows full duration
+
+                    processedItems.push({
+                        id: i.id,
+                        serviceId: i.serviceId,
                         service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
-                        duration: i.duration || svc?.duration || 60
-                    };
+                        duration: itemDuration,
+                        technicianCode: i.technicianCode || booking.technicianCode || '',
+                        staffName: staffName,
+                        staffAvatar: staffAvatar,
+                        computedTimeStart,
+                        quantity: i.quantity || 1,
+                        price: i.price || 0,
+                        options: i.options,
+                    });
                 });
 
-                const totalDuration = processedItems.reduce((acc: number, item: any) => acc + item.duration, 0);
+                const totalDuration = processedItems.reduce((acc, item) => acc + item.duration, 0);
 
                 setData({
                     id: booking.id,
@@ -112,6 +156,7 @@ export function useJourneyRealtime(bookingId: string) {
                     rating: booking.rating || null,
                     violations: booking.violations || null,
                     tipAmount: booking.tipAmount || null,
+                    staffName: staffName || '',
                     staffAvatar,
                     totalDuration: totalDuration || 60,
                     items: processedItems,

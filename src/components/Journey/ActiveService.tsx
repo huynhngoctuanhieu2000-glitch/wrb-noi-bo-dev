@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 
 interface ActiveServiceProps {
-    serviceName: string;
+    items: ServiceItem[];
     totalDuration: number; // in minutes
     timeStart?: string | null;
     timeEnd?: string | null;
     lang?: string;
-    staffName?: string;
-    staffAvatar?: string;
+    // Fallback for single-service orders
+    fallbackStaffName?: string;
+    fallbackStaffAvatar?: string;
     // [SOS PROPS]
     onSOS?: () => void;
     isSosLoading?: boolean;
@@ -32,38 +34,26 @@ const TIMER_CONFIG = {
     AMBER_DARK: 'text-amber-900',
     AMBER_MAIN: '#F59E0B',
     AMBER_LIGHT: '#FFFBEB',
+    TAB_HEIGHT: 56,
 };
 
+// Hook: per-service timer logic
+const useServiceTimer = (
+    duration: number,
+    computedTimeStart: string | null | undefined,
+    timeEnd: string | null | undefined,
+) => {
+    const totalSeconds = duration * 60;
+    const isStarted = !!computedTimeStart;
 
-export default function ActiveService({ 
-    serviceName, 
-    totalDuration, 
-    timeStart, 
-    timeEnd, 
-    lang = 'vi',
-    staffName,
-    staffAvatar,
-    onSOS,
-    isSosLoading,
-    sosSent,
-    isAuthUser,
-    onAddService,
-    onChangeStaff,
-    isActionLoading,
-    actionSuccess
-}: ActiveServiceProps) {
-
-    const totalSeconds = totalDuration * 60;
-
-    // Calculate initial elapsed time
     const getInitialElapsed = () => {
-        if (!timeStart) return 0;
-        
-        let normalizedStart = timeStart;
-        if (typeof timeStart === 'string' && !timeStart.includes('Z') && !timeStart.includes('+')) {
-            normalizedStart = timeStart.replace(' ', 'T') + 'Z';
+        if (!computedTimeStart) return 0;
+
+        let normalizedStart = computedTimeStart;
+        if (typeof computedTimeStart === 'string' && !computedTimeStart.includes('Z') && !computedTimeStart.includes('+')) {
+            normalizedStart = computedTimeStart.replace(' ', 'T') + 'Z';
         }
-        
+
         const start = new Date(normalizedStart).getTime();
 
         if (timeEnd) {
@@ -78,7 +68,6 @@ export default function ActiveService({
 
         const now = new Date().getTime();
         const diffInSeconds = Math.floor((now - start) / 1000);
-        
         return Math.max(0, Math.min(diffInSeconds, totalSeconds));
     };
 
@@ -86,7 +75,110 @@ export default function ActiveService({
 
     useEffect(() => {
         setElapsedSeconds(getInitialElapsed());
-    }, [timeStart, timeEnd, totalSeconds]);
+    }, [computedTimeStart, timeEnd, totalSeconds]);
+
+    useEffect(() => {
+        // Only tick if the service has actually started
+        if (!isStarted) return;
+
+        const interval = setInterval(() => {
+            setElapsedSeconds(prev => Math.min(prev + 1, totalSeconds));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [totalSeconds, isStarted]);
+
+    const remainingSeconds = totalSeconds - elapsedSeconds;
+    const progress = isStarted ? (remainingSeconds / totalSeconds) * 100 : 100; // Full circle if not started
+    const remainingMinutes = Math.floor(remainingSeconds / 60);
+    const remainingSecs = remainingSeconds % 60;
+    const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+    const formattedTime = `${remainingMinutes.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
+
+    return { elapsedSeconds, remainingSeconds, progress, elapsedMinutes, formattedTime, isStarted };
+};
+
+// Sub-component: Timer display for a single service
+const ServiceTimer = ({ item, timeEnd, lang = 'vi' }: { item: ServiceItem; timeEnd?: string | null; lang?: string }) => {
+    const { progress, formattedTime, isStarted } = useServiceTimer(
+        item.duration,
+        item.computedTimeStart,
+        timeEnd,
+    );
+
+    const circumference = 2 * Math.PI * TIMER_CONFIG.RADIUS;
+    const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+    const waitingLabel = lang === 'vi' ? 'Chờ bắt đầu' : 'Waiting';
+
+    return (
+        <div className="relative flex items-center justify-center mb-6">
+            <svg className="absolute -rotate-90 transform drop-shadow-xl"
+                 width={TIMER_CONFIG.CIRCULAR_SIZE}
+                 height={TIMER_CONFIG.CIRCULAR_SIZE}
+                 viewBox="0 0 280 280">
+                <circle
+                    cx="140" cy="140" r={TIMER_CONFIG.RADIUS}
+                    fill="none"
+                    stroke={isStarted ? TIMER_CONFIG.AMBER_LIGHT : '#F3F4F6'}
+                    strokeWidth="8"
+                />
+                <circle
+                    cx="140" cy="140" r={TIMER_CONFIG.RADIUS}
+                    fill="none"
+                    stroke={isStarted ? TIMER_CONFIG.AMBER_MAIN : '#D1D5DB'}
+                    strokeWidth="12"
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    className="transition-all duration-1000 ease-linear"
+                />
+            </svg>
+
+            <div
+                className={`rounded-full shadow-[0_10px_30px_rgba(245,158,11,0.2)] flex flex-col items-center justify-center ${isStarted ? 'bg-amber-50' : 'bg-gray-50'}`}
+                style={{ width: TIMER_CONFIG.INNER_SIZE, height: TIMER_CONFIG.INNER_SIZE }}
+            >
+                <span className={`text-6xl font-black tracking-tighter ${isStarted ? TIMER_CONFIG.AMBER_DARK : 'text-gray-400'}`}>{formattedTime}</span>
+                {!isStarted && (
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1 animate-pulse">{waitingLabel}</span>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default function ActiveService({
+    items,
+    totalDuration,
+    timeStart,
+    timeEnd,
+    lang = 'vi',
+    fallbackStaffName,
+    fallbackStaffAvatar,
+    onSOS,
+    isSosLoading,
+    sosSent,
+    isAuthUser,
+    onAddService,
+    onChangeStaff,
+    isActionLoading,
+    actionSuccess
+}: ActiveServiceProps) {
+
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const hasMultipleServices = items.length > 1;
+
+    // Current selected service
+    const currentItem = items[selectedIndex] || items[0];
+    const currentStaffName = currentItem?.staffName || currentItem?.technicianCode || fallbackStaffName;
+    const currentStaffAvatar = currentItem?.staffAvatar || fallbackStaffAvatar;
+
+    // Timer logic for the selected service (for bottom action controls elapsed check)
+    const { elapsedMinutes } = useServiceTimer(
+        currentItem?.duration || totalDuration,
+        currentItem?.computedTimeStart || timeStart,
+        timeEnd,
+    );
 
     const vnViolations = [
         "1. Nhân viên sử dụng điện thoại riêng trong giờ làm?",
@@ -117,8 +209,9 @@ export default function ActiveService({
         addService: lang === 'vi' ? 'Thêm dịch vụ' : 'Add Service',
         changeTherapist: lang === 'vi' ? 'Đổi nhân viên' : 'Change Therapist',
         sos: lang === 'vi' ? 'BÁO KHẨN CẤP' : 'EMERGENCY SOS',
-        sosSent: lang === 'vi' ? 'ĐÃ BÁO LỄ TÂN' : 'RECEPTION NOTIFIED',
-        notified: lang === 'vi' ? 'ĐÃ BÁO QUẦY' : 'NOTIFIED'
+        sosSent: lang === 'vi' ? 'ĐÃ BÁO LỄ TÂN' : 'RECEPTION NOTIFIED',
+        notified: lang === 'vi' ? 'ĐÃ BÁO QUẦY' : 'NOTIFIED',
+        services: lang === 'vi' ? 'Dịch vụ' : 'Services',
     };
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 
@@ -139,66 +232,55 @@ export default function ActiveService({
         });
     };
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setElapsedSeconds(prev => Math.min(prev + 1, totalSeconds));
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [totalSeconds]);
-
-    const remainingSeconds = totalSeconds - elapsedSeconds;
-    const progress = (remainingSeconds / totalSeconds) * 100;
-    const remainingMinutes = Math.floor(remainingSeconds / 60);
-    const remainingSecs = remainingSeconds % 60;
-    const elapsedMinutes = Math.floor(elapsedSeconds / 60);
-
-    const formattedTime = `${remainingMinutes.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
-
-    const circumference = 2 * Math.PI * TIMER_CONFIG.RADIUS;
-    const strokeDashoffset = circumference - (progress / 100) * circumference;
-
     // Logic: Disable change staff after 15 mins
     const isChangeStaffDisabled = elapsedMinutes >= 15;
 
     return (
-        <div className={`flex flex-col items-center w-full animate-in fade-in duration-${TIMER_CONFIG.ANIMATION_DURATION} justify-center py-10`} style={{ minHeight: TIMER_CONFIG.MIN_HEIGHT }}>
-            <h2 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-12">{t.activeService}</h2>
+        <div className={`flex flex-col items-center w-full animate-in fade-in duration-${TIMER_CONFIG.ANIMATION_DURATION} justify-center py-6`} style={{ minHeight: TIMER_CONFIG.MIN_HEIGHT }}>
+            <h2 className="text-xl font-bold text-gray-500 uppercase tracking-widest mb-6">{t.activeService}</h2>
 
-            {/* Circular Progress Indicator */}
-            <div className="relative flex items-center justify-center mb-10">
-                <svg className="absolute -rotate-90 transform drop-shadow-xl" 
-                     width={TIMER_CONFIG.CIRCULAR_SIZE} 
-                     height={TIMER_CONFIG.CIRCULAR_SIZE} 
-                     viewBox="0 0 280 280">
-                    <circle
-                        cx="140" cy="140" r={TIMER_CONFIG.RADIUS}
-                        fill="none"
-                        stroke={TIMER_CONFIG.AMBER_LIGHT}
-                        strokeWidth="8"
-                    />
-                    <circle
-                        cx="140" cy="140" r={TIMER_CONFIG.RADIUS}
-                        fill="none"
-                        stroke={TIMER_CONFIG.AMBER_MAIN}
-                        strokeWidth="12"
-                        strokeLinecap="round"
-                        strokeDasharray={circumference}
-                        strokeDashoffset={strokeDashoffset}
-                        className="transition-all duration-1000 ease-linear"
-                    />
-                </svg>
-
-                <div 
-                    className="rounded-full shadow-[0_10px_30px_rgba(245,158,11,0.2)] bg-amber-50 flex items-center justify-center"
-                    style={{ width: TIMER_CONFIG.INNER_SIZE, height: TIMER_CONFIG.INNER_SIZE }}
-                >
-                    <span className={`text-6xl font-black tracking-tighter ${TIMER_CONFIG.AMBER_DARK}`}>{formattedTime}</span>
+            {/* Service Tabs (only show if multiple services) */}
+            {hasMultipleServices && (
+                <div className="w-full max-w-sm mb-8">
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        {items.map((item, idx) => (
+                            <button
+                                key={item.id}
+                                onClick={() => setSelectedIndex(idx)}
+                                className={`flex-shrink-0 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-300 border-2 ${
+                                    selectedIndex === idx
+                                        ? 'bg-amber-500 text-white border-amber-500 shadow-md scale-[1.02]'
+                                        : 'bg-white text-gray-600 border-gray-100 hover:border-amber-200 hover:bg-amber-50'
+                                }`}
+                                style={{ minHeight: TIMER_CONFIG.TAB_HEIGHT }}
+                            >
+                                <div className="flex flex-col items-start gap-0.5">
+                                    <span className="whitespace-nowrap">{item.service_name}</span>
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                                        selectedIndex === idx ? 'text-amber-100' : 'text-gray-400'
+                                    }`}>
+                                        {item.duration} {t.min}
+                                    </span>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
 
-            {/* Timers & Info */}
+            {/* Circular Progress Indicator - per selected service */}
+            {currentItem && (
+                <ServiceTimer item={currentItem} timeEnd={timeEnd} lang={lang} />
+            )}
+
+            {/* Service Info */}
             <div className="text-center mb-10 border-b border-gray-100 pb-10 w-full max-w-sm">
-                <h1 className="text-3xl font-black text-gray-800 mb-2">{serviceName}</h1>
+                <h1 className="text-3xl font-black text-gray-800 mb-2">{currentItem?.service_name || 'Dịch vụ Spa'}</h1>
+                {hasMultipleServices && (
+                    <p className="text-sm text-gray-400 font-medium">
+                        {selectedIndex + 1} / {items.length} {t.services}
+                    </p>
+                )}
             </div>
 
             {/* Quick feedback */}
@@ -229,14 +311,14 @@ export default function ActiveService({
                 <div className="flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
                     <div className="w-14 h-14 bg-amber-100 rounded-xl overflow-hidden flex-shrink-0">
                         <img 
-                            src={staffAvatar || "https://i.pravatar.cc/150?img=32"} 
+                            src={currentStaffAvatar || "https://i.pravatar.cc/150?img=32"} 
                             alt="Therapist" 
                             className="w-full h-full object-cover" 
                         />
                     </div>
                     <div className="flex-1">
                         <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block mb-0.5">{t.therapistLabel}</span>
-                        <span className="text-lg font-bold text-gray-800">{staffName || "Đang cập nhật..."}</span>
+                        <span className="text-lg font-bold text-gray-800">{currentStaffName || "Đang cập nhật..."}</span>
                     </div>
                 </div>
 

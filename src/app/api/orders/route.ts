@@ -207,6 +207,7 @@ export async function GET(request: Request) {
                 bookingDate,
                 status,
                 rating,
+                technicianCode,
                 BookingItems!BookingItems_bookingId_fkey (
                     id,
                     serviceId,
@@ -220,18 +221,55 @@ export async function GET(request: Request) {
 
         if (error) throw error;
 
+        // Fetch all services to map names
+        const { data: allServices } = await supabaseAdmin
+            .from('Services')
+            .select('id, nameVN, nameEN, duration')
+            .limit(1000);
+
+        const svcMap = new Map();
+        if (allServices) {
+            allServices.forEach((s: any) => {
+                if (s.id) svcMap.set(String(s.id).trim().toLowerCase(), s);
+            });
+        }
+
+        // Fetch staff names for technicianCodes
+        const techCodes = [...new Set(bookings.map((b: any) => b.technicianCode).filter(Boolean))];
+        const staffMap = new Map<string, string>();
+        if (techCodes.length > 0) {
+            const { data: staffList } = await supabaseAdmin
+                .from('Staff')
+                .select('id, fullName')
+                .in('id', techCodes);
+
+            if (staffList) {
+                staffList.forEach((s: any) => {
+                    if (s.id) staffMap.set(s.id, s.fullName || s.id);
+                });
+            }
+        }
+
         const result = bookings.map((b: any) => ({
             id: b.id,
             date: new Date(b.bookingDate).toISOString().split('T')[0],
             total: b.totalAmount,
             status: b.status,
             rating: b.rating,
-            items: b.BookingItems.map((i: any) => ({
-                id: i.serviceId,
-                qty: i.quantity,
-                price: i.price,
-                options: i.options
-            })),
+            technicianCode: b.technicianCode || null,
+            staffName: b.technicianCode ? (staffMap.get(b.technicianCode) || b.technicianCode) : null,
+            items: b.BookingItems.map((i: any) => {
+                const sId = String(i.serviceId || '').trim().toLowerCase();
+                const svc = svcMap.get(sId);
+                return {
+                    id: i.serviceId,
+                    name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
+                    duration: svc?.duration || null,
+                    qty: i.quantity,
+                    price: i.price,
+                    options: i.options
+                };
+            }),
             note: 'Supabase Booking'
         }));
 

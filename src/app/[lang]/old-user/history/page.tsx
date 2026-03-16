@@ -184,18 +184,34 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                             </div>
 
                             {/* Items */}
-                            <div className="space-y-1 mb-4">
+                            <div className="space-y-2 mb-4">
                                 {visit.items.map((item: any, idx: number) => (
-                                    <div key={idx} className="flex items-center gap-2 font-bold text-sm text-white">
-                                        <span className="text-gray-500">•</span>
-                                        <span>{item.name}</span>
-                                        {item.qty > 1 && <span className="text-gray-500 text-xs">x{item.qty}</span>}
+                                    <div key={idx} className="flex items-center justify-between gap-2 text-sm">
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                            <span className="text-[#D4AF37] font-bold text-xs flex-shrink-0">#{idx + 1}</span>
+                                            <span className="font-bold text-white truncate">{item.name || `Dịch vụ ${item.id}`}</span>
+                                            {item.duration && (
+                                                <span className="text-gray-500 text-xs flex-shrink-0">{item.duration} min</span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                            {item.qty > 1 && <span className="text-gray-500 text-xs">x{item.qty}</span>}
+                                            <span className="text-gray-400 text-xs font-medium">{formatCurrency(item.price)} đ</span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
 
+                            {/* Staff Info */}
+                            {(visit.staffName || visit.technicianCode) && (
+                                <div className="flex items-center gap-2 text-xs text-gray-400 mb-3 border-t border-white/5 pt-3">
+                                    <svg className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    <span className="font-semibold text-gray-300">{visit.staffName || visit.technicianCode}</span>
+                                </div>
+                            )}
+
                             {/* Note */}
-                            {visit.note && visit.note !== 'None' && (
+                            {visit.note && visit.note !== 'None' && visit.note !== 'Supabase Booking' && (
                                 <div className="text-xs text-gray-500 italic mb-5 border-t border-white/5 pt-2">
                                     {dict.history.note_label}: <span className="text-gray-400">{visit.note}</span>
                                 </div>

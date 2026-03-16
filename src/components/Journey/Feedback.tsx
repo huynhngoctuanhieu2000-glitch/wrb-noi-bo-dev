@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import TipModal from '@/components/Journey/TipModal';
+import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 
 interface FeedbackProps {
     onComplete: (result: { rating: number, violations: number[], tipAmount: number, feedbackNote?: string }) => void;
+    items?: ServiceItem[];
+    // Fallbacks for single-service or legacy usage
     staffName?: string;
     staffAvatar?: string;
     serviceName?: string;
@@ -14,6 +17,7 @@ interface FeedbackProps {
 
 export default function Feedback({ 
     onComplete, 
+    items,
     staffName, 
     staffAvatar, 
     serviceName, 
@@ -116,26 +120,52 @@ export default function Feedback({
 
     return (
         <div className="flex flex-col items-center w-full animate-in fade-in slide-in-from-bottom-5 duration-500 pb-20">
-            {/* Header / Top Card */}
-            <div className="w-full bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-6 flex items-center gap-4 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-100 flex-shrink-0 z-10">
-                    <img 
-                        src={staffAvatar || "https://i.pravatar.cc/150?img=32"} 
-                        alt="Therapist" 
-                        className="w-full h-full object-cover" 
-                    />
+            {/* Header / Service Cards */}
+            {items && items.length > 0 ? (
+                <div className="w-full space-y-3 mb-6">
+                    {items.map((item, idx) => (
+                        <div key={item.id} className="w-full bg-white rounded-3xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 relative overflow-hidden">
+                            {idx === 0 && <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-3xl -mr-10 -mt-10"></div>}
+                            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-amber-100 flex-shrink-0 z-10">
+                                <img 
+                                    src={item.staffAvatar || "https://i.pravatar.cc/150?img=32"} 
+                                    alt="Therapist" 
+                                    className="w-full h-full object-cover" 
+                                />
+                            </div>
+                            <div className="flex-1 z-10">
+                                <h3 className="text-base font-black text-gray-800">{item.service_name}</h3>
+                                <p className="text-gray-500 font-medium text-xs">
+                                    {item.duration} min • {item.staffName || item.technicianCode || 'Đang cập nhật...'}
+                                </p>
+                            </div>
+                            <div className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-100 z-10">
+                                #{idx + 1}
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                <div className="flex-1 z-10">
-                    <h2 className="text-xl font-black text-gray-800">{staffName || "Đang cập nhật..."}</h2>
-                    <p className="text-gray-500 font-medium text-sm">
-                        {serviceName || "Dịch vụ"} {duration ? `• ${duration} min` : ""}
-                    </p>
-                    <div className="flex text-amber-500 text-sm mt-1">
-                        ★ ★ ★ ★ ★ <span className="text-gray-400 text-xs ml-1">(5.0)</span>
+            ) : (
+                <div className="w-full bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-6 flex items-center gap-4 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-100 flex-shrink-0 z-10">
+                        <img 
+                            src={staffAvatar || "https://i.pravatar.cc/150?img=32"} 
+                            alt="Therapist" 
+                            className="w-full h-full object-cover" 
+                        />
+                    </div>
+                    <div className="flex-1 z-10">
+                        <h2 className="text-xl font-black text-gray-800">{staffName || "Đang cập nhật..."}</h2>
+                        <p className="text-gray-500 font-medium text-sm">
+                            {serviceName || "Dịch vụ"} {duration ? `• ${duration} min` : ""}
+                        </p>
+                        <div className="flex text-amber-500 text-sm mt-1">
+                            ★ ★ ★ ★ ★ <span className="text-gray-400 text-xs ml-1">(5.0)</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Assessment Box */}
             <div className="w-full bg-gradient-to-br from-amber-200 to-amber-300 rounded-3xl p-6 shadow-md mb-8">

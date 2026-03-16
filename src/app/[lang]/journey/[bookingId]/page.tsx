@@ -261,12 +261,12 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 {/* Active Service requires actual parsing of duration or fallback to demo logic if not mapped in DB yet */}
                 {state === 'IN_PROGRESS' && (
                     <ActiveService 
-                        serviceName={journeyData?.items?.[0]?.service_name || t.spa_service_fallback} 
+                        items={journeyData?.items || []}
                         totalDuration={journeyData?.totalDuration || 90} 
                         timeStart={journeyData?.timeStart || null} 
                         lang={lang} 
-                        staffName={journeyData?.staffName}
-                        staffAvatar={journeyData?.staffAvatar}
+                        fallbackStaffName={journeyData?.staffName}
+                        fallbackStaffAvatar={journeyData?.staffAvatar}
                         onSOS={handleSOS}
                         isSosLoading={isSosLoading}
                         sosSent={sosSent}
@@ -284,6 +284,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
                 {state === 'FEEDBACK' && (
                     <Feedback 
+                        items={journeyData?.items}
                         staffName={journeyData?.staffName}
                         staffAvatar={journeyData?.staffAvatar}
                         serviceName={journeyData?.items?.[0]?.service_name}
