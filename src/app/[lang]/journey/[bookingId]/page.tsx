@@ -265,6 +265,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         totalDuration={journeyData?.totalDuration || 90} 
                         timeStart={journeyData?.timeStart || null} 
                         lang={lang} 
+                        bookingId={bookingId}
                         fallbackStaffName={journeyData?.staffName}
                         fallbackStaffAvatar={journeyData?.staffAvatar}
                         onSOS={handleSOS}

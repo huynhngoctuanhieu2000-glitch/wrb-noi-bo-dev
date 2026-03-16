@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 
 interface ActiveServiceProps {
@@ -9,6 +9,7 @@ interface ActiveServiceProps {
     timeStart?: string | null;
     timeEnd?: string | null;
     lang?: string;
+    bookingId?: string;
     // Fallback for single-service orders
     fallbackStaffName?: string;
     fallbackStaffAvatar?: string;
@@ -153,6 +154,7 @@ export default function ActiveService({
     timeStart,
     timeEnd,
     lang = 'vi',
+    bookingId,
     fallbackStaffName,
     fallbackStaffAvatar,
     onSOS,
@@ -214,22 +216,58 @@ export default function ActiveService({
         services: lang === 'vi' ? 'Dịch vụ' : 'Services',
     };
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
+    const [sentViolations, setSentViolations] = useState<Set<number>>(new Set());
+    const [sendingViolation, setSendingViolation] = useState<number | null>(null);
 
     useEffect(() => {
         try {
             const saved = localStorage.getItem('spa_wrb_violations');
             if (saved) setSelectedViolations(JSON.parse(saved));
+            const savedSent = localStorage.getItem('spa_wrb_sent_violations');
+            if (savedSent) setSentViolations(new Set(JSON.parse(savedSent)));
         } catch (e) { }
     }, []);
 
+    // Send notification to front desk when a violation is selected
+    const sendViolationNotification = useCallback(async (violationIndex: number, violationText: string) => {
+        if (!bookingId || sentViolations.has(violationIndex)) return;
+        setSendingViolation(violationIndex);
+        try {
+            await fetch('/api/notifications/normal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bookingId,
+                    type: 'FEEDBACK',
+                    message: `⚠️ Khách phản hồi: ${violationText}`,
+                }),
+            });
+            setSentViolations(prev => {
+                const next = new Set(prev);
+                next.add(violationIndex);
+                try { localStorage.setItem('spa_wrb_sent_violations', JSON.stringify([...next])); } catch (e) { }
+                return next;
+            });
+        } catch (err) {
+            console.error('Failed to send violation notification:', err);
+        } finally {
+            setSendingViolation(null);
+        }
+    }, [bookingId, sentViolations]);
+
     const toggleViolation = (index: number) => {
+        const isSelecting = !selectedViolations.includes(index);
         setSelectedViolations(prev => {
-            const next = prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index];
+            const next = isSelecting ? [...prev, index] : prev.filter(i => i !== index);
             try {
                 localStorage.setItem('spa_wrb_violations', JSON.stringify(next));
             } catch (e) { }
             return next;
         });
+        // Send notification only on CHECK (not uncheck), and only once per violation
+        if (isSelecting && !sentViolations.has(index)) {
+            sendViolationNotification(index, violations[index]);
+        }
     };
 
     // Logic: Disable change staff after 15 mins
@@ -290,19 +328,44 @@ export default function ActiveService({
                     <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">{t.optional}</span>
                 </div>
                 <div className="space-y-3">
-                    {violations.map((v, idx) => (
-                        <div key={idx}
-                            onClick={() => toggleViolation(idx)}
-                            className={`flex items-start gap-4 p-4 bg-white rounded-3xl cursor-pointer transition-shadow shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 hover:shadow-md`}
-                        >
-                            <div className={`mt-0.5 w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${selectedViolations.includes(idx) ? 'border-amber-500 bg-amber-500' : 'border-gray-300 bg-white'}`}>
-                                {selectedViolations.includes(idx) && (
-                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                    {violations.map((v, idx) => {
+                        const isSelected = selectedViolations.includes(idx);
+                        const isSent = sentViolations.has(idx);
+                        const isSending = sendingViolation === idx;
+
+                        return (
+                            <div key={idx}
+                                onClick={() => toggleViolation(idx)}
+                                className={`flex items-start gap-4 p-4 bg-white rounded-3xl cursor-pointer transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] border hover:shadow-md ${
+                                    isSent ? 'border-green-200 bg-green-50/30' : 'border-gray-100'
+                                }`}
+                            >
+                                <div className={`mt-0.5 w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+                                    isSent ? 'border-green-500 bg-green-500' : 
+                                    isSelected ? 'border-amber-500 bg-amber-500' : 'border-gray-300 bg-white'
+                                }`}>
+                                    {(isSelected || isSent) && (
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                    )}
+                                </div>
+                                <span className={`text-sm leading-snug font-medium pr-2 flex-1 ${
+                                    isSent ? 'text-green-800' :
+                                    isSelected ? 'text-amber-900' : 'text-gray-500'
+                                }`}>{v}</span>
+                                {isSending && (
+                                    <svg className="animate-spin w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                )}
+                                {isSent && !isSending && (
+                                    <span className="text-[9px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 uppercase tracking-wider whitespace-nowrap">
+                                        {lang === 'vi' ? 'Đã báo' : 'Sent'}
+                                    </span>
                                 )}
                             </div>
-                            <span className={`text-sm leading-snug font-medium pr-2 ${selectedViolations.includes(idx) ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
