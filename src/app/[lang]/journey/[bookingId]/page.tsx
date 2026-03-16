@@ -266,6 +266,8 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         timeStart={journeyData?.timeStart || null} 
                         lang={lang} 
                         bookingId={bookingId}
+                        roomName={journeyData?.roomName}
+                        bedId={journeyData?.bedId}
                         fallbackStaffName={journeyData?.staffName}
                         fallbackStaffAvatar={journeyData?.staffAvatar}
                         onSOS={handleSOS}

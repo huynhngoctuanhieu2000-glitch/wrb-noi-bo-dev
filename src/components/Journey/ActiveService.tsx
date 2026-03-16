@@ -10,6 +10,8 @@ interface ActiveServiceProps {
     timeEnd?: string | null;
     lang?: string;
     bookingId?: string;
+    roomName?: string;
+    bedId?: string;
     // Fallback for single-service orders
     fallbackStaffName?: string;
     fallbackStaffAvatar?: string;
@@ -155,6 +157,8 @@ export default function ActiveService({
     timeEnd,
     lang = 'vi',
     bookingId,
+    roomName,
+    bedId,
     fallbackStaffName,
     fallbackStaffAvatar,
     onSOS,
@@ -215,37 +219,46 @@ export default function ActiveService({
         notified: lang === 'vi' ? 'ĐÃ BÁO QUẦY' : 'NOTIFIED',
         services: lang === 'vi' ? 'Dịch vụ' : 'Services',
     };
-    const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
-    const [sentViolations, setSentViolations] = useState<Set<number>>(new Set());
+    const [violationsMap, setViolationsMap] = useState<Record<string, number[]>>({});
+    const [sentViolationsMap, setSentViolationsMap] = useState<Record<string, number[]>>({});
     const [sendingViolation, setSendingViolation] = useState<number | null>(null);
+
+    // Storage keys scoped by bookingId to avoid cross-booking conflicts
+    const storageKeyViolations = `spa_wrb_violations_${bookingId || 'default'}`;
+    const storageKeySent = `spa_wrb_sent_${bookingId || 'default'}`;
 
     useEffect(() => {
         try {
-            const saved = localStorage.getItem('spa_wrb_violations');
-            if (saved) setSelectedViolations(JSON.parse(saved));
-            const savedSent = localStorage.getItem('spa_wrb_sent_violations');
-            if (savedSent) setSentViolations(new Set(JSON.parse(savedSent)));
+            const saved = localStorage.getItem(storageKeyViolations);
+            if (saved) setViolationsMap(JSON.parse(saved));
+            const savedSent = localStorage.getItem(storageKeySent);
+            if (savedSent) setSentViolationsMap(JSON.parse(savedSent));
         } catch (e) { }
-    }, []);
+    }, [storageKeyViolations, storageKeySent]);
+
+    // Current service's selected violations
+    const currentItemId = currentItem?.id || '0';
+    const selectedViolations = violationsMap[currentItemId] || [];
+    const sentViolationsForItem = new Set(sentViolationsMap[currentItemId] || []);
 
     // Send notification to front desk when a violation is selected
     const sendViolationNotification = useCallback(async (violationIndex: number, violationText: string) => {
-        if (!bookingId || sentViolations.has(violationIndex)) return;
+        if (!bookingId || sentViolationsForItem.has(violationIndex)) return;
         setSendingViolation(violationIndex);
         try {
+            const serviceName = currentItem?.service_name || 'Dịch vụ';
             await fetch('/api/notifications/normal', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     bookingId,
                     type: 'FEEDBACK',
-                    message: `⚠️ Khách phản hồi: ${violationText}`,
+                    message: `⚠️ Khách${roomName ? ` phòng ${roomName}` : ''}${bedId ? ` giường ${bedId}` : ''} - DV "${serviceName}" phản hồi: ${violationText}`,
                 }),
             });
-            setSentViolations(prev => {
-                const next = new Set(prev);
-                next.add(violationIndex);
-                try { localStorage.setItem('spa_wrb_sent_violations', JSON.stringify([...next])); } catch (e) { }
+            setSentViolationsMap(prev => {
+                const next = { ...prev, [currentItemId]: [...(prev[currentItemId] || []), violationIndex] };
+                try { localStorage.setItem(storageKeySent, JSON.stringify(next)); } catch (e) { }
                 return next;
             });
         } catch (err) {
@@ -253,19 +266,23 @@ export default function ActiveService({
         } finally {
             setSendingViolation(null);
         }
-    }, [bookingId, sentViolations]);
+    }, [bookingId, currentItemId, currentItem?.service_name, roomName, bedId, sentViolationsForItem, storageKeySent]);
 
     const toggleViolation = (index: number) => {
         const isSelecting = !selectedViolations.includes(index);
-        setSelectedViolations(prev => {
-            const next = isSelecting ? [...prev, index] : prev.filter(i => i !== index);
-            try {
-                localStorage.setItem('spa_wrb_violations', JSON.stringify(next));
-            } catch (e) { }
+        setViolationsMap(prev => {
+            const currentList = prev[currentItemId] || [];
+            const next = {
+                ...prev,
+                [currentItemId]: isSelecting
+                    ? [...currentList, index]
+                    : currentList.filter(i => i !== index)
+            };
+            try { localStorage.setItem(storageKeyViolations, JSON.stringify(next)); } catch (e) { }
             return next;
         });
-        // Send notification only on CHECK (not uncheck), and only once per violation
-        if (isSelecting && !sentViolations.has(index)) {
+        // Send notification only on CHECK (not uncheck), and only once per violation per service
+        if (isSelecting && !sentViolationsForItem.has(index)) {
             sendViolationNotification(index, violations[index]);
         }
     };
@@ -330,7 +347,7 @@ export default function ActiveService({
                 <div className="space-y-3">
                     {violations.map((v, idx) => {
                         const isSelected = selectedViolations.includes(idx);
-                        const isSent = sentViolations.has(idx);
+                        const isSent = sentViolationsForItem.has(idx);
                         const isSending = sendingViolation === idx;
 
                         return (
