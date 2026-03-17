@@ -219,7 +219,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
 
                             {/* Actions */}
                             <div className="flex gap-3 mt-4">
-                                {visit.rating ? (
+                                {visit.status === 'DONE' ? (
                                     <>
                                         <button
                                             onClick={() => handleModify(visit)}

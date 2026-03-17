@@ -112,7 +112,8 @@ export function useJourneyRealtime(bookingId: string) {
                         serviceId: i.serviceId,
                         service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
                         duration: itemDuration,
-                        technicianCode: i.technicianCode || booking.technicianCode || '',
+                        // BookingItems dùng "technicianCodes" (TEXT[]), Bookings dùng "technicianCode" (TEXT)
+                        technicianCode: (Array.isArray(i.technicianCodes) && i.technicianCodes[0]) || booking.technicianCode || '',
                         staffName: '', // Hidden from customer
                         staffAvatar: '', // Hidden from customer
                         computedTimeStart,

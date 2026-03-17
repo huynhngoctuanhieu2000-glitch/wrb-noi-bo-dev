@@ -108,7 +108,7 @@ const TabTimerView = ({
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     bookingId, type: 'FEEDBACK',
-                    message: `⚠️ Khách${roomName ? ` P.${roomName}` : ''} - DV "${current.service_name}" (${current.staffName || current.technicianCode}): ${violations[idx]}`,
+                    message: `⚠️ Khách${roomName ? ` P.${roomName}` : ''} - DV "${current.service_name}": ${violations[idx]}`,
                 }),
             });
         } catch { /* silent */ }
@@ -176,13 +176,14 @@ const TabTimerView = ({
                     </div>
                 </div>
 
-                {/* Service Info */}
+                {/* Service Info — hiện mã NV per-item */}
                 <div className="text-center mt-3">
                     <p className="font-black text-gray-800 text-lg">{current.service_name}</p>
                     <p className="text-gray-400 text-sm font-medium">
-                        {current.staffName || current.technicianCode || '—'}
-                        {roomName && ` · ${lang === 'vi' ? 'P.' : 'Room '}${roomName}`}
-                        {bedId && ` · ${lang === 'vi' ? 'G.' : 'Bed '}${bedId}`}
+                        {current.technicianCode && `NV: ${current.technicianCode}`}
+                        {current.technicianCode && roomName && ' · '}
+                        {roomName && `${lang === 'vi' ? 'Phòng' : 'Room'} ${roomName}`}
+                        {bedId && ` · ${lang === 'vi' ? 'Giường' : 'Bed'} ${bedId}`}
                     </p>
                 </div>
 
@@ -352,8 +353,8 @@ const CombinedRatingView = ({
                 </h2>
                 <p className="text-gray-400 text-sm mt-1">
                     {lang === 'vi'
-                        ? 'Đánh giá từng nhân viên để chúng tôi cải thiện tốt hơn'
-                        : 'Rate each therapist to help us improve'}
+                        ? 'Đánh giá từng dịch vụ để chúng tôi cải thiện tốt hơn'
+                        : 'Rate each service to help us improve'}
                 </p>
             </div>
 
@@ -383,18 +384,20 @@ const CombinedRatingView = ({
                         <div key={item.id} className={`bg-white rounded-3xl border-2 transition-all overflow-hidden ${
                             isRated ? 'border-green-100' : isExpanded ? 'border-amber-300 shadow-md' : 'border-gray-100'
                         }`}>
-                            {/* Accordion Header */}
+                            {/* Accordion Header — chỉ hiện tên dịch vụ, ẩn NV */}
                             <button onClick={() => !isRated && setExpandedId(isExpanded ? null : item.id)}
                                 className="w-full text-left p-4 flex items-center gap-3">
-                                <div className={`w-12 h-12 rounded-2xl overflow-hidden border-2 flex-shrink-0 ${isRated ? 'border-green-100 grayscale-[20%]' : 'border-amber-100'}`}>
-                                    <img src={item.staffAvatar || 'https://i.pravatar.cc/150?img=32'} alt="" className="w-full h-full object-cover" />
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
+                                    isRated ? 'bg-green-50 border-2 border-green-100' : 'bg-amber-50 border-2 border-amber-100'
+                                }`}>
+                                    {isRated ? '✅' : '💆'}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-black text-gray-800 text-sm leading-tight truncate">
-                                        {item.staffName || item.technicianCode || '—'}
+                                        {item.service_name}
                                     </p>
                                     <p className="text-gray-400 text-xs font-medium truncate">
-                                        {item.service_name} · {item.duration} {lang === 'vi' ? 'phút' : 'min'}
+                                        {item.technicianCode && `NV: ${item.technicianCode} · `}{item.duration} {lang === 'vi' ? 'phút' : 'min'}
                                     </p>
                                 </div>
                                 {isRated ? (
