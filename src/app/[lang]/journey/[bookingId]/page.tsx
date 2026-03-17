@@ -1,12 +1,10 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useJourneyRealtime } from '@/components/Journey/useJourneyRealtime';
 import WaitingRoom from '@/components/Journey/WaitingRoom';
-import ActiveService from '@/components/Journey/ActiveService';
-import CheckBelongings from '@/components/Journey/CheckBelongings';
-import Feedback from '@/components/Journey/Feedback';
-import { translations, TranslationKey } from '@/components/Journey/Journey.i18n';
+import ServiceList from '@/components/Journey/ServiceList';
+import { translations } from '@/components/Journey/Journey.i18n';
 import { useAuthStore } from '@/lib/authStore.logic';
 
 export default function JourneyPage({ params }: { params: Promise<{ lang: string, bookingId: string }> }) {
@@ -21,16 +19,10 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const [isActionLoading, setIsActionLoading] = React.useState(false);
     const [actionSuccess, setActionSuccess] = React.useState<string | null>(null);
 
-    // Default to PREPARING if no state is explicitly found, or map NEW to PREPARING
+    // State machine: căn bản hơn — chỉ dùng booking.status
     const rawStatus = journeyData?.status || 'PREPARING';
-    let state = rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
-    
-    // Nếu đơn đã DONE nhưng chưa có rating thì ép về FEEDBACK để khách đánh giá
-    if (state === 'DONE' && !journeyData?.rating) {
-        state = 'FEEDBACK';
-    }
+    const state = rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
 
-    // Translations for steps
     const t = {
         preparing: translations[lang]?.preparing || translations['en'].preparing,
         inProgress: translations[lang]?.inProgress || translations['en'].inProgress,
@@ -42,15 +34,15 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         finishTitle: translations[lang]?.finishTitle || translations['en'].finishTitle,
         finishSub: translations[lang]?.finishSub || translations['en'].finishSub,
         goHome: translations[lang]?.goHome || translations['en'].goHome,
-        redirecting: translations[lang]?.redirecting || translations['en'].redirecting,
-        autoRedirect: translations[lang]?.autoRedirect || translations['en'].autoRedirect,
-        spa_service_fallback: translations[lang]?.spa_service_fallback || translations['en'].spa_service_fallback,
         sos: translations[lang]?.sos || translations['en'].sos,
         sosConfirm: translations[lang]?.sosConfirm || translations['en'].sosConfirm,
         sosSending: translations[lang]?.sosSending || translations['en'].sosSending,
         sosSent: translations[lang]?.sosSent || translations['en'].sosSent,
+        allDoneTitle: lang === 'vi' ? 'Cảm ơn bạn đã đánh giá!' : 'Thank you for your feedback!',
+        allDoneSub: lang === 'vi' ? 'Mọi dịch vụ đã hoàn thành. Hẹn gặp lại bạn!' : 'All services completed. See you again!',
     };
 
+    // Progress steps — simplified (không có FEEDBACK step riêng ở booking level)
     const steps = [
         {
             id: 'PREPARING',
@@ -63,71 +55,37 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
             icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         },
         {
-            id: 'COMPLETED',
+            id: 'DONE',
             label: t.completed,
-            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         },
-        {
-            id: 'FEEDBACK',
-            label: t.feedback,
-            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-        }
     ];
 
     const currentIndex = state === 'DONE' ? steps.length : steps.findIndex(s => s.id === state);
 
-    // Call API to advance journey state
-    const advanceNextState = async (nextStatus: string, additionalData: any = {}) => {
-        try {
-            const res = await fetch('/api/journey/update', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bookingId, status: nextStatus, ...additionalData })
-            });
-            
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || 'Failed to update state');
-            }
-
-            // Immediately fetch newest state
-            await refresh();
-            return true;
-        } catch (e) {
-            console.error("Failed to advance state:", e);
-            throw e; // Re-throw so child components can handle it
-        }
-    };
+    // ─── Handlers ────────────────────────────────────────────────────────────
 
     const handleSOS = async () => {
         if (sosSent || isSosLoading) return;
-        
         const ok = window.confirm(t.sosConfirm);
         if (!ok) return;
-
         setIsSosLoading(true);
         try {
             const res = await fetch('/api/notifications/emergency', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    bookingId, 
+                body: JSON.stringify({
+                    bookingId,
                     customerName: journeyData?.roomName || 'Khách',
                     message: `🚨 KHẨN CẤP: Khách hàng tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} nhấn nút báo động.`
                 })
             });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                console.error('🚨 SOS API Error details:', errorData);
-                throw new Error(errorData.error || 'Failed to send SOS');
-            }
-
+            if (!res.ok) throw new Error('Failed to send SOS');
             setSosSent(true);
-            setTimeout(() => setSosSent(false), 5000); // Ẩn trạng thái thành công sau 5s
-        } catch (err: any) {
+            setTimeout(() => setSosSent(false), 5000);
+        } catch (err) {
             console.error('SOS Error:', err);
-            alert(t.sosConfirm === translations[lang]?.sosConfirm ? 'Gửi yêu cầu thất bại. Vui lòng thử lại hoặc gọi nhân viên.' : 'Failed to send request. Please try again or call staff.');
+            alert('Gửi yêu cầu thất bại. Vui lòng thử lại hoặc gọi nhân viên.');
         } finally {
             setIsSosLoading(false);
         }
@@ -150,19 +108,14 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 setActionSuccess('ADD_SERVICE');
                 setTimeout(() => setActionSuccess(null), 3000);
             }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsActionLoading(false);
-        }
+        } catch (err) { console.error(err); }
+        finally { setIsActionLoading(false); }
     };
 
     const handleChangeStaff = async () => {
         if (isActionLoading) return;
-        
         const ok = window.confirm(lang === 'vi' ? 'Bạn muốn yêu cầu đổi nhân viên?' : 'Do you want to request a staff change?');
         if (!ok) return;
-
         setIsActionLoading(true);
         try {
             const res = await fetch('/api/notifications/emergency', {
@@ -178,12 +131,32 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 setActionSuccess('CHANGE_STAFF');
                 setTimeout(() => setActionSuccess(null), 3000);
             }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsActionLoading(false);
-        }
+        } catch (err) { console.error(err); }
+        finally { setIsActionLoading(false); }
     };
+
+    // 🆕 Per-item rating handler
+    const handleItemRated = useCallback(async (itemId: string, rating: number, feedback: string) => {
+        const res = await fetch('/api/journey/update', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                bookingId,
+                bookingItemId: itemId,
+                itemRating: rating,
+                itemFeedback: feedback || null,
+                status: 'DONE', // Signal to API to check if all rated
+            })
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Failed to submit rating');
+        }
+        // Refresh để cập nhật trạng thái booking nếu đã DONE
+        await refresh();
+    }, [bookingId, refresh]);
+
+    // ─── Render ───────────────────────────────────────────────────────────────
 
     if (loading) {
         return (
@@ -221,9 +194,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
                 {/* Progress Stepper */}
                 <div className="relative flex justify-between items-center w-full px-2 mt-2">
-                    {/* Background Track line */}
                     <div className="absolute top-5 left-8 right-8 h-0.5 bg-gray-200 z-0">
-                        {/* Fill line */}
                         <div
                             className="h-full bg-amber-400 transition-all duration-700 ease-out"
                             style={{ width: `${(Math.max(0, currentIndex) / (steps.length - 1)) * 100}%` }}
@@ -234,9 +205,9 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         const isCompleted = currentIndex > index;
                         const isActive = currentIndex === index;
 
-                        let colorClass = 'bg-white border-gray-200 text-gray-300'; // Upcoming
-                        if (isCompleted) colorClass = 'bg-amber-400 border-amber-400 text-white'; // Done
-                        if (isActive) colorClass = 'bg-amber-50 border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]'; // Current
+                        let colorClass = 'bg-white border-gray-200 text-gray-300';
+                        if (isCompleted) colorClass = 'bg-amber-400 border-amber-400 text-white';
+                        if (isActive) colorClass = 'bg-amber-50 border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]';
 
                         return (
                             <div key={step.id} className="flex flex-col items-center gap-2 relative z-10">
@@ -249,22 +220,19 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                                     {step.label}
                                 </span>
                             </div>
-                        )
+                        );
                     })}
                 </div>
             </header>
 
-            {/* Main Content Area */}
+            {/* Main Content */}
             <main className="max-w-md mx-auto relative px-4 pt-6">
                 {state === 'PREPARING' && <WaitingRoom orderId={bookingId} lang={lang} />}
 
-                {/* Active Service requires actual parsing of duration or fallback to demo logic if not mapped in DB yet */}
                 {state === 'IN_PROGRESS' && (
-                    <ActiveService 
+                    <ServiceList
                         items={journeyData?.items || []}
-                        totalDuration={journeyData?.totalDuration || 90} 
-                        timeStart={journeyData?.timeStart || null} 
-                        lang={lang} 
+                        lang={lang}
                         bookingId={bookingId}
                         roomName={journeyData?.roomName}
                         bedId={journeyData?.bedId}
@@ -273,36 +241,22 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         onSOS={handleSOS}
                         isSosLoading={isSosLoading}
                         sosSent={sosSent}
-                        // New Props
                         isAuthUser={isAuthUser}
                         onAddService={handleAddService}
                         onChangeStaff={handleChangeStaff}
                         isActionLoading={isActionLoading}
                         actionSuccess={actionSuccess}
+                        onItemRated={handleItemRated}
                     />
                 )}
 
-
-                {state === 'COMPLETED' && <CheckBelongings onConfirm={() => advanceNextState('FEEDBACK')} lang={lang} />}
-
-                {state === 'FEEDBACK' && (
-                    <Feedback 
-                        items={journeyData?.items}
-                        staffName={journeyData?.staffName}
-                        staffAvatar={journeyData?.staffAvatar}
-                        serviceName={journeyData?.items?.[0]?.service_name}
-                        duration={journeyData?.totalDuration}
-                        onComplete={(feedbackData) => advanceNextState('DONE', feedbackData)} 
-                    />
-                )}
-
-                {state === 'DONE' && (
+                {(state === 'DONE' || state === 'FEEDBACK' || state === 'COMPLETED') && (
                     <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in-95">
                         <div className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-xl">
                             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-800 mb-2">{t.finishTitle}</h2>
-                        <p className="text-gray-500">{t.finishSub}</p>
+                        <h2 className="text-2xl font-black text-gray-800 mb-2">{t.allDoneTitle}</h2>
+                        <p className="text-gray-500">{t.allDoneSub}</p>
                         <button onClick={() => window.location.href = `/${lang}/customer-type`} className="mt-8 px-8 py-3 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-800 shadow-sm hover:bg-gray-50">{t.goHome}</button>
                     </div>
                 )}

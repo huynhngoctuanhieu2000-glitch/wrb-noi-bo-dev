@@ -16,6 +16,10 @@ export interface ServiceItem {
     quantity: number;
     price: number;
     options?: any;
+    // Per-item completion & rating fields
+    status: string | null; // 'IN_PROGRESS' | 'COMPLETED' | 'DONE' etc.
+    itemRating: number | null;
+    itemFeedback: string | null;
 }
 
 export interface JourneyData {
@@ -67,35 +71,39 @@ export function useJourneyRealtime(bookingId: string) {
             }
 
             if (booking) {
-                // Fetch Staff details if technicianCode exists
-                let staffName = '';
-                let staffAvatar = '';
-                
-                if (booking.technicianCode) {
-                    staffName = booking.technicianCode; // Fallback to code
-                    
-                    const { data: staffData, error: staffError } = await supabase
-                        .from('Staff')
-                        .select('avatar_url, fullName')
-                        .eq('id', booking.technicianCode)
-                        .maybeSingle();
-                        
-                    if (staffError) {
-                        console.warn('Error fetching staff member:', staffError);
-                    }
-
-                    if (staffData) {
-                        staffAvatar = staffData.avatar_url;
-                        if (staffData.fullName) staffName = staffData.fullName;
-                    }
-                }
-
                 const { data: items } = await supabase
                     .from('BookingItems')
                     .select('*')
                     .eq('bookingId', bookingId);
 
-                // Fetch all services to map info (consistent with KTV app survival strategy)
+                // Collect all unique technicianCodes (item-level + booking-level fallback)
+                const techCodes = new Set<string>();
+                (items || []).forEach((i: any) => {
+                    if (i.technicianCode) techCodes.add(i.technicianCode);
+                });
+                if (booking.technicianCode) techCodes.add(booking.technicianCode);
+
+                // Fetch all staff details in ONE query
+                const staffMap = new Map<string, { fullName: string; avatar_url: string }>();
+                if (techCodes.size > 0) {
+                    const { data: staffList } = await supabase
+                        .from('Staff')
+                        .select('id, fullName, avatar_url')
+                        .in('id', Array.from(techCodes));
+
+                    if (staffList) {
+                        staffList.forEach((s: any) => {
+                            staffMap.set(s.id, { fullName: s.fullName || s.id, avatar_url: s.avatar_url || '' });
+                        });
+                    }
+                }
+
+                // Booking-level fallback staff
+                const bookingStaff = staffMap.get(booking.technicianCode);
+                const fallbackStaffName = bookingStaff?.fullName || booking.technicianCode || '';
+                const fallbackStaffAvatar = bookingStaff?.avatar_url || '';
+
+                // Fetch all services
                 const { data: svcs } = await supabase
                     .from('Services')
                     .select('id, nameVN, nameEN, duration')
@@ -108,24 +116,24 @@ export function useJourneyRealtime(bookingId: string) {
                     });
                 }
 
-
                 const processedItems: ServiceItem[] = [];
-                const itemCount = (items || []).length;
 
                 (items || []).forEach((i: any) => {
                     const sId = String(i.serviceId || '').trim().toLowerCase();
                     const svc = svcMap.get(sId);
                     const itemDuration = i.duration || svc?.duration || 60;
 
-                    // Priority: use item-level timeStart from DB (KTV app sets this per-item)
-                    // Fallback: use booking-level timeStart for all items
-                    let computedTimeStart: string | null = null;
+                    // Per-item staff — each item has its own assigned KTV
+                    const itemTechCode = i.technicianCode || booking.technicianCode || '';
+                    const itemStaff = staffMap.get(itemTechCode);
+                    const itemStaffName = itemStaff?.fullName || itemTechCode;
+                    const itemStaffAvatar = itemStaff?.avatar_url || '';
 
+                    // Priority: item-level timeStart → booking-level
+                    let computedTimeStart: string | null = null;
                     if (i.timeStart) {
-                        // Item has its own start time (set by KTV when they start this specific service)
                         computedTimeStart = i.timeStart;
                     } else if (booking.timeStart) {
-                        // Fallback: all services share booking-level timeStart
                         computedTimeStart = booking.timeStart;
                     }
 
@@ -134,13 +142,16 @@ export function useJourneyRealtime(bookingId: string) {
                         serviceId: i.serviceId,
                         service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
                         duration: itemDuration,
-                        technicianCode: i.technicianCode || booking.technicianCode || '',
-                        staffName: staffName,
-                        staffAvatar: staffAvatar,
+                        technicianCode: itemTechCode,
+                        staffName: itemStaffName,
+                        staffAvatar: itemStaffAvatar,
                         computedTimeStart,
                         quantity: i.quantity || 1,
                         price: i.price || 0,
                         options: i.options,
+                        status: i.status || null,
+                        itemRating: i.itemRating ?? null,
+                        itemFeedback: i.itemFeedback ?? null,
                     });
                 });
 
@@ -154,8 +165,8 @@ export function useJourneyRealtime(bookingId: string) {
                     rating: booking.rating || null,
                     violations: booking.violations || null,
                     tipAmount: booking.tipAmount || null,
-                    staffName: staffName || '',
-                    staffAvatar,
+                    staffName: fallbackStaffName,
+                    staffAvatar: fallbackStaffAvatar,
                     totalDuration: totalDuration || 60,
                     items: processedItems,
                     roomName: booking.roomName || null,
@@ -192,12 +203,8 @@ export function useJourneyRealtime(bookingId: string) {
                     filter: `id=eq.${bookingId}`,
                 },
                 (payload) => {
-                    console.log('Realtime Update Received:', payload.new);
+                    console.log('[Journey] Booking Realtime Update:', payload.new);
                     const newBooking = payload.new;
-                    
-                    // If technicianCode changed, we might need a full refresh
-                    // But for simplicity and reactivity, fetchState will be called by polling anyway
-                    // Or we can manually trigger a fetch for staff if technicianCode changed
                     
                     setData((prev) => {
                         if (!prev) return prev;
@@ -216,7 +223,35 @@ export function useJourneyRealtime(bookingId: string) {
                     if (newBooking.technicianCode) {
                         fetchState();
                     }
-
+                }
+            )
+            // 🆕 Subscribe BookingItems: detect khi KTV hoàn thành từng DV
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'BookingItems',
+                    filter: `bookingId=eq.${bookingId}`,
+                },
+                (payload) => {
+                    console.log('[Journey] BookingItem Realtime Update:', payload.new.id, payload.new.status);
+                    const updatedItem = payload.new;
+                    
+                    setData((prev) => {
+                        if (!prev) return prev;
+                        const updatedItems = prev.items.map(item =>
+                            item.id === updatedItem.id
+                                ? {
+                                    ...item,
+                                    status: updatedItem.status ?? item.status,
+                                    itemRating: updatedItem.itemRating ?? item.itemRating,
+                                    itemFeedback: updatedItem.itemFeedback ?? item.itemFeedback,
+                                }
+                                : item
+                        );
+                        return { ...prev, items: updatedItems };
+                    });
                 }
             )
             .subscribe((status, err) => {
