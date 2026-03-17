@@ -79,8 +79,67 @@ interface ServiceListProps {
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
 }
 
+// ─── Group items by technician ────────────────────────────────────────────────
+interface GroupedService {
+    technicianCode: string;
+    names: string[];
+    combinedName: string;
+    totalDuration: number;
+    itemCount: number;
+    earliestTimeStart: string | null;
+    roomName: string | null;
+    bedId: string | null;
+    items: ServiceItem[];
+    // Aggregated status: nếu tất cả items COMPLETED → group COMPLETED
+    isCompleted: boolean;
+    isStarted: boolean;
+}
+
+const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
+    const map = new Map<string, ServiceItem[]>();
+    items.forEach(item => {
+        const key = item.technicianCode || `__no_tech_${item.id}`;
+        const list = map.get(key) || [];
+        list.push(item);
+        map.set(key, list);
+    });
+
+    return Array.from(map.entries()).map(([techCode, groupItems]) => {
+        const names = groupItems.map(i => i.service_name);
+        const totalDuration = groupItems.reduce((sum, i) => sum + i.duration, 0);
+
+        // Earliest timeStart among all items in group
+        let earliestTimeStart: string | null = null;
+        groupItems.forEach(i => {
+            if (i.computedTimeStart) {
+                if (!earliestTimeStart || new Date(i.computedTimeStart) < new Date(earliestTimeStart)) {
+                    earliestTimeStart = i.computedTimeStart;
+                }
+            }
+        });
+
+        const doneStatuses = ['COMPLETED', 'DONE', 'CLEANING'];
+        const isCompleted = groupItems.every(i => doneStatuses.includes(i.status || ''));
+        const isStarted = groupItems.some(i => i.computedTimeStart !== null);
+
+        return {
+            technicianCode: techCode.startsWith('__no_tech_') ? '' : techCode,
+            names,
+            combinedName: names.join(' + '),
+            totalDuration,
+            itemCount: groupItems.length,
+            earliestTimeStart,
+            roomName: groupItems[0]?.roomName || null,
+            bedId: groupItems[0]?.bedId || null,
+            items: groupItems,
+            isCompleted,
+            isStarted,
+        };
+    });
+};
+
 // ═══════════════════════════════════════════════════════════════════════════════
-// VIEW 1: Tab Timer — Giống ActiveService cũ
+// VIEW 1: Tab Timer — Grouped by technician
 // ═══════════════════════════════════════════════════════════════════════════════
 const TabTimerView = ({
     items, lang, bookingId, roomName, bedId,
@@ -92,23 +151,26 @@ const TabTimerView = ({
     const [sentViolations, setSentViolations] = useState<Set<number>>(new Set());
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const current = items[selectedIdx] || items[0];
-    if (!current) return null;
+    // Group items by technician
+    const groups = groupItemsByTech(items);
+    const currentGroup = groups[selectedIdx] || groups[0];
+    if (!currentGroup) return null;
 
-    const { formattedTime, pct, isStarted, isFinished } = useServiceTimer(current.duration, current.computedTimeStart);
+    const { formattedTime, pct, isStarted, isFinished } = useServiceTimer(currentGroup.totalDuration, currentGroup.earliestTimeStart);
     const circumference = 2 * Math.PI * RADIUS;
-    const isCompleted = current.status === 'COMPLETED' || current.status === 'DONE';
+    const isCompleted = currentGroup.isCompleted;
     const violations = lang === 'vi' ? VIOLATIONS_VI : VIOLATIONS_EN;
 
     const sendViolation = async (idx: number) => {
         if (sentViolations.has(idx)) return;
         setSentViolations(prev => new Set([...prev, idx]));
         try {
+            const room = currentGroup.roomName || roomName;
             await fetch('/api/notifications/normal', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     bookingId, type: 'FEEDBACK',
-                    message: `⚠️ Khách${roomName ? ` P.${roomName}` : ''} - DV "${current.service_name}": ${violations[idx]}`,
+                    message: `⚠️ Khách${room ? ` P.${room}` : ''} - DV "${currentGroup.combinedName}": ${violations[idx]}`,
                 }),
             });
         } catch { /* silent */ }
@@ -122,24 +184,27 @@ const TabTimerView = ({
 
     return (
         <div className="flex flex-col w-full pb-6">
-            {/* Service Tab Bar */}
-            {items.length > 1 && (
+            {/* Service Group Tab Bar — hiện per-group */}
+            {groups.length > 1 && (
                 <div ref={scrollRef} className="flex gap-2 overflow-x-auto pb-3 px-1 mb-2 scrollbar-hide snap-x">
-                    {items.map((item, idx) => {
+                    {groups.map((group, idx) => {
                         const isActive = idx === selectedIdx;
-                        const isDone = item.status === 'COMPLETED' || item.status === 'DONE';
+                        const isDone = group.isCompleted;
                         return (
-                            <button key={item.id} onClick={() => setSelectedIdx(idx)}
+                            <button key={group.technicianCode || idx} onClick={() => setSelectedIdx(idx)}
                                 className={`flex-shrink-0 snap-start px-4 py-2.5 rounded-2xl border-2 transition-all text-left ${
                                     isActive ? 'bg-amber-50 border-amber-400 shadow-sm' :
                                     isDone ? 'bg-green-50 border-green-200' :
                                     'bg-white border-gray-100 hover:border-gray-200'
                                 }`}>
-                                <p className={`text-xs font-black leading-tight truncate max-w-[120px] ${isActive ? 'text-amber-800' : isDone ? 'text-green-700' : 'text-gray-700'}`}>
-                                    {item.service_name}
+                                <p className={`text-xs font-black leading-tight truncate max-w-[150px] ${isActive ? 'text-amber-800' : isDone ? 'text-green-700' : 'text-gray-700'}`}>
+                                    {group.combinedName}
                                 </p>
                                 <p className={`text-[10px] font-bold ${isActive ? 'text-amber-500' : isDone ? 'text-green-500' : 'text-gray-400'}`}>
-                                    {isDone ? (lang === 'vi' ? '✅ Xong' : '✅ Done') : `${item.duration} ${lang === 'vi' ? 'phút' : 'min'}`}
+                                    {isDone
+                                        ? (lang === 'vi' ? '✅ Xong' : '✅ Done')
+                                        : `${group.totalDuration} ${lang === 'vi' ? 'phút' : 'min'}${group.itemCount > 1 ? ` · ${group.itemCount} DV` : ''}`
+                                    }
                                 </p>
                             </button>
                         );
@@ -176,21 +241,26 @@ const TabTimerView = ({
                     </div>
                 </div>
 
-                {/* Service Info — hiện mã NV per-item */}
+                {/* Service Info — grouped */}
                 <div className="text-center mt-3">
-                    <p className="font-black text-gray-800 text-lg">{current.service_name}</p>
+                    <p className="font-black text-gray-800 text-lg">{currentGroup.combinedName}</p>
                     <p className="text-gray-400 text-sm font-medium">
-                        {current.technicianCode && `NV: ${current.technicianCode}`}
-                        {current.technicianCode && roomName && ' · '}
-                        {roomName && `${lang === 'vi' ? 'Phòng' : 'Room'} ${roomName}`}
-                        {bedId && ` · ${lang === 'vi' ? 'Giường' : 'Bed'} ${bedId}`}
+                        {currentGroup.technicianCode && `NV: ${currentGroup.technicianCode}`}
+                        {currentGroup.technicianCode && (currentGroup.roomName || roomName) && ' · '}
+                        {(currentGroup.roomName || roomName) && `${lang === 'vi' ? 'Phòng' : 'Room'} ${currentGroup.roomName || roomName}`}
+                        {(currentGroup.bedId || bedId) && ` · ${lang === 'vi' ? 'Giường' : 'Bed'} ${currentGroup.bedId || bedId}`}
                     </p>
+                    {currentGroup.itemCount > 1 && (
+                        <p className="text-xs font-bold text-amber-500 mt-1">
+                            {currentGroup.totalDuration} {lang === 'vi' ? 'phút' : 'min'} · {currentGroup.itemCount} {lang === 'vi' ? 'dịch vụ' : 'services'}
+                        </p>
+                    )}
                 </div>
 
-                {/* Progress: X/N services */}
-                {items.length > 1 && (
+                {/* Progress: X/N groups */}
+                {groups.length > 1 && (
                     <p className="text-xs font-bold text-gray-400 mt-2">
-                        {selectedIdx + 1} / {items.length} {lang === 'vi' ? 'dịch vụ' : 'services'}
+                        {selectedIdx + 1} / {groups.length} {lang === 'vi' ? 'nhóm dịch vụ' : 'service groups'}
                     </p>
                 )}
             </div>

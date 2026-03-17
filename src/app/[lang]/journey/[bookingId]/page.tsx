@@ -19,9 +19,19 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const [isActionLoading, setIsActionLoading] = React.useState(false);
     const [actionSuccess, setActionSuccess] = React.useState<string | null>(null);
 
-    // State machine: căn bản hơn — chỉ dùng booking.status
+    // State machine: derive từ booking.status + items status
     const rawStatus = journeyData?.status || 'PREPARING';
-    const state = rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
+    // Log debug
+    const itemStatuses = (journeyData?.items || []).map(i => `${i.id}:${i.status}`);
+    console.log('[Journey] rawStatus:', rawStatus, '| items:', itemStatuses.join(', '));
+    // Bất kỳ item nào có status KHÁC "WAITING"/null → coi booking đã bắt đầu
+    const itemsStarted = (journeyData?.items || []).some(i =>
+        i.status && i.status !== 'WAITING'
+    );
+    const derivedStatus = (rawStatus === 'NEW' || rawStatus === 'PREPARING') && itemsStarted
+        ? 'IN_PROGRESS'
+        : rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
+    const state = derivedStatus;
 
     const t = {
         preparing: translations[lang]?.preparing || translations['en'].preparing,
@@ -42,26 +52,38 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         allDoneSub: lang === 'vi' ? 'Mọi dịch vụ đã hoàn thành. Hẹn gặp lại bạn!' : 'All services completed. See you again!',
     };
 
-    // Progress steps — simplified (không có FEEDBACK step riêng ở booking level)
+    // Progress steps — 4 bước lộ trình đầy đủ
     const steps = [
         {
-            id: 'PREPARING',
-            label: t.preparing,
-            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            id: 'FOOT_SOAK',
+            label: translations[lang]?.footSoak || translations['en'].footSoak,
+            emoji: '🛁',
         },
         {
-            id: 'IN_PROGRESS',
-            label: t.inProgress,
-            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            id: 'SERVICE',
+            label: translations[lang]?.service || translations['en'].service,
+            emoji: '💆',
         },
         {
-            id: 'DONE',
-            label: t.completed,
-            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            id: 'CHECK',
+            label: translations[lang]?.checkItems || translations['en'].checkItems,
+            emoji: '👜',
+        },
+        {
+            id: 'RATING',
+            label: translations[lang]?.rating || translations['en'].rating,
+            emoji: '⭐',
         },
     ];
 
-    const currentIndex = state === 'DONE' ? steps.length : steps.findIndex(s => s.id === state);
+    // Map booking status → stepper index
+    const getStepIndex = () => {
+        if (state === 'DONE' || state === 'FEEDBACK' || state === 'COMPLETED') return steps.length; // all done
+        if (state === 'PREPARING') return 0; // Ngâm chân
+        if (state === 'IN_PROGRESS') return 1; // Dịch vụ
+        return 1;
+    };
+    const currentIndex = getStepIndex();
 
     // ─── Handlers ────────────────────────────────────────────────────────────
 
@@ -192,7 +214,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                     </h1>
                 </div>
 
-                {/* Progress Stepper */}
+                {/* Progress Stepper — 4 bước */}
                 <div className="relative flex justify-between items-center w-full px-2 mt-2">
                     <div className="absolute top-5 left-8 right-8 h-0.5 bg-gray-200 z-0">
                         <div
@@ -214,7 +236,9 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                                 <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-500 ${colorClass}`}>
                                     {isCompleted ? (
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                    ) : step.icon}
+                                    ) : (
+                                        <span className="text-lg leading-none">{step.emoji}</span>
+                                    )}
                                 </div>
                                 <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? 'text-amber-600' : isCompleted ? 'text-gray-800' : 'text-gray-400'}`}>
                                     {step.label}
@@ -227,7 +251,15 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
             {/* Main Content */}
             <main className="max-w-md mx-auto relative px-4 pt-6">
-                {state === 'PREPARING' && <WaitingRoom orderId={bookingId} lang={lang} />}
+                {state === 'PREPARING' && (
+                    <WaitingRoom
+                        orderId={bookingId}
+                        lang={lang}
+                        items={journeyData?.items || []}
+                        roomName={journeyData?.roomName}
+                        bedId={journeyData?.bedId}
+                    />
+                )}
 
                 {state === 'IN_PROGRESS' && (
                     <ServiceList

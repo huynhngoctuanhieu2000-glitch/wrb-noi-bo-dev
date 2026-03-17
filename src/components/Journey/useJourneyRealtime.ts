@@ -12,14 +12,17 @@ export interface ServiceItem {
     technicianCode: string;
     staffName: string;
     staffAvatar: string;
-    computedTimeStart: string | null; // ISO string - sequential offset from booking timeStart
+    computedTimeStart: string | null;
     quantity: number;
     price: number;
     options?: any;
     // Per-item completion & rating fields
-    status: string | null; // 'IN_PROGRESS' | 'COMPLETED' | 'DONE' etc.
+    status: string | null;
     itemRating: number | null;
     itemFeedback: string | null;
+    // Per-item room/bed (multi-tech multi-room)
+    roomName: string | null;
+    bedId: string | null;
 }
 
 export interface JourneyData {
@@ -44,6 +47,8 @@ export function useJourneyRealtime(bookingId: string) {
     const [data, setData] = useState<JourneyData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    // booking.id thật (có thể khác bookingId URL param nếu user dùng billCode)
+    const [resolvedId, setResolvedId] = useState<string>(bookingId);
 
     const fetchState = useCallback(async () => {
         if (!bookingId) {
@@ -71,10 +76,14 @@ export function useJourneyRealtime(bookingId: string) {
             }
 
             if (booking) {
+                // Lưu booking.id thật để dùng cho realtime + items query
+                const realId = booking.id;
+                setResolvedId(realId);
+
                 const { data: items } = await supabase
                     .from('BookingItems')
                     .select('*')
-                    .eq('bookingId', bookingId);
+                    .eq('bookingId', realId); // Dùng booking.id thật, KHÔNG dùng URL param
 
                 // ⚠️ NO Staff query — khách hàng KHÔNG biết tên nhân viên
 
@@ -98,12 +107,14 @@ export function useJourneyRealtime(bookingId: string) {
                     const svc = svcMap.get(sId);
                     const itemDuration = i.duration || svc?.duration || 60;
 
-                    // Priority: item-level timeStart → booking-level (only if item actually started)
+                    // Priority: item-level timeStart → booking-level fallback
                     let computedTimeStart: string | null = null;
                     const activeStatuses = ['IN_PROGRESS', 'COMPLETED', 'CLEANING', 'DONE'];
+                    const bookingStarted = activeStatuses.includes(booking.status);
                     if (i.timeStart) {
                         computedTimeStart = i.timeStart;
-                    } else if (booking.timeStart && activeStatuses.includes(i.status)) {
+                    } else if (booking.timeStart && (activeStatuses.includes(i.status) || bookingStarted)) {
+                        // Fallback: booking đã IN_PROGRESS → dùng booking.timeStart cho tất cả items
                         computedTimeStart = booking.timeStart;
                     }
 
@@ -112,10 +123,9 @@ export function useJourneyRealtime(bookingId: string) {
                         serviceId: i.serviceId,
                         service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
                         duration: itemDuration,
-                        // BookingItems dùng "technicianCodes" (TEXT[]), Bookings dùng "technicianCode" (TEXT)
                         technicianCode: (Array.isArray(i.technicianCodes) && i.technicianCodes[0]) || booking.technicianCode || '',
-                        staffName: '', // Hidden from customer
-                        staffAvatar: '', // Hidden from customer
+                        staffName: '',
+                        staffAvatar: '',
                         computedTimeStart,
                         quantity: i.quantity || 1,
                         price: i.price || 0,
@@ -123,6 +133,9 @@ export function useJourneyRealtime(bookingId: string) {
                         status: i.status || null,
                         itemRating: i.itemRating ?? null,
                         itemFeedback: i.itemFeedback ?? null,
+                        // Per-item room/bed, fallback về booking-level
+                        roomName: i.roomName || booking.roomName || null,
+                        bedId: i.bedId || booking.bedId || null,
                     });
                 });
 
@@ -162,16 +175,16 @@ export function useJourneyRealtime(bookingId: string) {
 
         const supabase = createClient();
 
-        // 2. Subscribe to Realtime Updates
+        // 2. Subscribe to Realtime Updates — dùng resolvedId (booking.id thật)
         const channel = supabase
-            .channel(`journey-tracking-${bookingId}`)
+            .channel(`journey-tracking-${resolvedId}`)
             .on(
                 'postgres_changes',
                 {
                     event: 'UPDATE',
                     schema: 'public',
                     table: 'Bookings',
-                    filter: `id=eq.${bookingId}`,
+                    filter: `id=eq.${resolvedId}`,
                 },
                 (payload) => {
                     console.log('[Journey] Booking Realtime Update:', payload.new);
@@ -203,7 +216,7 @@ export function useJourneyRealtime(bookingId: string) {
                     event: 'UPDATE',
                     schema: 'public',
                     table: 'BookingItems',
-                    filter: `bookingId=eq.${bookingId}`,
+                    filter: `bookingId=eq.${resolvedId}`,
                 },
                 (payload) => {
                     console.log('[Journey] BookingItem Realtime Update:', payload.new.id, payload.new.status);
@@ -218,6 +231,8 @@ export function useJourneyRealtime(bookingId: string) {
                                     status: updatedItem.status ?? item.status,
                                     itemRating: updatedItem.itemRating ?? item.itemRating,
                                     itemFeedback: updatedItem.itemFeedback ?? item.itemFeedback,
+                                    // Cập nhật timeStart khi KTV bắt đầu DV
+                                    computedTimeStart: updatedItem.timeStart ?? item.computedTimeStart,
                                 }
                                 : item
                         );
@@ -241,7 +256,7 @@ export function useJourneyRealtime(bookingId: string) {
             supabase.removeChannel(channel);
             clearInterval(pollInterval);
         };
-    }, [bookingId, fetchState]);
+    }, [bookingId, resolvedId, fetchState]);
 
     return { data, loading, error, refresh: fetchState };
 }
