@@ -76,32 +76,7 @@ export function useJourneyRealtime(bookingId: string) {
                     .select('*')
                     .eq('bookingId', bookingId);
 
-                // Collect all unique technicianCodes (item-level + booking-level fallback)
-                const techCodes = new Set<string>();
-                (items || []).forEach((i: any) => {
-                    if (i.technicianCode) techCodes.add(i.technicianCode);
-                });
-                if (booking.technicianCode) techCodes.add(booking.technicianCode);
-
-                // Fetch all staff details in ONE query
-                const staffMap = new Map<string, { fullName: string; avatar_url: string }>();
-                if (techCodes.size > 0) {
-                    const { data: staffList } = await supabase
-                        .from('Staff')
-                        .select('id, fullName, avatar_url')
-                        .in('id', Array.from(techCodes));
-
-                    if (staffList) {
-                        staffList.forEach((s: any) => {
-                            staffMap.set(s.id, { fullName: s.fullName || s.id, avatar_url: s.avatar_url || '' });
-                        });
-                    }
-                }
-
-                // Booking-level fallback staff
-                const bookingStaff = staffMap.get(booking.technicianCode);
-                const fallbackStaffName = bookingStaff?.fullName || booking.technicianCode || '';
-                const fallbackStaffAvatar = bookingStaff?.avatar_url || '';
+                // ⚠️ NO Staff query — khách hàng KHÔNG biết tên nhân viên
 
                 // Fetch all services
                 const { data: svcs } = await supabase
@@ -123,17 +98,12 @@ export function useJourneyRealtime(bookingId: string) {
                     const svc = svcMap.get(sId);
                     const itemDuration = i.duration || svc?.duration || 60;
 
-                    // Per-item staff — each item has its own assigned KTV
-                    const itemTechCode = i.technicianCode || booking.technicianCode || '';
-                    const itemStaff = staffMap.get(itemTechCode);
-                    const itemStaffName = itemStaff?.fullName || itemTechCode;
-                    const itemStaffAvatar = itemStaff?.avatar_url || '';
-
-                    // Priority: item-level timeStart → booking-level
+                    // Priority: item-level timeStart → booking-level (only if item actually started)
                     let computedTimeStart: string | null = null;
+                    const activeStatuses = ['IN_PROGRESS', 'COMPLETED', 'CLEANING', 'DONE'];
                     if (i.timeStart) {
                         computedTimeStart = i.timeStart;
-                    } else if (booking.timeStart) {
+                    } else if (booking.timeStart && activeStatuses.includes(i.status)) {
                         computedTimeStart = booking.timeStart;
                     }
 
@@ -142,9 +112,9 @@ export function useJourneyRealtime(bookingId: string) {
                         serviceId: i.serviceId,
                         service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
                         duration: itemDuration,
-                        technicianCode: itemTechCode,
-                        staffName: itemStaffName,
-                        staffAvatar: itemStaffAvatar,
+                        technicianCode: i.technicianCode || booking.technicianCode || '',
+                        staffName: '', // Hidden from customer
+                        staffAvatar: '', // Hidden from customer
                         computedTimeStart,
                         quantity: i.quantity || 1,
                         price: i.price || 0,
@@ -165,8 +135,8 @@ export function useJourneyRealtime(bookingId: string) {
                     rating: booking.rating || null,
                     violations: booking.violations || null,
                     tipAmount: booking.tipAmount || null,
-                    staffName: fallbackStaffName,
-                    staffAvatar: fallbackStaffAvatar,
+                    staffName: '',
+                    staffAvatar: '',
                     totalDuration: totalDuration || 60,
                     items: processedItems,
                     roomName: booking.roomName || null,

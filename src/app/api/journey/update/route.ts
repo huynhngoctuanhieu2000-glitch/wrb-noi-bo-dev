@@ -61,19 +61,15 @@ export async function PATCH(request: Request) {
 
             if (allRated) {
                 // Tất cả dịch vụ đã được đánh giá → cập nhật booking DONE
-                const avgRating = Math.round(
-                    (allItems || []).reduce((sum, i) => sum + (i.itemRating || 0), 0) / (allItems || []).length
-                );
-
+                // ⚠️ KHÔNG set Bookings.rating ở đây — trigger cũ sẽ gửi cùng 1 rating cho tất cả KTV
+                // Per-item rating đã được lưu trong BookingItems.itemRating → trigger mới xử lý riêng
                 const { error: bookingError } = await supabaseAdmin
                     .from('Bookings')
                     .update({ 
                         status: 'DONE',
-                        rating: rating ?? avgRating,
                         timeEnd: new Date().toISOString(),
                         ...(tipAmount !== undefined && { tipAmount }),
                         ...(feedbackNote !== undefined && { feedbackNote }),
-                        ...(violations !== undefined && { violations }),
                     })
                     .eq('id', bookingId);
 
