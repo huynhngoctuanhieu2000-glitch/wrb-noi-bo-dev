@@ -11,6 +11,7 @@ import { MenuProvider } from "@/components/Menu/MenuContext";
 import { AuthProvider } from "@/components/Auth/AuthProvider";
 // Import component fix lỗi height cho iOS
 import IOSViewportFix from "@/components/IOSViewportFix";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 import { Be_Vietnam_Pro } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
@@ -26,6 +27,13 @@ const beVietnamPro = Be_Vietnam_Pro({
 export const metadata: Metadata = {
   title: "Ngan Ha Spa",
   description: "Booking System for Ngan Ha Spa",
+  manifest: "/manifest.json",
+  themeColor: "#b8860b",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Ngan Ha Spa",
+  },
   icons: {
     icon: "/assets/logos/logo-only-gold.webp",
     apple: "/assets/logos/logo-only-gold.webp",
@@ -54,6 +62,7 @@ export default function RootLayout({
         <AuthProvider>
           <MenuProvider>
             <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
+            <ServiceWorkerRegister />
             <Analytics />
             <SpeedInsights />
             {children}
