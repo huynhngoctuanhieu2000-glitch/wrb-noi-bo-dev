@@ -592,6 +592,37 @@ const CombinedRatingView = ({
                 })}
             </div>
 
+            {/* Skip Button — only show if not all rated yet */}
+            {!allRated && (
+                <button
+                    onClick={async () => {
+                        const unrated = items.filter(i =>
+                            (i.itemRating === null || i.itemRating === undefined) && !submitted.has(i.id)
+                        );
+                        setSubmitting('__skip__');
+                        try {
+                            for (const item of unrated) {
+                                await onItemRated(item.id, 0, 'skipped');
+                            }
+                            setSubmitted(prev => {
+                                const next = new Set(prev);
+                                unrated.forEach(i => next.add(i.id));
+                                return next;
+                            });
+                        } catch { /* noop */ }
+                        finally { setSubmitting(null); }
+                    }}
+                    disabled={!!submitting}
+                    className="w-full py-3 mt-4 rounded-2xl font-bold text-sm text-gray-400 bg-white border-2 border-gray-100 hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                    {submitting === '__skip__' ? (
+                        <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{lang === 'vi' ? 'Đang xử lý...' : 'Processing...'}</>
+                    ) : (
+                        <>{lang === 'vi' ? 'Bỏ qua đánh giá →' : 'Skip rating →'}</>
+                    )}
+                </button>
+            )}
+
             {/* All-done message */}
             {allRated && (
                 <div className="mt-6 text-center animate-in fade-in zoom-in-95">
