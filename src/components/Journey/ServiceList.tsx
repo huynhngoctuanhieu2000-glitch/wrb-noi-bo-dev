@@ -151,6 +151,17 @@ const TabTimerView = ({
     const [sentViolations, setSentViolations] = useState<Set<number>>(new Set());
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    // localStorage key for violations persistence
+    const storageKey = `spa_wrb_violations_${bookingId || 'default'}`;
+
+    // Restore violations from localStorage on mount
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) setSelectedViolations(JSON.parse(saved));
+        } catch { /* silent */ }
+    }, [storageKey]);
+
     // Group items by technician
     const groups = groupItemsByTech(items);
     const currentGroup = groups[selectedIdx] || groups[0];
@@ -178,7 +189,12 @@ const TabTimerView = ({
 
     const toggleViolation = (idx: number) => {
         const isSelecting = !selectedViolations.includes(idx);
-        setSelectedViolations(prev => isSelecting ? [...prev, idx] : prev.filter(i => i !== idx));
+        const updated = isSelecting
+            ? [...selectedViolations, idx]
+            : selectedViolations.filter(i => i !== idx);
+        setSelectedViolations(updated);
+        // Persist to localStorage so CombinedRatingView can read it
+        try { localStorage.setItem(storageKey, JSON.stringify(updated)); } catch { /* silent */ }
         if (isSelecting) sendViolation(idx);
     };
 
@@ -374,9 +390,28 @@ const CombinedRatingView = ({
     const [submitting, setSubmitting] = useState<string | null>(null);
     const [submitted, setSubmitted] = useState<Set<string>>(new Set());
     const [showTipFor, setShowTipFor] = useState<string | null>(null);
+    const [savedViolations, setSavedViolations] = useState<number[]>([]);
+
+    // Read violations from localStorage (saved by TabTimerView)
+    const storageKey = `spa_wrb_violations_${bookingId || 'default'}`;
+    const violations = lang === 'vi' ? VIOLATIONS_VI : VIOLATIONS_EN;
+
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) setSavedViolations(JSON.parse(saved));
+        } catch { /* silent */ }
+    }, [storageKey]);
 
     const ratedCount = items.filter(i => (i.itemRating !== null && i.itemRating !== undefined) || submitted.has(i.id)).length;
     const allRated = ratedCount >= items.length;
+
+    // Clean up localStorage when all rated
+    useEffect(() => {
+        if (allRated) {
+            try { localStorage.removeItem(storageKey); } catch { /* silent */ }
+        }
+    }, [allRated, storageKey]);
 
     const handleSubmit = async (itemId: string) => {
         const rating = ratings[itemId];
@@ -426,6 +461,43 @@ const CombinedRatingView = ({
                         ? 'Đánh giá từng dịch vụ để chúng tôi cải thiện tốt hơn'
                         : 'Rate each service to help us improve'}
                 </p>
+            </div>
+
+            {/* Violations Checklist — full 6 questions, editable */}
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-5 animate-in fade-in duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <h3 className="text-sm font-black text-amber-800">
+                        {lang === 'vi' ? 'Góp ý dịch vụ (nếu có)' : 'Service feedback (if any)'}
+                    </h3>
+                </div>
+                <div className="space-y-2">
+                    {violations.map((v, idx) => {
+                        const isChecked = savedViolations.includes(idx);
+                        return (
+                            <div key={idx}
+                                onClick={() => {
+                                    const updated = isChecked
+                                        ? savedViolations.filter(i => i !== idx)
+                                        : [...savedViolations, idx];
+                                    setSavedViolations(updated);
+                                    try { localStorage.setItem(storageKey, JSON.stringify(updated)); } catch { /* silent */ }
+                                }}
+                                className={`flex items-start gap-3 p-3 bg-white rounded-2xl cursor-pointer border transition-all ${
+                                    isChecked ? 'border-amber-300 shadow-sm ring-1 ring-amber-100' : 'border-gray-100/80'
+                                }`}>
+                                <div className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+                                    isChecked ? 'border-amber-500 bg-amber-500' : 'border-gray-300 bg-white'
+                                }`}>
+                                    {isChecked && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                </div>
+                                <span className={`text-xs leading-snug font-medium flex-1 ${isChecked ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Progress */}

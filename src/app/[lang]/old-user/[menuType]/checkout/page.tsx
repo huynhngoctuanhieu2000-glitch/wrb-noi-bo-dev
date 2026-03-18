@@ -10,6 +10,7 @@ import CustomerInfo from '@/components/Checkout/CustomerInfo';
 import Invoice from '@/components/Checkout/Invoice';
 import PaymentMethods from '@/components/Checkout/PaymentMethods';
 import OrderConfirmModal from '@/components/Checkout/OrderConfirmModal';
+import ChangeDenominationSelector from '@/components/Checkout/ChangeDenominationSelector';
 import CustomForYouModal from '@/components/CustomForYou';
 import { ServiceOptions, CartItem } from '@/components/Menu/types';
 import { getDictionary } from '@/lib/dictionaries';
@@ -44,6 +45,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
+    const [changeDenominations, setChangeDenominations] = useState<number[]>([]);
 
     // --- COMPUTED ---
     const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
@@ -70,6 +72,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     useEffect(() => {
         setAmountPaid('');
     }, [paymentMethod]);
+
+    // Reset change denominations when amount changes
+    useEffect(() => {
+        setChangeDenominations([]);
+    }, [amountPaid]);
 
     // [NEW] Auto-fill Customer Info (OLD USER SPECIFIC & Google Login)
     useEffect(() => {
@@ -178,6 +185,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             items: cart,
             paymentMethod,
             amountPaid: parseInt(amountPaid.replace(/\./g, '') || '0', 10),
+            changeDenominations,
             totalVND,
             lang: lang
         };
@@ -323,6 +331,16 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                                         </span>
                                     )}
                                 </div>
+
+                                {/* Change Denomination Selector */}
+                                {changeAmount > 0 && (
+                                    <ChangeDenominationSelector
+                                        changeAmount={changeAmount}
+                                        currency={currency as 'VND' | 'USD'}
+                                        dict={dict}
+                                        onSelect={setChangeDenominations}
+                                    />
+                                )}
                             </div>
                         )}
                     </div>

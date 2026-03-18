@@ -107,14 +107,14 @@ export function useJourneyRealtime(bookingId: string) {
                     const svc = svcMap.get(sId);
                     const itemDuration = i.duration || svc?.duration || 60;
 
-                    // Priority: item-level timeStart → booking-level fallback
+                    // Priority: item-level timeStart → booking-level fallback (ONLY if this item's status is active)
                     let computedTimeStart: string | null = null;
                     const activeStatuses = ['IN_PROGRESS', 'COMPLETED', 'CLEANING', 'DONE'];
-                    const bookingStarted = activeStatuses.includes(booking.status);
                     if (i.timeStart) {
                         computedTimeStart = i.timeStart;
-                    } else if (booking.timeStart && (activeStatuses.includes(i.status) || bookingStarted)) {
-                        // Fallback: booking đã IN_PROGRESS → dùng booking.timeStart cho tất cả items
+                    } else if (booking.timeStart && activeStatuses.includes(i.status)) {
+                        // Fallback: chỉ dùng booking.timeStart nếu ITEM NÀY đã bắt đầu
+                        // KHÔNG dùng bookingStarted toàn cục → tránh DV chưa bắt đầu cũng đếm ngược
                         computedTimeStart = booking.timeStart;
                     }
 
