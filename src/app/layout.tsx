@@ -28,7 +28,6 @@ export const metadata: Metadata = {
   title: "Ngan Ha Spa",
   description: "Booking System for Ngan Ha Spa",
   manifest: "/manifest.json",
-  themeColor: "#b8860b",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -46,6 +45,7 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false, // Prevent zooming
   viewportFit: "cover",
+  themeColor: "#b8860b",
 };
 
 export default function RootLayout({

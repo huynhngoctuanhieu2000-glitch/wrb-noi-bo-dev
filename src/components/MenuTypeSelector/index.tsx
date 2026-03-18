@@ -126,7 +126,6 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                                 fill
                                 className="object-cover"
                                 sizes="(max-width: 768px) 100vw, 500px"
-                                priority
                             />
                         </div>
 
@@ -165,7 +164,6 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                                 fill
                                 className="object-cover"
                                 sizes="(max-width: 768px) 100vw, 500px"
-                                priority
                             />
                         </div>
                         <div className={styles.shineEffect} />
@@ -205,7 +203,6 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
                                 fill
                                 className="object-cover"
                                 sizes="(max-width: 768px) 100vw, 500px"
-                                priority
                             />
                         </div>
                         <div className={styles.shineEffect} />
