@@ -1,63 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import TipModal from '@/components/Journey/TipModal';
-
-// 🔧 UI CONFIGURATION
-const TIMER_SIZE = 260;
-const INNER_SIZE = 180;
-const RADIUS = 110;
-const AMBER_MAIN = '#F59E0B';
-const AMBER_LIGHT = '#FFFBEB';
-
-const VIOLATIONS_VI = [
-    '1. Nhân viên sử dụng điện thoại riêng trong giờ làm?',
-    '2. Nhân viên gợi ý hoặc xin tiền thưởng (tip)?',
-    '3. Nhân viên nói chuyện riêng quá nhiều?',
-    '4. Nhân viên thực hiện sai quy trình?',
-    '5. Nhân viên không sắp xếp và bảo quản đồ của khách?',
-    '6. Nhân viên có thông báo bấm giờ khi bắt đầu dịch vụ không?',
-];
-const VIOLATIONS_EN = [
-    '1. Therapist using personal phone during service?',
-    '2. Therapist hinting or asking for a tip?',
-    '3. Therapist talking too much?',
-    '4. Therapist not following the correct procedure?',
-    '5. Therapist not safeguarding your belongings?',
-    '6. Did the therapist notify when starting the timer?',
-];
-
-const RATING_OPTIONS = [
-    { value: 1, emoji: '😡', label: 'Tệ', labelEN: 'Bad', bg: 'bg-red-100 border-red-400', bgSel: 'bg-red-200 border-red-500 scale-105 shadow-md' },
-    { value: 2, emoji: '😐', label: 'OK', labelEN: 'Ok', bg: 'bg-gray-50 border-gray-200', bgSel: 'bg-gray-200 border-gray-500 scale-105 shadow-md' },
-    { value: 3, emoji: '🙂', label: 'Tốt', labelEN: 'Good', bg: 'bg-amber-50 border-amber-200', bgSel: 'bg-amber-200 border-amber-500 scale-105 shadow-md' },
-    { value: 4, emoji: '🤩', label: 'Xuất sắc', labelEN: 'Excellent', bg: 'bg-amber-100 border-amber-300', bgSel: 'bg-amber-300 border-amber-600 scale-105 shadow-md' },
-];
-
-// ─── Timer Hook ───────────────────────────────────────────────────────────────
-const useServiceTimer = (duration: number, computedTimeStart: string | null | undefined) => {
-    const totalSeconds = duration * 60;
-    const getElapsed = () => {
-        if (!computedTimeStart) return 0;
-        let norm = computedTimeStart;
-        if (!norm.includes('Z') && !norm.includes('+')) norm = norm.replace(' ', 'T') + 'Z';
-        return Math.max(0, Math.min(Math.floor((Date.now() - new Date(norm).getTime()) / 1000), totalSeconds));
-    };
-    const [elapsed, setElapsed] = useState(getElapsed);
-    useEffect(() => { setElapsed(getElapsed()); }, [computedTimeStart]);
-    useEffect(() => {
-        if (!computedTimeStart) return;
-        const id = setInterval(() => setElapsed(p => Math.min(p + 1, totalSeconds)), 1000);
-        return () => clearInterval(id);
-    }, [computedTimeStart, totalSeconds]);
-
-    const remaining = totalSeconds - elapsed;
-    const pct = computedTimeStart ? (remaining / totalSeconds) * 100 : 100;
-    const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
-    const ss = String(remaining % 60).padStart(2, '0');
-    return { formattedTime: `${mm}:${ss}`, pct, isStarted: !!computedTimeStart, isFinished: remaining <= 0 && !!computedTimeStart };
-};
+import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getViolations } from './Journey.constants';
+import { useServiceTimer, groupItemsByTech, useViolations, GroupedService } from './Journey.logic';
+import { translations } from './Journey.i18n';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface ServiceListProps {
@@ -79,65 +27,6 @@ interface ServiceListProps {
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
 }
 
-// ─── Group items by technician ────────────────────────────────────────────────
-interface GroupedService {
-    technicianCode: string;
-    names: string[];
-    combinedName: string;
-    totalDuration: number;
-    itemCount: number;
-    earliestTimeStart: string | null;
-    roomName: string | null;
-    bedId: string | null;
-    items: ServiceItem[];
-    // Aggregated status: nếu tất cả items COMPLETED → group COMPLETED
-    isCompleted: boolean;
-    isStarted: boolean;
-}
-
-const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
-    const map = new Map<string, ServiceItem[]>();
-    items.forEach(item => {
-        const key = item.technicianCode || `__no_tech_${item.id}`;
-        const list = map.get(key) || [];
-        list.push(item);
-        map.set(key, list);
-    });
-
-    return Array.from(map.entries()).map(([techCode, groupItems]) => {
-        const names = groupItems.map(i => i.service_name);
-        const totalDuration = groupItems.reduce((sum, i) => sum + i.duration, 0);
-
-        // Earliest timeStart among all items in group
-        let earliestTimeStart: string | null = null;
-        groupItems.forEach(i => {
-            if (i.computedTimeStart) {
-                if (!earliestTimeStart || new Date(i.computedTimeStart) < new Date(earliestTimeStart)) {
-                    earliestTimeStart = i.computedTimeStart;
-                }
-            }
-        });
-
-        const doneStatuses = ['COMPLETED', 'DONE', 'CLEANING'];
-        const isCompleted = groupItems.every(i => doneStatuses.includes(i.status || ''));
-        const isStarted = groupItems.some(i => i.computedTimeStart !== null);
-
-        return {
-            technicianCode: techCode.startsWith('__no_tech_') ? '' : techCode,
-            names,
-            combinedName: names.join(' + '),
-            totalDuration,
-            itemCount: groupItems.length,
-            earliestTimeStart,
-            roomName: groupItems[0]?.roomName || null,
-            bedId: groupItems[0]?.bedId || null,
-            items: groupItems,
-            isCompleted,
-            isStarted,
-        };
-    });
-};
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // VIEW 1: Tab Timer — Grouped by technician
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -147,56 +36,29 @@ const TabTimerView = ({
     onAddService, onChangeStaff, isActionLoading, actionSuccess,
 }: Omit<ServiceListProps, 'onItemRated'>) => {
     const [selectedIdx, setSelectedIdx] = useState(0);
-    const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
-    const [sentViolations, setSentViolations] = useState<Set<number>>(new Set());
     const scrollRef = useRef<HTMLDivElement>(null);
-
-    // localStorage key for violations persistence
-    const storageKey = `spa_wrb_violations_${bookingId || 'default'}`;
-
-    // Restore violations from localStorage on mount
-    useEffect(() => {
-        try {
-            const saved = localStorage.getItem(storageKey);
-            if (saved) setSelectedViolations(JSON.parse(saved));
-        } catch { /* silent */ }
-    }, [storageKey]);
+    const t = translations[lang || 'vi'] || translations['en'];
 
     // Group items by technician
-    const groups = groupItemsByTech(items);
+    const groups = groupItemsByTech(items || []);
     const currentGroup = groups[selectedIdx] || groups[0];
     if (!currentGroup) return null;
 
-    const { formattedTime, pct, isStarted, isFinished } = useServiceTimer(currentGroup.totalDuration, currentGroup.earliestTimeStart);
-    const circumference = 2 * Math.PI * RADIUS;
+    const { formattedTime, progress: pct, isStarted, isFinished } = useServiceTimer(currentGroup.totalDuration, currentGroup.earliestTimeStart);
+    const circumference = 2 * Math.PI * TIMER_CONFIG_COMPACT.RADIUS;
     const isCompleted = currentGroup.isCompleted;
-    const violations = lang === 'vi' ? VIOLATIONS_VI : VIOLATIONS_EN;
+    const violations = getViolations(lang || 'vi');
 
-    const sendViolation = async (idx: number) => {
-        if (sentViolations.has(idx)) return;
-        setSentViolations(prev => new Set([...prev, idx]));
-        try {
-            const room = currentGroup.roomName || roomName;
-            await fetch('/api/notifications/normal', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    bookingId, type: 'FEEDBACK',
-                    message: `⚠️ Khách${room ? ` P.${room}` : ''} - DV "${currentGroup.combinedName}": ${violations[idx]}`,
-                }),
-            });
-        } catch { /* silent */ }
-    };
-
-    const toggleViolation = (idx: number) => {
-        const isSelecting = !selectedViolations.includes(idx);
-        const updated = isSelecting
-            ? [...selectedViolations, idx]
-            : selectedViolations.filter(i => i !== idx);
-        setSelectedViolations(updated);
-        // Persist to localStorage so CombinedRatingView can read it
-        try { localStorage.setItem(storageKey, JSON.stringify(updated)); } catch { /* silent */ }
-        if (isSelecting) sendViolation(idx);
-    };
+    // Use shared violations hook
+    const currentGroupId = currentGroup.items[0]?.id || '0';
+    const { selectedViolations, sentViolations, sendingViolation, toggleViolation } = useViolations(
+        bookingId,
+        currentGroupId,
+        violations,
+        currentGroup.roomName || roomName,
+        currentGroup.bedId || bedId,
+        currentGroup.combinedName,
+    );
 
     return (
         <div className="flex flex-col w-full pb-6">
@@ -218,8 +80,8 @@ const TabTimerView = ({
                                 </p>
                                 <p className={`text-[10px] font-bold ${isActive ? 'text-amber-500' : isDone ? 'text-green-500' : 'text-gray-400'}`}>
                                     {isDone
-                                        ? (lang === 'vi' ? '✅ Xong' : '✅ Done')
-                                        : `${group.totalDuration} ${lang === 'vi' ? 'phút' : 'min'}${group.itemCount > 1 ? ` · ${group.itemCount} DV` : ''}`
+                                        ? `✅ ${t.done}`
+                                        : `${group.totalDuration} ${t.minutes}${group.itemCount > 1 ? ` · ${group.itemCount} ${t.services}` : ''}`
                                     }
                                 </p>
                             </button>
@@ -231,10 +93,10 @@ const TabTimerView = ({
             {/* Timer Circle */}
             <div className="flex flex-col items-center mb-4">
                 <div className="relative flex items-center justify-center">
-                    <svg className="-rotate-90 drop-shadow-lg" width={TIMER_SIZE} height={TIMER_SIZE} viewBox="0 0 260 260">
-                        <circle cx="130" cy="130" r={RADIUS} fill="none" stroke={isStarted ? AMBER_LIGHT : '#F3F4F6'} strokeWidth="8" />
-                        <circle cx="130" cy="130" r={RADIUS} fill="none"
-                            stroke={isCompleted ? '#10B981' : isStarted ? AMBER_MAIN : '#D1D5DB'}
+                    <svg className="-rotate-90 drop-shadow-lg" width={TIMER_CONFIG_COMPACT.TIMER_SIZE} height={TIMER_CONFIG_COMPACT.TIMER_SIZE} viewBox="0 0 260 260">
+                        <circle cx="130" cy="130" r={TIMER_CONFIG_COMPACT.RADIUS} fill="none" stroke={isStarted ? TIMER_CONFIG_COMPACT.AMBER_LIGHT : '#F3F4F6'} strokeWidth="8" />
+                        <circle cx="130" cy="130" r={TIMER_CONFIG_COMPACT.RADIUS} fill="none"
+                            stroke={isCompleted ? '#10B981' : isStarted ? TIMER_CONFIG_COMPACT.AMBER_MAIN : '#D1D5DB'}
                             strokeWidth="12" strokeLinecap="round"
                             strokeDasharray={circumference}
                             strokeDashoffset={isCompleted ? 0 : circumference - (pct / 100) * circumference}
@@ -242,16 +104,16 @@ const TabTimerView = ({
                     </svg>
                     <div className={`absolute rounded-full flex flex-col items-center justify-center shadow-lg ${
                         isCompleted ? 'bg-green-50' : isStarted ? 'bg-amber-50' : 'bg-gray-50'
-                    }`} style={{ width: INNER_SIZE, height: INNER_SIZE }}>
+                    }`} style={{ width: TIMER_CONFIG_COMPACT.INNER_SIZE, height: TIMER_CONFIG_COMPACT.INNER_SIZE }}>
                         {isCompleted ? (
                             <>
                                 <span className="text-4xl">✅</span>
-                                <span className="text-sm font-black text-green-700 mt-1">{lang === 'vi' ? 'Hoàn thành' : 'Done'}</span>
+                                <span className="text-sm font-black text-green-700 mt-1">{t.done}</span>
                             </>
                         ) : (
                             <>
                                 <span className={`text-5xl font-black tracking-tighter ${isStarted ? 'text-amber-900' : 'text-gray-400'}`}>{formattedTime}</span>
-                                {!isStarted && <span className="text-xs font-bold text-gray-400 uppercase tracking-wider animate-pulse">{lang === 'vi' ? 'Chờ bắt đầu' : 'Waiting'}</span>}
+                                {!isStarted && <span className="text-xs font-bold text-gray-400 uppercase tracking-wider animate-pulse">{t.waiting}</span>}
                             </>
                         )}
                     </div>
@@ -261,14 +123,14 @@ const TabTimerView = ({
                 <div className="text-center mt-3">
                     <p className="font-black text-gray-800 text-lg">{currentGroup.combinedName}</p>
                     <p className="text-gray-400 text-sm font-medium">
-                        {currentGroup.technicianCode && `NV: ${currentGroup.technicianCode}`}
+                        {currentGroup.technicianCode && `${t.staff}: ${currentGroup.technicianCode}`}
                         {currentGroup.technicianCode && (currentGroup.roomName || roomName) && ' · '}
-                        {(currentGroup.roomName || roomName) && `${lang === 'vi' ? 'Phòng' : 'Room'} ${currentGroup.roomName || roomName}`}
-                        {(currentGroup.bedId || bedId) && ` · ${lang === 'vi' ? 'Giường' : 'Bed'} ${currentGroup.bedId || bedId}`}
+                        {(currentGroup.roomName || roomName) && `${t.room} ${currentGroup.roomName || roomName}`}
+                        {(currentGroup.bedId || bedId) && ` · ${t.bed} ${currentGroup.bedId || bedId}`}
                     </p>
                     {currentGroup.itemCount > 1 && (
                         <p className="text-xs font-bold text-amber-500 mt-1">
-                            {currentGroup.totalDuration} {lang === 'vi' ? 'phút' : 'min'} · {currentGroup.itemCount} {lang === 'vi' ? 'dịch vụ' : 'services'}
+                            {currentGroup.totalDuration} ${t.minutes} · {currentGroup.itemCount} {t.services}
                         </p>
                     )}
                 </div>
@@ -276,7 +138,7 @@ const TabTimerView = ({
                 {/* Progress: X/N groups */}
                 {groups.length > 1 && (
                     <p className="text-xs font-bold text-gray-400 mt-2">
-                        {selectedIdx + 1} / {groups.length} {lang === 'vi' ? 'nhóm dịch vụ' : 'service groups'}
+                        {selectedIdx + 1} / {groups.length} {t.serviceGroups}
                     </p>
                 )}
             </div>
@@ -284,9 +146,9 @@ const TabTimerView = ({
             {/* Quick Violations */}
             <div className="mb-4">
                 <div className="flex items-center justify-between mb-2 px-1">
-                    <h3 className="font-bold text-gray-700 text-sm">{lang === 'vi' ? 'Góp ý nhanh' : 'Quick feedback'}</h3>
+                    <h3 className="font-bold text-gray-700 text-sm">{t.quickFeedback}</h3>
                     <span className="text-[9px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
-                        {lang === 'vi' ? 'Tùy chọn' : 'Optional'}
+                        {t.optional}
                     </span>
                 </div>
                 <div className="space-y-2">
@@ -304,7 +166,7 @@ const TabTimerView = ({
                                     {(isSel || isSent) && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
                                 </div>
                                 <span className={`text-xs leading-snug font-medium flex-1 ${isSent ? 'text-green-700' : isSel ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
-                                {isSent && <span className="text-[9px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full flex-shrink-0">{lang === 'vi' ? 'Đã báo' : 'Sent'}</span>}
+                                {isSent && <span className="text-[9px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full flex-shrink-0">{t.sent}</span>}
                             </div>
                         );
                     })}
@@ -318,14 +180,14 @@ const TabTimerView = ({
                         className={`py-4 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md active:scale-95 ${
                             actionSuccess === 'ADD_SERVICE' ? 'bg-green-500 text-white' : 'bg-amber-500 text-white hover:bg-amber-600'
                         }`}>
-                        {actionSuccess === 'ADD_SERVICE' ? '✓ ' : '+ '}{lang === 'vi' ? (actionSuccess === 'ADD_SERVICE' ? 'Đã báo' : 'Thêm DV') : (actionSuccess === 'ADD_SERVICE' ? 'Notified' : 'Add Service')}
+                        {actionSuccess === 'ADD_SERVICE' ? '✓ ' : '+ '}{actionSuccess === 'ADD_SERVICE' ? t.notified : t.addServiceShort}
                     </button>
                     {isAuthUser && (
                         <button onClick={onChangeStaff} disabled={isActionLoading || actionSuccess === 'CHANGE_STAFF'}
                             className={`py-4 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 border-2 active:scale-95 ${
                                 actionSuccess === 'CHANGE_STAFF' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-white text-gray-800 border-gray-100'
                             }`}>
-                            {actionSuccess === 'CHANGE_STAFF' ? '✓ ' : '🔄 '}{lang === 'vi' ? (actionSuccess === 'CHANGE_STAFF' ? 'Đã báo' : 'Đổi NV') : (actionSuccess === 'CHANGE_STAFF' ? 'Notified' : 'Change')}
+                            {actionSuccess === 'CHANGE_STAFF' ? '✓ ' : '🔄 '}{actionSuccess === 'CHANGE_STAFF' ? t.notified : t.changeStaffShort}
                         </button>
                     )}
                 </div>
@@ -333,7 +195,7 @@ const TabTimerView = ({
                     className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 ${
                         isSosLoading ? 'bg-gray-200 text-gray-400' : sosSent ? 'bg-green-500 text-white' : 'bg-red-600 text-white hover:bg-red-700 shadow-red-200'
                     }`}>
-                    {sosSent ? '✓ ' : '🚨 '}<span className="tracking-widest uppercase">{lang === 'vi' ? (sosSent ? 'ĐÃ BÁO LỄ TÂN' : 'BÁO KHẨN CẤP') : (sosSent ? 'RECEPTION NOTIFIED' : 'EMERGENCY SOS')}</span>
+                    {sosSent ? '✓ ' : '🚨 '}<span className="tracking-widest uppercase">{sosSent ? t.sosSentBtn : t.sosBtn}</span>
                 </button>
             </div>
         </div>
@@ -344,9 +206,8 @@ const TabTimerView = ({
 // VIEW 2: Check Belongings
 // ═══════════════════════════════════════════════════════════════════════════════
 const CheckBelongingsView = ({ lang = 'vi', onConfirm }: { lang?: string; onConfirm: () => void }) => {
-    const checkItems = lang === 'vi'
-        ? ['📱 Điện thoại', '👛 Ví tiền', '⌚ Đồng hồ / Trang sức', '🔑 Chìa khóa / Thẻ']
-        : ['📱 Phone', '👛 Wallet', '⌚ Watch / Jewelry', '🔑 Keys / Cards'];
+    const t = translations[lang || 'vi'] || translations['en'];
+    const checkItems = [t.checkPhone, t.checkWallet, t.checkWatch, t.checkKeys];
 
     return (
         <div className="flex flex-col items-center w-full py-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
@@ -354,12 +215,10 @@ const CheckBelongingsView = ({ lang = 'vi', onConfirm }: { lang?: string; onConf
                 👜
             </div>
             <h2 className="text-2xl font-black text-gray-800 text-center mb-2">
-                {lang === 'vi' ? 'Nhắc nhở trước khi ra về' : 'Before You Leave'}
+                {t.beforeYouLeave}
             </h2>
             <p className="text-gray-500 text-sm text-center leading-relaxed mb-8 max-w-xs">
-                {lang === 'vi'
-                    ? 'Vui lòng kiểm tra kỹ tư trang cá nhân trước khi rời phòng!'
-                    : 'Please check your personal belongings before leaving!'}
+                {t.checkBeforeLeave}
             </p>
             <div className="w-full space-y-3 mb-8">
                 {checkItems.map((item) => (
@@ -370,7 +229,7 @@ const CheckBelongingsView = ({ lang = 'vi', onConfirm }: { lang?: string; onConf
             </div>
             <button onClick={onConfirm}
                 className="w-full py-4 bg-gray-900 text-white font-black rounded-2xl text-base shadow-xl active:scale-95 transition-all">
-                {lang === 'vi' ? '✅ Đã kiểm tra — Tiến hành đánh giá' : '✅ Checked — Rate Now'}
+                {t.checkedRateNow}
             </button>
         </div>
     );
@@ -391,10 +250,11 @@ const CombinedRatingView = ({
     const [submitted, setSubmitted] = useState<Set<string>>(new Set());
     const [showTipFor, setShowTipFor] = useState<string | null>(null);
     const [savedViolations, setSavedViolations] = useState<number[]>([]);
+    const t = translations[lang || 'vi'] || translations['en'];
 
     // Read violations from localStorage (saved by TabTimerView)
     const storageKey = `spa_wrb_violations_${bookingId || 'default'}`;
-    const violations = lang === 'vi' ? VIOLATIONS_VI : VIOLATIONS_EN;
+    const violations = getViolations(lang || 'vi');
 
     useEffect(() => {
         try {
@@ -454,12 +314,10 @@ const CombinedRatingView = ({
                     ⭐
                 </div>
                 <h2 className="text-xl font-black text-gray-800">
-                    {lang === 'vi' ? 'Đánh giá dịch vụ' : 'Rate Your Services'}
+                    {t.rateTitle}
                 </h2>
                 <p className="text-gray-400 text-sm mt-1">
-                    {lang === 'vi'
-                        ? 'Đánh giá từng dịch vụ để chúng tôi cải thiện tốt hơn'
-                        : 'Rate each service to help us improve'}
+                    {t.rateSub}
                 </p>
             </div>
 
@@ -470,7 +328,7 @@ const CombinedRatingView = ({
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
                     <h3 className="text-sm font-black text-amber-800">
-                        {lang === 'vi' ? 'Góp ý dịch vụ (nếu có)' : 'Service feedback (if any)'}
+                        {t.violationsSectionTitle}
                     </h3>
                 </div>
                 <div className="space-y-2">
@@ -509,7 +367,7 @@ const CombinedRatingView = ({
                     </div>
                 </div>
                 <span className="text-xs font-black text-gray-500 whitespace-nowrap">
-                    {ratedCount}/{items.length} {lang === 'vi' ? 'đã đánh giá' : 'rated'}
+                    {ratedCount}/{items.length} {t.rated}
                 </span>
             </div>
 
@@ -539,13 +397,13 @@ const CombinedRatingView = ({
                                         {item.service_name}
                                     </p>
                                     <p className="text-gray-400 text-xs font-medium truncate">
-                                        {item.technicianCode && `NV: ${item.technicianCode} · `}{item.duration} {lang === 'vi' ? 'phút' : 'min'}
+                                        {item.technicianCode && `${t.staff}: ${item.technicianCode} · `}{item.duration} {t.minutes}
                                     </p>
                                 </div>
                                 {isRated ? (
                                     <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-200">
                                         <span className="text-lg leading-none">{ratedOpt?.emoji || '⭐'}</span>
-                                        <span className="text-[10px] font-black">{lang === 'vi' ? 'Đã gửi' : 'Sent'}</span>
+                                        <span className="text-[10px] font-black">{t.ratedSent}</span>
                                     </div>
                                 ) : (
                                     <svg className={`w-5 h-5 text-gray-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -558,7 +416,7 @@ const CombinedRatingView = ({
                             {isExpanded && !isRated && (
                                 <div className="px-4 pb-4 border-t border-gray-50 pt-3 animate-in fade-in slide-in-from-top-2 duration-300">
                                     <p className="text-sm font-bold text-gray-700 mb-3">
-                                        {lang === 'vi' ? 'Trải nghiệm của bạn?' : 'Your experience?'}
+                                        {t.yourExperience}
                                     </p>
                                     <div className="grid grid-cols-4 gap-2 mb-4">
                                         {RATING_OPTIONS.map((opt) => (
@@ -582,8 +440,8 @@ const CombinedRatingView = ({
                                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                         }`}>
                                         {isSubmittingThis
-                                            ? <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{lang === 'vi' ? 'Đang gửi...' : 'Submitting...'}</>
-                                            : ratings[item.id] ? (lang === 'vi' ? 'Gửi đánh giá' : 'Submit') : (lang === 'vi' ? 'Chọn mức độ để gửi' : 'Select to submit')}
+                                            ? <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{t.submitting}</>
+                                            : ratings[item.id] ? t.submitRating : t.selectToSubmit}
                                     </button>
                                 </div>
                             )}
@@ -616,9 +474,9 @@ const CombinedRatingView = ({
                     className="w-full py-3 mt-4 rounded-2xl font-bold text-sm text-gray-400 bg-white border-2 border-gray-100 hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                     {submitting === '__skip__' ? (
-                        <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{lang === 'vi' ? 'Đang xử lý...' : 'Processing...'}</>
+                        <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{t.processing}</>
                     ) : (
-                        <>{lang === 'vi' ? 'Bỏ qua đánh giá →' : 'Skip rating →'}</>
+                        <>{t.skipRating}</>
                     )}
                 </button>
             )}
@@ -626,13 +484,13 @@ const CombinedRatingView = ({
             {/* All-done message */}
             {allRated && (
                 <div className="mt-6 text-center animate-in fade-in zoom-in-95">
-                    <p className="text-green-600 font-black text-lg">🎉 {lang === 'vi' ? 'Cảm ơn bạn đã đánh giá!' : 'Thank you for your feedback!'}</p>
-                    <p className="text-gray-400 text-sm mt-1">{lang === 'vi' ? 'Đang chuyển hướng...' : 'Redirecting...'}</p>
+                    <p className="text-green-600 font-black text-lg">{t.thankYou}</p>
+                    <p className="text-gray-400 text-sm mt-1">{t.allDoneRedirecting}</p>
                 </div>
             )}
 
             {/* TipModal */}
-            {showTipFor && <TipModal onClose={handleTipClose} />}
+            {showTipFor && <TipModal onClose={handleTipClose} lang={lang} />}
         </div>
     );
 };

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import TipModal from '@/components/Journey/TipModal';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
+import { getViolations } from './Journey.constants';
 
 interface FeedbackProps {
     onComplete: (result: { rating: number, violations: number[], tipAmount: number, feedbackNote?: string }) => void;
@@ -29,14 +30,7 @@ export default function Feedback({
     const [isSuccess, setIsSuccess] = useState(false);
 
     // Checkbox state for violations
-    const violations = [
-        "1. Nhân viên sử dụng điện thoại riêng trong giờ làm?",
-        "2. Nhân viên gợi ý hoặc xin tiền thưởng (tip)?",
-        "3. Nhân viên nói chuyện riêng quá nhiều?",
-        "4. Nhân viên thực hiện sai quy trình?",
-        "5. Nhân viên không sắp xếp và bảo quản đồ của khách?",
-        "6. Nhân viên có thông báo bấm giờ khi bắt đầu dịch vụ không?"
-    ];
+    const violations = getViolations('vi');
 
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 

@@ -2,12 +2,15 @@
 
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { translations } from './Journey.i18n';
 
 interface TipModalProps {
     onClose: (tipAmount: number) => void;
+    lang?: string;
 }
 
-export default function TipModal({ onClose }: TipModalProps) {
+export default function TipModal({ onClose, lang = 'vi' }: TipModalProps) {
+    const t = translations[lang] || translations['en'];
     const tips = ["50.000vnd", "100.000vnd", "200.000vnd", "500.000vnd"];
     const [selectedTip, setSelectedTip] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,10 +29,10 @@ export default function TipModal({ onClose }: TipModalProps) {
                         <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"></path></svg>
                     </div>
 
-                    <h3 className="text-2xl font-black text-gray-900 mb-4">Xuất sắc!</h3>
+                    <h3 className="text-2xl font-black text-gray-900 mb-4">{t.tipExcellent}</h3>
 
                     <div className="bg-amber-100/50 text-amber-900 text-sm p-4 rounded-2xl mb-8 leading-relaxed border border-amber-100">
-                        Cảm ơn vì sự hài lòng của bạn, bạn có thể gửi tiền tip cho nhân viên xem như phần thưởng khích lệ.
+                        {t.tipMessage}
                     </div>
 
                     {/* Tip Grid */}
@@ -65,11 +68,11 @@ export default function TipModal({ onClose }: TipModalProps) {
                             disabled={!selectedTip || isSubmitting}
                         >
                             {isSubmitting ? (
-                                <><Loader2 className="animate-spin" size={20} /> Đang xử lý...</>
+                                <><Loader2 className="animate-spin" size={20} /> {t.tipProcessing}</>
                             ) : (
                                 <>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                    Gửi tiền tip
+                                    {t.tipSend}
                                 </>
                             )}
                         </button>
@@ -79,7 +82,7 @@ export default function TipModal({ onClose }: TipModalProps) {
                             onClick={() => onClose(0)} 
                             className="w-full py-2 text-gray-400 font-semibold text-sm hover:text-gray-600 disabled:opacity-0"
                         >
-                            Bỏ qua
+                            {t.tipSkip}
                         </button>
                     </div>
                 </div>

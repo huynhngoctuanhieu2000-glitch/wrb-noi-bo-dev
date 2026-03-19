@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
+import { TIMER_CONFIG, getViolations, CHANGE_STAFF_TIMEOUT_MINUTES } from './Journey.constants';
+import { useServiceTimer, useViolations } from './Journey.logic';
+import { translations } from './Journey.i18n';
 
 interface ActiveServiceProps {
     items: ServiceItem[];
@@ -27,78 +30,7 @@ interface ActiveServiceProps {
     actionSuccess?: string | null;
 }
 
-// 🔧 UI CONFIGURATION
-const TIMER_CONFIG = {
-    CIRCULAR_SIZE: 300,
-    INNER_SIZE: 200,
-    RADIUS: 120,
-    ANIMATION_DURATION: 500,
-    MIN_HEIGHT: '80vh',
-    AMBER_DARK: 'text-amber-900',
-    AMBER_MAIN: '#F59E0B',
-    AMBER_LIGHT: '#FFFBEB',
-    TAB_HEIGHT: 56,
-};
 
-// Hook: per-service timer logic
-const useServiceTimer = (
-    duration: number,
-    computedTimeStart: string | null | undefined,
-    timeEnd: string | null | undefined,
-) => {
-    const totalSeconds = duration * 60;
-    const isStarted = !!computedTimeStart;
-
-    const getInitialElapsed = () => {
-        if (!computedTimeStart) return 0;
-
-        let normalizedStart = computedTimeStart;
-        if (typeof computedTimeStart === 'string' && !computedTimeStart.includes('Z') && !computedTimeStart.includes('+')) {
-            normalizedStart = computedTimeStart.replace(' ', 'T') + 'Z';
-        }
-
-        const start = new Date(normalizedStart).getTime();
-
-        if (timeEnd) {
-            let normalizedEnd = timeEnd;
-            if (typeof timeEnd === 'string' && !timeEnd.includes('Z') && !timeEnd.includes('+')) {
-                normalizedEnd = timeEnd.replace(' ', 'T') + 'Z';
-            }
-            const end = new Date(normalizedEnd).getTime();
-            const diffInSeconds = Math.floor((end - start) / 1000);
-            return Math.max(0, Math.min(diffInSeconds, totalSeconds));
-        }
-
-        const now = new Date().getTime();
-        const diffInSeconds = Math.floor((now - start) / 1000);
-        return Math.max(0, Math.min(diffInSeconds, totalSeconds));
-    };
-
-    const [elapsedSeconds, setElapsedSeconds] = useState(getInitialElapsed());
-
-    useEffect(() => {
-        setElapsedSeconds(getInitialElapsed());
-    }, [computedTimeStart, timeEnd, totalSeconds]);
-
-    useEffect(() => {
-        // Only tick if the service has actually started
-        if (!isStarted) return;
-
-        const interval = setInterval(() => {
-            setElapsedSeconds(prev => Math.min(prev + 1, totalSeconds));
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [totalSeconds, isStarted]);
-
-    const remainingSeconds = totalSeconds - elapsedSeconds;
-    const progress = isStarted ? (remainingSeconds / totalSeconds) * 100 : 100; // Full circle if not started
-    const remainingMinutes = Math.floor(remainingSeconds / 60);
-    const remainingSecs = remainingSeconds % 60;
-    const elapsedMinutes = Math.floor(elapsedSeconds / 60);
-    const formattedTime = `${remainingMinutes.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
-
-    return { elapsedSeconds, remainingSeconds, progress, elapsedMinutes, formattedTime, isStarted };
-};
 
 // Sub-component: Timer display for a single service
 const ServiceTimer = ({ item, timeEnd, lang = 'vi' }: { item: ServiceItem; timeEnd?: string | null; lang?: string }) => {
@@ -111,7 +43,8 @@ const ServiceTimer = ({ item, timeEnd, lang = 'vi' }: { item: ServiceItem; timeE
     const circumference = 2 * Math.PI * TIMER_CONFIG.RADIUS;
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
-    const waitingLabel = lang === 'vi' ? 'Chờ bắt đầu' : 'Waiting';
+    const t = translations[lang] || translations['en'];
+    const waitingLabel = t.waiting || 'Waiting';
 
     return (
         <div className="relative flex items-center justify-center mb-6">
@@ -186,109 +119,21 @@ export default function ActiveService({
         timeEnd,
     );
 
-    const vnViolations = [
-        "1. Nhân viên sử dụng điện thoại riêng trong giờ làm?",
-        "2. Nhân viên gợi ý hoặc xin tiền thưởng (tip)?",
-        "3. Nhân viên nói chuyện riêng quá nhiều?",
-        "4. Nhân viên thực hiện sai quy trình?",
-        "5. Nhân viên không sắp xếp và bảo quản đồ của khách?",
-        "6. Nhân viên có thông báo bấm giờ khi bắt đầu dịch vụ không?"
-    ];
-    const enViolations = [
-        "1. Therapist using personal phone during service?",
-        "2. Therapist hinting or asking for a tip?",
-        "3. Therapist talking too much?",
-        "4. Therapist not following the core process?",
-        "5. Therapist not arranging/safeguarding my belongings?",
-        "6. Did the therapist notify when the timer started?"
-    ];
-    const violations = lang === 'vi' ? vnViolations : enViolations;
+    const violations = getViolations(lang || 'vi');
+    const t = translations[lang || 'vi'] || translations['en'];
 
-    const t = {
-        activeService: lang === 'vi' ? 'Dịch vụ đang thực hiện' : 'Service in Progress',
-        elapsed: lang === 'vi' ? 'Thời gian đã trôi qua' : 'Time Elapsed',
-        remaining: lang === 'vi' ? 'Còn lại' : 'Remaining',
-        min: lang === 'vi' ? 'phút' : 'mins',
-        feedbackTitle: lang === 'vi' ? 'Góp ý nhanh để KTV sửa lỗi:' : 'Quick feedback to correct Therapist:',
-        optional: lang === 'vi' ? '(Tùy chọn)' : '(Optional)',
-        therapistLabel: lang === 'vi' ? 'Nhân viên' : 'Therapist',
-        addService: lang === 'vi' ? 'Thêm dịch vụ' : 'Add Service',
-        changeTherapist: lang === 'vi' ? 'Đổi nhân viên' : 'Change Therapist',
-        sos: lang === 'vi' ? 'BÁO KHẨN CẤP' : 'EMERGENCY SOS',
-        sosSent: lang === 'vi' ? 'ĐÃ BÁO LỄ TÂN' : 'RECEPTION NOTIFIED',
-        notified: lang === 'vi' ? 'ĐÃ BÁO QUẦY' : 'NOTIFIED',
-        services: lang === 'vi' ? 'Dịch vụ' : 'Services',
-    };
-    const [violationsMap, setViolationsMap] = useState<Record<string, number[]>>({});
-    const [sentViolationsMap, setSentViolationsMap] = useState<Record<string, number[]>>({});
-    const [sendingViolation, setSendingViolation] = useState<number | null>(null);
-
-    // Storage keys scoped by bookingId to avoid cross-booking conflicts
-    const storageKeyViolations = `spa_wrb_violations_${bookingId || 'default'}`;
-    const storageKeySent = `spa_wrb_sent_${bookingId || 'default'}`;
-
-    useEffect(() => {
-        try {
-            const saved = localStorage.getItem(storageKeyViolations);
-            if (saved) setViolationsMap(JSON.parse(saved));
-            const savedSent = localStorage.getItem(storageKeySent);
-            if (savedSent) setSentViolationsMap(JSON.parse(savedSent));
-        } catch (e) { }
-    }, [storageKeyViolations, storageKeySent]);
-
-    // Current service's selected violations
     const currentItemId = currentItem?.id || '0';
-    const selectedViolations = violationsMap[currentItemId] || [];
-    const sentViolationsForItem = new Set(sentViolationsMap[currentItemId] || []);
+    const { selectedViolations, sentViolations: sentViolationsForItem, sendingViolation, toggleViolation } = useViolations(
+        bookingId,
+        currentItemId,
+        violations,
+        roomName,
+        bedId,
+        currentItem?.service_name,
+    );
 
-    // Send notification to front desk when a violation is selected
-    const sendViolationNotification = useCallback(async (violationIndex: number, violationText: string) => {
-        if (!bookingId || sentViolationsForItem.has(violationIndex)) return;
-        setSendingViolation(violationIndex);
-        try {
-            const serviceName = currentItem?.service_name || 'Dịch vụ';
-            await fetch('/api/notifications/normal', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    bookingId,
-                    type: 'FEEDBACK',
-                    message: `⚠️ Khách${roomName ? ` phòng ${roomName}` : ''}${bedId ? ` giường ${bedId}` : ''} - DV "${serviceName}" phản hồi: ${violationText}`,
-                }),
-            });
-            setSentViolationsMap(prev => {
-                const next = { ...prev, [currentItemId]: [...(prev[currentItemId] || []), violationIndex] };
-                try { localStorage.setItem(storageKeySent, JSON.stringify(next)); } catch (e) { }
-                return next;
-            });
-        } catch (err) {
-            console.error('Failed to send violation notification:', err);
-        } finally {
-            setSendingViolation(null);
-        }
-    }, [bookingId, currentItemId, currentItem?.service_name, roomName, bedId, sentViolationsForItem, storageKeySent]);
-
-    const toggleViolation = (index: number) => {
-        const isSelecting = !selectedViolations.includes(index);
-        setViolationsMap(prev => {
-            const currentList = prev[currentItemId] || [];
-            const next = {
-                ...prev,
-                [currentItemId]: isSelecting
-                    ? [...currentList, index]
-                    : currentList.filter(i => i !== index)
-            };
-            try { localStorage.setItem(storageKeyViolations, JSON.stringify(next)); } catch (e) { }
-            return next;
-        });
-        // Send notification only on CHECK (not uncheck), and only once per violation per service
-        if (isSelecting && !sentViolationsForItem.has(index)) {
-            sendViolationNotification(index, violations[index]);
-        }
-    };
-
-    // Logic: Disable change staff after 15 mins
-    const isChangeStaffDisabled = elapsedMinutes >= 15;
+    // Logic: Disable change staff after threshold
+    const isChangeStaffDisabled = elapsedMinutes >= CHANGE_STAFF_TIMEOUT_MINUTES;
 
     return (
         <div className={`flex flex-col items-center w-full animate-in fade-in duration-${TIMER_CONFIG.ANIMATION_DURATION} justify-center py-6`} style={{ minHeight: TIMER_CONFIG.MIN_HEIGHT }}>
@@ -314,7 +159,7 @@ export default function ActiveService({
                                     <span className={`text-[10px] font-bold uppercase tracking-wider ${
                                         selectedIndex === idx ? 'text-amber-100' : 'text-gray-400'
                                     }`}>
-                                        {item.duration} {t.min}
+                                        {item.duration} {t.minutes}
                                     </span>
                                 </div>
                             </button>
@@ -377,7 +222,7 @@ export default function ActiveService({
                                 )}
                                 {isSent && !isSending && (
                                     <span className="text-[9px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 uppercase tracking-wider whitespace-nowrap">
-                                        {lang === 'vi' ? 'Đã báo' : 'Sent'}
+                                        {t.sent}
                                     </span>
                                 )}
                             </div>
@@ -462,10 +307,10 @@ export default function ActiveService({
                         ) : (
                             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
                         )}
-                        <span className="tracking-widest uppercase">{sosSent ? t.sosSent : t.sos}</span>
+                        <span className="tracking-widest uppercase">{sosSent ? t.sosSentBtn : t.sosBtn}</span>
                     </button>
                     {sosSent && (
-                       <p className="text-[10px] text-green-600 font-bold text-center mt-1 uppercase tracking-tighter">🔔 {t.sosSent}</p>
+                       <p className="text-[10px] text-green-600 font-bold text-center mt-1 uppercase tracking-tighter">🔔 {t.sosSentBtn}</p>
                     )}
                 </div>
 

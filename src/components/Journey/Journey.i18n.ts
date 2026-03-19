@@ -1,4 +1,4 @@
-/* src/app/[lang]/journey/[bookingId]/Journey.i18n.ts */
+/* src/components/Journey/Journey.i18n.ts */
 
 export const translations: Record<string, any> = {
     vi: {
@@ -33,7 +33,55 @@ export const translations: Record<string, any> = {
         check_wallet: 'Ví tiền',
         check_belongings: 'Tư trang',
         check_message: 'Xin quý khách trước khi rời phòng vui lòng kiểm tra kỹ tư trang (điện thoại, ví, trang sức...) để đảm bảo không bỏ quên món đồ nào nhé!',
-        check_confirm: 'Tôi đã kiểm tra xong'
+        check_confirm: 'Tôi đã kiểm tra xong',
+        // ActiveService / ServiceList
+        activeService: 'Dịch vụ đang thực hiện',
+        elapsed: 'Thời gian đã trôi qua',
+        remaining: 'Còn lại',
+        feedbackTitle: 'Góp ý nhanh để KTV sửa lỗi:',
+        optional: '(Tùy chọn)',
+        therapistLabel: 'Nhân viên',
+        addService: 'Thêm dịch vụ',
+        changeTherapist: 'Đổi nhân viên',
+        sosBtn: 'BÁO KHẨN CẤP',
+        sosSentBtn: 'ĐÃ BÁO LỄ TÂN',
+        notified: 'ĐÃ BÁO QUẦY',
+        services: 'Dịch vụ',
+        waiting: 'Chờ bắt đầu',
+        done: 'Hoàn thành',
+        serviceGroups: 'nhóm dịch vụ',
+        quickFeedback: 'Góp ý nhanh',
+        sent: 'Đã báo',
+        addServiceShort: 'Thêm DV',
+        changeStaffShort: 'Đổi NV',
+        // Rating view
+        rateTitle: 'Đánh giá dịch vụ',
+        rateSub: 'Đánh giá từng dịch vụ để chúng tôi cải thiện tốt hơn',
+        violationsSectionTitle: 'Góp ý dịch vụ (nếu có)',
+        yourExperience: 'Trải nghiệm của bạn?',
+        submitting: 'Đang gửi...',
+        submitRating: 'Gửi đánh giá',
+        selectToSubmit: 'Chọn mức độ để gửi',
+        rated: 'đã đánh giá',
+        ratedSent: 'Đã gửi',
+        skipRating: 'Bỏ qua đánh giá →',
+        processing: 'Đang xử lý...',
+        thankYou: '🎉 Cảm ơn bạn đã đánh giá!',
+        allDoneRedirecting: 'Đang chuyển hướng...',
+        // Check belongings (inline version in ServiceList)
+        beforeYouLeave: 'Nhắc nhở trước khi ra về',
+        checkBeforeLeave: 'Vui lòng kiểm tra kỹ tư trang cá nhân trước khi rời phòng!',
+        checkedRateNow: '✅ Đã kiểm tra — Tiến hành đánh giá',
+        checkPhone: '📱 Điện thoại',
+        checkWallet: '👛 Ví tiền',
+        checkWatch: '⌚ Đồng hồ / Trang sức',
+        checkKeys: '🔑 Chìa khóa / Thẻ',
+        // TipModal
+        tipExcellent: 'Xuất sắc!',
+        tipMessage: 'Cảm ơn vì sự hài lòng của bạn, bạn có thể gửi tiền tip cho nhân viên xem như phần thưởng khích lệ.',
+        tipSend: 'Gửi tiền tip',
+        tipSkip: 'Bỏ qua',
+        tipProcessing: 'Đang xử lý...',
     },
     en: {
         preparing: 'Preparing',
@@ -66,9 +114,56 @@ export const translations: Record<string, any> = {
         check_wallet: 'Wallet',
         check_belongings: 'Personal Belongings',
         check_message: 'Please double-check your personal belongings (phone, wallet, jewelry...) before leaving the room to ensure nothing is left behind.',
-        check_confirm: 'I have checked everything'
+        check_confirm: 'I have checked everything',
+        // ActiveService / ServiceList
+        activeService: 'Service in Progress',
+        elapsed: 'Time Elapsed',
+        remaining: 'Remaining',
+        feedbackTitle: 'Quick feedback to correct Therapist:',
+        optional: '(Optional)',
+        therapistLabel: 'Therapist',
+        addService: 'Add Service',
+        changeTherapist: 'Change Therapist',
+        sosBtn: 'EMERGENCY SOS',
+        sosSentBtn: 'RECEPTION NOTIFIED',
+        notified: 'NOTIFIED',
+        services: 'Services',
+        waiting: 'Waiting',
+        done: 'Done',
+        serviceGroups: 'service groups',
+        quickFeedback: 'Quick feedback',
+        sent: 'Sent',
+        addServiceShort: 'Add Service',
+        changeStaffShort: 'Change',
+        // Rating view
+        rateTitle: 'Rate Your Services',
+        rateSub: 'Rate each service to help us improve',
+        violationsSectionTitle: 'Service feedback (if any)',
+        yourExperience: 'Your experience?',
+        submitting: 'Submitting...',
+        submitRating: 'Submit',
+        selectToSubmit: 'Select to submit',
+        rated: 'rated',
+        ratedSent: 'Sent',
+        skipRating: 'Skip rating →',
+        processing: 'Processing...',
+        thankYou: '🎉 Thank you for your feedback!',
+        allDoneRedirecting: 'Redirecting...',
+        // Check belongings (inline version in ServiceList)
+        beforeYouLeave: 'Before You Leave',
+        checkBeforeLeave: 'Please check your personal belongings before leaving!',
+        checkedRateNow: '✅ Checked — Rate Now',
+        checkPhone: '📱 Phone',
+        checkWallet: '👛 Wallet',
+        checkWatch: '⌚ Watch / Jewelry',
+        checkKeys: '🔑 Keys / Cards',
+        // TipModal
+        tipExcellent: 'Excellent!',
+        tipMessage: 'Thank you for your satisfaction! You can send a tip to the therapist as an encouragement.',
+        tipSend: 'Send Tip',
+        tipSkip: 'Skip',
+        tipProcessing: 'Processing...',
     },
-
 
     kr: {
         preparing: '준비 중',
@@ -91,8 +186,17 @@ export const translations: Record<string, any> = {
         check_phone: '휴대폰',
         check_wallet: '지갑',
         check_belongings: '소지품',
-        check_message: '객실을 떠나기 전에 소지품(휴대폰, 지갑, 귀중품 등)을 다시 한 lần 확인하여 두고 가는 물건이 없는지 확인해 주세요.',
-        check_confirm: '확인을 완료했습니다'
+        check_message: '객실을 떠나기 전에 소지품(휴대폰, 지갑, 귀중품 등)을 다시 한번 확인하여 두고 가는 물건이 없는지 확인해 주세요.',
+        check_confirm: '확인을 완료했습니다',
+        // ActiveService / ServiceList
+        activeService: '서비스 진행 중',
+        waiting: '대기 중',
+        done: '완료',
+        quickFeedback: '빠른 피드백',
+        optional: '(선택)',
+        sent: '전송됨',
+        tipExcellent: '훌륭합니다!',
+        tipSkip: '건너뛰기',
     },
     jp: {
         preparing: '準備中',
@@ -116,7 +220,16 @@ export const translations: Record<string, any> = {
         check_wallet: '財布',
         check_belongings: '手荷物',
         check_message: 'お忘れ物がないよう、退室前に身の回りの品（携帯電話、財布、アクセサリーなど）を今一度ご確認ください。',
-        check_confirm: '確認しました'
+        check_confirm: '確認しました',
+        // ActiveService / ServiceList
+        activeService: 'サービス進行中',
+        waiting: '待機中',
+        done: '完了',
+        quickFeedback: 'クイックフィードバック',
+        optional: '(任意)',
+        sent: '送信済み',
+        tipExcellent: '素晴らしい！',
+        tipSkip: 'スキップ',
     },
     cn: {
         preparing: '准备中',
@@ -140,9 +253,17 @@ export const translations: Record<string, any> = {
         check_wallet: '钱包',
         check_belongings: '个人物品',
         check_message: '在离开房间前，请仔细检查您的个人物品（手机、钱包、首饰等），确保没有遗漏任何东西。',
-        check_confirm: '我已检查完毕'
-    }
-
+        check_confirm: '我已检查完毕',
+        // ActiveService / ServiceList
+        activeService: '服务进行中',
+        waiting: '等待中',
+        done: '完成',
+        quickFeedback: '快速反馈',
+        optional: '(可选)',
+        sent: '已发送',
+        tipExcellent: '太棒了！',
+        tipSkip: '跳过',
+    },
 };
 
 export type TranslationKey = keyof typeof translations.en;

@@ -1,0 +1,260 @@
+/**
+ * Journey Logic — Shared hooks and business logic.
+ * Consolidates useServiceTimer (was duplicated in ActiveService + ServiceList)
+ * and groupItemsByTech (was in ServiceList).
+ */
+
+import { useEffect, useState, useCallback } from 'react';
+import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
+
+// ─── useServiceTimer ─────────────────────────────────────────────────────────
+// Merged from ActiveService (full version with timeEnd) and ServiceList (compact).
+
+interface ServiceTimerResult {
+    elapsedSeconds: number;
+    remainingSeconds: number;
+    progress: number;       // 0-100%
+    elapsedMinutes: number;
+    formattedTime: string;  // "MM:SS"
+    isStarted: boolean;
+    isFinished: boolean;
+}
+
+/**
+ * Hook: per-service timer logic.
+ * Counts elapsed time from computedTimeStart, counts down from duration.
+ * @param duration - Service duration in minutes
+ * @param computedTimeStart - ISO timestamp when service started (null = not started)
+ * @param timeEnd - Optional ISO timestamp when service ended
+ */
+export const useServiceTimer = (
+    duration: number,
+    computedTimeStart: string | null | undefined,
+    timeEnd?: string | null,
+): ServiceTimerResult => {
+    const totalSeconds = duration * 60;
+    const isStarted = !!computedTimeStart;
+
+    const getInitialElapsed = () => {
+        if (!computedTimeStart) return 0;
+
+        let normalizedStart = computedTimeStart;
+        if (typeof computedTimeStart === 'string' && !computedTimeStart.includes('Z') && !computedTimeStart.includes('+')) {
+            normalizedStart = computedTimeStart.replace(' ', 'T') + 'Z';
+        }
+
+        const start = new Date(normalizedStart).getTime();
+
+        if (timeEnd) {
+            let normalizedEnd = timeEnd;
+            if (typeof timeEnd === 'string' && !timeEnd.includes('Z') && !timeEnd.includes('+')) {
+                normalizedEnd = timeEnd.replace(' ', 'T') + 'Z';
+            }
+            const end = new Date(normalizedEnd).getTime();
+            const diffInSeconds = Math.floor((end - start) / 1000);
+            return Math.max(0, Math.min(diffInSeconds, totalSeconds));
+        }
+
+        const now = new Date().getTime();
+        const diffInSeconds = Math.floor((now - start) / 1000);
+        return Math.max(0, Math.min(diffInSeconds, totalSeconds));
+    };
+
+    const [elapsedSeconds, setElapsedSeconds] = useState(getInitialElapsed());
+
+    useEffect(() => {
+        setElapsedSeconds(getInitialElapsed());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [computedTimeStart, timeEnd, totalSeconds]);
+
+    useEffect(() => {
+        // Only tick if the service has actually started
+        if (!isStarted) return;
+
+        const interval = setInterval(() => {
+            setElapsedSeconds(prev => Math.min(prev + 1, totalSeconds));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [totalSeconds, isStarted]);
+
+    const remainingSeconds = totalSeconds - elapsedSeconds;
+    const progress = isStarted ? (remainingSeconds / totalSeconds) * 100 : 100;
+    const remainingMinutes = Math.floor(remainingSeconds / 60);
+    const remainingSecs = remainingSeconds % 60;
+    const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+    const formattedTime = `${remainingMinutes.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
+    const isFinished = remainingSeconds <= 0 && isStarted;
+
+    return { elapsedSeconds, remainingSeconds, progress, elapsedMinutes, formattedTime, isStarted, isFinished };
+};
+
+
+// ─── groupItemsByTech ────────────────────────────────────────────────────────
+// Moved from ServiceList.tsx (was L83-139)
+
+export interface GroupedService {
+    technicianCode: string;
+    names: string[];
+    combinedName: string;
+    totalDuration: number;
+    itemCount: number;
+    earliestTimeStart: string | null;
+    roomName: string | null;
+    bedId: string | null;
+    items: ServiceItem[];
+    /** All items in group have COMPLETED/DONE/CLEANING status */
+    isCompleted: boolean;
+    /** At least one item has a computedTimeStart */
+    isStarted: boolean;
+}
+
+/**
+ * Group booking items by technician code.
+ * Items with the same tech code are grouped together for combined timer display.
+ */
+export const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
+    const map = new Map<string, ServiceItem[]>();
+    items.forEach(item => {
+        const key = item.technicianCode || `__no_tech_${item.id}`;
+        const list = map.get(key) || [];
+        list.push(item);
+        map.set(key, list);
+    });
+
+    return Array.from(map.entries()).map(([techCode, groupItems]) => {
+        const names = groupItems.map(i => i.service_name);
+        const totalDuration = groupItems.reduce((sum, i) => sum + i.duration, 0);
+
+        // Earliest timeStart among all items in group
+        let earliestTimeStart: string | null = null;
+        groupItems.forEach(i => {
+            if (i.computedTimeStart) {
+                if (!earliestTimeStart || new Date(i.computedTimeStart) < new Date(earliestTimeStart)) {
+                    earliestTimeStart = i.computedTimeStart;
+                }
+            }
+        });
+
+        const doneStatuses = ['COMPLETED', 'DONE', 'CLEANING'];
+        const isCompleted = groupItems.every(i => doneStatuses.includes(i.status || ''));
+        const isStarted = groupItems.some(i => i.computedTimeStart !== null);
+
+        return {
+            technicianCode: techCode.startsWith('__no_tech_') ? '' : techCode,
+            names,
+            combinedName: names.join(' + '),
+            totalDuration,
+            itemCount: groupItems.length,
+            earliestTimeStart,
+            roomName: groupItems[0]?.roomName || null,
+            bedId: groupItems[0]?.bedId || null,
+            items: groupItems,
+            isCompleted,
+            isStarted,
+        };
+    });
+};
+
+
+// ─── useViolations ───────────────────────────────────────────────────────────
+// Consolidated from ActiveService + ServiceList violations logic
+
+interface UseViolationsResult {
+    selectedViolations: number[];
+    sentViolations: Set<number>;
+    sendingViolation: number | null;
+    toggleViolation: (index: number) => void;
+}
+
+/**
+ * Hook: manage violation selection, localStorage persistence, and notification sending.
+ * @param bookingId - Booking ID for storage key scoping
+ * @param currentItemId - Current service item ID for per-item tracking (optional)
+ * @param violations - The violations list (for notification text)
+ * @param roomName - Room name for notification message
+ * @param bedId - Bed ID for notification message
+ * @param serviceName - Service name for notification message
+ */
+export const useViolations = (
+    bookingId: string | undefined,
+    currentItemId: string,
+    violations: string[],
+    roomName?: string,
+    bedId?: string,
+    serviceName?: string,
+): UseViolationsResult => {
+    const storageKeyViolations = `spa_wrb_violations_${bookingId || 'default'}`;
+    const storageKeySent = `spa_wrb_sent_${bookingId || 'default'}`;
+
+    const [violationsMap, setViolationsMap] = useState<Record<string, number[]>>({});
+    const [sentViolationsMap, setSentViolationsMap] = useState<Record<string, number[]>>({});
+    const [sendingViolation, setSendingViolation] = useState<number | null>(null);
+
+    // Load from localStorage on mount
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(storageKeyViolations);
+            if (saved) setViolationsMap(JSON.parse(saved));
+            const savedSent = localStorage.getItem(storageKeySent);
+            if (savedSent) setSentViolationsMap(JSON.parse(savedSent));
+        } catch { /* silent */ }
+    }, [storageKeyViolations, storageKeySent]);
+
+    const selectedViolations = violationsMap[currentItemId] || [];
+    const sentViolationsForItem = new Set(sentViolationsMap[currentItemId] || []);
+
+    // Send notification to front desk when a violation is selected
+    const sendViolationNotification = useCallback(async (violationIndex: number, violationText: string) => {
+        if (!bookingId || sentViolationsForItem.has(violationIndex)) return;
+        setSendingViolation(violationIndex);
+        try {
+            const svcName = serviceName || 'Dịch vụ';
+            await fetch('/api/notifications/normal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bookingId,
+                    type: 'FEEDBACK',
+                    message: `⚠️ Khách${roomName ? ` phòng ${roomName}` : ''}${bedId ? ` giường ${bedId}` : ''} - DV "${svcName}" phản hồi: ${violationText}`,
+                }),
+            });
+            setSentViolationsMap(prev => {
+                const next = { ...prev, [currentItemId]: [...(prev[currentItemId] || []), violationIndex] };
+                try { localStorage.setItem(storageKeySent, JSON.stringify(next)); } catch { /* silent */ }
+                return next;
+            });
+        } catch (err) {
+            console.error('Failed to send violation notification:', err);
+        } finally {
+            setSendingViolation(null);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [bookingId, currentItemId, serviceName, roomName, bedId, storageKeySent]);
+
+    const toggleViolation = useCallback((index: number) => {
+        const isSelecting = !selectedViolations.includes(index);
+        setViolationsMap(prev => {
+            const currentList = prev[currentItemId] || [];
+            const next = {
+                ...prev,
+                [currentItemId]: isSelecting
+                    ? [...currentList, index]
+                    : currentList.filter(i => i !== index),
+            };
+            try { localStorage.setItem(storageKeyViolations, JSON.stringify(next)); } catch { /* silent */ }
+            return next;
+        });
+        // Send notification only on CHECK (not uncheck), and only once per violation per service
+        if (isSelecting && !sentViolationsForItem.has(index)) {
+            sendViolationNotification(index, violations[index]);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentItemId, selectedViolations, sentViolationsForItem, storageKeyViolations, violations, sendViolationNotification]);
+
+    return {
+        selectedViolations,
+        sentViolations: sentViolationsForItem,
+        sendingViolation,
+        toggleViolation,
+    };
+};
