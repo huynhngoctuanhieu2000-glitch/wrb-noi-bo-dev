@@ -4,6 +4,8 @@ import { useParams } from 'next/navigation';
 import { useJourneyRealtime } from '@/components/Journey/useJourneyRealtime';
 import WaitingRoom from '@/components/Journey/WaitingRoom';
 import ServiceList from '@/components/Journey/ServiceList';
+import CheckBelongings from '@/components/Journey/CheckBelongings';
+import Feedback from '@/components/Journey/Feedback';
 import { translations } from '@/components/Journey/Journey.i18n';
 import { useAuthStore } from '@/lib/authStore.logic';
 
@@ -78,7 +80,9 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
     // Map booking status → stepper index
     const getStepIndex = () => {
-        if (state === 'DONE' || state === 'FEEDBACK' || state === 'COMPLETED') return steps.length; // all done
+        if (state === 'DONE') return steps.length; // all done
+        if (state === 'COMPLETED') return 2; // Kiểm tra đồ
+        if (state === 'FEEDBACK') return 3; // Đánh giá
         if (state === 'PREPARING') return 0; // Ngâm chân
         if (state === 'IN_PROGRESS') return 1; // Dịch vụ
         return 1;
@@ -190,6 +194,43 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         await refresh();
     }, [bookingId, refresh, journeyData?.items]);
 
+    // Handler: CheckBelongings → chuyển sang FEEDBACK
+    const handleCheckBelongingsConfirm = useCallback(async () => {
+        try {
+            const res = await fetch('/api/journey/update', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookingId, status: 'FEEDBACK' })
+            });
+            if (!res.ok) throw new Error('Failed to update status');
+            await refresh();
+        } catch (err) {
+            console.error('CheckBelongings confirm error:', err);
+        }
+    }, [bookingId, refresh]);
+
+    // Handler: Feedback → chuyển sang DONE
+    const handleFeedbackComplete = useCallback(async (result: { rating: number, violations: number[], tipAmount: number, feedbackNote?: string }) => {
+        try {
+            const res = await fetch('/api/journey/update', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    bookingId,
+                    rating: result.rating,
+                    violations: result.violations,
+                    tipAmount: result.tipAmount,
+                    status: 'DONE'
+                })
+            });
+            if (!res.ok) throw new Error('Failed to submit feedback');
+            await refresh();
+        } catch (err) {
+            console.error('Feedback submit error:', err);
+            throw err; // Re-throw so Feedback component can show error
+        }
+    }, [bookingId, refresh]);
+
     // ─── Render ───────────────────────────────────────────────────────────────
 
     if (loading) {
@@ -273,7 +314,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                     />
                 )}
 
-                {state === 'IN_PROGRESS' && (
+                {(state === 'IN_PROGRESS' || state === 'COMPLETED' || state === 'FEEDBACK') && (
                     <ServiceList
                         items={journeyData?.items || []}
                         lang={lang}
@@ -294,7 +335,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                     />
                 )}
 
-                {(state === 'DONE' || state === 'FEEDBACK' || state === 'COMPLETED') && (
+                {state === 'DONE' && (
                     <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in-95">
                         <div className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-xl">
                             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
