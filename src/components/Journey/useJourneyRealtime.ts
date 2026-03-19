@@ -135,6 +135,13 @@ export function useJourneyRealtime(bookingId: string) {
                             ? (ktvRatingsMap[techCode.trim()] ?? null)
                             : (i.itemRating ?? null);
 
+                        // Per-KTV room/bed: lấy từ segments theo techCode, fallback item-level → booking-level
+                        const ktvSegment = Array.isArray(i.segments)
+                            ? i.segments.find((s: any) => s.ktvId === techCode)
+                            : null;
+                        const itemRoomName = ktvSegment?.roomId || i.roomName || booking.roomName || null;
+                        const itemBedId = ktvSegment?.bedId || i.bedId || booking.bedId || null;
+
                         processedItems.push({
                             id: itemId,
                             serviceId: i.serviceId,
@@ -151,9 +158,9 @@ export function useJourneyRealtime(bookingId: string) {
                             itemRating: perKtvRating,
                             itemFeedback: i.itemFeedback ?? null,
                             ktvRatings: ktvRatingsMap,
-                            // Per-item room/bed, fallback to booking-level
-                            roomName: i.roomName || booking.roomName || null,
-                            bedId: i.bedId || booking.bedId || null,
+                            // Per-item room/bed from segments
+                            roomName: itemRoomName,
+                            bedId: itemBedId,
                         });
                     });
                 });
