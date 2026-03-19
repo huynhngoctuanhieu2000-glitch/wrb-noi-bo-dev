@@ -37,55 +37,120 @@ export async function PATCH(request: Request) {
                 itemFeedback: itemFeedback || null,
             };
 
+            let useKtvRatings = false; // Track if ktvRatings column is available
+
             if (ktvCode) {
-                // Per-KTV rating: update ktvRatings JSONB map
-                // First read existing ktvRatings
-                const { data: existingItem } = await supabaseAdmin
+                // Per-KTV rating: try to use ktvRatings JSONB map
+                // First read existing item data
+                const { data: existingItem, error: readError } = await supabaseAdmin
                     .from('BookingItems')
                     .select('ktvRatings, technicianCodes')
                     .eq('id', bookingItemId)
                     .eq('bookingId', bookingId)
                     .maybeSingle();
 
-                const existingRatings: Record<string, number> = existingItem?.ktvRatings || {};
-                existingRatings[ktvCode.trim()] = itemRating;
+                if (readError) {
+                    // ktvRatings column might not exist — try reading without it
+                    console.warn('[journey/update] ktvRatings read failed (column may not exist):', readError.message);
+                    
+                    const { data: fallbackItem } = await supabaseAdmin
+                        .from('BookingItems')
+                        .select('technicianCodes')
+                        .eq('id', bookingItemId)
+                        .eq('bookingId', bookingId)
+                        .maybeSingle();
 
-                updatePayload.ktvRatings = existingRatings;
-
-                // Check if ALL KTVs in technicianCodes have been rated
-                const techCodes: string[] = existingItem?.technicianCodes || [];
-                const allKtvsRated = techCodes.length > 0 && techCodes.every(
-                    (code: string) => existingRatings[code.trim()] !== undefined
-                );
-
-                if (allKtvsRated) {
-                    // All KTVs rated → set itemRating as the average/last rating + mark DONE
-                    const ratings = techCodes.map((c: string) => existingRatings[c.trim()]).filter(Boolean);
-                    updatePayload.itemRating = Math.round(ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length);
+                    // Fallback: just update itemRating directly
+                    updatePayload.itemRating = itemRating;
                     updatePayload.status = 'DONE';
+                    useKtvRatings = false;
+                } else {
+                    // ktvRatings column exists — use per-KTV flow
+                    useKtvRatings = true;
+                    const existingRatings: Record<string, number> = existingItem?.ktvRatings || {};
+                    existingRatings[ktvCode.trim()] = itemRating;
+
+                    updatePayload.ktvRatings = existingRatings;
+
+                    // Check if ALL KTVs in technicianCodes have been rated
+                    const techCodes: string[] = existingItem?.technicianCodes || [];
+                    const allKtvsRated = techCodes.length > 0 && techCodes.every(
+                        (code: string) => existingRatings[code.trim()] !== undefined
+                    );
+
+                    if (allKtvsRated) {
+                        // All KTVs rated → set itemRating as the average + mark DONE
+                        const ratings = techCodes.map((c: string) => existingRatings[c.trim()]).filter(Boolean);
+                        updatePayload.itemRating = Math.round(ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length);
+                        updatePayload.status = 'DONE';
+                    }
+                    // If not all KTVs rated yet → DON'T set itemRating or DONE status
                 }
-                // If not all KTVs rated yet → DON'T set itemRating or DONE status
             } else {
-                // Single-KTV: set itemRating directly (legacy flow)
+                // Single-KTV: set itemRating + luôn ghi ktvRatings cho lịch sử KTV
                 updatePayload.itemRating = itemRating;
                 updatePayload.status = 'DONE';
+
+                // Đọc technicianCodes để ghi ktvRatings cho KTV
+                try {
+                    const { data: singleItem, error: singleReadErr } = await supabaseAdmin
+                        .from('BookingItems')
+                        .select('technicianCodes, ktvRatings')
+                        .eq('id', bookingItemId)
+                        .eq('bookingId', bookingId)
+                        .maybeSingle();
+
+                    if (!singleReadErr && singleItem?.technicianCodes) {
+                        useKtvRatings = true;
+                        const ktvR: Record<string, number> = singleItem.ktvRatings || {};
+                        // Gán rating cho tất cả KTV trong item
+                        (singleItem.technicianCodes as string[]).forEach((code: string) => {
+                            if (code.trim()) ktvR[code.trim()] = itemRating;
+                        });
+                        updatePayload.ktvRatings = ktvR;
+                    }
+                } catch {
+                    // ktvRatings column chưa tồn tại — bỏ qua, chỉ dùng itemRating
+                }
             }
 
-            const { error: itemError } = await supabaseAdmin
+            // 2. Try to update BookingItem
+            let updateError;
+            ({ error: updateError } = await supabaseAdmin
                 .from('BookingItems')
                 .update(updatePayload)
                 .eq('id', bookingItemId)
-                .eq('bookingId', bookingId);
+                .eq('bookingId', bookingId));
 
-            if (itemError) {
-                console.error('Supabase item rating error:', itemError);
-                return NextResponse.json({ error: itemError.message }, { status: 500 });
+            // If update failed and we tried ktvRatings, retry without it
+            if (updateError && updatePayload.ktvRatings) {
+                console.warn('[journey/update] Update with ktvRatings failed, retrying without:', updateError.message);
+                delete updatePayload.ktvRatings;
+                updatePayload.itemRating = itemRating;
+                updatePayload.status = 'DONE';
+                useKtvRatings = false;
+
+                ({ error: updateError } = await supabaseAdmin
+                    .from('BookingItems')
+                    .update(updatePayload)
+                    .eq('id', bookingItemId)
+                    .eq('bookingId', bookingId));
             }
 
-            // 2. Re-query toàn bộ items để check xem tất cả đã rated chưa
+            if (updateError) {
+                console.error('Supabase item rating error:', updateError);
+                return NextResponse.json({ error: updateError.message }, { status: 500 });
+            }
+
+            // 3. Re-query toàn bộ items để check xem tất cả đã rated chưa
+            // Select ktvRatings only if column is available
+            const selectFields = useKtvRatings
+                ? 'id, itemRating, status, technicianCodes, ktvRatings'
+                : 'id, itemRating, status, technicianCodes';
+
             const { data: allItems, error: fetchError } = await supabaseAdmin
                 .from('BookingItems')
-                .select('id, itemRating, status, technicianCodes, ktvRatings')
+                .select(selectFields)
                 .eq('bookingId', bookingId);
 
             if (fetchError) {
@@ -93,16 +158,16 @@ export async function PATCH(request: Request) {
                 return NextResponse.json({ error: fetchError.message }, { status: 500 });
             }
 
-            // Check all rated: for multi-KTV items, check ktvRatings instead of itemRating
+            // Check all rated: for multi-KTV items with ktvRatings, check per-KTV
             const allRated = (allItems || []).length > 0 
                 && (allItems || []).every((i: any) => {
                     const techCodes: string[] = i.technicianCodes || [];
-                    if (techCodes.length > 1) {
-                        // Multi-KTV: check ktvRatings has all tech codes
+                    if (useKtvRatings && techCodes.length > 1 && i.ktvRatings) {
+                        // Multi-KTV with ktvRatings: check all tech codes rated
                         const ktvR: Record<string, number> = i.ktvRatings || {};
                         return techCodes.every((c: string) => ktvR[c.trim()] !== undefined);
                     }
-                    // Single-KTV: check itemRating
+                    // Fallback: check itemRating
                     return i.itemRating !== null && i.itemRating !== undefined;
                 });
 

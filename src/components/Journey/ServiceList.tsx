@@ -301,7 +301,10 @@ const CombinedRatingView = ({
             await onItemRated(itemId, rating, '');
             setSubmitted(prev => new Set([...prev, itemId]));
             setExpandedId(null);
-        } catch { /* noop */ }
+        } catch (err: any) {
+            console.error('Rating submit error:', err);
+            alert(lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.');
+        }
         finally { setSubmitting(null); }
     };
 
@@ -315,7 +318,10 @@ const CombinedRatingView = ({
             await onItemRated(itemId, 4, `tip:${tipAmount}`);
             setSubmitted(prev => new Set([...prev, itemId]));
             setExpandedId(null);
-        } catch { /* noop */ }
+        } catch (err: any) {
+            console.error('Rating submit error:', err);
+            alert(lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.');
+        }
         finally { setSubmitting(null); }
     };
 
