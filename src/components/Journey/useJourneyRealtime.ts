@@ -20,6 +20,8 @@ export interface ServiceItem {
     status: string | null;
     itemRating: number | null;
     itemFeedback: string | null;
+    // Per-KTV rating (when 2+ KTVs share 1 service)
+    ktvRatings?: Record<string, number>;
     // Per-item room/bed (multi-tech multi-room)
     roomName: string | null;
     bedId: string | null;
@@ -127,6 +129,11 @@ export function useJourneyRealtime(bookingId: string) {
                     techCodes.forEach((techCode: string, techIdx: number) => {
                         // For multi-KTV: use composite ID so each KTV gets unique rating
                         const itemId = techCodes.length > 1 ? `${i.id}-ktv${techIdx}` : i.id;
+                        const ktvRatingsMap: Record<string, number> = i.ktvRatings || {};
+                        // Per-KTV rating: use ktvRatings JSONB if available, else fallback to itemRating
+                        const perKtvRating = techCodes.length > 1
+                            ? (ktvRatingsMap[techCode.trim()] ?? null)
+                            : (i.itemRating ?? null);
 
                         processedItems.push({
                             id: itemId,
@@ -141,8 +148,9 @@ export function useJourneyRealtime(bookingId: string) {
                             price: i.price || 0,
                             options: i.options,
                             status: i.status || null,
-                            itemRating: i.itemRating ?? null,
+                            itemRating: perKtvRating,
                             itemFeedback: i.itemFeedback ?? null,
+                            ktvRatings: ktvRatingsMap,
                             // Per-item room/bed, fallback to booking-level
                             roomName: i.roomName || booking.roomName || null,
                             bedId: i.bedId || booking.bedId || null,
@@ -237,18 +245,26 @@ export function useJourneyRealtime(bookingId: string) {
                         if (!prev) return prev;
                         // Match composite IDs: 'abc-ktv0' starts with 'abc'
                         const originalId = updatedItem.id;
-                        const updatedItems = prev.items.map(item =>
-                            (item.id === originalId || item.id.startsWith(`${originalId}-ktv`))
-                                ? {
+                        const updatedKtvRatings: Record<string, number> = updatedItem.ktvRatings || {};
+                        const updatedItems = prev.items.map(item => {
+                            if (item.id === originalId || item.id.startsWith(`${originalId}-ktv`)) {
+                                // For multi-KTV split cards: use per-KTV rating from ktvRatings
+                                const isComposite = item.id.includes('-ktv');
+                                let perKtvRating = updatedItem.itemRating ?? item.itemRating;
+                                if (isComposite && item.technicianCode && Object.keys(updatedKtvRatings).length > 0) {
+                                    perKtvRating = updatedKtvRatings[item.technicianCode.trim()] ?? item.itemRating;
+                                }
+                                return {
                                     ...item,
                                     status: updatedItem.status ?? item.status,
-                                    itemRating: updatedItem.itemRating ?? item.itemRating,
+                                    itemRating: perKtvRating,
                                     itemFeedback: updatedItem.itemFeedback ?? item.itemFeedback,
-                                    // Update timeStart when KTV starts service
+                                    ktvRatings: updatedKtvRatings,
                                     computedTimeStart: updatedItem.timeStart ?? item.computedTimeStart,
-                                }
-                                : item
-                        );
+                                };
+                            }
+                            return item;
+                        });
                         return { ...prev, items: updatedItems };
                     });
                 }

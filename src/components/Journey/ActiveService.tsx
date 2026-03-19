@@ -199,20 +199,18 @@ export default function ActiveService({
                             <div key={idx}
                                 onClick={() => toggleViolation(idx)}
                                 className={`flex items-start gap-4 p-4 bg-white rounded-3xl cursor-pointer transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] border hover:shadow-md ${
-                                    isSent ? 'border-green-200 bg-green-50/30' : 'border-gray-100'
+                                    isSelected ? (isSent ? 'border-green-200 bg-green-50/30' : 'border-amber-200') : 'border-gray-100'
                                 }`}
                             >
                                 <div className={`mt-0.5 w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-                                    isSent ? 'border-green-500 bg-green-500' : 
-                                    isSelected ? 'border-amber-500 bg-amber-500' : 'border-gray-300 bg-white'
+                                    isSelected ? (isSent ? 'border-green-500 bg-green-500' : 'border-amber-500 bg-amber-500') : 'border-gray-300 bg-white'
                                 }`}>
-                                    {(isSelected || isSent) && (
+                                    {isSelected && (
                                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                                     )}
                                 </div>
                                 <span className={`text-sm leading-snug font-medium pr-2 flex-1 ${
-                                    isSent ? 'text-green-800' :
-                                    isSelected ? 'text-amber-900' : 'text-gray-500'
+                                    isSelected ? (isSent ? 'text-green-800' : 'text-amber-900') : 'text-gray-500'
                                 }`}>{v}</span>
                                 {isSending && (
                                     <svg className="animate-spin w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24">
@@ -220,7 +218,7 @@ export default function ActiveService({
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                     </svg>
                                 )}
-                                {isSent && !isSending && (
+                                {isSelected && isSent && !isSending && (
                                     <span className="text-[9px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 uppercase tracking-wider whitespace-nowrap">
                                         {t.sent}
                                     </span>

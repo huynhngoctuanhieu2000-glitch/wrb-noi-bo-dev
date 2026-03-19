@@ -115,15 +115,39 @@ export interface GroupedService {
 export const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
     const map = new Map<string, ServiceItem[]>();
     items.forEach(item => {
-        const key = item.technicianCode || `__no_tech_${item.id}`;
+        // For composite items (multi-KTV split from same BookingItem),
+        // group by base item ID → they share ONE timer circle
+        const isComposite = item.id.includes('-ktv');
+        const key = isComposite
+            ? `__shared_${item.id.replace(/-ktv\d+$/, '')}` // Group by base BookingItem ID
+            : (item.technicianCode || `__no_tech_${item.id}`);
         const list = map.get(key) || [];
         list.push(item);
         map.set(key, list);
     });
 
-    return Array.from(map.entries()).map(([techCode, groupItems]) => {
-        const names = groupItems.map(i => i.service_name);
-        const totalDuration = groupItems.reduce((sum, i) => sum + i.duration, 0);
+    return Array.from(map.entries()).map(([groupKey, groupItems]) => {
+        const isShared = groupKey.startsWith('__shared_');
+
+        // Deduplicate service names for shared items (same DV shown once)
+        const names = isShared
+            ? [...new Set(groupItems.map(i => i.service_name))]
+            : groupItems.map(i => i.service_name);
+
+        // For shared items: same DV → use max duration (not sum)
+        // For sequential items: different DVs → sum durations
+        const totalDuration = isShared
+            ? Math.max(...groupItems.map(i => i.duration))
+            : groupItems.reduce((sum, i) => sum + i.duration, 0);
+
+        // Collect all tech codes for display
+        const allTechCodes = [...new Set(groupItems.map(i => i.technicianCode).filter(Boolean))];
+        const techDisplay = isShared ? allTechCodes.join(' & ') : (groupItems[0]?.technicianCode || '');
+
+        // Combined name: for shared show "DV (NH001 & NH002)"
+        const combinedName = isShared && allTechCodes.length > 1
+            ? `${names.join(' + ')} (${allTechCodes.join(' & ')})`
+            : names.join(' + ');
 
         // Earliest timeStart among all items in group
         let earliestTimeStart: string | null = null;
@@ -140,11 +164,11 @@ export const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
         const isStarted = groupItems.some(i => i.computedTimeStart !== null);
 
         return {
-            technicianCode: techCode.startsWith('__no_tech_') ? '' : techCode,
+            technicianCode: isShared ? techDisplay : (groupKey.startsWith('__no_tech_') ? '' : groupKey),
             names,
-            combinedName: names.join(' + '),
+            combinedName,
             totalDuration,
-            itemCount: groupItems.length,
+            itemCount: isShared ? 1 : groupItems.length, // Shared = 1 DV with multiple KTVs
             earliestTimeStart,
             roomName: groupItems[0]?.roomName || null,
             bedId: groupItems[0]?.bedId || null,
@@ -232,9 +256,12 @@ export const useViolations = (
     }, [bookingId, currentItemId, serviceName, roomName, bedId, storageKeySent]);
 
     const toggleViolation = useCallback((index: number) => {
-        const isSelecting = !selectedViolations.includes(index);
+        let didSelect = false;
         setViolationsMap(prev => {
             const currentList = prev[currentItemId] || [];
+            // Compute from prev state (NOT from closure) to avoid stale data
+            const isSelecting = !currentList.includes(index);
+            didSelect = isSelecting;
             const next = {
                 ...prev,
                 [currentItemId]: isSelecting
@@ -245,11 +272,11 @@ export const useViolations = (
             return next;
         });
         // Send notification only on CHECK (not uncheck), and only once per violation per service
-        if (isSelecting && !sentViolationsForItem.has(index)) {
+        if (didSelect) {
             sendViolationNotification(index, violations[index]);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentItemId, selectedViolations, sentViolationsForItem, storageKeyViolations, violations, sendViolationNotification]);
+    }, [currentItemId, storageKeyViolations, violations, sendViolationNotification]);
 
     return {
         selectedViolations,

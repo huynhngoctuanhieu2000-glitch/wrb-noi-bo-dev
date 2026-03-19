@@ -157,10 +157,19 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         finally { setIsActionLoading(false); }
     };
 
-    // 🆕 Per-item rating handler
+    // 🆕 Per-item rating handler (supports per-KTV ratings)
     const handleItemRated = useCallback(async (itemId: string, rating: number, feedback: string) => {
         // Strip composite KTV suffix (e.g. 'abc-ktv0' → 'abc') for DB update
         const realItemId = itemId.replace(/-ktv\d+$/, '');
+        
+        // Extract ktvCode for per-KTV rating
+        let ktvCode: string | undefined;
+        if (itemId !== realItemId) {
+            // This is a composite ID → find the corresponding KTV code
+            const matchedItem = journeyData?.items?.find(i => i.id === itemId);
+            ktvCode = matchedItem?.technicianCode?.trim() || undefined;
+        }
+
         const res = await fetch('/api/journey/update', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -169,7 +178,8 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 bookingItemId: realItemId,
                 itemRating: rating,
                 itemFeedback: feedback || null,
-                status: 'DONE', // Signal to API to check if all rated
+                ktvCode, // Per-KTV rating identifier
+                status: 'DONE',
             })
         });
         if (!res.ok) {
@@ -178,7 +188,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         }
         // Refresh to update booking status if DONE
         await refresh();
-    }, [bookingId, refresh]);
+    }, [bookingId, refresh, journeyData?.items]);
 
     // ─── Render ───────────────────────────────────────────────────────────────
 

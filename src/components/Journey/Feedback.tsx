@@ -47,7 +47,18 @@ export default function Feedback({
         try {
             const saved = localStorage.getItem('spa_wrb_violations');
             if (saved) {
-                const parsedViolations = JSON.parse(saved);
+                const parsed = JSON.parse(saved);
+                // Handle both formats: Record<string, number[]> (from useViolations) or flat number[]
+                let parsedViolations: number[] = [];
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    const allViolations = new Set<number>();
+                    Object.values(parsed).forEach((arr: any) => {
+                        if (Array.isArray(arr)) arr.forEach((n: number) => allViolations.add(n));
+                    });
+                    parsedViolations = Array.from(allViolations);
+                } else if (Array.isArray(parsed)) {
+                    parsedViolations = parsed;
+                }
                 setSelectedViolations(parsedViolations);
 
                 // Pre-calculate rating constraints based on restored violations

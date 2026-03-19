@@ -158,15 +158,15 @@ const TabTimerView = ({
                         return (
                             <div key={idx} onClick={() => toggleViolation(idx)}
                                 className={`flex items-start gap-3 p-3 bg-white rounded-2xl cursor-pointer border transition-all ${
-                                    isSent ? 'border-green-200 bg-green-50/30' : isSel ? 'border-amber-200' : 'border-gray-100'
+                                    isSel ? (isSent ? 'border-green-200 bg-green-50/30' : 'border-amber-200') : 'border-gray-100'
                                 }`}>
                                 <div className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex-shrink-0 flex items-center justify-center ${
-                                    isSent ? 'border-green-500 bg-green-500' : isSel ? 'border-amber-500 bg-amber-500' : 'border-gray-300'
+                                    isSel ? (isSent ? 'border-green-500 bg-green-500' : 'border-amber-500 bg-amber-500') : 'border-gray-300'
                                 }`}>
-                                    {(isSel || isSent) && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                    {isSel && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
                                 </div>
-                                <span className={`text-xs leading-snug font-medium flex-1 ${isSent ? 'text-green-700' : isSel ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
-                                {isSent && <span className="text-[9px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full flex-shrink-0">{t.sent}</span>}
+                                <span className={`text-xs leading-snug font-medium flex-1 ${isSel ? (isSent ? 'text-green-700' : 'text-amber-900') : 'text-gray-500'}`}>{v}</span>
+                                {isSel && isSent && <span className="text-[9px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full flex-shrink-0">{t.sent}</span>}
                             </div>
                         );
                     })}
@@ -259,7 +259,20 @@ const CombinedRatingView = ({
     useEffect(() => {
         try {
             const saved = localStorage.getItem(storageKey);
-            if (saved) setSavedViolations(JSON.parse(saved));
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // useViolations saves as Record<string, number[]> (map by itemId)
+                // Merge all item arrays into a flat unique array
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    const allViolations = new Set<number>();
+                    Object.values(parsed).forEach((arr: any) => {
+                        if (Array.isArray(arr)) arr.forEach((n: number) => allViolations.add(n));
+                    });
+                    setSavedViolations(Array.from(allViolations));
+                } else if (Array.isArray(parsed)) {
+                    setSavedViolations(parsed);
+                }
+            }
         } catch { /* silent */ }
     }, [storageKey]);
 
@@ -399,6 +412,12 @@ const CombinedRatingView = ({
                                     <p className="text-gray-400 text-xs font-medium truncate">
                                         {item.technicianCode && `${t.staff}: ${item.technicianCode} · `}{item.duration} {t.minutes}
                                     </p>
+                                    {/* Show KTV badge for multi-KTV items */}
+                                    {item.id.includes('-ktv') && item.technicianCode && (
+                                        <span className="inline-block mt-1 text-[9px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                                            NV: {item.technicianCode}
+                                        </span>
+                                    )}
                                 </div>
                                 {isRated ? (
                                     <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-200">
