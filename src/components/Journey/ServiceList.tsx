@@ -252,6 +252,16 @@ const CombinedRatingView = ({
     const [savedViolations, setSavedViolations] = useState<number[]>([]);
     const t = translations[lang || 'vi'] || translations['en'];
 
+    // 🔧 RATING CONSTRAINT: max rating based on number of violations
+    // 0 violations → 4 (Excellent), 1 → 3 (Good), 2 → 2 (Ok), 3+ → 1 (Bad)
+    const getMaxRating = (violationCount: number): number => {
+        if (violationCount >= 3) return 1;
+        if (violationCount >= 2) return 2;
+        if (violationCount >= 1) return 3;
+        return 4;
+    };
+    const maxAllowedRating = getMaxRating(savedViolations.length);
+
     // Read violations from localStorage (saved by TabTimerView)
     const storageKey = `spa_wrb_violations_${bookingId || 'default'}`;
     const violations = getViolations(lang || 'vi');
@@ -361,6 +371,20 @@ const CombinedRatingView = ({
                                         : [...savedViolations, idx];
                                     setSavedViolations(updated);
                                     try { localStorage.setItem(storageKey, JSON.stringify(updated)); } catch { /* silent */ }
+
+                                    // Auto-reset ratings that exceed new max allowed
+                                    const newMax = getMaxRating(updated.length);
+                                    setRatings(prev => {
+                                        const next = { ...prev };
+                                        let changed = false;
+                                        Object.keys(next).forEach(key => {
+                                            if (next[key] > newMax) {
+                                                delete next[key];
+                                                changed = true;
+                                            }
+                                        });
+                                        return changed ? next : prev;
+                                    });
                                 }}
                                 className={`flex items-start gap-3 p-3 bg-white rounded-2xl cursor-pointer border transition-all ${
                                     isChecked ? 'border-amber-300 shadow-sm ring-1 ring-amber-100' : 'border-gray-100/80'
@@ -444,18 +468,24 @@ const CombinedRatingView = ({
                                         {t.yourExperience}
                                     </p>
                                     <div className="grid grid-cols-4 gap-2 mb-4">
-                                        {RATING_OPTIONS.map((opt) => (
-                                            <button key={opt.value}
-                                                onClick={() => setRatings(prev => ({ ...prev, [item.id]: opt.value }))}
-                                                className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all active:scale-95 ${
-                                                    ratings[item.id] === opt.value ? opt.bgSel : opt.bg
-                                                }`}>
-                                                <span className="text-2xl mb-0.5">{opt.emoji}</span>
-                                                <span className="text-[10px] font-bold leading-tight text-center text-gray-700">
-                                                    {lang === 'vi' ? opt.label : opt.labelEN}
-                                                </span>
-                                            </button>
-                                        ))}
+                                        {RATING_OPTIONS.map((opt) => {
+                                            const isDisabled = opt.value > maxAllowedRating;
+                                            return (
+                                                <button key={opt.value}
+                                                    disabled={isDisabled}
+                                                    onClick={() => !isDisabled && setRatings(prev => ({ ...prev, [item.id]: opt.value }))}
+                                                    className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
+                                                        isDisabled
+                                                            ? 'opacity-40 grayscale cursor-not-allowed bg-gray-100 border-gray-200'
+                                                            : `active:scale-95 ${ratings[item.id] === opt.value ? opt.bgSel : opt.bg}`
+                                                    }`}>
+                                                    <span className="text-2xl mb-0.5">{opt.emoji}</span>
+                                                    <span className="text-[10px] font-bold leading-tight text-center text-gray-700">
+                                                        {lang === 'vi' ? opt.label : opt.labelEN}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                     <button onClick={() => handleSubmit(item.id)}
                                         disabled={!ratings[item.id] || isSubmittingThis}
