@@ -159,12 +159,14 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
     // 🆕 Per-item rating handler
     const handleItemRated = useCallback(async (itemId: string, rating: number, feedback: string) => {
+        // Strip composite KTV suffix (e.g. 'abc-ktv0' → 'abc') for DB update
+        const realItemId = itemId.replace(/-ktv\d+$/, '');
         const res = await fetch('/api/journey/update', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 bookingId,
-                bookingItemId: itemId,
+                bookingItemId: realItemId,
                 itemRating: rating,
                 itemFeedback: feedback || null,
                 status: 'DONE', // Signal to API to check if all rated
@@ -174,7 +176,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
             const err = await res.json();
             throw new Error(err.error || 'Failed to submit rating');
         }
-        // Refresh để cập nhật trạng thái booking nếu đã DONE
+        // Refresh to update booking status if DONE
         await refresh();
     }, [bookingId, refresh]);
 

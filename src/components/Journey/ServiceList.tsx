@@ -130,7 +130,7 @@ const TabTimerView = ({
                     </p>
                     {currentGroup.itemCount > 1 && (
                         <p className="text-xs font-bold text-amber-500 mt-1">
-                            {currentGroup.totalDuration} ${t.minutes} · {currentGroup.itemCount} {t.services}
+                            {currentGroup.totalDuration} {t.minutes} · {currentGroup.itemCount} {t.services}
                         </p>
                     )}
                 </div>

@@ -118,24 +118,35 @@ export function useJourneyRealtime(bookingId: string) {
                         computedTimeStart = booking.timeStart;
                     }
 
-                    processedItems.push({
-                        id: i.id,
-                        serviceId: i.serviceId,
-                        service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
-                        duration: itemDuration,
-                        technicianCode: (Array.isArray(i.technicianCodes) && i.technicianCodes[0]) || booking.technicianCode || '',
-                        staffName: '',
-                        staffAvatar: '',
-                        computedTimeStart,
-                        quantity: i.quantity || 1,
-                        price: i.price || 0,
-                        options: i.options,
-                        status: i.status || null,
-                        itemRating: i.itemRating ?? null,
-                        itemFeedback: i.itemFeedback ?? null,
-                        // Per-item room/bed, fallback về booking-level
-                        roomName: i.roomName || booking.roomName || null,
-                        bedId: i.bedId || booking.bedId || null,
+                    // Split multi-KTV items: if a BookingItem has multiple technicianCodes,
+                    // create separate ServiceItems so each KTV gets their own rating card.
+                    const techCodes: string[] = Array.isArray(i.technicianCodes) && i.technicianCodes.length > 0
+                        ? i.technicianCodes
+                        : [booking.technicianCode || ''];
+
+                    techCodes.forEach((techCode: string, techIdx: number) => {
+                        // For multi-KTV: use composite ID so each KTV gets unique rating
+                        const itemId = techCodes.length > 1 ? `${i.id}-ktv${techIdx}` : i.id;
+
+                        processedItems.push({
+                            id: itemId,
+                            serviceId: i.serviceId,
+                            service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
+                            duration: itemDuration,
+                            technicianCode: techCode || '',
+                            staffName: '',
+                            staffAvatar: '',
+                            computedTimeStart,
+                            quantity: i.quantity || 1,
+                            price: i.price || 0,
+                            options: i.options,
+                            status: i.status || null,
+                            itemRating: i.itemRating ?? null,
+                            itemFeedback: i.itemFeedback ?? null,
+                            // Per-item room/bed, fallback to booking-level
+                            roomName: i.roomName || booking.roomName || null,
+                            bedId: i.bedId || booking.bedId || null,
+                        });
                     });
                 });
 
@@ -224,14 +235,16 @@ export function useJourneyRealtime(bookingId: string) {
                     
                     setData((prev) => {
                         if (!prev) return prev;
+                        // Match composite IDs: 'abc-ktv0' starts with 'abc'
+                        const originalId = updatedItem.id;
                         const updatedItems = prev.items.map(item =>
-                            item.id === updatedItem.id
+                            (item.id === originalId || item.id.startsWith(`${originalId}-ktv`))
                                 ? {
                                     ...item,
                                     status: updatedItem.status ?? item.status,
                                     itemRating: updatedItem.itemRating ?? item.itemRating,
                                     itemFeedback: updatedItem.itemFeedback ?? item.itemFeedback,
-                                    // Cập nhật timeStart khi KTV bắt đầu DV
+                                    // Update timeStart when KTV starts service
                                     computedTimeStart: updatedItem.timeStart ?? item.computedTimeStart,
                                 }
                                 : item
