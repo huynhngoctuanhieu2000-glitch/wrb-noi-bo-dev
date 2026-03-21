@@ -31,6 +31,7 @@ export const useServiceTimer = (
     duration: number,
     computedTimeStart: string | null | undefined,
     timeEnd?: string | null,
+    isPaused?: boolean
 ): ServiceTimerResult => {
     const totalSeconds = duration * 60;
     const isStarted = !!computedTimeStart;
@@ -68,14 +69,14 @@ export const useServiceTimer = (
     }, [computedTimeStart, timeEnd, totalSeconds]);
 
     useEffect(() => {
-        // Only tick if the service has actually started
-        if (!isStarted) return;
+        // Only tick if the service has actually started and not paused
+        if (!isStarted || isPaused) return;
 
         const interval = setInterval(() => {
             setElapsedSeconds(prev => Math.min(prev + 1, totalSeconds));
         }, 1000);
         return () => clearInterval(interval);
-    }, [totalSeconds, isStarted]);
+    }, [totalSeconds, isStarted, isPaused]);
 
     const remainingSeconds = totalSeconds - elapsedSeconds;
     const progress = isStarted ? (remainingSeconds / totalSeconds) * 100 : 100;
@@ -256,27 +257,25 @@ export const useViolations = (
     }, [bookingId, currentItemId, serviceName, roomName, bedId, storageKeySent]);
 
     const toggleViolation = useCallback((index: number) => {
-        let didSelect = false;
+        // 🚀 TÍNH TOÁN ĐỒNG BỘ: Không dựa vào nội bộ updater function vì React 18 batching sẽ làm mất dữ liệu
+        const isSelecting = !selectedViolations.includes(index);
+
         setViolationsMap(prev => {
             const currentList = prev[currentItemId] || [];
-            // Compute from prev state (NOT from closure) to avoid stale data
-            const isSelecting = !currentList.includes(index);
-            didSelect = isSelecting;
-            const next = {
-                ...prev,
-                [currentItemId]: isSelecting
-                    ? [...currentList, index]
-                    : currentList.filter(i => i !== index),
-            };
+            const nextList = !currentList.includes(index)
+                ? [...currentList, index]
+                : currentList.filter(i => i !== index);
+            const next = { ...prev, [currentItemId]: nextList };
             try { localStorage.setItem(storageKeyViolations, JSON.stringify(next)); } catch { /* silent */ }
             return next;
         });
-        // Send notification only on CHECK (not uncheck), and only once per violation per service
-        if (didSelect) {
+
+        // Send notification only on CHECK (not uncheck)
+        if (isSelecting) {
             sendViolationNotification(index, violations[index]);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentItemId, storageKeyViolations, violations, sendViolationNotification]);
+    }, [currentItemId, storageKeyViolations, violations, sendViolationNotification, selectedViolations]);
 
     return {
         selectedViolations,

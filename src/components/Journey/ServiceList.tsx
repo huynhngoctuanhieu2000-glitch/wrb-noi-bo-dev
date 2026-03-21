@@ -25,6 +25,7 @@ interface ServiceListProps {
     isActionLoading?: boolean;
     actionSuccess?: string | null;
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
+    isPaused?: boolean;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -33,7 +34,7 @@ interface ServiceListProps {
 const TabTimerView = ({
     items, lang, bookingId, roomName, bedId,
     onSOS, isSosLoading, sosSent, isAuthUser,
-    onAddService, onChangeStaff, isActionLoading, actionSuccess,
+    onAddService, onChangeStaff, isActionLoading, actionSuccess, isPaused
 }: Omit<ServiceListProps, 'onItemRated'>) => {
     const [selectedIdx, setSelectedIdx] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -44,7 +45,12 @@ const TabTimerView = ({
     const currentGroup = groups[selectedIdx] || groups[0];
     if (!currentGroup) return null;
 
-    const { formattedTime, progress: pct, isStarted, isFinished } = useServiceTimer(currentGroup.totalDuration, currentGroup.earliestTimeStart);
+    const { formattedTime, progress: pct, isStarted, isFinished } = useServiceTimer(
+        currentGroup.totalDuration, 
+        currentGroup.earliestTimeStart, 
+        undefined, 
+        isPaused
+    );
     const circumference = 2 * Math.PI * TIMER_CONFIG_COMPACT.RADIUS;
     const isCompleted = currentGroup.isCompleted;
     const violations = getViolations(lang || 'vi');
@@ -114,6 +120,7 @@ const TabTimerView = ({
                             <>
                                 <span className={`text-5xl font-black tracking-tighter ${isStarted ? 'text-amber-900' : 'text-gray-400'}`}>{formattedTime}</span>
                                 {!isStarted && <span className="text-xs font-bold text-gray-400 uppercase tracking-wider animate-pulse">{t.waiting}</span>}
+                                {isStarted && isPaused && <span className="text-[9px] font-bold text-amber-600 uppercase tracking-tighter animate-pulse bg-amber-100/50 px-2 py-0.5 rounded-full mt-1">ĐỢI CHUYỂN PHÒNG / KTV</span>}
                             </>
                         )}
                     </div>
@@ -556,7 +563,7 @@ const CombinedRatingView = ({
 type ViewState = 'TIMER' | 'CHECK_BELONGINGS' | 'RATING';
 
 const ServiceList = (props: ServiceListProps) => {
-    const { items, lang = 'vi' } = props;
+    const { items, lang = 'vi', isPaused } = props;
     const [view, setView] = useState<ViewState>('TIMER');
 
     // Auto-transition: TIMER → CHECK_BELONGINGS when all items completed

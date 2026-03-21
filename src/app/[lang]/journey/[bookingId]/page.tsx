@@ -35,6 +35,9 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         : rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
     const state = derivedStatus;
 
+    // Khi rawStatus = PREPARING nhưng items đã Started -> Nghĩa là KTV đang nghỉ giữa chặng (chuyển phòng)
+    const isPaused = rawStatus === 'PREPARING' && itemsStarted;
+
     const t = {
         preparing: translations[lang]?.preparing || translations['en'].preparing,
         inProgress: translations[lang]?.inProgress || translations['en'].inProgress,
@@ -332,6 +335,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         isActionLoading={isActionLoading}
                         actionSuccess={actionSuccess}
                         onItemRated={handleItemRated}
+                        isPaused={isPaused}
                     />
                 )}
 
