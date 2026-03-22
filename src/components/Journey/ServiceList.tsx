@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import TipModal from '@/components/Journey/TipModal';
-import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getViolations } from './Journey.constants';
+import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getViolations, getRatingLabel } from './Journey.constants';
 import { useServiceTimer, groupItemsByTech, useViolations, GroupedService } from './Journey.logic';
 import { translations } from './Journey.i18n';
 
@@ -488,7 +488,7 @@ const CombinedRatingView = ({
                                                     }`}>
                                                     <span className="text-2xl mb-0.5">{opt.emoji}</span>
                                                     <span className="text-[10px] font-bold leading-tight text-center text-gray-700">
-                                                        {lang === 'vi' ? opt.label : opt.labelEN}
+                                                        {getRatingLabel(lang || 'vi', opt.value)}
                                                     </span>
                                                 </button>
                                             );
