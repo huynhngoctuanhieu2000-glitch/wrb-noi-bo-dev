@@ -27,6 +27,15 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { customer, items, paymentMethod, amountPaid, totalVND, lang } = body;
 
+        // Normalize language code to prevent mismatch (e.g. 'VN' → 'vi', 'vn' → 'vi')
+        const VALID_LANGS = ['vi', 'en', 'kr', 'jp', 'cn'];
+        const normalizedLang = (() => {
+            const raw = (lang || '').toLowerCase().trim();
+            if (raw === 'vn') return 'vi';
+            return VALID_LANGS.includes(raw) ? raw : 'vi';
+        })();
+        console.log(`[POST /api/orders] lang from body: "${lang}", normalized: "${normalizedLang}"`);
+
         const now = new Date();
         const vnDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
         const currentHour = vnDate.getHours();
@@ -147,7 +156,8 @@ export async function POST(request: Request) {
                 createdAt: vnTimeStr,
                 updatedAt: vnTimeStr,
                 status: 'NEW',
-                billCode: billNum
+                billCode: billNum,
+                customerLang: normalizedLang
             })
             .select()
             .single();
