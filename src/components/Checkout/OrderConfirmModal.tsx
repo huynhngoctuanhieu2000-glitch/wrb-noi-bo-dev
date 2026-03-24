@@ -14,7 +14,7 @@ const UI_CONFIG = {
     COUNTDOWN_INTERVAL: 700,
     ESTIMATED_START_OFFSET: 15, // minutes
     ANIMATION_DURATION: '300ms',
-    TABLET_RESET_SECONDS: 90, // Auto-reset countdown for tablet
+    TABLET_RESET_SECONDS: 180, // Auto-reset countdown for tablet (3 phút)
     QR_SIZE: 200,
     JOURNEY_BASE_URL: 'https://nganha.vercel.app',
 };
