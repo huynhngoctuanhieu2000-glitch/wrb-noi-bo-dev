@@ -20,7 +20,8 @@ export function middleware(request: NextRequest) {
   if (
     pathname.includes('.') || // Đuôi file (.png, .css)
     pathname.startsWith('/api') ||
-    pathname.startsWith('/_next')
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/register-device') // Tablet registration page
   ) {
     return NextResponse.next();
   }

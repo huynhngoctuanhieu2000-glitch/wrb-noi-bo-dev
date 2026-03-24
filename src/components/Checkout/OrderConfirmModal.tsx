@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { X, ClipboardList, Clock, ArrowRight, Check, User, HeartPulse, Ban, GripHorizontal, AlertCircle, Phone, Mail, Hand } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
+import { createClient } from '@/lib/supabase';
+import { QRCodeSVG } from 'qrcode.react';
+
+// 🔧 UI CONFIGURATION
 const UI_CONFIG = {
     MODAL_MAX_WIDTH: '480px',
     SUCCESS_MODAL_MAX_WIDTH: '400px',
@@ -10,6 +14,9 @@ const UI_CONFIG = {
     COUNTDOWN_INTERVAL: 700,
     ESTIMATED_START_OFFSET: 15, // minutes
     ANIMATION_DURATION: '300ms',
+    TABLET_RESET_SECONDS: 90, // Auto-reset countdown for tablet
+    QR_SIZE: 200,
+    JOURNEY_BASE_URL: 'https://nganha.vercel.app',
 };
 
 interface OrderConfirmModalProps {
@@ -45,6 +52,27 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     const [success, setSuccess] = useState(false);
     const [bookingId, setBookingId] = useState<string | null>(null);
     const [countdown, setCountdown] = useState(2); // Countdown display
+    const [isTabletDevice, setIsTabletDevice] = useState(false);
+    const [tabletResetCountdown, setTabletResetCountdown] = useState(UI_CONFIG.TABLET_RESET_SECONDS);
+
+    // Check if current device is a registered Tablet
+    useEffect(() => {
+        const checkDevice = async () => {
+            const deviceId = localStorage.getItem('REGISTERED_DEVICE_ID');
+            if (!deviceId) return;
+            try {
+                const supabase = createClient();
+                const { data } = await supabase
+                    .from('RegisteredDevices')
+                    .select('id')
+                    .eq('device_id', deviceId)
+                    .eq('is_active', true)
+                    .single();
+                if (data) setIsTabletDevice(true);
+            } catch { /* not a tablet */ }
+        };
+        checkDevice();
+    }, []);
 
     // --- Helper Functions (Hoisted or defined before use) ---
     const handleDone = () => {
@@ -55,9 +83,14 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         }
     };
 
-    // Auto-redirect effect - MUST be before any conditional returns
+    const handleTabletReset = () => {
+        // Reset tablet to home page for next customer
+        window.location.href = '/';
+    };
+
+    // Auto-redirect effect (for NON-tablet devices)
     useEffect(() => {
-        if (success && bookingId) {
+        if (success && bookingId && !isTabletDevice) {
             const timer = setTimeout(() => {
                 handleDone();
             }, UI_CONFIG.REDIRECT_DELAY);
@@ -71,7 +104,24 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                 clearInterval(interval);
             };
         }
-    }, [success, bookingId, lang]);
+    }, [success, bookingId, lang, isTabletDevice]);
+
+    // Auto-reset countdown for TABLET devices
+    useEffect(() => {
+        if (success && bookingId && isTabletDevice) {
+            const interval = setInterval(() => {
+                setTabletResetCountdown(prev => {
+                    if (prev <= 1) {
+                        handleTabletReset();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }
+    }, [success, bookingId, isTabletDevice]);
 
     // Prevent interaction if closed - This MUST be after hooks but before JSX
     if (!isOpen) return null;
@@ -115,6 +165,85 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         }
     };
     if (success) {
+        const journeyUrl = `${UI_CONFIG.JOURNEY_BASE_URL}/${lang}/journey/${bookingId}`;
+
+        // === TABLET MODE: Show QR Code ===
+        if (isTabletDevice && bookingId) {
+            return (
+                <div className="fixed inset-0 z-[120] flex items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900">
+                    <div
+                        className="w-full max-w-lg p-8 flex flex-col items-center text-center space-y-6 m-4 animate-in zoom-in-95 duration-300"
+                        style={{ borderRadius: UI_CONFIG.BORDER_RADIUS }}
+                    >
+                        {/* Success Check */}
+                        <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center border-4 border-green-500/30">
+                            <Check size={40} className="text-green-400" strokeWidth={4} />
+                        </div>
+
+                        <div>
+                            <h2 className="text-2xl font-bold text-white mb-2">
+                                {dict.checkout.order_submitted || 'Order Submitted!'}
+                            </h2>
+                            <p className="text-indigo-300 text-sm">
+                                Scan QR code to track your service on your phone
+                            </p>
+                        </div>
+
+                        {/* QR Code */}
+                        <div className="bg-white p-6 rounded-3xl shadow-2xl shadow-indigo-500/20">
+                            <QRCodeSVG
+                                value={journeyUrl}
+                                size={UI_CONFIG.QR_SIZE}
+                                level="H"
+                                includeMargin={true}
+                                imageSettings={{
+                                    src: '/logo.png',
+                                    x: undefined,
+                                    y: undefined,
+                                    height: 40,
+                                    width: 40,
+                                    excavate: true,
+                                }}
+                            />
+                        </div>
+
+                        {/* Info */}
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 w-full space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-indigo-300">{dict.checkout.total_bill || 'Total'}</span>
+                                <span className="font-bold text-amber-400 text-lg">{formatCurrency(totalVND)} VND</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-indigo-300">{dict.checkout.total_duration || 'Duration'}</span>
+                                <span className="font-bold text-white">{totalTime} mins</span>
+                            </div>
+                        </div>
+
+                        {/* Auto-reset countdown */}
+                        <div className="space-y-3 w-full">
+                            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                                <div
+                                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-1000 ease-linear"
+                                    style={{ width: `${(tabletResetCountdown / UI_CONFIG.TABLET_RESET_SECONDS) * 100}%` }}
+                                />
+                            </div>
+                            <p className="text-xs text-indigo-400">
+                                Screen resets in <span className="font-bold text-white">{tabletResetCountdown}s</span>
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={handleTabletReset}
+                            className="text-indigo-400 text-sm font-medium hover:text-white transition-colors"
+                        >
+                            ← Reset now
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // === NORMAL MODE: Auto-redirect to Journey ===
         return (
             <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
                 <div 
