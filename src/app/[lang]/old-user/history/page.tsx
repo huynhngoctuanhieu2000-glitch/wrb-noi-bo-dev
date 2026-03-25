@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, RefreshCw, Plus, Loader2 } from 'lucide-react';
 import { getDictionary } from '@/lib/dictionaries';
 import { formatCurrency } from '@/components/Menu/utils';
 import { useMenuData } from '@/components/Menu/MenuContext';
+import { LoginGate } from '@/components/Auth/LoginGate';
 
 // 🔧 UI CONFIGURATION
 const HISTORY_CONFIG = {
@@ -22,8 +23,41 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
     const [dict, setDict] = useState<any>(null);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
     const { addToCart, clearCart, services } = useMenuData();
+
+    // Check if user has auth info in localStorage
+    const checkAuth = useCallback(() => {
+        const email = localStorage.getItem('currentUserEmail');
+        const phone = localStorage.getItem('currentUserPhone');
+        return !!(email || phone);
+    }, []);
+
+    // Fetch orders using email and/or phone
+    const fetchOrders = useCallback(async () => {
+        setLoading(true);
+        try {
+            const email = localStorage.getItem('currentUserEmail');
+            const phone = localStorage.getItem('currentUserPhone');
+
+            const queryParams = new URLSearchParams();
+            if (email) queryParams.set('email', email);
+            if (phone) queryParams.set('phone', phone);
+
+            const res = await fetch(`/api/orders?${queryParams.toString()}`);
+            const data = await res.json();
+            if (data.success) {
+                setOrders(data.orders);
+            } else {
+                console.error("Failed to fetch orders:", data.error);
+            }
+        } catch (err) {
+            console.error("Fetch error:", err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         const init = async () => {
@@ -32,31 +66,23 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             const d = getDictionary(p.lang);
             setDict(d);
 
-            // Fetch Data
-            try {
-                const email = localStorage.getItem('currentUserEmail');
-                if (!email) {
-                    console.warn("No email found in localStorage");
-                    setLoading(false);
-                    return;
-                }
-
-                const res = await fetch(`/api/orders?email=${email}`);
-                const data = await res.json();
-                if (data.success) {
-                    setOrders(data.orders);
-                } else {
-                    console.error("Failed to fetch orders:", data.error);
-                }
-            } catch (err) {
-                console.error("Fetch error:", err);
-            } finally {
+            // Check auth and fetch if authenticated
+            if (checkAuth()) {
+                setIsAuthenticated(true);
+                await fetchOrders();
+            } else {
                 setLoading(false);
             }
         };
 
         init();
-    }, [params]);
+    }, [params, checkAuth, fetchOrders]);
+
+    // Handle successful login from LoginGate
+    const handleLoginSuccess = async (info: { email?: string; phone?: string; fullName?: string }) => {
+        setIsAuthenticated(true);
+        await fetchOrders();
+    };
 
     // Helper to Restore Cart
     const restoreCart = (order: any) => {
@@ -141,6 +167,26 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
 
     if (!dict) return <div className="min-h-screen bg-[#000000] flex items-center justify-center text-white"></div>;
 
+    // 🔐 Show LoginGate if not authenticated
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-[#000000] text-white flex flex-col font-sans">
+                {/* Header */}
+                <div className={`flex items-center p-4 sticky top-0 ${HISTORY_CONFIG.HEADER_BG} backdrop-blur-md z-20 border-b border-white/5`}>
+                    <button
+                        onClick={() => router.back()}
+                        className="w-10 h-10 bg-[#1f2430] rounded-full flex items-center justify-center hover:bg-[#2a3040] transition-colors"
+                    >
+                        <ArrowLeft size={20} className="text-gray-400" />
+                    </button>
+                    <h1 className="flex-1 text-center font-bold text-lg text-white pr-10">
+                        {dict.history.page_title}
+                    </h1>
+                </div>
+                <LoginGate lang={lang} onSuccess={handleLoginSuccess} />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#000000] text-white flex flex-col font-sans">

@@ -202,13 +202,14 @@ export async function GET(request: Request) {
         if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
+        const phone = searchParams.get('phone');
 
-        if (!email) {
-            return NextResponse.json({ success: false, error: 'Email required' }, { status: 400 });
+        if (!email && !phone) {
+            return NextResponse.json({ success: false, error: 'Email or phone required' }, { status: 400 });
         }
 
-        // Lấy danh sách booking kèm theo items
-        const { data: bookings, error } = await supabaseAdmin
+        // Build query with email OR phone
+        let query = supabaseAdmin
             .from('Bookings')
             .select(`
                 id,
@@ -225,8 +226,17 @@ export async function GET(request: Request) {
                     price,
                     options
                 )
-            `)
-            .eq('customerEmail', email)
+            `);
+
+        if (email && phone) {
+            query = query.or(`customerEmail.eq.${email},customerPhone.eq.${phone}`);
+        } else if (email) {
+            query = query.eq('customerEmail', email);
+        } else if (phone) {
+            query = query.eq('customerPhone', phone);
+        }
+
+        const { data: bookings, error } = await query
             .order('bookingDate', { ascending: false });
 
         if (error) throw error;

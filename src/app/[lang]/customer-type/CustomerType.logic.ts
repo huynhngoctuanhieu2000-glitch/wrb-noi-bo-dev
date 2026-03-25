@@ -96,7 +96,7 @@ export const useCustomerTypeLogic = (lang: string) => {
     setIsExiting(true);
     setTimeout(async () => {
       await handleLogout();
-      router.push(`/${lang}/auth`);
+      router.push(`/`);
     }, 500);
   };
 
