@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import crypto from 'node:crypto';
+import { generateAccessToken } from '@/lib/token';
 
 const DAY_CUTOFF_HOUR = 8; // Reset day at 8:00 AM
 
@@ -143,12 +144,13 @@ export async function POST(request: Request) {
         }
 
         // 3. Save to Supabase (Bookings)
+        const accessToken = generateAccessToken();
         const { data: booking, error: bookingError } = await supabaseAdmin
             .from('Bookings')
             .insert({
                 id: customId,
-                customerId: customerId, // <-- FK logic mapping 
-                customerName: customer.name || "Guest", // Keep for redundancy if needed, or remove later
+                customerId: customerId,
+                customerName: customer.name || "Guest",
                 customerPhone: customer.phone || "",
                 customerEmail: customer.email || "",
                 totalAmount: totalVND,
@@ -157,7 +159,8 @@ export async function POST(request: Request) {
                 updatedAt: vnTimeStr,
                 status: 'NEW',
                 billCode: billNum,
-                customerLang: normalizedLang
+                customerLang: normalizedLang,
+                accessToken: accessToken
             })
             .select()
             .single();
@@ -189,7 +192,7 @@ export async function POST(request: Request) {
 
         // Customer upsert logic is handled before Booking insertion.
 
-        return NextResponse.json({ success: true, billNum, bookingId: customId });
+        return NextResponse.json({ success: true, billNum, bookingId: customId, accessToken });
     } catch (error: any) {
         console.error("❌ API Order Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -219,6 +222,7 @@ export async function GET(request: Request) {
                 status,
                 rating,
                 technicianCode,
+                accessToken,
                 BookingItems!BookingItems_bookingId_fkey (
                     id,
                     serviceId,
@@ -290,7 +294,8 @@ export async function GET(request: Request) {
                     options: i.options
                 };
             }),
-            note: 'Supabase Booking'
+            note: 'Supabase Booking',
+            accessToken: b.accessToken || null
         }));
 
         return NextResponse.json({ success: true, orders: result });

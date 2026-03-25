@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 export async function PATCH(request: Request) {
     try {
         const body = await request.json();
-        const { 
+        let { 
             bookingId, 
             status, 
             violations, 
@@ -25,6 +25,17 @@ export async function PATCH(request: Request) {
         const supabaseAdmin = getSupabaseAdmin();
         if (!supabaseAdmin) {
             return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
+        }
+
+        // 🔒 Resolve accessToken → real booking ID (backward compatible)
+        const { data: resolved } = await supabaseAdmin
+            .from('Bookings')
+            .select('id')
+            .or(`accessToken.eq.${bookingId},id.eq.${bookingId}`)
+            .maybeSingle();
+
+        if (resolved) {
+            bookingId = resolved.id; // Use real ID for all subsequent queries
         }
 
         // --- Per-item rating: khi khách đánh giá 1 dịch vụ cụ thể ---
