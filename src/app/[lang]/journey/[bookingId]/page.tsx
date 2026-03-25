@@ -309,7 +309,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
             <main className="max-w-md mx-auto relative px-4 pt-6">
                 {state === 'PREPARING' && (
                     <WaitingRoom
-                        orderId={bookingId}
+                        orderId={journeyData?.id || bookingId}
                         lang={lang}
                         items={journeyData?.items || []}
                         roomName={journeyData?.roomName}
