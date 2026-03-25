@@ -63,7 +63,7 @@ export function useJourneyRealtime(bookingId: string) {
             const { data: booking, error: fetchError } = await supabase
                 .from('Bookings')
                 .select('*')
-                .or(`accessToken.eq.${bookingId},id.eq.${bookingId},billCode.eq.${bookingId}`)
+                .eq('accessToken', bookingId)
                 .maybeSingle();
 
             if (fetchError) {
