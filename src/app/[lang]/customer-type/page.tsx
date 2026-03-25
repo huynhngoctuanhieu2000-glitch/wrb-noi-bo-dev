@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { UserCheck, ArrowRight, X, Loader2, ArrowLeft, History, Search } from "lucide-react";
 import { useCustomerTypeLogic } from "./CustomerType.logic";
+import { GoogleLoginBtn } from '@/components/Auth/GoogleLoginBtn';
 
 // ============================================================================
 // 👇 KHU VỰC CHỈNH SỬA GIAO DIỆN (SỬA SỐ Ở ĐÂY) 👇
@@ -191,9 +192,21 @@ export default function CustomerTypePage() {
               <h3 className="text-2xl font-bold text-white mb-2">
                 {t('find_history')}
               </h3>
-              <p className="text-sm text-gray-400 mb-8 font-medium">
+              <p className="text-sm text-gray-400 mb-6 font-medium">
                 {t('desc_enter_email')}
               </p>
+
+              {/* Google Login */}
+              <div className="w-full mb-4 shadow-lg rounded-[8px]">
+                <GoogleLoginBtn lang={lang} />
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 w-full mb-4">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">{t('or_manual')}</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
 
               <div className="w-full space-y-4">
                 <input

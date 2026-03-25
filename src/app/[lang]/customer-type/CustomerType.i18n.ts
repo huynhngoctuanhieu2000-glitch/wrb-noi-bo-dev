@@ -8,7 +8,7 @@
 /**
  * Type định nghĩa các key có thể dịch
  */
-export type TranslationKey = 'wc_title' | 'wc_desc' | 'btn_new_title' | 'btn_new_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout';
+export type TranslationKey = 'wc_title' | 'wc_desc' | 'btn_new_title' | 'btn_new_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout' | 'or_manual';
 
 /**
  * Object chứa tất cả bản dịch theo ngôn ngữ
@@ -31,7 +31,8 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     error_desc: 'This email has not been used before.',
     btn_retry: 'Try Another Email',
     btn_register_new: 'Register New Customer',
-    btn_logout: 'Switch Account / Logout'
+    btn_logout: 'Switch Account / Logout',
+    or_manual: 'or enter email'
   },
   vi: {
     wc_title: 'Chào mừng',
@@ -49,7 +50,8 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     error_desc: 'Email này chưa từng sử dụng dịch vụ.',
     btn_retry: 'Thử Email Khác',
     btn_register_new: 'Đăng Ký Khách Mới',
-    btn_logout: 'Đổi Tài Khoản / Đăng Xuất'
+    btn_logout: 'Đổi Tài Khoản / Đăng Xuất',
+    or_manual: 'hoặc nhập email'
   },
   jp: {
     wc_title: 'ようこそ',
@@ -67,7 +69,8 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     error_desc: 'このメールアドレスは登録されていません。',
     btn_retry: '別のメールを試す',
     btn_register_new: '新規登録',
-    btn_logout: 'アカウント切り替え / ログアウト'
+    btn_logout: 'アカウント切り替え / ログアウト',
+    or_manual: 'またはメール入力'
   },
   kr: {
     wc_title: '환영합니다',
@@ -85,7 +88,8 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     error_desc: '이 이메일은 사용된 적이 없습니다.',
     btn_retry: '다른 이메일 시도',
     btn_register_new: '신규 고객 등록',
-    btn_logout: '계정 전환 / 로그아웃'
+    btn_logout: '계정 전환 / 로그아웃',
+    or_manual: '또는 이메일 입력'
   },
   cn: {
     wc_title: '欢迎',
@@ -103,6 +107,7 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
     error_desc: '此电子邮件尚未使用过。',
     btn_retry: '尝试其他邮箱',
     btn_register_new: '注册新客户',
-    btn_logout: '切换账号 / 退出'
+    btn_logout: '切换账号 / 退出',
+    or_manual: '或输入邮箱'
   }
 };
