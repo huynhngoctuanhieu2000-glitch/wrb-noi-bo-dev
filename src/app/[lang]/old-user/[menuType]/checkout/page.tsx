@@ -202,7 +202,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         }
 
         const data = await res.json();
-        return data.bookingId;
+        return data.accessToken || data.bookingId;
     };
 
     if (!cart) return null;
