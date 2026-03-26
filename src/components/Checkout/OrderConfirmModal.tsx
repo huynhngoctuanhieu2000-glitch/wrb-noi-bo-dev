@@ -329,10 +329,15 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         );
     }
 
-    const formatParts = (parts: string[]) => parts.map(p => {
-        // @ts-ignore
-        return dict.body_parts?.[p.toLowerCase()] || dict.body_parts?.[p] || p;
-    }).join(', ');
+    const formatParts = (parts: string[]) => {
+        if (parts.length >= 8) {
+            return dict.custom_for_you?.full_body || 'Full Body';
+        }
+        return parts.map(p => {
+            // @ts-ignore
+            return dict.body_parts?.[p.toLowerCase()] || dict.body_parts?.[p] || p;
+        }).join(', ');
+    };
 
     return (
         <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in pb-0 sm:pb-0">

@@ -61,7 +61,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                         const formatParts = (parts: string[]) => {
                             // Task E1: Show "Full Body" if all parts selected
                             if (parts.length >= TOTAL_BODY_PARTS) {
-                                return dict.body_parts?.full_body || dict.custom_for_you?.full_body || 'Full Body';
+                                return dict.custom_for_you?.full_body || 'Full Body';
                             }
                             return parts.map(p => {
                                 const key = p.toLowerCase();

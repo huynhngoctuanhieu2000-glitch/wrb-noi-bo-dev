@@ -4,6 +4,7 @@
 
 | Conversation | Mô tả | Files đang sửa | Status |
 |---|---|---|---|
+| bda60789 | Fix display full_body in Checkout | `OrderConfirmModal.tsx`, `Invoice.tsx` | 🔴 Xong |
 | bda60789 | Fix TS error CartDrawer | `CartDrawer.tsx` | 🔴 Xong |
 | bda60789 | Fix TS/Runtime errors in Checkout (fill_any_contact, handleBack) | `checkout/page.tsx`, `dictionaries.ts` | 🔴 Xong |
 | 36f52950 | Sửa 13 task Web Booking UX | -- Đã hoàn thành -- | 🔴 Xong |
@@ -12,6 +13,8 @@
 
 | Thời gian | Conversation | Hành động |
 |---|---|---|
+| 2026-03-27 01:12 | bda60789 | Bắt đầu fix lỗi không hiện full_body ở màn Khách Gửi Đơn |
+| 2026-03-27 01:13 | bda60789 | ✅ Hoàn thành fix lỗi full_body |
 | 2026-03-27 00:27 | bda60789 | Bắt đầu fix TS error full_body trong CartDrawer |
 | 2026-03-27 00:28 | bda60789 | ✅ Hoàn thành fix TS error CartDrawer |
 | 2026-03-27 00:21 | bda60789 | Bắt đầu fix TS error handleBack & fill_any_contact |
