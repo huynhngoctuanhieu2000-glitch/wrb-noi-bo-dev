@@ -314,6 +314,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         items={journeyData?.items || []}
                         roomName={journeyData?.roomName}
                         bedId={journeyData?.bedId}
+                        currentStep={currentIndex}
                     />
                 )}
 

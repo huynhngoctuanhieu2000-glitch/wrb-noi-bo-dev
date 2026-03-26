@@ -130,27 +130,29 @@ export default function CustomerTypePage() {
           </div>
         </button>
 
-        {/* --- NÚT KHÁCH HÀNG MỚI --- */}
+        {/* --- NÚT KHÁCH HÀNG MỚI (Task E4: Thống nhất style với nút KH Cũ) --- */}
         <button
           onClick={onSelectNewUser}
           style={{ height: LAYOUT_CONFIG.buttons.height }}
-          className="group w-full h-auto py-4 bg-[black]/[0.03] border-yellow hover:bg-yellow-500/10 rounded-[1.5rem] flex items-center justify-between px-6 transition-all duration-300 active:scale-[0.98]"
+          className="w-full h-auto py-4 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
         >
           <div className="flex flex-col items-start text-left">
             <span
-              className="gold-text-shiny font-bold uppercase tracking-wider group-hover:brightness-125"
+              className="gold-text-shiny font-bold uppercase tracking-wider"
               style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}
             >
               {t('btn_new_title')}
             </span>
             <span
-              className="text-gray-500 font-normal tracking-tight group-hover:text-gray-400 italic"
+              className="text-gray-400 font-normal tracking-tight italic"
               style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeDesc }}
             >
               {t('btn_new_desc')}
             </span>
           </div>
-          <ArrowRight size={30} className="text-yellow-600/50 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" />
+          <div className="w-10 h-10 bg-[#B38728]/30 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <ArrowRight size={LAYOUT_CONFIG.buttons.iconSize} className="text-[#D4AF37]" />
+          </div>
         </button>
 
         {/* --- NÚT QUAY LẠI / ĐĂNG XUẤT --- */}

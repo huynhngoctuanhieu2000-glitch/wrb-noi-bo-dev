@@ -185,9 +185,18 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                     </>
 
                                 ) : (
-                                    // Placeholder cho phần bị ẩn/disabled
+                                    // Task C1b: Show body part name even when disabled (with annotation)
                                     <span className="text-[11px] text-gray-300 italic flex-1">
-                                        -- N/A --
+                                        {getText({
+                                            HEAD: { en: 'Head', vn: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
+                                            NECK: { en: 'Neck', vn: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
+                                            SHOULDER: { en: 'Shoulder', vn: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
+                                            ARM: { en: 'Arm', vn: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
+                                            BACK: { en: 'Back', vn: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
+                                            THIGH: { en: 'Thigh', vn: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
+                                            CALF: { en: 'Calf', vn: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
+                                            FOOT: { en: 'Foot', vn: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
+                                        }[part.key] as MultiLangText, lang)}
                                     </span>
                                 )}
                             </div>

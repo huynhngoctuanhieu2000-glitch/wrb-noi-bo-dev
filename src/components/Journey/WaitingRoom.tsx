@@ -13,9 +13,10 @@ interface WaitingRoomProps {
     items?: ServiceItem[];
     roomName?: string | null;
     bedId?: string | null;
+    currentStep?: number; // Task C2b: Index of current active step (0-based)
 }
 
-export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName, bedId }: WaitingRoomProps) {
+export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName, bedId, currentStep = 0 }: WaitingRoomProps) {
     const t = translations[lang] || translations['en'];
 
     // Rút gọn mã đơn: "11NDK-020-17032026" → "020"
@@ -102,26 +103,48 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                     {lang === 'vi' ? 'Lộ trình dịch vụ' : 'Your Journey'}
                 </span>
                 <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100">
-                    {journeySteps.map((step, idx) => (
-                        <div key={idx} className="flex items-start gap-4">
-                            <div className="flex flex-col items-center">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                                    idx === 0 ? 'bg-amber-100 border-2 border-amber-300' : 'bg-gray-50 border border-gray-200'
-                                }`}>
-                                    {step.emoji}
+                    {journeySteps.map((step, idx) => {
+                        const isCompleted = idx < currentStep;
+                        const isActive = idx === currentStep;
+                        return (
+                            <div key={idx} className="flex items-start gap-4">
+                                <div className="flex flex-col items-center">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all duration-500 ${
+                                        isCompleted
+                                            ? 'bg-green-500 border-2 border-green-400'
+                                            : isActive
+                                                ? 'bg-amber-100 border-2 border-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
+                                                : 'bg-gray-50 border border-gray-200'
+                                    }`}>
+                                        {isCompleted ? (
+                                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        ) : (
+                                            step.emoji
+                                        )}
+                                    </div>
+                                    {idx < journeySteps.length - 1 && (
+                                        <div className={`w-0.5 h-8 my-1 transition-all duration-500 ${
+                                            isCompleted ? 'bg-green-300' : 'bg-gray-200'
+                                        }`}></div>
+                                    )}
                                 </div>
-                                {idx < journeySteps.length - 1 && (
-                                    <div className="w-0.5 h-8 bg-gray-200 my-1"></div>
-                                )}
+                                <div className="pt-1.5 flex-1 min-w-0">
+                                    <p className={`font-bold text-sm transition-colors ${
+                                        isCompleted ? 'text-green-700 line-through' :
+                                        isActive ? 'text-amber-800' : 'text-gray-400'
+                                    }`}>
+                                        {step.title}
+                                    </p>
+                                    <p className={`text-xs font-medium mt-0.5 ${
+                                        isCompleted ? 'text-green-400' :
+                                        isActive ? 'text-gray-500' : 'text-gray-300'
+                                    }`}>{step.sub}</p>
+                                </div>
                             </div>
-                            <div className="pt-1.5 flex-1 min-w-0">
-                                <p className={`font-bold text-sm ${idx === 0 ? 'text-amber-800' : 'text-gray-600'}`}>
-                                    {step.title}
-                                </p>
-                                <p className="text-xs text-gray-400 font-medium mt-0.5">{step.sub}</p>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
