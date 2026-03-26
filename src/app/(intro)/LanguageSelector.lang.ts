@@ -9,45 +9,57 @@
  * Interface định nghĩa cấu trúc của một ngôn ngữ
  */
 export interface Language {
-  id: string; // Mã ngôn ngữ (vi, en, jp, etc.)
-  name: string; // Tên đầy đủ của ngôn ngữ
-  greeting: string; // Text chào mừng khi chọn ngôn ngữ
-  flag: string; // URL hình ảnh cờ quốc gia
+  id: string;
+  name: string;
+  greeting: string;
+  flag: string;   // URL hình ảnh cờ (fallback)
+  emoji: string;  // Emoji cờ (primary display)
 }
 
 /**
  * Mảng chứa tất cả ngôn ngữ được hỗ trợ
  * Mỗi ngôn ngữ có thông tin cờ và greeting riêng
  */
+/**
+ * Twemoji CDN base URL for consistent flag rendering across platforms
+ * Format: https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/{codepoint}.svg
+ */
+const TWEMOJI_BASE = 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg';
+
 export const languages: Language[] = [
   {
     id: "en",
     name: "English",
     greeting: "Welcome to Ngan Ha",
-    flag: "/assets/flags/gb.webp"
+    flag: "/assets/flags/gb.webp",
+    emoji: "🇬🇧"
   },
   {
     id: "vi",
     name: "Tiếng Việt",
     greeting: "Ngân Hà Xin Chào",
-    flag: "/assets/flags/vn.webp"
+    flag: "/assets/flags/vn.webp",
+    emoji: "🇻🇳"
   },
   {
     id: "jp",
     name: "日本語",
     greeting: "Ngan Ha ようこそ",
-    flag: "/assets/flags/jp.webp"
+    flag: "/assets/flags/jp.webp",
+    emoji: "🇯🇵"
   },
   {
     id: "kr",
     name: "한국어",
     greeting: "Ngan Ha 의 인사",
-    flag: "/assets/flags/kr.webp"
+    flag: "/assets/flags/kr.webp",
+    emoji: "🇰🇷"
   },
   {
     id: "cn",
     name: "中文",
     greeting: "Ngan Ha 向您问候",
-    flag: "/assets/flags/cn.webp"
+    flag: "/assets/flags/cn.webp",
+    emoji: "🇨🇳"
   }
 ];

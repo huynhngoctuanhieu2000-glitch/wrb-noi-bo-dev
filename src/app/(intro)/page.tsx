@@ -18,22 +18,29 @@ import { animClasses } from "./animation";
 const LAYOUT_CONFIG = {
   // 1. LOGO TRÊN CÙNG
   topLogo: {
-    marginTop: "10px",       // Khoảng cách từ mép trên xuống Logo
-    width: "180px",          // Chiều rộng Logo
+    marginTop: "10px",
+    width: "180px",
   },
 
   // 2. VÒNG TRÒN CỜ (ORBIT)
   orbit: {
-    marginTop: "0px",        // Đẩy toàn bộ vòng tròn cờ lên (số âm) hoặc xuống (số dương)
-    centerLogoSize: "100px", // Kích thước Logo ở giữa vòng tròn
-    radius: 110,             // 👇 Bán kính vòng tròn (độ rộng của quỹ đạo cờ) - SỐ (không có px)
+    marginTop: "0px",
+    centerLogoSize: "100px",
+    radius: 130,              // Tăng bán kính để chứa circle lớn hơn
   },
 
-  // 3. CHỮ CHẠY (MARQUEE)
+  // 3. CẤU HÌNH LÁ CỜ
+  flag: {
+    circleSize: 70,           // Kích thước vòng tròn cờ (px) — nhỏ hơn
+    flagSize: "55px",         // Cỡ ảnh cờ bên trong circle
+    textSize: "13px",         // Cỡ chữ tên ngôn ngữ — to hơn
+  },
+
+  // 4. CHỮ CHẠY (MARQUEE)
   marquee: {
-    marginBottom: "80px",   // Khoảng cách từ mép dưới lên dòng chữ chạy
-    height: "100px",         // Chiều cao vùng chứa chữ chạy
-    fontSize: "17px",        // Cỡ chữ
+    marginBottom: "80px",
+    height: "100px",
+    fontSize: "17px",
   }
 };
 // ============================================================================
@@ -104,22 +111,40 @@ export default function LanguageSelectorPage() {
 
         {!showGreeting && languages.map((lang, index) => {
           const { x, y } = getFlagPosition(index);
+          const cs = LAYOUT_CONFIG.flag.circleSize;
           return (
             <div
               key={lang.id}
-              className={animClasses.flagItem}
-              style={{ transform: `translate3d(${x}px, ${y}px, 0)` }}
+              className="absolute top-1/2 left-1/2 z-30 cursor-pointer flex flex-col items-center"
+              style={{
+                width: `${cs}px`,
+                marginLeft: `${-cs / 2}px`,
+                marginTop: `${-cs / 2 - 10}px`,
+                transform: `translate3d(${x}px, ${y}px, 0)`,
+              }}
               onClick={() => handleSelectLanguage(lang.id)}
             >
-              <div className={animClasses.flagInner}>
+              {/* Circle — cờ lấp đầy vòng tròn, giống mẫu Image 1 */}
+              <div
+                className="rounded-full overflow-hidden flex items-center justify-center hover:scale-110 hover:shadow-[0_0_25px_rgba(250,204,21,0.6)] transition-all duration-300 shadow-[0_0_12px_rgba(0,0,0,0.4)]"
+                style={{
+                  width: `${cs}px`,
+                  height: `${cs}px`,
+                  border: '2px solid rgba(255,255,255,0.1)',
+                }}
+              >
                 <img
                   src={lang.flag}
-                  className="w-full h-full object-cover aspect-square opacity-90 group-hover:opacity-100"
+                  className="w-full h-full object-cover select-none"
                   alt={lang.name}
+                  draggable={false}
                 />
               </div>
-              {/* Task C1a: Native language name below flag */}
-              <span className="text-[10px] font-bold text-yellow-400/80 mt-1 text-center leading-tight drop-shadow-sm">
+              {/* Tên ngôn ngữ canh giữa dưới circle */}
+              <span
+                className="font-bold text-center leading-tight drop-shadow-sm mt-1.5 gold-text-soft"
+                style={{ fontSize: LAYOUT_CONFIG.flag.textSize }}
+              >
                 {lang.name}
               </span>
             </div>
