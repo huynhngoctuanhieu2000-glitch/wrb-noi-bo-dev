@@ -45,6 +45,11 @@ export interface Service {
   SHOW_STRENGTH?: boolean;
   HINT?: MultiLangString;
 
+  // UI Configuration Flags (Task E2+E3)
+  SHOW_CUSTOM_FOR_YOU?: boolean;  // Show/hide entire Custom For You modal
+  SHOW_NOTES?: boolean;           // Show/hide Notes section in Custom modal
+  SHOW_PREFERENCES?: boolean;     // Show/hide Preferences (Strength + Therapist Gender)
+
   // New Logic Flags
   ACTIVE?: boolean;      // Hiển thị hay không
   BEST_SELLER?: boolean; // Label "Best Seller" bên ngoài

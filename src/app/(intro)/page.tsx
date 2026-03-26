@@ -118,6 +118,10 @@ export default function LanguageSelectorPage() {
                   alt={lang.name}
                 />
               </div>
+              {/* Task C1a: Native language name below flag */}
+              <span className="text-[10px] font-bold text-yellow-400/80 mt-1 text-center leading-tight drop-shadow-sm">
+                {lang.name}
+              </span>
             </div>
           );
         })}

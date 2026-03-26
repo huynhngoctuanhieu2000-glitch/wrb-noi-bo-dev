@@ -264,25 +264,7 @@ export default function ActiveService({
                             {actionSuccess === 'ADD_SERVICE' ? t.notified : t.addService}
                         </button>
 
-                        {/* CHANGE THERAPIST BUTTON (Only for Auth/Google users) */}
-                        {isAuthUser && (
-                            <button 
-                                onClick={onChangeStaff}
-                                disabled={isActionLoading || isChangeStaffDisabled || actionSuccess === 'CHANGE_STAFF'}
-                                className={`py-4 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 border-2 shadow-sm active:scale-95 ${
-                                    isChangeStaffDisabled ? 'bg-gray-50 text-gray-300 border-gray-100 grayscale opacity-50 cursor-not-allowed' :
-                                    actionSuccess === 'CHANGE_STAFF' ? 'bg-green-50 text-green-600 border-green-200' :
-                                    'bg-white text-gray-800 border-gray-100 hover:bg-gray-50'
-                                }`}
-                            >
-                                {actionSuccess === 'CHANGE_STAFF' ? (
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                                ) : (
-                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                                )}
-                                {actionSuccess === 'CHANGE_STAFF' ? t.notified : t.changeTherapist}
-                            </button>
-                        )}
+                        {/* Change therapist button removed (Task C2c) */}
                     </div>
 
                     {/* SOS / Emergency Button */}

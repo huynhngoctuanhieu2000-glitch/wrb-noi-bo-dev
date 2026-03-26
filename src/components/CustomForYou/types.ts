@@ -12,6 +12,9 @@ export interface ServiceData {
     HINT?: Record<string, string>; // Placeholder cho Other Notes
     PRICE_VN?: number;
     PRICE_USD?: number;
+    // UI Configuration Flags (Task E2+E3)
+    SHOW_NOTES?: boolean;           // Show/hide Notes section
+    SHOW_PREFERENCES?: boolean;     // Show/hide Preferences (Strength + Therapist Gender)
 }
 
 // Cấu trúc Data Lưu Trữ preferences của khách

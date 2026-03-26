@@ -55,12 +55,20 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                         const hasCustom = isStrengthCustom || isTherapistCustom || isBodyCustom || isNotesCustom;
 
-                        const formatParts = (parts: string[]) => parts.map(p => {
-                            // Try exact match, or lowercase match, or uppercase match
-                            const key = p.toLowerCase();
-                            // @ts-ignore
-                            return dict.body_parts?.[key] || dict.body_parts?.[p] || p;
-                        }).join(', ');
+                        // Total body parts count (must match BodyMap.tsx ALL_BODY_PARTS)
+                        const TOTAL_BODY_PARTS = 8; // HEAD, NECK, SHOULDER, ARM, BACK, THIGH, CALF, FOOT
+
+                        const formatParts = (parts: string[]) => {
+                            // Task E1: Show "Full Body" if all parts selected
+                            if (parts.length >= TOTAL_BODY_PARTS) {
+                                return dict.body_parts?.full_body || dict.custom_for_you?.full_body || 'Full Body';
+                            }
+                            return parts.map(p => {
+                                const key = p.toLowerCase();
+                                // @ts-ignore
+                                return dict.body_parts?.[key] || dict.body_parts?.[p] || p;
+                            }).join(', ');
+                        };
 
                         // Helper for colors
                         const getStrengthColor = (s: string) => {

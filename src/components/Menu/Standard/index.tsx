@@ -120,9 +120,15 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
                 newAddedIds.push(newId);
             }
 
-            // 4. CHUYỂN SANG BƯỚC CUSTOM
+            // 4. CHUYỂN SANG BƯỚC CUSTOM (hoặc skip nếu không cần)
             setLastAddedCartIds(newAddedIds);
-            setSheet({ isOpen: true, type: 'CUSTOM', data: service });
+
+            // Task E2: Skip Custom modal for services that don't need it (e.g., Private Room)
+            if (service.SHOW_CUSTOM_FOR_YOU === false) {
+                closeSheet();
+            } else {
+                setSheet({ isOpen: true, type: 'CUSTOM', data: service });
+            }
         }
     };
 
@@ -242,7 +248,10 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
                         SHOW_STRENGTH: sheet.data.SHOW_STRENGTH,
                         HINT: sheet.data.HINT as Record<string, string>,
                         PRICE_VN: sheet.data.priceVND,
-                        PRICE_USD: sheet.data.priceUSD
+                        PRICE_USD: sheet.data.priceUSD,
+                        // Task E3: Pass visibility flags
+                        SHOW_NOTES: sheet.data.SHOW_NOTES,
+                        SHOW_PREFERENCES: sheet.data.SHOW_PREFERENCES,
                     }}
                     lang={lang as any}
                 />

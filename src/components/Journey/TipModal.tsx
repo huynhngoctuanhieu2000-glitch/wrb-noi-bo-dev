@@ -1,19 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import React from 'react';
 import { translations } from './Journey.i18n';
+
+// 🔧 UI CONFIGURATION
+const AUTO_CLOSE_DELAY = 4000; // Auto-close after 4 seconds
 
 interface TipModalProps {
     onClose: (tipAmount: number) => void;
     lang?: string;
 }
 
+/**
+ * TipModal — View-only / Reference mode (Task C3b)
+ * Shows tip amounts for reference only. No selection or sending.
+ * Auto-closes after a delay or user can dismiss manually.
+ */
 export default function TipModal({ onClose, lang = 'vi' }: TipModalProps) {
     const t = translations[lang] || translations['en'];
     const tips = ["50.000vnd", "100.000vnd", "200.000vnd", "500.000vnd"];
-    const [selectedTip, setSelectedTip] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Auto-close after delay
+    React.useEffect(() => {
+        const timer = setTimeout(() => onClose(0), AUTO_CLOSE_DELAY);
+        return () => clearTimeout(timer);
+    }, [onClose]);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -31,60 +42,38 @@ export default function TipModal({ onClose, lang = 'vi' }: TipModalProps) {
 
                     <h3 className="text-2xl font-black text-gray-900 mb-4">{t.tipExcellent}</h3>
 
-                    <div className="bg-amber-100/50 text-amber-900 text-sm p-4 rounded-2xl mb-8 leading-relaxed border border-amber-100">
+                    <div className="bg-amber-100/50 text-amber-900 text-sm p-4 rounded-2xl mb-6 leading-relaxed border border-amber-100">
                         {t.tipMessage}
                     </div>
 
-                    {/* Tip Grid */}
-                    <div className="grid grid-cols-2 gap-3 w-full mb-6">
+                    {/* Reference label */}
+                    <div className="w-full flex items-center gap-2 mb-3">
+                        <div className="flex-1 h-px bg-gray-200" />
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            {lang === 'vi' ? 'Tham Khảo' : 'For Reference'}
+                        </span>
+                        <div className="flex-1 h-px bg-gray-200" />
+                    </div>
+
+                    {/* Tip Grid — View-only (no onClick) */}
+                    <div className="grid grid-cols-2 gap-3 w-full mb-6 opacity-60">
                         {tips.map((amount) => (
-                            <button
+                            <div
                                 key={amount}
-                                disabled={isSubmitting}
-                                onClick={() => setSelectedTip(amount)}
-                                className={`py-4 px-2 rounded-2xl font-bold border-2 transition-all ${selectedTip === amount
-                                    ? 'bg-amber-50 border-amber-500 text-amber-700 shadow-md'
-                                    : 'bg-white border-gray-100 text-gray-700 hover:border-gray-300'
-                                    } ${isSubmitting ? 'opacity-50 grayscale' : ''}`}
+                                className="py-4 px-2 rounded-2xl font-bold border-2 bg-white border-gray-100 text-gray-500 text-center"
                             >
                                 {amount}
-                            </button>
+                            </div>
                         ))}
                     </div>
 
-                    {/* Actions */}
-                    <div className="w-full space-y-4">
-                        <button
-                            onClick={async () => {
-                                setIsSubmitting(true);
-                                const amountNumber = parseInt(selectedTip?.replace(/\D/g, '') || '0');
-                                await new Promise(r => setTimeout(r, 800)); // Visual feedback
-                                onClose(amountNumber);
-                            }}
-                            className={`w-full py-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${selectedTip
-                                ? 'bg-gray-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.2)] hover:bg-black'
-                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                }`}
-                            disabled={!selectedTip || isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <><Loader2 className="animate-spin" size={20} /> {t.tipProcessing}</>
-                            ) : (
-                                <>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                    {t.tipSend}
-                                </>
-                            )}
-                        </button>
-
-                        <button 
-                            disabled={isSubmitting}
-                            onClick={() => onClose(0)} 
-                            className="w-full py-2 text-gray-400 font-semibold text-sm hover:text-gray-600 disabled:opacity-0"
-                        >
-                            {t.tipSkip}
-                        </button>
-                    </div>
+                    {/* Single close button */}
+                    <button
+                        onClick={() => onClose(0)}
+                        className="w-full py-4 rounded-2xl font-bold text-lg bg-gray-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.2)] hover:bg-black transition-all flex items-center justify-center gap-2"
+                    >
+                        {lang === 'vi' ? 'Tiếp Tục' : 'Continue'}
+                    </button>
                 </div>
             </div>
         </div>

@@ -264,6 +264,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
 
                                 <div className="grid grid-cols-2 gap-3">
                                     {group
+                                        .filter((svc, idx, arr) => arr.findIndex(s => s.id === svc.id) === idx) // Dedup by ID (Task E5)
                                         .sort((a, b) => a.timeValue - b.timeValue)
                                         .slice(0, showAll ? undefined : 4)
                                         .map((svc) => (

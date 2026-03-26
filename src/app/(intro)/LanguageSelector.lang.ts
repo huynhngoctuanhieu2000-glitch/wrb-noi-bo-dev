@@ -34,19 +34,19 @@ export const languages: Language[] = [
   },
   {
     id: "jp",
-    name: "Japanese",
+    name: "日本語",
     greeting: "Ngan Ha ようこそ",
     flag: "/assets/flags/jp.webp"
   },
   {
     id: "kr",
-    name: "Korean",
+    name: "한국어",
     greeting: "Ngan Ha 의 인사",
     flag: "/assets/flags/kr.webp"
   },
   {
     id: "cn",
-    name: "Chinese",
+    name: "中文",
     greeting: "Ngan Ha 向您问候",
     flag: "/assets/flags/cn.webp"
   }

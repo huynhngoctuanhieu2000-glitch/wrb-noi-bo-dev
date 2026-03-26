@@ -116,6 +116,10 @@ export default function CustomForYouModal({
     // Check if we should render Body Map
     const showBodyMap = !serviceData.FOCUS_POSITION || Object.values(serviceData.FOCUS_POSITION).some(v => v === true);
 
+    // Task E3: Check visibility flags (default true for backward compatibility)
+    const showNotes = serviceData.SHOW_NOTES !== false;
+    const showPreferences = serviceData.SHOW_PREFERENCES !== false;
+
     return (
         <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-6 animate-in fade-in duration-200">
             {/* Backdrop */}
@@ -143,27 +147,29 @@ export default function CustomForYouModal({
                     </button>
                 </div>
 
-                {/* Tabs Navigation */}
-                <div className="flex px-6 bg-white border-b border-gray-100 z-10">
-                    <button
-                        onClick={() => setActiveTab('area')}
-                        className={`flex-1 py-4 text-sm font-bold transition-all border-b-2 ${activeTab === 'area'
-                                ? 'border-green-600 text-green-600'
-                                : 'border-transparent text-gray-400 hover:text-gray-600'
-                            }`}
-                    >
-                        {dict.custom_for_you?.tab_area}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('preferences')}
-                        className={`flex-1 py-4 text-sm font-bold transition-all border-b-2 ${activeTab === 'preferences'
-                                ? 'border-green-600 text-green-600'
-                                : 'border-transparent text-gray-400 hover:text-gray-600'
-                            }`}
-                    >
-                        {dict.custom_for_you?.tab_preferences}
-                    </button>
-                </div>
+                {/* Tabs Navigation — Only show if Preferences tab is visible (Task E3) */}
+                {showPreferences && (
+                    <div className="flex px-6 bg-white border-b border-gray-100 z-10">
+                        <button
+                            onClick={() => setActiveTab('area')}
+                            className={`flex-1 py-4 text-sm font-bold transition-all border-b-2 ${activeTab === 'area'
+                                    ? 'border-green-600 text-green-600'
+                                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                                }`}
+                        >
+                            {dict.custom_for_you?.tab_area}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('preferences')}
+                            className={`flex-1 py-4 text-sm font-bold transition-all border-b-2 ${activeTab === 'preferences'
+                                    ? 'border-green-600 text-green-600'
+                                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                                }`}
+                        >
+                            {dict.custom_for_you?.tab_preferences}
+                        </button>
+                    </div>
+                )}
 
                 {/* Content Area - Hidden overflow and flex to fit */}
                 <div className="flex-1 overflow-hidden relative">
@@ -179,14 +185,17 @@ export default function CustomForYouModal({
                                         onToggle={handleBodyToggle}
                                     />
                                 )}
-                                <NoteSection
-                                    lang={lang}
-                                    serviceData={serviceData}
-                                    notes={prefs.notes}
-                                    onChange={handleNoteChange}
-                                />
+                                {/* Task E3: Hide NoteSection when SHOW_NOTES is false */}
+                                {showNotes && (
+                                    <NoteSection
+                                        lang={lang}
+                                        serviceData={serviceData}
+                                        notes={prefs.notes}
+                                        onChange={handleNoteChange}
+                                    />
+                                )}
                             </div>
-                        ) : (
+                        ) : showPreferences ? (
                             <div className="animate-in fade-in slide-in-from-right-2 duration-300">
                                 <Preferences
                                     lang={lang}
@@ -195,7 +204,7 @@ export default function CustomForYouModal({
                                     onChange={handlePrefChange}
                                 />
                             </div>
-                        )}
+                        ) : null}
                         <div className="h-4" />
                     </div>
                 </div>

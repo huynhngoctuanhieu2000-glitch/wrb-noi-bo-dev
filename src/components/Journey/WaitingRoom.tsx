@@ -89,18 +89,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                                         {item.technicianCode && ` · ${t.staff || 'NV'}: ${item.technicianCode}`}
                                     </p>
                                 </div>
-                                <div className="text-right flex-shrink-0">
-                                    {(item.roomName || roomName) && (
-                                        <p className="text-xs font-bold text-amber-600">
-                                            {t.room || 'Room'} {item.roomName || roomName}
-                                        </p>
-                                    )}
-                                    {(item.bedId || bedId) && (
-                                        <p className="text-[10px] text-gray-400 font-medium">
-                                            {t.bed || 'Bed'} {item.bedId || bedId}
-                                        </p>
-                                    )}
-                                </div>
+                                {/* Room/Bed info hidden from customer view (Task C2a) */}
                             </div>
                         ))}
                     </div>

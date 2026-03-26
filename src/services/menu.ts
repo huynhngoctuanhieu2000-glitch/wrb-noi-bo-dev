@@ -56,8 +56,14 @@ export const getMenuData = async (): Promise<Service[]> => {
                 menuType: getMenuTypeFromId(item.id) as 'standard' | 'vip',
                 TAGS: item.tags || [],
                 FOCUS_POSITION: item.focusConfig,
-                SHOW_STRENGTH: true,
+                SHOW_STRENGTH: item.showPreferences !== false, // Default true, hide if showPreferences is false
                 HINT: item.HINT, // Để lại nếu có map sau này
+
+                // UI Configuration Flags (Task E2+E3)
+                SHOW_CUSTOM_FOR_YOU: item.showCustomForYou !== false, // Default true
+                SHOW_NOTES: item.showNotes !== false,                 // Default true
+                SHOW_PREFERENCES: item.showPreferences !== false,     // Default true
+
                 ACTIVE: item.isActive,
                 BEST_SELLER: item.isBestSeller,
                 BEST_CHOICE: item.isBestChoice

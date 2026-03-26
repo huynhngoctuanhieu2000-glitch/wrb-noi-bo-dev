@@ -131,9 +131,7 @@ const TabTimerView = ({
                     <p className="font-black text-gray-800 text-lg">{currentGroup.combinedName}</p>
                     <p className="text-gray-400 text-sm font-medium">
                         {currentGroup.technicianCode && `${t.staff}: ${currentGroup.technicianCode}`}
-                        {currentGroup.technicianCode && (currentGroup.roomName || roomName) && ' · '}
-                        {(currentGroup.roomName || roomName) && `${t.room} ${currentGroup.roomName || roomName}`}
-                        {(currentGroup.bedId || bedId) && ` · ${t.bed} ${currentGroup.bedId || bedId}`}
+                        {/* Room/Bed info hidden from customer view (Task C2a) */}
                     </p>
                     {currentGroup.itemCount > 1 && (
                         <p className="text-xs font-bold text-amber-500 mt-1">
@@ -182,21 +180,14 @@ const TabTimerView = ({
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex gap-3">
                     <button onClick={onAddService} disabled={isActionLoading || actionSuccess === 'ADD_SERVICE'}
-                        className={`py-4 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md active:scale-95 ${
+                        className={`w-full py-4 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md active:scale-95 ${
                             actionSuccess === 'ADD_SERVICE' ? 'bg-green-500 text-white' : 'bg-amber-500 text-white hover:bg-amber-600'
                         }`}>
                         {actionSuccess === 'ADD_SERVICE' ? '✓ ' : '+ '}{actionSuccess === 'ADD_SERVICE' ? t.notified : t.addServiceShort}
                     </button>
-                    {isAuthUser && (
-                        <button onClick={onChangeStaff} disabled={isActionLoading || actionSuccess === 'CHANGE_STAFF'}
-                            className={`py-4 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 border-2 active:scale-95 ${
-                                actionSuccess === 'CHANGE_STAFF' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-white text-gray-800 border-gray-100'
-                            }`}>
-                            {actionSuccess === 'CHANGE_STAFF' ? '✓ ' : '🔄 '}{actionSuccess === 'CHANGE_STAFF' ? t.notified : t.changeStaffShort}
-                        </button>
-                    )}
+                    {/* Change staff button removed (Task C2c) */}
                 </div>
                 <button onClick={onSOS} disabled={isSosLoading || sosSent}
                     className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 ${
@@ -251,7 +242,9 @@ const CombinedRatingView = ({
     items: ServiceItem[]; lang?: string; bookingId: string;
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
 }) => {
-    const [expandedId, setExpandedId] = useState<string | null>(null);
+    // Task C3a: Auto-expand first unrated service card
+    const firstUnratedId = items.find(item => item.itemRating === null || item.itemRating === undefined)?.id || null;
+    const [expandedId, setExpandedId] = useState<string | null>(firstUnratedId);
     const [ratings, setRatings] = useState<Record<string, number>>({});
     const [submitting, setSubmitting] = useState<string | null>(null);
     const [submitted, setSubmitted] = useState<Set<string>>(new Set());
