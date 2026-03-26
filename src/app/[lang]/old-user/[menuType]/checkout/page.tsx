@@ -167,8 +167,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     };
 
     const handleConfirmOrder = () => {
-        if (!customerInfo.name || !customerInfo.email) {
-            alert(dict.checkout.alerts?.fill_name_email || 'Please enter Full Name and Email');
+        // At least 1 of 3 fields (name, email, phone) must be filled
+        if (!customerInfo.name.trim() && !customerInfo.email.trim() && !customerInfo.phone.trim()) {
+            alert(dict.checkout.alerts?.fill_any_contact || 'Please enter at least Name, Email, or Phone');
             return;
         }
         if (!paymentMethod) {
