@@ -8,9 +8,8 @@ import { useAuthStore } from '@/lib/authStore.logic';
 import CheckoutHeader from '@/components/Checkout/CheckoutHeader';
 import CustomerInfo from '@/components/Checkout/CustomerInfo';
 import Invoice from '@/components/Checkout/Invoice';
-import PaymentMethods from '@/components/Checkout/PaymentMethods';
+import PaymentModal from '@/components/Checkout/PaymentModal';
 import OrderConfirmModal from '@/components/Checkout/OrderConfirmModal';
-import ChangeDenominationSelector from '@/components/Checkout/ChangeDenominationSelector';
 import CustomForYouModal from '@/components/CustomForYou';
 import { ServiceOptions, CartItem } from '@/components/Menu/types';
 import { getDictionary } from '@/lib/dictionaries';
@@ -62,6 +61,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     // Modals
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
     const [changeDenominations, setChangeDenominations] = useState<number[]>([]);
 
@@ -100,44 +100,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         }
     }, [isAuthUser, user]);
 
-    // Reset amount paid when payment method changes
-    useEffect(() => {
-        setAmountPaid('');
-    }, [paymentMethod]);
-
-    // Reset change denominations when amount changes
-    useEffect(() => {
-        setChangeDenominations([]);
-    }, [amountPaid]);
-
-    // --- HANDLERS ---
     const handleBack = () => {
         router.back();
     };
 
-    const handleAmountPaidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // If USD, just allow numbers, no dots formatting needed for small amounts (usually) 
-        // OR standard check.
-        const raw = e.target.value.replace(/\D/g, '');
-        if (!raw) {
-            setAmountPaid('');
-            return;
-        }
-
-        if (currency === 'USD') {
-            setAmountPaid(raw); // Simple number
-        } else {
-            setAmountPaid(Number(raw).toLocaleString('vi-VN'));
-        }
-    };
-
-    const setQuickAmount = (amount: number) => {
-        if (currency === 'USD') {
-            setAmountPaid(amount.toString());
-        } else {
-            setAmountPaid(amount.toLocaleString('vi-VN'));
-        }
-    };
+    // Cleanup obsolete handlers
 
     // ... (Custom Request Handlers remain same) ...
     const handleCustomRequest = (item: CartItem) => {
@@ -162,11 +129,15 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             alert(dict.checkout.alerts?.fill_any_contact || 'Please enter at least Name, Email, or Phone');
             return;
         }
-        if (!paymentMethod) {
-            alert(dict.checkout.alerts?.select_payment || 'Please select a payment method');
-            return;
-        }
-        setIsConfirmOpen(true);
+        setIsPaymentModalOpen(true);
+    };
+
+    const handlePaymentNext = (data: { paymentMethod: string; amountPaid: string; changeDenominations: number[] }) => {
+        setPaymentMethod(data.paymentMethod);
+        setAmountPaid(data.amountPaid);
+        setChangeDenominations(data.changeDenominations);
+        setIsPaymentModalOpen(false);
+        setTimeout(() => setIsConfirmOpen(true), 300);
     };
 
 
@@ -249,94 +220,6 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                             </div>
                         </div>
                     </div>
-
-                    {/* 3. Payment Section (Mobile: Item 3, Desktop: Left Col Row 2) */}
-                    <div className="w-full lg:col-span-7 lg:row-start-2 lg:mt-6 space-y-6">
-                        <PaymentMethods
-                            lang={lang}
-                            dict={dict}
-                            selected={paymentMethod}
-                            onChange={setPaymentMethod}
-                        />
-
-                        {/* Cash Payment Input */}
-                        {(paymentMethod === 'cash_vnd' || paymentMethod === 'cash_usd') && (
-                            <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs">
-                                        {dict.checkout.amount_paid_title}
-                                    </h2>
-                                    <button
-                                        onClick={() => setAmountPaid('0')}
-                                        className="text-red-500 text-xs font-bold border border-red-100 px-3 py-1 rounded-lg hover:bg-red-50"
-                                    >
-                                        {dict.checkout.reset}
-                                    </button>
-                                </div>
-
-                                {/* Input Large */}
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={amountPaid}
-                                        onChange={handleAmountPaidChange}
-                                        placeholder="0"
-                                        className="w-full text-center text-4xl font-bold text-black border-b-2 border-gray-100 py-4 focus:outline-none focus:border-green-500 transition-colors bg-transparent placeholder-gray-200"
-                                    />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded">
-                                        {currency}
-                                    </span>
-                                </div>
-
-                                {/* Quick Suggestions */}
-                                <div className="flex gap-2 justify-center flex-wrap">
-                                    {quickSuggestions.map(amt => (
-                                        amt > 0 && (
-                                            <button
-                                                key={amt}
-                                                onClick={() => setQuickAmount(amt)}
-                                                className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all"
-                                            >
-                                                {currency === 'USD' ? amt : amt.toLocaleString('vi-VN')}
-                                            </button>
-                                        )
-                                    ))}
-                                </div>
-
-                                {/* Change Display */}
-                                <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
-                                    <span className="text-gray-500 text-sm font-medium">{dict.checkout.change_title}</span>
-                                    {changeAmount >= 0 ? (
-                                        <div className="text-right">
-                                            <span className="text-xl font-bold text-green-600 block">
-                                                {changeAmount.toLocaleString('vi-VN')} {currency}
-                                            </span>
-                                            {/* Conversion Display for USD */}
-                                            {currency === 'USD' && (
-                                                <span className="text-green-700 font-bold text-lg block">
-                                                    = {(changeAmount * 24000).toLocaleString('vi-VN')} VND
-                                                </span>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <span className="text-xl font-bold text-red-500">
-                                            {dict.checkout.insufficient}
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Change Denomination Selector */}
-                                {changeAmount > 0 && (
-                                    <ChangeDenominationSelector
-                                        changeAmount={changeAmount}
-                                        currency={currency as 'VND' | 'USD'}
-                                        dict={dict}
-                                        onSelect={setChangeDenominations}
-                                    />
-                                )}
-                            </div>
-                        )}
-                    </div>
                 </div>
             </main>
 
@@ -370,6 +253,16 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                     initialData={selectedCartItem.options as any}
                 />
             )}
+
+            <PaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                onNext={handlePaymentNext}
+                lang={lang}
+                dict={dict}
+                totalVND={totalVND}
+                totalUSD={totalUSD}
+            />
 
             <OrderConfirmModal
                 isOpen={isConfirmOpen}

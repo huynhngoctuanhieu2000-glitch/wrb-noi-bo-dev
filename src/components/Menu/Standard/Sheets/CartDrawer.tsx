@@ -89,7 +89,11 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
                             <Heart size={13} className="text-green-500 shrink-0 mt-0.5" />
                             <div className="flex flex-wrap gap-1">
                                 <span className="text-green-500 font-bold">{dict.checkout?.focus}:</span>
-                                <span className="text-gray-300">{options.bodyParts.focus.map(translatePart).join(', ')}</span>
+                                <span className="text-gray-300">
+                                    {options.bodyParts.focus.length === 8 
+                                        ? (dict.custom_for_you?.full_body || 'Full Body')
+                                        : options.bodyParts.focus.map(translatePart).join(', ')}
+                                </span>
                             </div>
                         </div>
                     )}
@@ -98,7 +102,11 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
                             <Ban size={13} className="text-red-500 shrink-0 mt-0.5" />
                             <div className="flex flex-wrap gap-1">
                                 <span className="text-red-500 font-bold">{dict.checkout?.avoid}:</span>
-                                <span className="text-gray-300">{options.bodyParts.avoid.map(translatePart).join(', ')}</span>
+                                <span className="text-gray-300">
+                                    {options.bodyParts.avoid.length === 8 
+                                        ? (dict.custom_for_you?.full_body || 'Full Body')
+                                        : options.bodyParts.avoid.map(translatePart).join(', ')}
+                                </span>
                             </div>
                         </div>
                     )}
