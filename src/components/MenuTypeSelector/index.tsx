@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./style.module.css";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 
 // ============================================================================
 // 👇 KHU VỰC CẤU HÌNH ẢNH SÁCH (SỬA LINK ẢNH Ở ĐÂY) 👇
@@ -66,8 +66,20 @@ const texts: Record<string, any> = {
 
 export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
     const t = texts[lang] || texts['en'];
+    const [comingSoon, setComingSoon] = useState<string | null>(null);
+
+    // Coming Soon text
+    const csText: Record<string, { title: string; desc: string; close: string }> = {
+        en: { title: 'Coming Soon', desc: 'This service is being prepared. Stay tuned!', close: 'Close' },
+        vi: { title: 'Sắp Ra Mắt', desc: 'Dịch vụ đang được chuẩn bị. Hãy đón chờ nhé!', close: 'Đóng' },
+        kr: { title: '곧 출시', desc: '서비스를 준비 중입니다. 기대해 주세요!', close: '닫기' },
+        cn: { title: '即将推出', desc: '服务正在筹备中，敬请期待！', close: '关闭' },
+        jp: { title: '近日公開', desc: 'サービス準備中です。お楽しみに！', close: '閉じる' },
+    };
+    const cs = csText[lang] || csText['en'];
 
     return (
+    <>
         <div className="flex flex-col items-center justify-between h-full w-full max-h-full py-2">
 
             {/* 1. HEADER */}
@@ -150,7 +162,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
 
                 {/* === BOOK 2: PREMIUM === */}
                 <div
-                    onClick={() => onSelect('vip')}
+                    onClick={() => setComingSoon('vip')}
                     className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-right-8 delay-300 fill-mode-forwards relative`}
                 >
                     <div
@@ -189,7 +201,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
 
                 {/* === BOOK 3: HOMESPA (NEW) === */}
                 <div
-                    onClick={() => onSelect('homespa')}
+                    onClick={() => setComingSoon('homespa')}
                     className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-right-8 delay-500 fill-mode-forwards relative`}
                 >
                     <div
@@ -261,5 +273,71 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
             )}
 
         </div>
+
+            {/* Coming Soon Modal */}
+            {comingSoon && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-300"
+                    onClick={() => setComingSoon(null)}
+                >
+                    <div
+                        className="relative bg-[#0f1218] border border-[#B38728]/30 rounded-3xl p-8 max-w-[340px] w-[90%] text-center animate-in zoom-in-95 duration-300 shadow-[0_0_40px_rgba(179,135,40,0.15)]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close button */}
+                        <button
+                            onClick={() => setComingSoon(null)}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        {/* Coming Soon icon */}
+                        <div className="flex items-center justify-center mb-5">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-[#D4AF37] blur-2xl opacity-20 rounded-full" />
+                                <div className="w-16 h-16 rounded-full border-2 border-[#B38728]/40 flex items-center justify-center bg-[#B38728]/10">
+                                    <span className="text-3xl">⏳</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-2xl font-black uppercase tracking-[0.15em] gold-text-shiny mb-2">
+                            {cs.title}
+                        </h3>
+
+                        {/* Book name */}
+                        <p className="text-white/80 font-bold text-base mb-1">
+                            {comingSoon === 'vip' ? t.vip : t.hms}
+                        </p>
+
+                        {/* Description */}
+                        <p className="text-sm text-gray-400 mb-6 font-medium">
+                            {cs.desc}
+                        </p>
+
+                        {/* Animated dots */}
+                        <div className="flex gap-2 justify-center mb-6">
+                            {[0, 1, 2].map((i) => (
+                                <div
+                                    key={i}
+                                    className="w-2 h-2 rounded-full bg-[#D4AF37] animate-bounce"
+                                    style={{ animationDelay: `${i * 0.2}s` }}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Close button */}
+                        <button
+                            onClick={() => setComingSoon(null)}
+                            className="px-8 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-[#B38728]/40 text-[#D4AF37] font-bold text-sm uppercase tracking-widest transition-all active:scale-95"
+                        >
+                            {cs.close}
+                        </button>
+                    </div>
+                </div>
+            )}
+    </>
     );
 };
