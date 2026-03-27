@@ -90,7 +90,26 @@ export default function JourneyDemoPage() {
             {/* Main Content Area */}
             <main className="max-w-md mx-auto relative px-4 pt-6">
                 {state === 'PREPARING' && <WaitingRoom orderId="NH-DEMO-2026" />}
-                {state === 'IN_PROGRESS' && <ActiveService serviceName="Deep Tissue Release" totalDuration={90} />}
+                {state === 'IN_PROGRESS' && <ActiveService 
+                    items={[{
+                        id: 'demo-1',
+                        serviceId: 's1',
+                        service_name: 'Deep Tissue Release',
+                        duration: 90,
+                        technicianCode: 'KTV01',
+                        staffName: 'KTV Demo',
+                        staffAvatar: '',
+                        computedTimeStart: null,
+                        quantity: 1,
+                        price: 0,
+                        status: 'IN_PROGRESS',
+                        itemRating: null,
+                        itemFeedback: null,
+                        roomName: 'Phòng Demo',
+                        bedId: 'Giường 1'
+                    }]}
+                    totalDuration={90} 
+                />}
                 {state === 'COMPLETED' && <CheckBelongings onConfirm={() => setState('FEEDBACK')} />}
                 {state === 'FEEDBACK' && <Feedback onComplete={(data) => { console.log('Feedback submitted:', data); setState('DONE'); }} />}
 
