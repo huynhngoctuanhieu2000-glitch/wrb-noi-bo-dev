@@ -20,6 +20,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const [sosSent, setSosSent] = React.useState(false);
     const [isActionLoading, setIsActionLoading] = React.useState(false);
     const [actionSuccess, setActionSuccess] = React.useState<string | null>(null);
+    const [serviceView, setServiceView] = React.useState<'TIMER' | 'CHECK_BELONGINGS' | 'RATING'>('TIMER');
 
     // State machine: derive từ booking.status + items status
     const rawStatus = journeyData?.status || 'PREPARING';
@@ -84,10 +85,12 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     // Map booking status → stepper index
     const getStepIndex = () => {
         if (state === 'DONE') return steps.length; // all done
-        if (state === 'COMPLETED') return 2; // Kiểm tra đồ
-        if (state === 'FEEDBACK') return 3; // Đánh giá
         if (state === 'PREPARING') return 0; // Ngâm chân
-        if (state === 'IN_PROGRESS') return 1; // Dịch vụ
+        if (state === 'COMPLETED' || state === 'FEEDBACK' || state === 'IN_PROGRESS') {
+            if (serviceView === 'RATING') return 3;
+            if (serviceView === 'CHECK_BELONGINGS') return 2;
+            return 1; // TIMER
+        }
         return 1;
     };
     const currentIndex = getStepIndex();
@@ -337,6 +340,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         actionSuccess={actionSuccess}
                         onItemRated={handleItemRated}
                         isPaused={isPaused}
+                        onViewChange={setServiceView}
                     />
                 )}
 

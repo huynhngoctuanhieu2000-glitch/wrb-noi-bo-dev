@@ -26,6 +26,7 @@ interface ServiceListProps {
     actionSuccess?: string | null;
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
     isPaused?: boolean;
+    onViewChange?: (view: 'TIMER' | 'CHECK_BELONGINGS' | 'RATING') => void;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -570,14 +571,18 @@ const ServiceList = (props: ServiceListProps) => {
     useEffect(() => {
         if (allCompleted && view === 'TIMER') {
             setView('CHECK_BELONGINGS');
+            props.onViewChange?.('CHECK_BELONGINGS');
         }
-    }, [allCompleted, view]);
+    }, [allCompleted, view, props.onViewChange]);
 
     return (
         <div className="w-full">
             {view === 'TIMER' && <TabTimerView {...props} />}
             {view === 'CHECK_BELONGINGS' && (
-                <CheckBelongingsView lang={lang} onConfirm={() => setView('RATING')} />
+                <CheckBelongingsView lang={lang} onConfirm={() => {
+                    setView('RATING');
+                    props.onViewChange?.('RATING');
+                }} />
             )}
             {view === 'RATING' && (
                 <CombinedRatingView
