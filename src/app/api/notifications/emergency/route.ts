@@ -6,40 +6,48 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { bookingId, customerName, message, type = 'EMERGENCY' } = body;
 
+        console.log('[Emergency API] Received payload:', { bookingId, customerName, type });
+
         if (!bookingId) {
             return NextResponse.json({ error: 'Missing bookingId' }, { status: 400 });
         }
 
         const supabaseAdmin = getSupabaseAdmin();
         if (!supabaseAdmin) {
+            console.error('[Emergency API] supabaseAdmin is null — SUPABASE_SERVICE_ROLE_KEY missing?');
             return NextResponse.json({ error: 'Database client not initialized' }, { status: 500 });
         }
 
         /**
-         * UPDATED SCHEMA (Based on debug discovery):
-         * - id: UUID (PK)
+         * SCHEMA StaffNotifications:
+         * - id: UUID (PK, auto-generated)
          * - bookingId: TEXT
-         * - type: TEXT (e.g. 'EMERGENCY')
+         * - type: TEXT ('EMERGENCY' | 'NORMAL')
          * - message: TEXT
          * - isRead: BOOLEAN
-         * - createdAt: TIMESTAMPTZ
+         * - createdAt: TIMESTAMPTZ (auto default hoặc truyền tay)
          * - employeeId: TEXT (optional)
-         * NOTE: 'title' column does not exist.
          */
+        const insertPayload = {
+            bookingId,
+            type,
+            message: message || `Khách hàng ${customerName || 'vô danh'} yêu cầu hỗ trợ khẩn cấp tại phòng.`,
+            isRead: false,
+            // NOTE: Không truyền createdAt để Supabase tự dùng default value
+            // Nếu cột DB là 'created_at' (snake_case), hãy đổi thành: created_at: new Date().toISOString()
+        };
+
+        console.log('[Emergency API] Inserting into StaffNotifications:', insertPayload);
+
         const { data, error } = await supabaseAdmin
             .from('StaffNotifications')
-            .insert({
-                bookingId,
-                type,
-                message: message || `Khách hàng ${customerName || 'vô danh'} yêu cầu hỗ trợ khẩn cấp tại phòng.`,
-                isRead: false,
-                createdAt: new Date().toISOString()
-            })
+            .insert(insertPayload)
             .select()
             .single();
 
         if (error) {
-            console.error('🚨 [Emergency API] Supabase error:', error);
+            // Log FULL error object để dễ debug trên Vercel Function Logs
+            console.error('🚨 [Emergency API] Supabase INSERT error:', JSON.stringify(error, null, 2));
             return NextResponse.json({ 
                 error: error.message, 
                 code: error.code,
@@ -48,6 +56,7 @@ export async function POST(request: Request) {
             }, { status: 500 });
         }
 
+        console.log('[Emergency API] ✅ Inserted successfully:', data?.id);
         return NextResponse.json({ success: true, notification: data }, { status: 200 });
 
     } catch (error: any) {
