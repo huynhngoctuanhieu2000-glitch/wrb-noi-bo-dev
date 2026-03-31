@@ -30,11 +30,12 @@ export async function POST(request: Request) {
          */
         const insertPayload = {
             bookingId,
-            type,
+            // ✅ Dùng type hợp lệ theo schema DB: 'SOS' hoặc 'NEW_ORDER'
+            // type param từ caller có thể là 'EMERGENCY' → ghi đè thành 'SOS'
+            type: type === 'EMERGENCY' ? 'SOS' : type,
             message: message || `Khách hàng ${customerName || 'vô danh'} yêu cầu hỗ trợ khẩn cấp tại phòng.`,
             isRead: false,
-            // NOTE: Không truyền createdAt để Supabase tự dùng default value
-            // Nếu cột DB là 'created_at' (snake_case), hãy đổi thành: created_at: new Date().toISOString()
+            createdAt: new Date().toISOString(), // Cột này tồn tại trong bảng
         };
 
         console.log('[Emergency API] Inserting into StaffNotifications:', insertPayload);
