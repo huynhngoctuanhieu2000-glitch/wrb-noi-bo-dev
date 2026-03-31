@@ -20,12 +20,11 @@ export async function POST(request: Request) {
 
         const insertPayload = {
             bookingId,
-            // ✅ Dùng type hợp lệ theo schema DB
-            // type param từ caller có thể là 'NORMAL' → ghi đè thành 'ADD_SERVICE'
-            type: type === 'NORMAL' ? 'ADD_SERVICE' : type,
+            // ✅ Dùng 'BUY_MORE' — admin đã có UI với màu tím và icon đẹp sẵn
+            type: 'BUY_MORE',
             message: message || `Khách hàng ${customerName || 'vô danh'} yêu cầu thêm dịch vụ.`,
             isRead: false,
-            createdAt: new Date().toISOString(), // Cột này tồn tại trong bảng
+            createdAt: new Date().toISOString(),
         };
 
         console.log('[Normal API] Inserting into StaffNotifications:', insertPayload);

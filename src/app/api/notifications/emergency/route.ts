@@ -30,13 +30,13 @@ export async function POST(request: Request) {
          */
         const insertPayload = {
             bookingId,
-            // ✅ Dùng type hợp lệ theo schema DB: 'SOS' hoặc 'NEW_ORDER'
-            // type param từ caller có thể là 'EMERGENCY' → ghi đè thành 'SOS'
-            type: type === 'EMERGENCY' ? 'SOS' : type,
+            // ✅ Dùng 'EMERGENCY' — khớp với SOUND_MAP và isCritical check trong admin
+            type: 'EMERGENCY',
             message: message || `Khách hàng ${customerName || 'vô danh'} yêu cầu hỗ trợ khẩn cấp tại phòng.`,
             isRead: false,
-            createdAt: new Date().toISOString(), // Cột này tồn tại trong bảng
+            createdAt: new Date().toISOString(),
         };
+
 
         console.log('[Emergency API] Inserting into StaffNotifications:', insertPayload);
 
