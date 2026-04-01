@@ -26,7 +26,7 @@ const BODY_MASKS: Record<BodyPartKey, React.CSSProperties[]> = {
     BACK: [{ clipPath: 'polygon(25% 26%, 73% 26%, 77% 53%, 25% 53%)' }],                   // Lưng & Bụng: 26–53%
     THIGH: [{ clipPath: 'polygon(20% 52.5%, 75.5% 52.5%, 75.5% 68%, 24% 68%)' }],          // Đùi: 52.5–68%
     CALF: [{ clipPath: 'polygon(21% 67.9%, 79% 67.9%, 79% 82%, 21% 82%)' }],              // Bắp chân: 67.9–82%
-    FOOT: [{ clipPath: 'polygon(18% 82%, 82% 82%, 82% 100%, 18% 100%)' }],                // Bàn chân: 82–100%
+    FOOT: [{ clipPath: 'polygon(18% 81.7%, 82% 81.7%, 82% 100%, 18% 100%)' }],                // Bàn chân: 82–100%
 };
 
 const ALL_BODY_PARTS: { key: BodyPartKey; height: string }[] = [
