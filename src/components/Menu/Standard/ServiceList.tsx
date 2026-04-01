@@ -20,10 +20,26 @@ interface ServiceListProps {
     services: Service[]; // Đây là danh sách tất cả các món (bao gồm 60', 90', 120'...)
     cart: Record<string, number>; // Lookup Map (ID -> Qty)
     lang: string;
+    selectedTags?: string[]; // [NEW] Truyền tag khách chọn xuống để List biết cách sort
     onItemClick: (services: Service[]) => void; // Thay đổi: Truyền vào 1 mảng các biến thể
 }
 
-export default function ServiceList({ categories, services, cart, lang, onItemClick }: ServiceListProps) {
+// Hàm helper map id chuẩn sang các raw tag string ở Supabase
+const mapCatKeyToTagStrings = (catId: string): string[] => {
+    switch (catId) {
+        case 'Body': return ['body'];
+        case 'Foot': return ['foot'];
+        case 'Hair Wash': return ['hairwash'];
+        case 'Facial': return ['face'];
+        case 'Heel Skin Shave': return ['heel'];
+        case 'Manicure & Pedicure': return ['nail'];
+        case 'Ear Clean': return ['ear'];
+        case 'Barber': return ['barber', 'shave'];
+        default: return [catId.toLowerCase()];
+    }
+};
+
+export default function ServiceList({ categories, services, cart, lang, selectedTags = [], onItemClick }: ServiceListProps) {
 
     // 1. Hàm Gộp nhóm: Gom các món có cùng Tên Tiếng Anh (names.en) vào chung 1 mảng
     const groupedServices: Record<string, Service[]> = useMemo(() => {
@@ -45,9 +61,55 @@ export default function ServiceList({ categories, services, cart, lang, onItemCl
     return (
         <div className="flex-1 overflow-y-auto px-4 pb-40 scroll-smooth no-scrollbar" id="service-list-container">
             {categories.map(cat => {
-                // Lấy danh sách các NHÓM thuộc danh mục này
-                // (Chỉ cần kiểm tra món đầu tiên của nhóm xem có thuộc category này không)
-                const categoryGroups = Object.values(groupedServices).filter(group => group[0].cat === cat.id);
+                // [LOGIC MỚI] FILTER & SORT
+                // Bước 1: Quyết định danh sách các nhóm dịch vụ thuộc danh mục này
+                let categoryGroups: Service[][] = [];
+                
+                if (cat.id === 'SEARCH_RESULT') {
+                    // Xử lý đặc biệt cho Virtual Category (SEARCH_RESULT) khi người dùng Multi-Select
+                    const rawTagsToSearch = selectedTags.flatMap(t => mapCatKeyToTagStrings(t));
+                    const isSearchingBestSeller = selectedTags.includes('BestSeller');
+
+                    const filteredGroups = Object.values(groupedServices).filter(group => {
+                        const rep = group[0];
+                        if (isSearchingBestSeller && rep.BEST_SELLER) return true;
+                        
+                        // Check if the service has AT LEAST ONE of the requested tags
+                        const itemTags = rep.comboTags || [];
+                        return rawTagsToSearch.some(rt => itemTags.includes(rt));
+                    });
+
+                    // Tính điểm (score) để Sorting
+                    categoryGroups = filteredGroups.map(group => {
+                        const rep = group[0];
+                        let score = 0;
+                        const itemTags = rep.comboTags || [];
+
+                        // Ưu tiên 10 điểm nếu match BestSeller (khi có tìm bestseller)
+                        if (isSearchingBestSeller && rep.BEST_SELLER) score += 10;
+
+                        // Tìm số match: Mỗi tag match +2 điểm
+                        const matchCount = rawTagsToSearch.reduce((count, rt) => count + (itemTags.includes(rt) ? 1 : 0), 0);
+                        score += matchCount * 2;
+
+                        // Phạt nhẹ nếu món này chứa thêm quá nhiều tag linh tinh ko nằm trong selected
+                        // Để những món "Pure" lên trên: Pure tức là đúng chuẩn 2/2 món được chọn, không râu ria
+                        const pureFactor = matchCount / (itemTags.length || 1);
+                        score += pureFactor; // Điểm bonus từ 0.0 -> 1.0
+
+                        return { group, score };
+                    }).sort((a, b) => b.score - a.score).map(o => o.group);
+
+                } else {
+                    // Logic cũ cho các danh mục bình thường: check cứng theo cate id hoặc bằng comboTags 
+                    const mappedRawTags = mapCatKeyToTagStrings(cat.id);
+                    categoryGroups = Object.values(groupedServices).filter(group => {
+                        const rep = group[0];
+                        if (rep.cat === cat.id) return true;
+                        if (rep.comboTags && mappedRawTags.some(t => rep.comboTags!.includes(t))) return true;
+                        return false;
+                    });
+                }
 
                 if (categoryGroups.length === 0) return null;
 

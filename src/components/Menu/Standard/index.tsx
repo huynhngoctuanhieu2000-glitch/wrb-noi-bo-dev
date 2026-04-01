@@ -25,6 +25,9 @@ import CartDrawer from './Sheets/CartDrawer';
 import CustomForYouModal from '@/components/CustomForYou';
 import { CustomPreferences } from '@/components/CustomForYou/types';
 
+// Import Category Picker
+import CategoryPicker from './CategoryPicker';
+
 // 2. Import Logic & Data
 import { CATEGORIES } from '@/components/Menu/constants';
 import { Service, CartState, SheetState } from '@/components/Menu/types';
@@ -43,7 +46,9 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
     const [services, setServices] = useState<Service[]>([]);
 
     // --- STATE GIAO DIỆN ---
+    const [mode, setMode] = useState<'PICKER' | 'MENU'>('PICKER');
     const [activeCategory, setActiveCategory] = useState<string>('Body');
+    const [selectedCats, setSelectedCats] = useState<string[]>([]);
 
     // State quản lý Sheet
     const [sheet, setSheet] = useState<SheetState>({
@@ -89,6 +94,25 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
         });
         return lookup;
     }, [cart]);
+
+    // c. Tạo Virtual Category khi có Filter
+    const displayCategories = useMemo(() => {
+        if (selectedCats.length === 0) return CATEGORIES;
+        return [
+            {
+                id: 'SEARCH_RESULT',
+                names: {
+                    en: 'Your Matches 🌟',
+                    vi: 'Gợi Ý Của Bạn 🌟',
+                    jp: 'おすすめ 🌟',
+                    kr: '추천 🌟',
+                    cn: '为您推荐 🌟'
+                },
+                image: '/assets/icons/combo-king.webp'
+            },
+            ...CATEGORIES
+        ];
+    }, [selectedCats]);
 
     // --- 3. XỬ LÝ TƯƠNG TÁC ---
 
@@ -158,15 +182,40 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
     };
 
     // --- 4. RENDER UI ---
-    // Assuming 'loading' state is managed elsewhere or removed, if not, this line might cause an error.
-    // if (loading) return <div className="h-screen bg-black text-yellow-500 flex items-center justify-center">Loading...</div>;
+    
+    // Nếu đang ở màn hình chọn danh mục
+    if (mode === 'PICKER') {
+        return (
+            <CategoryPicker 
+                categories={CATEGORIES}
+                lang={lang}
+                onSelect={(ids) => {
+                    setSelectedCats(ids);
+                    if (ids.length > 0) {
+                        setActiveCategory('SEARCH_RESULT');
+                        setMode('MENU');
+                        // Chờ DOM render xong mới scroll
+                        setTimeout(() => {
+                            const el = document.getElementById(`cat-SEARCH_RESULT`);
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                    } else {
+                        // Fallback in case array empty but allowed to bypass
+                        setActiveCategory('Body');
+                        setMode('MENU');
+                    }
+                }}
+                onBack={onBack}
+            />
+        );
+    }
 
     return (
         <div className="relative inset-0 z-20 bg-black flex flex-col h-[100dvh] w-full overflow-hidden font-sans">
 
             {/* A. HEADER */}
             <Header
-                categories={CATEGORIES}
+                categories={displayCategories}
                 activeCategory={activeCategory}
                 lang={lang}
                 onSelectCategory={(id) => {
@@ -177,11 +226,12 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
 
             {/* B. LIST */}
             <ServiceList
-                categories={CATEGORIES}
+                categories={displayCategories}
                 services={services}
                 cart={cartLookup} // Truyền Lookup Map
                 lang={lang}
                 onItemClick={handleServiceClick} // Truyền hàm xử lý nhóm
+                selectedTags={selectedCats} // [NEW] Truyền tag khách chọn xuống để List biết cách sort
             />
 
             {/* C. FOOTER */}

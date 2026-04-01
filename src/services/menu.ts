@@ -56,6 +56,7 @@ export const getMenuData = async (): Promise<Service[]> => {
                 menuType: getMenuTypeFromId(item.id) as 'standard' | 'vip',
                 TAGS: item.tags || [],
                 FOCUS_POSITION: item.focusConfig,
+                comboTags: item.comboTags || [],
                 SHOW_STRENGTH: item.showPreferences !== false, // Default true, hide if showPreferences is false
                 HINT: item.HINT, // Để lại nếu có map sau này
 

@@ -44,6 +44,9 @@ export interface Service {
   TAGS?: MultiLangString[]; // Array of tags [0: Pregnant, 1: Allergy] (Each tag is MultiLangString)
   SHOW_STRENGTH?: boolean;
   HINT?: MultiLangString;
+  
+  // Categorization & Filtering Tags
+  comboTags?: string[];
 
   // UI Configuration Flags (Task E2+E3)
   SHOW_CUSTOM_FOR_YOU?: boolean;  // Show/hide entire Custom For You modal
