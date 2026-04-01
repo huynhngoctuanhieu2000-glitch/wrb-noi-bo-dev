@@ -38,27 +38,27 @@ const CONFIG = {
 
 // DICTIONARY
 const TEXT = {
-    selected_options: { vn: 'Dịch vụ đã chọn', en: 'Selected Options', cn: '已选服务', jp: '選択されたサービス', kr: '선택된 서비스' },
+    selected_options: { vi: 'Dịch vụ đã chọn', en: 'Selected Options', cn: '已选服务', jp: '選択されたサービス', kr: '선택된 서비스' },
     selected_msg: {
-        vn: (n: number, name: string) => `Bạn đã chọn ${n} mục cho ${name}`,
+        vi: (n: number, name: string) => `Bạn đã chọn ${n} mục cho ${name}`,
         en: (n: number, name: string) => `You have selected ${n} options for ${name}`,
         cn: (n: number, name: string) => `您已为 ${name} 选择 ${n} 个选项`,
         jp: (n: number, name: string) => `${name} のために ${n} つのオプションを選択しました`,
         kr: (n: number, name: string) => `${name}에 대해 ${n}개의 옵션을 선택했습니다`
     },
-    duration: { vn: 'THỜI LƯỢNG', en: 'DURATION', cn: '时长', jp: '期間', kr: '소요 시간' },
-    qty: { vn: 'SL', en: 'Qty', cn: '数量', jp: '数量', kr: '수량' },
-    pax: { vn: 'khách', en: 'pax', cn: '人', jp: '名', kr: '명' },
-    add_another: { vn: 'THÊM LỰA CHỌN KHÁC', en: 'Add another option', cn: '添加其他选项', jp: '別のオプションを追加', kr: '다른 옵션 추가' },
-    select_duration: { vn: 'CHỌN THỜI GIAN', en: 'Select Duration', cn: '选择时长', jp: '期間を選択', kr: '시간 선택' },
-    back_to_list: { vn: 'Quay lại danh sách', en: 'Back to list', cn: '返回列表', jp: 'リストに戻る', kr: '목록으로 돌아가기' },
-    view_more: { vn: 'Xem thêm', en: 'View More', cn: '查看更多', jp: 'もっと見る', kr: '더 보기' },
-    update_cart: { vn: 'Cập Nhật Giỏ', en: 'Update Cart', cn: '更新购物车', jp: 'カートを更新', kr: '장바구니 업데이트' },
-    add_to_cart: { vn: 'Thêm Vào Giỏ', en: 'Add to Cart', cn: '加入购物车', jp: 'カートに追加', kr: '장바구니 담기' },
-    mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
-    custom_for_you: { vn: 'Tùy chỉnh dịch vụ', en: 'Custom for you', cn: '定制服务', jp: 'カスタムサービス', kr: '맞춤 서비스' },
-    custom_selected: { vn: 'Đã tùy chỉnh', en: 'Customized', cn: '已定制', jp: 'カスタマイズ済み', kr: '맞춤 설정됨' },
-    recommended: { vn: 'Gợi ý', en: 'Recommended', cn: '推荐', jp: 'おすすめ', kr: '추천' }
+    duration: { vi: 'THỜI LƯỢNG', en: 'DURATION', cn: '时长', jp: '期間', kr: '소요 시간' },
+    qty: { vi: 'SL', en: 'Qty', cn: '数量', jp: '数量', kr: '수량' },
+    pax: { vi: 'khách', en: 'pax', cn: '人', jp: '名', kr: '명' },
+    add_another: { vi: 'THÊM LỰA CHỌN KHÁC', en: 'Add another option', cn: '添加其他选项', jp: '別のオプションを追加', kr: '다른 옵션 추가' },
+    select_duration: { vi: 'CHỌN THỜI GIAN', en: 'Select Duration', cn: '选择时长', jp: '期間を選択', kr: '시간 선택' },
+    back_to_list: { vi: 'Quay lại danh sách', en: 'Back to list', cn: '返回列表', jp: 'リストに戻る', kr: '목록으로 돌아가기' },
+    view_more: { vi: 'Xem thêm', en: 'View More', cn: '查看更多', jp: 'もっと見る', kr: '더 보기' },
+    update_cart: { vi: 'Cập Nhật Giỏ', en: 'Update Cart', cn: '更新购物车', jp: 'カートを更新', kr: '장바구니 업데이트' },
+    add_to_cart: { vi: 'Thêm Vào Giỏ', en: 'Add to Cart', cn: '加入购物车', jp: 'カートに追加', kr: '장바구니 담기' },
+    mins: { vi: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
+    custom_for_you: { vi: 'Tùy chỉnh dịch vụ', en: 'Custom for you', cn: '定制服务', jp: 'カスタムサービス', kr: '맞춤 서비스' },
+    custom_selected: { vi: 'Đã tùy chỉnh', en: 'Customized', cn: '已定制', jp: 'カスタマイズ済み', kr: '맞춤 설정됨' },
+    recommended: { vi: 'Gợi ý', en: 'Recommended', cn: '推荐', jp: 'おすすめ', kr: '추천' }
 };
 
 export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToCart }: MainSheetProps) {

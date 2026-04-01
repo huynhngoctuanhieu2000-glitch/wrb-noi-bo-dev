@@ -19,7 +19,7 @@ const GoogleIcon = () => (
     </svg>
 );
 
-export const GoogleLoginBtn = ({ lang = 'vn' }: { lang?: string }) => {
+export const GoogleLoginBtn = ({ lang = 'vi' }: { lang?: string }) => {
     const { handleLogin, handleLogout } = useGoogleLogin(lang);
     const { isAuthUser } = useAuthStore();
     // Default to 'en' texts if the language string is unrecognized.

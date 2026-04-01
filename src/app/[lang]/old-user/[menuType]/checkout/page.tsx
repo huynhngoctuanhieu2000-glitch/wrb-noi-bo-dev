@@ -21,7 +21,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
 
     // Unwrap params
     const { lang: rawLang } = use(params);
-    const lang = rawLang === 'vn' ? 'vi' : rawLang;
+    const lang = rawLang;
 
     const dict = getDictionary(lang);
 

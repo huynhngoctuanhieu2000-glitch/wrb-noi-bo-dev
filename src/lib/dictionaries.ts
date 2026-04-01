@@ -1,7 +1,5 @@
 export const getDictionary = (lang: string) => {
     console.log('[getDictionary] requesting lang:', lang);
-    if (lang === 'vn') return dictionaries['vi'];
-
     // Use validLang logic to cover all supported languages
     const validLang = ['en', 'vi', 'kr', 'jp', 'cn'].includes(lang) ? lang : 'en';
     console.log('[getDictionary] resolved to:', validLang);

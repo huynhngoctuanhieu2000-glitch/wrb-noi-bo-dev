@@ -36,14 +36,14 @@ export const getMenuData = async (): Promise<Service[]> => {
                 cat: item.category || "Unknown",
                 names: {
                     en: item.nameEN || "",
-                    vn: item.nameVN || "",
+                    vi: item.nameVN || "",
                     cn: item.nameCN,
                     jp: item.nameJP,
                     kr: item.nameKR,
                 },
                 descriptions: {
                     en: item.description?.en || item.description?.EN || "",
-                    vn: item.description?.vn || item.description?.VN || "",
+                    vi: item.description?.vn || item.description?.VN || "",
                     cn: item.description?.cn || item.description?.CN,
                     jp: item.description?.jp || item.description?.JP,
                     kr: item.description?.kr || item.description?.KR,

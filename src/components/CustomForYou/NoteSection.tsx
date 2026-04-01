@@ -27,7 +27,7 @@ const NoteSection: React.FC<NoteSectionProps> = ({ lang, serviceData, notes, onC
         <div className="w-full mt-4">
             <h4 className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                 <Tag size={12} />
-                {getText({ en: 'Notes', vn: 'Ghi chú', jp: 'ノート', kr: '참고', cn: '笔记' }, lang)}
+                {getText({ en: 'Notes', vi: 'Ghi chú', jp: 'ノート', kr: '참고', cn: '笔记' }, lang)}
             </h4>
 
             {/* Tags Selection */}
@@ -61,7 +61,7 @@ const NoteSection: React.FC<NoteSectionProps> = ({ lang, serviceData, notes, onC
             <textarea
                 value={notes.content}
                 onChange={(e) => onChange('content', e.target.value)}
-                placeholder={getText(serviceData.HINT || { en: 'Other notes...', vn: 'Ghi chú khác...' }, lang)}
+                placeholder={getText(serviceData.HINT || { en: 'Other notes...', vi: 'Ghi chú khác...' }, lang)}
                 className="w-full h-20 p-3 text-sm text-gray-900 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black/20 focus:outline-none transition-colors resize-none"
             />
         </div>

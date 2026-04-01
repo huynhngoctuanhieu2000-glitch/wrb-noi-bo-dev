@@ -32,7 +32,6 @@ export async function POST(request: Request) {
         const VALID_LANGS = ['vi', 'en', 'kr', 'jp', 'cn'];
         const normalizedLang = (() => {
             const raw = (lang || '').toLowerCase().trim();
-            if (raw === 'vn') return 'vi';
             return VALID_LANGS.includes(raw) ? raw : 'vi';
         })();
         console.log(`[POST /api/orders] lang from body: "${lang}", normalized: "${normalizedLang}"`);

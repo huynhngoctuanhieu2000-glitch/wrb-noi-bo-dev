@@ -15,15 +15,15 @@ interface PreferencesProps {
 
 const Preferences: React.FC<PreferencesProps> = ({ lang, showStrength, values, onChange }) => {
     const strengthOptions = [
-        { value: 'light', label: { en: 'Light', vn: 'Nhẹ', jp: '弱い', kr: '약하게', cn: '轻' } },
-        { value: 'medium', label: { en: 'Medium', vn: 'Vừa', jp: '普通', kr: '보통', cn: '中' } },
-        { value: 'strong', label: { en: 'Strong', vn: 'Mạnh', jp: '強い', kr: '강하게', cn: '重' } },
+        { value: 'light', label: { en: 'Light', vi: 'Nhẹ', jp: '弱い', kr: '약하게', cn: '轻' } },
+        { value: 'medium', label: { en: 'Medium', vi: 'Vừa', jp: '普通', kr: '보통', cn: '中' } },
+        { value: 'strong', label: { en: 'Strong', vi: 'Mạnh', jp: '強い', kr: '강하게', cn: '重' } },
     ];
 
     const therapistOptions = [
-        { value: 'male', label: { en: 'Male', vn: 'Nam', jp: '男性', kr: '남성', cn: '男' } },
-        { value: 'female', label: { en: 'Female', vn: 'Nữ', jp: '女性', kr: '여성', cn: '女' } },
-        { value: 'random', label: { en: 'Random', vn: 'Ngẫu nhiên', jp: 'お任せ', kr: '랜덤', cn: '随机' } },
+        { value: 'male', label: { en: 'Male', vi: 'Nam', jp: '男性', kr: '남성', cn: '男' } },
+        { value: 'female', label: { en: 'Female', vi: 'Nữ', jp: '女性', kr: '여성', cn: '女' } },
+        { value: 'random', label: { en: 'Random', vi: 'Ngẫu nhiên', jp: 'お任せ', kr: '랜덤', cn: '随机' } },
     ];
 
     return (
@@ -33,7 +33,7 @@ const Preferences: React.FC<PreferencesProps> = ({ lang, showStrength, values, o
                 <div>
                     <h4 className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                         <Activity size={12} />
-                        {getText({ en: 'Strength', vn: 'Lực', jp: '強さ', kr: '강도', cn: '力度' }, lang)}
+                        {getText({ en: 'Strength', vi: 'Lực', jp: '強さ', kr: '강도', cn: '力度' }, lang)}
                     </h4>
                     <div className="flex gap-2">
                         {strengthOptions.map((opt) => {
@@ -63,7 +63,7 @@ const Preferences: React.FC<PreferencesProps> = ({ lang, showStrength, values, o
             <div>
                 <h4 className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                     <User size={12} />
-                    {getText({ en: 'Therapist', vn: 'Kỹ thuật viên', jp: 'セラピスト', kr: '테라피스트', cn: '技师' }, lang)}
+                    {getText({ en: 'Therapist', vi: 'Kỹ thuật viên', jp: 'セラピスト', kr: '테라피스트', cn: '技师' }, lang)}
                 </h4>
                 <div className="flex gap-2">
                     {therapistOptions.map((opt) => {

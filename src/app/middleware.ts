@@ -27,8 +27,14 @@ export function middleware(request: NextRequest) {
   }
 
   // 2. Danh sách ngôn ngữ hỗ trợ
-  // Thêm vn, kr, cn vào đây để khớp với actual usage
-  const locales = ['vi', 'vn', 'en', 'jp', 'kr', 'cn'];
+  // Thêm kr, cn vào đây để khớp với actual usage (đã bỏ vn)
+  const locales = ['vi', 'en', 'jp', 'kr', 'cn'];
+
+  // Tính năng Redirect 308 cho /vn -> /vi (Bảo vệ đường dẫn cũ)
+  if (pathname.startsWith('/vn')) {
+    const newPathname = pathname.replace(/^\/vn/, '/vi');
+    return NextResponse.redirect(new URL(newPathname, request.url), 308);
+  }
 
   // 3. Kiểm tra xem URL có bắt đầu bằng ngôn ngữ không
   const hasLocale = locales.some((locale) => pathname.startsWith(`/${locale}`));

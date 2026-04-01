@@ -29,8 +29,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
 
     // Unwrap params
     const { lang: rawLang } = use(params);
-    // Explicitly normalize 'vn' -> 'vi' here to be absolutely sure
-    const lang = rawLang === 'vn' ? 'vi' : rawLang;
+    const lang = rawLang;
 
     console.log('[CheckoutPage] resolved lang:', lang);
     const dict = getDictionary(lang);

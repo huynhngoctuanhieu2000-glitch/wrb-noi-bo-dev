@@ -25,9 +25,9 @@ interface FooterProps {
 }
 
 const TEXT = {
-    total_est: { vn: 'TỔNG DỰ KIẾN', en: 'TOTAL ESTIMATED', cn: '预计总额', jp: '合計(推定)', kr: '예상 합계' },
-    back: { vn: 'QUAY LẠI', en: 'BACK', cn: '返回', jp: '戻る', kr: '뒤로' },
-    mins: { vn: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
+    total_est: { vi: 'TỔNG DỰ KIẾN', en: 'TOTAL ESTIMATED', cn: '预计总额', jp: '合計(推定)', kr: '예상 합계' },
+    back: { vi: 'QUAY LẠI', en: 'BACK', cn: '返回', jp: '戻る', kr: '뒤로' },
+    mins: { vi: 'phút', en: 'mins', cn: '分钟', jp: '分', kr: '분' },
 };
 
 export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lang, onBack, onToggleCart }: FooterProps) {

@@ -4,12 +4,13 @@
 
 | Conversation | Mô tả | Files đang sửa | Status |
 |---|---|---|---|
-| -- | -- | -- | -- |
+| Không có tiến trình | - | - | - |
 
 ## Lịch sử
 
 | Thời gian | Conversation | Hành động |
 |---|---|---|
+| 2026-04-01 14:00 | current | Hoàn tất đồng bộ language code vn -> vi (Middleware, UI, Services) | 🔴 Xong |
 | 2026-03-31 13:45 | current | Cập nhật báo cáo tiến độ dự án | 🔴 Xong |
 | 2026-03-28 11:00 | e06db2c1 | Fix Web Booking Status Transition (Chuyển WB sang trạng thái chờ điều phối) | 🔴 Xong |
 | 2026-03-28 04:40 | 89e21468 | Tối ưu UI/UX Web Booking (Fix lỗi mobile overflow, multi-step flow) | 🔴 Xong |

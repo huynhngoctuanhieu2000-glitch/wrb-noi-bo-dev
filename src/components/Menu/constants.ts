@@ -14,7 +14,7 @@ export const CATEGORIES: Category[] = [
         id: 'Body',
         names: {
             en: 'Body Massage',
-            vn: 'Massage Body',
+            vi: 'Massage Body',
             jp: 'ボディマッサージ',
             kr: '전신 마사지',
             cn: '全身按摩'
@@ -25,7 +25,7 @@ export const CATEGORIES: Category[] = [
         id: 'Foot',
         names: {
             en: 'Foot Massage',
-            vn: 'Massage Chân',
+            vi: 'Massage Chân',
             jp: '足裏マッサージ',
             kr: '발 마사지',
             cn: '足部按摩'
@@ -36,7 +36,7 @@ export const CATEGORIES: Category[] = [
         id: 'Hair Wash',
         names: {
             en: 'Hair Wash',
-            vn: 'Gội Đầu',
+            vi: 'Gội Đầu',
             jp: '洗髪',
             kr: '샴푸',
             cn: '洗头'
@@ -47,7 +47,7 @@ export const CATEGORIES: Category[] = [
         id: 'Facial',
         names: {
             en: 'Facial',
-            vn: 'Chăm Sóc Mặt',
+            vi: 'Chăm Sóc Mặt',
             jp: 'フェイシャル',
             kr: '페이셜 케어',
             cn: '面部护理'
@@ -58,7 +58,7 @@ export const CATEGORIES: Category[] = [
         id: 'Heel Skin Shave',
         names: {
             en: 'Heel Care',
-            vn: 'Chà Gót Chân',
+            vi: 'Chà Gót Chân',
             jp: 'かかとケア',
             kr: '발뒤꿈치 케어',
             cn: '磨脚皮'
@@ -69,7 +69,7 @@ export const CATEGORIES: Category[] = [
         id: 'Manicure & Pedicure',
         names: {
             en: 'Nails',
-            vn: 'Làm Móng',
+            vi: 'Làm Móng',
             jp: 'ネイル',
             kr: '네일 케어',
             cn: '美甲'
@@ -80,7 +80,7 @@ export const CATEGORIES: Category[] = [
         id: 'Ear Clean',
         names: {
             en: 'Ear Clean',
-            vn: 'Ráy Tai',
+            vi: 'Ráy Tai',
             jp: '耳掃除',
             kr: '귀 청소',
             cn: '采耳'
@@ -91,7 +91,7 @@ export const CATEGORIES: Category[] = [
         id: 'Barber',
         names: {
             en: 'Barber',
-            vn: 'Cắt Tóc Nam',
+            vi: 'Cắt Tóc Nam',
             jp: '理容',
             kr: '이발',
             cn: '男士理发'
@@ -102,7 +102,7 @@ export const CATEGORIES: Category[] = [
         id: 'Premium',
         names: {
             en: 'VIP Package',
-            vn: 'Gói VIP',
+            vi: 'Gói VIP',
             jp: 'VIPコース',
             kr: 'VIP 코스',
             cn: 'VIP套餐'
@@ -113,7 +113,7 @@ export const CATEGORIES: Category[] = [
         id: 'Additional',
         names: {
             en: 'Add-on',
-            vn: 'Dịch Vụ Lẻ',
+            vi: 'Dịch Vụ Lẻ',
             jp: '追加サービス',
             kr: '추가 서비스',
             cn: '额外服务'

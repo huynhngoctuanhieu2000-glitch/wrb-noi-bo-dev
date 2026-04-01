@@ -92,9 +92,9 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                             ) : (
                                 // Logic mới: Select All
                                 isFullBody ? (
-                                    getText({ en: 'All', vn: 'Tất cả', jp: 'すべて', kr: '모두', cn: '全部' }, lang)
+                                    getText({ en: 'All', vi: 'Tất cả', jp: 'すべて', kr: '모두', cn: '全部' }, lang)
                                 ) : (
-                                    focus.length > 0 ? <>{dict.custom_for_you?.partly}</> : getText({ en: 'Select All', vn: 'Chọn Hết', jp: 'すべて選択', kr: '모두 선택', cn: '全选' }, lang)
+                                    focus.length > 0 ? <>{dict.custom_for_you?.partly}</> : getText({ en: 'Select All', vi: 'Chọn Hết', jp: 'すべて選択', kr: '모두 선택', cn: '全选' }, lang)
                                 )
                             )}
                         </span>
@@ -119,10 +119,10 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                     className="flex items-center justify-between text-[10px] font-bold uppercase tracking-tight pb-0 border-b border-gray-100 flex-none mb-0 pt-0"
                     style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}
                 >
-                    <span className="text-gray-400 flex-1">{getText({ en: 'Area', vn: 'Vị trí', jp: '部位', kr: '부위', cn: '区域' }, lang)}</span>
+                    <span className="text-gray-400 flex-1">{getText({ en: 'Area', vi: 'Vị trí', jp: '部位', kr: '부위', cn: '区域' }, lang)}</span>
                     <div className="flex" style={{ gap: LAYOUT_CONFIG.checklist.gap }}>
-                        <span className="text-green-600 w-8 text-center">{getText({ en: 'Focus', vn: 'Tập trung', jp: '集中', kr: '집중', cn: '重点' }, lang)}</span>
-                        <span className="text-red-500 w-8 text-center">{getText({ en: 'Avoid', vn: 'Tránh', jp: '避ける', kr: '피하다', cn: '避开' }, lang)}</span>
+                        <span className="text-green-600 w-8 text-center">{getText({ en: 'Focus', vi: 'Tập trung', jp: '集中', kr: '집중', cn: '重点' }, lang)}</span>
+                        <span className="text-red-500 w-8 text-center">{getText({ en: 'Avoid', vi: 'Tránh', jp: '避ける', kr: '피하다', cn: '避开' }, lang)}</span>
                     </div>
                 </div>
 
@@ -147,14 +147,14 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                     <>
                                         <span className="text-[13px] font-bold text-gray-700 flex-1 truncate">
                                             {getText({
-                                                HEAD: { en: 'Head', vn: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
-                                                NECK: { en: 'Neck', vn: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
-                                                SHOULDER: { en: 'Shoulder', vn: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
-                                                ARM: { en: 'Arm', vn: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
-                                                BACK: { en: 'Back', vn: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
-                                                THIGH: { en: 'Thigh', vn: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
-                                                CALF: { en: 'Calf', vn: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
-                                                FOOT: { en: 'Foot', vn: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
+                                                HEAD: { en: 'Head', vi: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
+                                                NECK: { en: 'Neck', vi: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
+                                                SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
+                                                ARM: { en: 'Arm', vi: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
+                                                BACK: { en: 'Back', vi: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
+                                                THIGH: { en: 'Thigh', vi: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
+                                                CALF: { en: 'Calf', vi: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
+                                                FOOT: { en: 'Foot', vi: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
                                             }[part.key] as MultiLangText, lang)}
                                         </span>
                                         <div className="flex items-center" style={{ gap: LAYOUT_CONFIG.checklist.gap }}>
@@ -188,14 +188,14 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                     // Task C1b: Show body part name even when disabled (with annotation)
                                     <span className="text-[11px] text-gray-300 italic flex-1">
                                         {getText({
-                                            HEAD: { en: 'Head', vn: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
-                                            NECK: { en: 'Neck', vn: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
-                                            SHOULDER: { en: 'Shoulder', vn: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
-                                            ARM: { en: 'Arm', vn: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
-                                            BACK: { en: 'Back', vn: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
-                                            THIGH: { en: 'Thigh', vn: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
-                                            CALF: { en: 'Calf', vn: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
-                                            FOOT: { en: 'Foot', vn: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
+                                            HEAD: { en: 'Head', vi: 'Đầu', jp: '頭', kr: '머리', cn: '头' },
+                                            NECK: { en: 'Neck', vi: 'Cổ', jp: '首', kr: '목', cn: '颈部' },
+                                            SHOULDER: { en: 'Shoulder', vi: 'Vai', jp: '肩', kr: '어깨', cn: '肩部' },
+                                            ARM: { en: 'Arm', vi: 'Tay', jp: '腕', kr: '팔', cn: '手臂' },
+                                            BACK: { en: 'Back', vi: 'Lưng', jp: '背中', kr: '등', cn: '背部' },
+                                            THIGH: { en: 'Thigh', vi: 'Đùi', jp: '太もも', kr: '허벅지', cn: '大腿' },
+                                            CALF: { en: 'Calf', vi: 'Bắp chân', jp: 'ふくらはぎ', kr: '종아리', cn: '小腿' },
+                                            FOOT: { en: 'Foot', vi: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
                                         }[part.key] as MultiLangText, lang)}
                                     </span>
                                 )}

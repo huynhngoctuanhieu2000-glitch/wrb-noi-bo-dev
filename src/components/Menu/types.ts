@@ -13,7 +13,7 @@
 // 1. Đa ngôn ngữ (Quan trọng để hiển thị tên món theo En/Vi/Cn...)
 export interface MultiLangString {
   en: string;
-  vn: string;
+  vi: string;
   cn?: string;
   jp?: string;
   kr?: string;

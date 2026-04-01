@@ -12,7 +12,7 @@ import { useAuthStore } from '@/lib/authStore.logic';
 export default function JourneyPage({ params }: { params: Promise<{ lang: string, bookingId: string }> }) {
     const resolvedParams = React.use(params);
     const bookingId = resolvedParams.bookingId;
-    const lang = resolvedParams.lang === 'vn' ? 'vi' : resolvedParams.lang;
+    const lang = resolvedParams.lang;
 
     const { data: journeyData, loading, error, refresh } = useJourneyRealtime(bookingId);
     const { isAuthUser } = useAuthStore();

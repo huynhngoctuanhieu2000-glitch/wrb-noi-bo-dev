@@ -1,4 +1,4 @@
-export type LanguageCode = 'en' | 'vn' | 'jp' | 'kr' | 'cn';
+export type LanguageCode = 'en' | 'vi' | 'jp' | 'kr' | 'cn';
 
 export type BodyPartKey = 'HEAD' | 'NECK' | 'SHOULDER' | 'ARM' | 'BACK' | 'THIGH' | 'CALF' | 'FOOT';
 
@@ -34,7 +34,7 @@ export interface CustomPreferences {
 
 export interface MultiLangText {
     en: string;
-    vn: string;
+    vi: string;
     jp: string;
     kr: string;
     cn: string;
