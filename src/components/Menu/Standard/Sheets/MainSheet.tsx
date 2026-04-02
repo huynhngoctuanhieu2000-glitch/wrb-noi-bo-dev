@@ -33,7 +33,7 @@ const CONFIG = {
     MAX_HEIGHT: '85vh',
     HEADER_IMAGE_HEIGHT: '12rem', // h-48 = 12rem = 192px
     OVERLAY_COLOR: 'bg-black/60',
-    BG_COLOR: 'bg-[#1e293b]',
+    BG_COLOR: 'bg-[#131722]',
 };
 
 // DICTIONARY
@@ -171,7 +171,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                 {viewMode === 'ADD' && selectedService && (
                     <div className="w-full relative shrink-0" style={{ height: CONFIG.HEADER_IMAGE_HEIGHT }}>
                         <img src={selectedService.img} className="w-full h-full object-cover" alt={groupName} />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#131722] via-transparent to-transparent"></div>
                         <div className="absolute bottom-4 left-5 right-5">
                             <h2 className="text-2xl font-bold text-white font-luxury leading-tight">{groupName}</h2>
                             <p className="text-sm text-gray-300 mt-1 opacity-80 leading-snug">
@@ -275,7 +275,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                         flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-all relative overflow-hidden
                                         ${selectedService.id === svc.id
                                                         ? 'bg-gray-800 text-white border-yellow-500 border-2 shadow-lg shadow-yellow-500/10'
-                                                        : 'bg-[#1e293b] text-gray-400 border-gray-700 hover:border-gray-500'}
+                                                        : 'bg-[#131722] text-gray-400 border-gray-700 hover:border-gray-500'}
                                     `}
                                             >
                                                 {/* [LOGIC NEW] Badge Best Choice */}
@@ -325,7 +325,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
 
                 {/* FOOTER ACTION - CHỈ HIỆN Ở MODE ADD */}
                 {viewMode === 'ADD' && selectedService && (
-                    <div className="p-5 pt-2 bg-[#1e293b] border-t border-gray-700/50">
+                    <div className="p-5 pt-2 bg-[#131722] border-t border-gray-700/50">
                         <div className="flex items-center justify-center mb-6">
                             <div className="flex items-center gap-6 bg-gray-800 rounded-full p-2 border border-gray-700 px-6">
                                 <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors"><Minus size={18} /></button>

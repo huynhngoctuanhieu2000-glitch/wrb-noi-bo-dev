@@ -66,7 +66,7 @@ export default function ReviewSheet({ service, cart, isOpen, lang, onClose, onUp
             {/* 2. Nội dung bảng (Sheet Content) */}
             <div
                 className={`
-          fixed bottom-0 left-0 w-full bg-[#1e293b] rounded-t-[30px] z-50 overflow-hidden flex flex-col shadow-2xl
+          fixed bottom-0 left-0 w-full bg-[#131722] rounded-t-[30px] z-50 overflow-hidden flex flex-col shadow-2xl
           transform transition-transform duration-300 ease-out pb-safe
           ${isClosing ? 'translate-y-full' : 'translate-y-0'}
         `}

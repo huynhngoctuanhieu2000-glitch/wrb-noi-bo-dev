@@ -23,7 +23,7 @@ const CONFIG = {
     BORDER_RADIUS: '30px',
     MAX_HEIGHT: '85vh',
     OVERLAY_COLOR: 'bg-black/60',
-    BG_COLOR: 'bg-[#1e293b]',
+    BG_COLOR: 'bg-[#131722]',
     FOOTER_BG: 'bg-[#0f172a]',
 };
 

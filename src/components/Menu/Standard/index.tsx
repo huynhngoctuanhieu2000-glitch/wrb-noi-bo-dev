@@ -12,6 +12,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // 1. Import Components con
 import Header from './Header';
@@ -181,12 +182,11 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
         setTimeout(() => setSheet({ isOpen: false, type: null, data: null }), 300);
     };
 
-    // --- 4. RENDER UI ---
-    
-    // Nếu đang ở màn hình chọn danh mục
-    if (mode === 'PICKER') {
-        return (
-            <CategoryPicker 
+    return (
+        <AnimatePresence mode="wait">
+        {mode === 'PICKER' ? (
+            <CategoryPicker
+                key="picker"
                 categories={CATEGORIES}
                 lang={lang}
                 onSelect={(ids) => {
@@ -194,24 +194,26 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
                     if (ids.length > 0) {
                         setActiveCategory('SEARCH_RESULT');
                         setMode('MENU');
-                        // Chờ DOM render xong mới scroll
                         setTimeout(() => {
                             const el = document.getElementById(`cat-SEARCH_RESULT`);
                             if (el) el.scrollIntoView({ behavior: 'smooth' });
                         }, 100);
                     } else {
-                        // Fallback in case array empty but allowed to bypass
                         setActiveCategory('Body');
                         setMode('MENU');
                     }
                 }}
                 onBack={onBack}
             />
-        );
-    }
-
-    return (
-        <div className="relative inset-0 z-20 bg-black flex flex-col h-[100dvh] w-full overflow-hidden font-sans">
+        ) : (
+        <motion.div
+            key="menu"
+            className="relative inset-0 z-20 bg-black flex flex-col h-[100dvh] w-full overflow-hidden font-sans"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 25 }}
+        >
 
             {/* A. HEADER */}
             <Header
@@ -307,6 +309,8 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
                 />
             )}
 
-        </div>
+        </motion.div>
+        )}
+        </AnimatePresence>
     );
 }

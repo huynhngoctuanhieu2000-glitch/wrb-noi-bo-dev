@@ -33,8 +33,8 @@ export default function ServiceItem({ service, quantity, lang, isBestSeller, onC
             className={`
         relative w-full rounded-2xl p-3 flex flex-row gap-4 items-center overflow-hidden
         transition-all duration-300 cursor-pointer active:scale-[0.98]
-        ${isSelected ? 'bg-[#263345] border border-yellow-500/30' : 'bg-[#1e293b] border border-transparent'}
-        shadow-lg hover:bg-[#263345]
+        ${isSelected ? 'bg-[#1A1C2E] border border-yellow-500/30' : 'bg-[#131722] border border-transparent'}
+        shadow-lg hover:bg-[#1A1C2E]
       `}
         >
             {/* [LOGIC NEW] Badge Best Seller */}
