@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { X, Check } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { X, Check, ChevronDown } from "lucide-react";
 import { ServiceData, CustomPreferences, LanguageCode } from "./types";
 import { getText } from "./utils";
 import { getDictionary } from "@/lib/dictionaries"; // Import getDictionary
@@ -34,12 +34,21 @@ export default function CustomForYouModal({
         therapist: 'random'
     });
 
-    const [activeTab, setActiveTab] = useState<'area' | 'preferences'>('area');
+    // Tracking scroll to show/hide bottom indicator
+    const [isAtBottom, setIsAtBottom] = useState(false);
+
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+        if (scrollHeight - scrollTop - clientHeight < 20) {
+            setIsAtBottom(true);
+        } else {
+            setIsAtBottom(false);
+        }
+    };
 
     // Reset or Load initial data when modal opens
     useEffect(() => {
         if (isOpen) {
-            setActiveTab('area'); // Always start with area tab
             if (initialData) {
                 // Safely merge initialData with defaults to prevent undefined errors
                 setPrefs({
@@ -124,59 +133,50 @@ export default function CustomForYouModal({
         <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-6 animate-in fade-in duration-200">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                 onClick={onClose}
             />
 
             {/* Modal Content - Fixed Height for no scroll */}
-            <div className="relative w-full sm:w-[95vw] max-w-2xl bg-white rounded-t-[32px] rounded-b-none sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
+            <div className="relative w-full sm:w-[95vw] max-w-2xl bg-[#0d0d0d] rounded-t-[32px] rounded-b-none sm:rounded-[32px] overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/10 shadow-2xl">
 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white z-20">
+                <div className="px-6 py-4 flex items-center justify-between z-20">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">{dict.custom_for_you?.title}</h2>
-                        <p className="text-sm text-gray-500 font-medium">
+                        <h2 className="text-xl font-serif tracking-wide text-[#C9A96E]">{dict.custom_for_you?.title}</h2>
+                        <p className="text-sm text-gray-400 font-medium mt-0.5">
                             {getText(serviceData.NAMES, lang)}
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                        className="p-2 -mr-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-full transition-colors"
                     >
                         <X size={20} />
                     </button>
                 </div>
 
-                {/* Tabs Navigation — Only show if Preferences tab is visible (Task E3) */}
-                {showPreferences && (
-                    <div className="flex px-6 bg-white border-b border-gray-100 z-10">
-                        <button
-                            onClick={() => setActiveTab('area')}
-                            className={`flex-1 py-4 text-sm font-bold transition-all border-b-2 ${activeTab === 'area'
-                                    ? 'border-green-600 text-green-600'
-                                    : 'border-transparent text-gray-400 hover:text-gray-600'
-                                }`}
-                        >
-                            {dict.custom_for_you?.tab_area}
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('preferences')}
-                            className={`flex-1 py-4 text-sm font-bold transition-all border-b-2 ${activeTab === 'preferences'
-                                    ? 'border-green-600 text-green-600'
-                                    : 'border-transparent text-gray-400 hover:text-gray-600'
-                                }`}
-                        >
-                            {dict.custom_for_you?.tab_preferences}
-                        </button>
-                    </div>
-                )}
-
                 {/* Content Area - Hidden overflow and flex to fit */}
                 <div className="flex-1 overflow-hidden relative">
-                    <div className="absolute inset-0 overflow-y-auto px-6 py-4 custom-scrollbar">
-                        {activeTab === 'area' ? (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-left-2 duration-300">
-                                {showBodyMap && (
+                    <div 
+                        className="absolute inset-0 overflow-y-auto px-6 py-2 custom-scrollbar"
+                        onScroll={handleScroll}
+                    >
+                        <div className="space-y-4 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            
+                            {/* 1. Therapist & Strength (Now on Top) */}
+                            {showPreferences && (
+                                <Preferences
+                                    lang={lang}
+                                    showStrength={!!serviceData.SHOW_STRENGTH}
+                                    values={{ strength: prefs.strength, therapist: prefs.therapist }}
+                                    onChange={handlePrefChange}
+                                />
+                            )}
+
+                            {/* 2. Body Map & Focus Areas */}
+                            {showBodyMap && (
+                                <div>
                                     <BodyMap
                                         focus={prefs.bodyParts?.focus || []}
                                         avoid={prefs.bodyParts?.avoid || []}
@@ -184,36 +184,37 @@ export default function CustomForYouModal({
                                         serviceData={serviceData}
                                         onToggle={handleBodyToggle}
                                     />
-                                )}
-                                {/* Task E3: Hide NoteSection when SHOW_NOTES is false */}
-                                {showNotes && (
-                                    <NoteSection
-                                        lang={lang}
-                                        serviceData={serviceData}
-                                        notes={prefs.notes}
-                                        onChange={handleNoteChange}
-                                    />
-                                )}
-                            </div>
-                        ) : showPreferences ? (
-                            <div className="animate-in fade-in slide-in-from-right-2 duration-300">
-                                <Preferences
+                                </div>
+                            )}
+
+                            {/* 3. Notes Section */}
+                            {showNotes && (
+                                <NoteSection
                                     lang={lang}
-                                    showStrength={!!serviceData.SHOW_STRENGTH}
-                                    values={{ strength: prefs.strength, therapist: prefs.therapist }}
-                                    onChange={handlePrefChange}
+                                    serviceData={serviceData}
+                                    notes={prefs.notes}
+                                    onChange={handleNoteChange}
                                 />
-                            </div>
-                        ) : null}
-                        <div className="h-4" />
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Lớp chặn Gradient nhạt (tuỳ chọn thêm để đẹp hơn) kết hợp Mũi tên */}
+                    <div className={`absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#0d0d0d] to-transparent pointer-events-none transition-opacity duration-300 ${isAtBottom ? 'opacity-0' : 'opacity-100'}`} />
+                    
+                    {/* Scroll Indicator: Mũi tên nhấp nháy */}
+                    <div className={`absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none z-30 transition-opacity duration-300 ${isAtBottom ? 'opacity-0' : 'opacity-100'}`}>
+                        <div className="bg-[#1c1c1e]/80 rounded-full p-1.5 backdrop-blur-sm border border-[#C9A96E]/30 shadow-xl animate-bounce">
+                            <ChevronDown className="w-5 h-5 text-[#C9A96E]" />
+                        </div>
                     </div>
                 </div>
 
                 {/* Footer Action */}
-                <div className="border-t border-gray-100 bg-gray-50 pb-[env(safe-area-inset-bottom)] z-20">
+                <div className="bg-[#0d0d0d] pb-[env(safe-area-inset-bottom)] z-20 p-4 border-t border-white/10">
                     <button
                         onClick={() => onSave(prefs)}
-                        className="w-full bg-[#1a1c2e] hover:bg-[#2e314a] text-white font-bold py-5 rounded-none sm:rounded-b-[32px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-black/10"
+                        className="w-full bg-[#1c1c1e] hover:bg-[#2c2c2e] border border-[#C9A96E]/50 text-[#C9A96E] font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg"
                     >
                         <Check size={20} />
                         {getText({ en: 'SAVE', vi: 'LƯU', jp: '保存', kr: '저장', cn: '保存' }, lang)}

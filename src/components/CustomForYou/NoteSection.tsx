@@ -25,8 +25,8 @@ const NoteSection: React.FC<NoteSectionProps> = ({ lang, serviceData, notes, onC
 
     return (
         <div className="w-full mt-4">
-            <h4 className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                <Tag size={12} />
+            <h4 className="flex items-center gap-2 text-[10px] font-bold text-[#C9A96E]/80 uppercase tracking-widest mb-3">
+                <Tag size={14} />
                 {getText({ en: 'Notes', vi: 'Ghi chú', jp: 'ノート', kr: '참고', cn: '笔记' }, lang)}
             </h4>
 
@@ -36,8 +36,8 @@ const NoteSection: React.FC<NoteSectionProps> = ({ lang, serviceData, notes, onC
                     <button
                         onClick={() => onChange('tag0', !notes.tag0)}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${notes.tag0
-                                ? 'bg-red-50 border-red-200 text-red-600 shadow-sm'
-                                : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                                ? 'bg-[#1c1c1e] border-red-500/50 text-red-500 shadow-sm'
+                                : 'bg-[#1c1c1e] border-white/10 text-gray-400 hover:bg-[#2c2c2e]'
                             }`}
                     >
                         {getText(tag0Data, lang)}
@@ -48,8 +48,8 @@ const NoteSection: React.FC<NoteSectionProps> = ({ lang, serviceData, notes, onC
                     <button
                         onClick={() => onChange('tag1', !notes.tag1)}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${notes.tag1
-                                ? 'bg-yellow-50 border-yellow-200 text-yellow-600 shadow-sm'
-                                : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                                ? 'bg-[#1c1c1e] border-yellow-500/50 text-yellow-500 shadow-sm'
+                                : 'bg-[#1c1c1e] border-white/10 text-gray-400 hover:bg-[#2c2c2e]'
                             }`}
                     >
                         {getText(tag1Data, lang)}
@@ -62,7 +62,7 @@ const NoteSection: React.FC<NoteSectionProps> = ({ lang, serviceData, notes, onC
                 value={notes.content}
                 onChange={(e) => onChange('content', e.target.value)}
                 placeholder={getText(serviceData.HINT || { en: 'Other notes...', vi: 'Ghi chú khác...' }, lang)}
-                className="w-full h-20 p-3 text-sm text-gray-900 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black/20 focus:outline-none transition-colors resize-none"
+                className="w-full h-20 p-3 text-sm text-white border border-white/10 rounded-xl bg-[#1c1c1e] focus:bg-[#2c2c2e] focus:border-[#C9A96E]/50 focus:outline-none transition-colors resize-none placeholder-gray-500"
             />
         </div>
     );

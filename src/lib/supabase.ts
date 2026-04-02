@@ -1,14 +1,19 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { createClient as createSupabaseClient, SupabaseClient } from '@supabase/supabase-js'
 
+let browserClient: ReturnType<typeof createBrowserClient> | undefined
+
 /**
  * Supabase client for use in the browser (CSR).
  * Only call this at runtime in 'use client' components.
  */
 export const createClient = () => {
+    if (browserClient) return browserClient;
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    return createBrowserClient(supabaseUrl, supabaseAnonKey)
+    browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey)
+    return browserClient;
 }
 
 /**

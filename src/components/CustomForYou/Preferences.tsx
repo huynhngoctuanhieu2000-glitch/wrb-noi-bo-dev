@@ -31,19 +31,17 @@ const Preferences: React.FC<PreferencesProps> = ({ lang, showStrength, values, o
             {/* Strength Section */}
             {showStrength && (
                 <div>
-                    <h4 className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                        <Activity size={12} />
-                        {getText({ en: 'Strength', vi: 'Lực', jp: '強さ', kr: '강도', cn: '力度' }, lang)}
+                    <h4 className="flex items-center gap-2 text-[10px] font-bold text-[#C9A96E]/80 uppercase tracking-widest mb-3">
+                        <Activity size={14} />
+                        {getText({ en: 'Strength', vi: 'Lực tay', jp: '強さ', kr: '강도', cn: '力度' }, lang)}
                     </h4>
                     <div className="flex gap-2">
                         {strengthOptions.map((opt) => {
                             let activeClass = '';
                             if (values.strength === opt.value) {
-                                if (opt.value === 'light') activeClass = 'bg-green-50 border-green-500 text-green-700 shadow-sm';
-                                else if (opt.value === 'medium') activeClass = 'bg-yellow-50 border-yellow-400 text-yellow-700 shadow-sm';
-                                else if (opt.value === 'strong') activeClass = 'bg-red-50 border-red-500 text-red-700 shadow-sm';
+                                activeClass = 'bg-[#1c1c1e] border-[#C9A96E] text-[#C9A96E] shadow-sm shadow-[#C9A96E]/10';
                             } else {
-                                activeClass = 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50';
+                                activeClass = 'bg-[#1c1c1e] border-white/10 text-gray-400 hover:bg-[#2c2c2e]';
                             }
                             return (
                                 <button
@@ -61,19 +59,17 @@ const Preferences: React.FC<PreferencesProps> = ({ lang, showStrength, values, o
 
             {/* Therapist Section */}
             <div>
-                <h4 className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                    <User size={12} />
+                <h4 className="flex items-center gap-2 text-[10px] font-bold text-[#C9A96E]/80 uppercase tracking-widest mb-3">
+                    <User size={14} />
                     {getText({ en: 'Therapist', vi: 'Kỹ thuật viên', jp: 'セラピスト', kr: '테라피스트', cn: '技师' }, lang)}
                 </h4>
                 <div className="flex gap-2">
                     {therapistOptions.map((opt) => {
                         let activeClass = '';
                         if (values.therapist === opt.value) {
-                            if (opt.value === 'male') activeClass = 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm';
-                            else if (opt.value === 'female') activeClass = 'bg-purple-50 border-purple-500 text-purple-700 shadow-sm';
-                            else if (opt.value === 'random') activeClass = 'bg-green-50 border-green-500 text-green-700 shadow-sm';
+                            activeClass = 'bg-[#1c1c1e] border-[#C9A96E] text-[#C9A96E] shadow-sm shadow-[#C9A96E]/10';
                         } else {
-                            activeClass = 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50';
+                            activeClass = 'bg-[#1c1c1e] border-white/10 text-gray-400 hover:bg-[#2c2c2e]';
                         }
                         return (
                             <button
