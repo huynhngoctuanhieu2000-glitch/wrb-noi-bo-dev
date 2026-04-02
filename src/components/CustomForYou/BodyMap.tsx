@@ -1,32 +1,60 @@
-import React, { useMemo } from 'react';
-import Image from 'next/image';
-import { Check, Ban } from 'lucide-react';
+import React from 'react';
+import { Check } from 'lucide-react';
 import { BodyPartKey, LanguageCode, MultiLangText, ServiceData } from './types';
 import { getText } from './utils';
 import { getDictionary } from '@/lib/dictionaries';
 
 // ============================================================================
-// 🔧 UI CONFIGURATION AREA (TINH CHỈNH ẢNH VÀ MASK TẠI ĐÂY)
+// 🔧 UI CONFIGURATION — Chỉnh màu sắc tại đây
 // ============================================================================
-// Hệ tọa độ Clip-path cho 8 vừng cơ bản trên Body Avatar
-// Định dạng: polygon(top-left, top-right, bottom-right, bottom-left)
-// Bạn có thể tự do thay đổi % để vùng chọn Xanh/Đỏ vừa khít viền cơ thể!
-const BODY_MASKS: Record<BodyPartKey, React.CSSProperties[]> = {
-    // ✅ FINALIZED - Tọa độ đã được căn chỉnh khớp body-map.webp
-    // Đầu: 0–20%  │  Cổ: 19–22%  │  Vai: 21–26%  │  Tay: 26–66%
-    // Lưng: 26–53%  │  Đùi: 52.5–68%  │  Bắp chân: 67.9–82%  │  Bàn chân: 82–100%
+const SVG_CONFIG = {
+    viewBox: '0 0 120 310',
+    containerBg: '#ffffff',          // Nền trắng
+    defaultFill: '#ffffff',          // Chưa chọn: fill trắng
+    defaultStroke: '#1a1a1a',          // Chưa chọn: viền đen
+    focusFill: '#dcfce7',          // Tập trung: fill xanh nhạt
+    focusStroke: '#16a34a',          // Tập trung: viền xanh đậm
+    avoidFill: '#fee2e2',          // Tránh: fill đỏ nhạt
+    avoidStroke: '#dc2626',          // Tránh: viền đỏ đậm
+    disabledFill: '#f5f5f5',          // Vùng disable: xám nhạt
+    disabledStroke: '#d4d4d4',
+    strokeWidth: 1.8,
+    shoulderStrokeWidth: 4,          // Độ mảnh nét vai (chỉnh tại đây)
+};
 
-    HEAD: [{ clipPath: 'polygon(26% 0%, 74% 0%, 74% 20%, 26% 20%)' }],                    // Đầu: 0–20%
-    NECK: [{ clipPath: 'polygon(38% 19%, 62% 19%, 62% 22%, 38% 22%)' }],                   // Cổ: 19–22% (hẹp ngang)
-    SHOULDER: [{ clipPath: 'polygon(12% 21%, 88% 21%, 88% 26%, 12% 26%)' }],                   // Vai: 21–26% (rộng 2 bên)
-    ARM: [
-        { clipPath: 'polygon(0% 26%, 26% 26%, 26% 66%, 0% 66%)' },                            // Tay trái: 0–26% ngang, 26–66% dọc
-        { clipPath: 'polygon(70% 26%, 100% 26%, 100% 66%, 70% 66%)' }                         // Tay phải: 70–100% ngang, 26–66% dọc
+// ============================================================================
+// 📐 BODY SVG SHAPES — Tọa độ từng bộ phận (viewBox 120x270)
+// ============================================================================
+type SvgShape =
+    | { type: 'circle'; cx: number; cy: number; r: number }
+    | { type: 'ellipse'; cx: number; cy: number; rx: number; ry: number }
+    | { type: 'rect'; x: number; y: number; width: number; height: number; rx: number }
+    | { type: 'path'; d: string }; // Arc/crescent shapes
+
+const BODY_SVG: Record<BodyPartKey, SvgShape[]> = {
+    HEAD: [{ type: 'circle', cx: 60, cy: 20, r: 16 }],
+    NECK: [{ type: 'rect', x: 53.5, y: 33.5, width: 14, height: 18, rx: 4 }],
+    SHOULDER: [
+        { type: 'path', d: 'M 32,55 Q 12,55 14,75' },              // Vai trái
+        { type: 'path', d: 'M 88,55 Q 108,55 106,75' },           // Vai phải
     ],
-    BACK: [{ clipPath: 'polygon(25% 26%, 73% 26%, 77% 53%, 25% 53%)' }],                   // Lưng & Bụng: 26–53%
-    THIGH: [{ clipPath: 'polygon(20% 52.5%, 75.5% 52.5%, 75.5% 68%, 24% 68%)' }],          // Đùi: 52.5–68%
-    CALF: [{ clipPath: 'polygon(21% 67.9%, 79% 67.9%, 79% 82%, 21% 82%)' }],              // Bắp chân: 67.9–82%
-    FOOT: [{ clipPath: 'polygon(18% 81.7%, 82% 81.7%, 82% 100%, 18% 100%)' }],                // Bàn chân: 82–100%
+    ARM: [
+        { type: 'rect', x: 6, y: 76, width: 18, height: 75, rx: 9 },  // Tay trái
+        { type: 'rect', x: 96, y: 76, width: 18, height: 75, rx: 9 },  // Tay phải
+    ],
+    BACK: [{ type: 'rect', x: 32, y: 52, width: 56, height: 95, rx: 9 }], // Thân
+    THIGH: [
+        { type: 'rect', x: 33, y: 150, width: 24, height: 65, rx: 12 },   // Đùi trái
+        { type: 'rect', x: 63, y: 150, width: 24, height: 65, rx: 12 },   // Đùi phải
+    ],
+    CALF: [
+        { type: 'rect', x: 35, y: 218, width: 20, height: 55, rx: 10 },   // Bắp chân trái
+        { type: 'rect', x: 65, y: 218, width: 20, height: 55, rx: 10 },   // Bắp chân phải
+    ],
+    FOOT: [
+        { type: 'ellipse', cx: 43, cy: 284, rx: 14, ry: 8 },              // Bàn chân trái
+        { type: 'ellipse', cx: 77, cy: 284, rx: 14, ry: 8 },              // Bàn chân phải
+    ],
 };
 
 const ALL_BODY_PARTS: { key: BodyPartKey; height: string }[] = [
@@ -41,12 +69,9 @@ const ALL_BODY_PARTS: { key: BodyPartKey; height: string }[] = [
 ];
 
 const LAYOUT_CONFIG = {
-    checklist: {
-        gap: "4px",
-        paddingRight: "0px",
-        checkboxSize: "22px",
-    }
+    checklist: { gap: '4px', paddingRight: '0px', checkboxSize: '22px' }
 };
+
 // ============================================================================
 
 interface BodyMapProps {
@@ -57,10 +82,35 @@ interface BodyMapProps {
     onToggle: (type: 'focus' | 'avoid', area: string) => void;
 }
 
+// Helper: render từng SVG shape
+const renderShape = (
+    shape: SvgShape,
+    fill: string,
+    stroke: string,
+    filterId: string | undefined,
+    key: string,
+    onClick?: () => void
+) => {
+    const commonProps = {
+        fill,
+        stroke,
+        strokeWidth: SVG_CONFIG.strokeWidth,
+        filter: filterId ? `url(#${filterId})` : undefined,
+        onClick,
+        style: onClick ? { cursor: 'pointer' } : undefined,
+    };
+    if (shape.type === 'circle')
+        return <circle key={key} {...commonProps} cx={shape.cx} cy={shape.cy} r={shape.r} />;
+    if (shape.type === 'ellipse')
+        return <ellipse key={key} {...commonProps} cx={shape.cx} cy={shape.cy} rx={shape.rx} ry={shape.ry} />;
+    if (shape.type === 'path')
+        return <path key={key} fill="none" stroke={stroke} strokeWidth={SVG_CONFIG.shoulderStrokeWidth} strokeLinecap="round" strokeLinejoin="round" filter={filterId ? `url(#${filterId})` : undefined} onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined} d={shape.d} />;
+    return <rect key={key} {...commonProps} x={shape.x} y={shape.y} width={shape.width} height={shape.height} rx={shape.rx} />;
+};
+
 const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onToggle }) => {
     const dict = getDictionary(lang);
 
-    // 1. Phân quyền hiển thị
     const availableParts = ALL_BODY_PARTS.filter(part => {
         if (!serviceData.FOCUS_POSITION) return true;
         return serviceData.FOCUS_POSITION[part.key] === true;
@@ -69,99 +119,89 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
     const isFullBody = availableParts.length > 0 && focus.length === availableParts.length;
 
     const handleFullBodyToggle = () => {
-        if (isFullBody) {
-            onToggle('focus', 'CLEAR_ALL');
-        } else {
-            onToggle('focus', 'FULL_BODY');
-        }
+        if (isFullBody) onToggle('focus', 'CLEAR_ALL');
+        else onToggle('focus', 'FULL_BODY');
     };
-
-    // Style Mask động để tái sử dụng
-    const maskStyle = useMemo(() => ({
-        maskImage: `url('/assets/icons/body-map.webp')`,
-        maskSize: 'contain',
-        maskPosition: 'center',
-        maskRepeat: 'no-repeat',
-        WebkitMaskImage: `url('/assets/icons/body-map.webp')`,
-        WebkitMaskSize: 'contain',
-        WebkitMaskPosition: 'center',
-        WebkitMaskRepeat: 'no-repeat',
-    }), []);
 
     if (availableParts.length === 0) return null;
 
     return (
         <div className="flex gap-2 h-[450px]">
-            {/* CỘT TRÁI: Nút Toàn Thân (15%) */}
-            <div className="w-[15%] flex flex-col items-center justify-center border-r border-dashed border-gray-200 pr-2">
+
+            {/* CỘT TRÁI: Nút Toàn Thân */}
+            <div className="w-[15%] flex flex-col items-center justify-center border-r border-dashed border-gray-700 pr-2">
                 {availableParts.length > 1 && (
-                    <label className="flex flex-col items-center justify-center cursor-pointer bg-white p-2 rounded-xl border border-green-200 transition-all hover:bg-green-50 active:scale-95 group shadow-sm py-4 w-full">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 transition-colors border-2 ${isFullBody ? 'bg-green-500 border-green-500' : 'bg-white border-green-300'}`}>
+                    <label className="flex flex-col items-center justify-center cursor-pointer bg-gray-900 p-2 rounded-xl border border-green-800 transition-all hover:border-green-500 active:scale-95 shadow-sm py-4 w-full">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 transition-colors border-2 ${isFullBody ? 'bg-green-600 border-green-500' : 'bg-gray-800 border-gray-600'}`}>
                             <Check className={`w-5 h-5 text-white transition-opacity ${isFullBody ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3} />
-                            <input
-                                type="checkbox"
-                                className="hidden"
-                                checked={isFullBody}
-                                onChange={handleFullBodyToggle}
-                            />
+                            <input type="checkbox" className="hidden" checked={isFullBody} onChange={handleFullBodyToggle} />
                         </div>
-                        <span className="text-[10px] font-bold text-green-600 uppercase leading-snug text-center tracking-tight">
+                        <span className="text-[10px] font-bold text-green-400 uppercase leading-snug text-center tracking-tight">
                             {getText({ en: 'Whole\nBody', vi: 'Toàn\nThân', jp: '全身', kr: '전신', cn: '全身' }, lang)}
                         </span>
                     </label>
                 )}
             </div>
 
-            {/* CỘT GIỮA: Màn Hình Cơ Thể - Đỉnh cao tương tác (40%) */}
-            <div className="w-[40%] h-full relative flex items-center justify-center pl-2">
-                {/* 
-                  YÊU CẦU: "ẩn cái hình đi sao đó để mặc định là màu đen, ấn cái vùng nào thì đổi màu vùng đó"
-                  GIẢI PHÁP: 
-                  - Xóa thẻ <Image /> hiển thị gốc.
-                  - Render toàn bộ 8 mảnh ghép Mask mọi lúc.
-                  - Mặc định:bg-black. Chọn Focus: bg-green, Avoid: bg-red.
-                  => Tập hợp 8 mảnh ghép sẽ tự động xếp khít thành 1 Body hoàn chỉnh nét căng!
-                */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="relative w-full h-[100%] max-w-[220px]">
-                        {ALL_BODY_PARTS.map(part => {
-                            const isAvailable = availableParts.find(p => p.key === part.key);
-                            const isFocus = focus.includes(part.key);
-                            const isAvoid = avoid.includes(part.key);
+            {/* CỘT GIỮA: SVG Body Figure */}
+            <div
+                className="w-[40%] h-full relative flex items-center justify-center pl-2 rounded-xl overflow-hidden"
+                style={{ backgroundColor: SVG_CONFIG.containerBg, border: '1px solid #e5e7eb' }}
+            >
+                <svg
+                    viewBox={SVG_CONFIG.viewBox}
+                    className="w-full h-full"
+                    style={{ maxHeight: '100%' }}
+                >
+                    {/* Glow Filters */}
+                    <defs>
+                        <filter id="glow-green" x="-40%" y="-40%" width="180%" height="180%">
+                            <feGaussianBlur stdDeviation="3.5" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                        <filter id="glow-red" x="-40%" y="-40%" width="180%" height="180%">
+                            <feGaussianBlur stdDeviation="3.5" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
 
-                            // Phân loại màu: 
-                            // - Xanh lá (Focus)
-                            // - Đỏ (Avoid)
-                            // - Đen nhánh (Mặc định)
-                            // - Xám nhạt (Vô hiệu hóa)
-                            let colorClass = 'bg-gray-200/50';
-                            if (isAvailable) {
-                                if (isFocus) colorClass = 'bg-[#16a34a]';
-                                else if (isAvoid) colorClass = 'bg-[#ef4444]';
-                                else colorClass = 'bg-[#1f2937] hover:bg-gray-600'; // Màu Đen xám xịn (Slate 800)
-                            }
+                    {/* Render từng bộ phận */}
+                    {ALL_BODY_PARTS.map(part => {
+                        const isAvailable = availableParts.find(p => p.key === part.key);
+                        const isFocus = focus.includes(part.key);
+                        const isAvoid = avoid.includes(part.key);
 
-                            const clipStyles = BODY_MASKS[part.key];
+                        let fill = isAvailable ? SVG_CONFIG.defaultFill : SVG_CONFIG.disabledFill;
+                        let stroke = isAvailable ? SVG_CONFIG.defaultStroke : SVG_CONFIG.disabledStroke;
+                        let filterId: string | undefined;
 
-                            return clipStyles.map((clipStyle, index) => (
-                                <div
-                                    key={`${part.key}-${index}`}
-                                    className={`absolute inset-0 ${colorClass} transition-colors duration-300 pointer-events-none`}
-                                    style={{
-                                        ...maskStyle,
-                                        ...clipStyle
-                                    }}
-                                />
-                            ));
-                        })}
-                    </div>
-                </div>
+                        if (isAvailable) {
+                            if (isFocus) { fill = SVG_CONFIG.focusFill; stroke = SVG_CONFIG.focusStroke; filterId = 'glow-green'; }
+                            else if (isAvoid) { fill = SVG_CONFIG.avoidFill; stroke = SVG_CONFIG.avoidStroke; filterId = 'glow-red'; }
+                        }
+
+                        const shapes = BODY_SVG[part.key];
+                        const handleClick = isAvailable
+                            ? () => onToggle('focus', part.key)
+                            : undefined;
+
+                        return shapes.map((shape, i) =>
+                            renderShape(shape, fill, stroke, filterId, `${part.key}-${i}`, handleClick)
+                        );
+                    })}
+                </svg>
             </div>
 
-            {/* CỘT PHẢI: Bảng Danh Sách Trượt Checklist (45%) */}
+            {/* CỘT PHẢI: Bảng Checklist */}
             <div className="w-[45%] flex flex-col h-full pl-2">
                 <div
-                    className="flex flex-row items-center text-[9px] font-bold uppercase tracking-tight pb-1 border-b border-gray-100 flex-none mb-1 pt-0"
+                    className="flex flex-row items-center text-[9px] font-bold uppercase tracking-tight pb-1 border-b border-gray-200 flex-none mb-1 pt-0"
                     style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}
                 >
                     <span className="text-gray-400 flex-1">{getText({ en: 'Area', vi: 'Vị trí', jp: '部位', kr: '부위', cn: '区域' }, lang)}</span>
@@ -199,36 +239,31 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                                 FOOT: { en: 'Foot', vi: 'Bàn chân', jp: '足', kr: '발', cn: '脚' },
                                             }[part.key] as MultiLangText, lang)}
                                         </span>
-                                        {/* Hai ô checkbox Xanh - Đỏ */}
+
                                         <div className="flex items-center justify-end gap-1 w-[60px]">
-                                            <label className="relative flex items-center justify-center cursor-pointer w-7 group">
+                                            {/* Focus Checkbox (Xanh) */}
+                                            <label className="relative flex items-center justify-center cursor-pointer w-7">
                                                 <input
                                                     type="checkbox"
                                                     checked={isFocus}
-                                                    onChange={(e) => {
-                                                        e.stopPropagation();
-                                                        onToggle('focus', part.key);
-                                                    }}
+                                                    onChange={(e) => { e.stopPropagation(); onToggle('focus', part.key); }}
                                                     style={{ width: LAYOUT_CONFIG.checklist.checkboxSize, height: LAYOUT_CONFIG.checklist.checkboxSize }}
                                                     className="peer appearance-none border-2 border-gray-200 rounded bg-white checked:bg-green-500 checked:border-green-500 transition-all"
                                                 />
                                             </label>
 
-                                            <label className="relative flex items-center justify-center cursor-pointer w-7 group">
+                                            {/* Avoid Checkbox (Đỏ) */}
+                                            <label className="relative flex items-center justify-center cursor-pointer w-7">
                                                 <input
                                                     type="checkbox"
                                                     checked={isAvoid}
-                                                    onChange={(e) => {
-                                                        e.stopPropagation();
-                                                        onToggle('avoid', part.key);
-                                                    }}
+                                                    onChange={(e) => { e.stopPropagation(); onToggle('avoid', part.key); }}
                                                     style={{ width: LAYOUT_CONFIG.checklist.checkboxSize, height: LAYOUT_CONFIG.checklist.checkboxSize }}
                                                     className="peer appearance-none border-2 border-gray-200 rounded bg-white checked:bg-red-500 checked:border-red-500 transition-all"
                                                 />
                                             </label>
                                         </div>
                                     </>
-
                                 ) : (
                                     <span className="text-[11px] text-gray-300 italic flex-1 py-1">
                                         {getText({
@@ -248,6 +283,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                     })}
                 </div>
             </div>
+
         </div>
     );
 };
