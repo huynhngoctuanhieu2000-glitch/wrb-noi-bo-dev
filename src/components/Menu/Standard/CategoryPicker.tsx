@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Category } from '@/components/Menu/types';
 import { dictionary } from './CategoryPicker.i18n';
 import { ArrowLeft } from 'lucide-react';
@@ -13,23 +13,39 @@ const TOKENS = {
     cardBorder: 'border-white/5',
 };
 
+// Cấu hình giao diện để người dùng dễ thay đổi bằng số Pixel (Dựa theo the rule)
+const UI_LAYOUT_CONFIG = {
+    HEADER_MARGIN_TOP_PX: 55,      // Thụt lề đầu trang xuống bao nhiêu Pixel (rất dễ chỉnh: 60, 80, 100...)
+    TITLE_SIZE: 'text-3xl',        // Cỡ chữ Select Category (text-2xl, text-3xl, text-4xl...)
+    LINE_WIDTH: 'w-32',            // Độ dài của dải ánh kim bên dưới chữ
+    GRID_PADDING_TOP_PX: 24,       // Khoảng cách từ Header xuống danh sách thẻ menu (pixel: 16, 24, 32...)
+};
+
+// Cấu hình thời gian và hiệu ứng chuyển cảnh của màn hình Chọn Danh Mục
+const UI_ANIMATION_CONFIG = {
+    PICKER_EXIT_DURATION: 0.25,        // Thời gian (giây) để màn hình Picker mờ đi khi chuyển trang
+    CARDS_STAGGER_DELAY: 0.06,         // Độ trễ (giây) xuất hiện LẦN LƯỢT giữa các thẻ (0.01 là cực nhanh)
+    CARDS_START_DELAY: 0.15,           // Chờ bao nhiêu giây mới bắt đầu hiện thẻ đầu tiên
+    CARD_EXIT_DURATION: 0.2,           // Thời gian thẻ thu nhỏ trước khi biến mất
+};
+
 // Animation variants
-const containerVariants = {
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.06,
-            delayChildren: 0.15,
+            staggerChildren: UI_ANIMATION_CONFIG.CARDS_STAGGER_DELAY,
+            delayChildren: UI_ANIMATION_CONFIG.CARDS_START_DELAY,
         },
     },
     exit: {
         opacity: 0,
-        transition: { duration: 0.25 },
+        transition: { duration: UI_ANIMATION_CONFIG.PICKER_EXIT_DURATION },
     },
 };
 
-const cardVariants = {
+const cardVariants: Variants = {
     hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
@@ -40,11 +56,11 @@ const cardVariants = {
     exit: {
         opacity: 0,
         scale: 0.85,
-        transition: { duration: 0.2 },
+        transition: { duration: UI_ANIMATION_CONFIG.CARD_EXIT_DURATION },
     },
 };
 
-const headerVariants = {
+const headerVariants: Variants = {
     hidden: { opacity: 0, y: -20 },
     visible: {
         opacity: 1,
@@ -79,28 +95,35 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
         >
             {/* Header / Title */}
             <motion.div
-                className="pt-safe-top pt-12 pb-2 flex flex-col items-center justify-center relative"
+                className={`pt-safe-top pb-4 flex flex-col items-center justify-center relative w-full`}
+                style={{ paddingTop: `${UI_LAYOUT_CONFIG.HEADER_MARGIN_TOP_PX}px` }}
                 variants={headerVariants}
                 initial="hidden"
                 animate="visible"
             >
-                <motion.div
-                    className="absolute top-8 left-4 p-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
-                    onClick={onBack}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                >
-                    <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
-                </motion.div>
-                <h1 className={`text-2xl font-serif font-medium tracking-wide ${TOKENS.textGold} relative`}>
-                    {tTitle}
-                </h1>
-                <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mt-3 opacity-30"></div>
+                {/* Wrapper chứa nút back và title cùng 1 hàng */}
+                <div className="w-full flex items-center justify-center relative">
+                    <motion.div
+                        className="absolute left-4 p-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity flex items-center"
+                        onClick={onBack}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                    >
+                        <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
+                    </motion.div>
+
+                    <h1 className={`${UI_LAYOUT_CONFIG.TITLE_SIZE} font-serif font-medium tracking-wide ${TOKENS.textGold} text-center`}>
+                        {tTitle}
+                    </h1>
+                </div>
+
+                <div className={`h-[1px] ${UI_LAYOUT_CONFIG.LINE_WIDTH} bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mt-4 opacity-30`}></div>
             </motion.div>
 
             {/* Grid Area - Scrollable */}
             <motion.div
-                className="flex-1 overflow-y-auto px-6 pt-6 pb-32 hide-scrollbar"
+                className={`flex-1 overflow-y-auto px-6 pb-32 hide-scrollbar`}
+                style={{ paddingTop: `${UI_LAYOUT_CONFIG.GRID_PADDING_TOP_PX}px` }}
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"

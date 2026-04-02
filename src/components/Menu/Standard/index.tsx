@@ -14,6 +14,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// 🔧 UI CONFIGURATION
+export const PAGE_TRANSITION_CONFIG = {
+    // Thời gian trượt vào của Menu (spring animation)
+    MENU_SPRING_STIFFNESS: 350, // Càng lớn càng giật nhanh (mặc định cũ 260)
+    MENU_SPRING_DAMPING: 25,    // Độ nảy (mặc định 25)
+
+    // Thời gian đợi (ms) sau khi Menu đã trượt xong thì mới thực hiện cuộn đến mục Dịch vụ
+    // Chỉnh xuống 50ms hoặc 0ms nếu muốn cuộn ngay lập tức
+    SCROLL_DELAY_AFTER_ANIMATION_MS: 30,
+
+    // Hiệu ứng cuộn. 
+    // - 'auto': Nhảy cái rụp đến mục được chọn (nhanh nhất)
+    // - 'smooth': Trình duyệt tự cuộn từ từ (thường ở các đt cũ hoặc vuốt xa sẽ rất châm)
+    SCROLL_BEHAVIOR: 'auto' as ScrollBehavior,
+};
+
 // 1. Import Components con
 import Header from './Header';
 import ServiceList from './ServiceList';
@@ -50,6 +66,7 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
     const [mode, setMode] = useState<'PICKER' | 'MENU'>('PICKER');
     const [activeCategory, setActiveCategory] = useState<string>('Body');
     const [selectedCats, setSelectedCats] = useState<string[]>([]);
+    const [pendingScrollCategory, setPendingScrollCategory] = useState<string | null>(null);
 
     // State quản lý Sheet
     const [sheet, setSheet] = useState<SheetState>({
@@ -96,24 +113,8 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
         return lookup;
     }, [cart]);
 
-    // c. Tạo Virtual Category khi có Filter
-    const displayCategories = useMemo(() => {
-        if (selectedCats.length === 0) return CATEGORIES;
-        return [
-            {
-                id: 'SEARCH_RESULT',
-                names: {
-                    en: 'Your Matches 🌟',
-                    vi: 'Gợi Ý Của Bạn 🌟',
-                    jp: 'おすすめ 🌟',
-                    kr: '추천 🌟',
-                    cn: '为您推荐 🌟'
-                },
-                image: '/assets/icons/combo-king.webp'
-            },
-            ...CATEGORIES
-        ];
-    }, [selectedCats]);
+    // Categories luôn hiện đầy đủ, không tạo virtual category
+    const displayCategories = CATEGORIES;
 
     // --- 3. XỬ LÝ TƯƠNG TÁC ---
 
@@ -184,133 +185,133 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
 
     return (
         <AnimatePresence mode="wait">
-        {mode === 'PICKER' ? (
-            <CategoryPicker
-                key="picker"
-                categories={CATEGORIES}
-                lang={lang}
-                onSelect={(ids) => {
-                    setSelectedCats(ids);
-                    if (ids.length > 0) {
-                        setActiveCategory('SEARCH_RESULT');
+            {mode === 'PICKER' ? (
+                <CategoryPicker
+                    key="picker"
+                    categories={CATEGORIES}
+                    lang={lang}
+                    onSelect={(ids) => {
+                        const selectedId = ids[0] || 'Body';
+                        setActiveCategory(selectedId);
+                        setPendingScrollCategory(selectedId);
                         setMode('MENU');
-                        setTimeout(() => {
-                            const el = document.getElementById(`cat-SEARCH_RESULT`);
-                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                        }, 100);
-                    } else {
-                        setActiveCategory('Body');
-                        setMode('MENU');
-                    }
-                }}
-                onBack={onBack}
-            />
-        ) : (
-        <motion.div
-            key="menu"
-            className="relative inset-0 z-20 bg-black flex flex-col h-[100dvh] w-full overflow-hidden font-sans"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 25 }}
-        >
-
-            {/* A. HEADER */}
-            <Header
-                categories={displayCategories}
-                activeCategory={activeCategory}
-                lang={lang}
-                onSelectCategory={(id) => {
-                    setActiveCategory(id);
-                    document.getElementById(`cat-${id}`)?.scrollIntoView({ behavior: 'smooth' });
-                }}
-            />
-
-            {/* B. LIST */}
-            <ServiceList
-                categories={displayCategories}
-                services={services}
-                cart={cartLookup} // Truyền Lookup Map
-                lang={lang}
-                onItemClick={handleServiceClick} // Truyền hàm xử lý nhóm
-                selectedTags={selectedCats} // [NEW] Truyền tag khách chọn xuống để List biết cách sort
-            />
-
-            {/* C. FOOTER */}
-            <Footer
-                totalVND={totalVND}
-                totalUSD={totalUSD}
-                totalItems={totalItems}
-                maxMinutes={maxMinutes}
-                lang={lang}
-                onBack={onBack}
-                onToggleCart={handleOpenCart}
-            />
-
-            {/* D. KHU VỰC CÁC SHEET */}
-
-            {/* 1. Main Sheet (Chọn thời gian) - Nhận data là Array (Group) */}
-            {sheet.isOpen && sheet.type === 'MAIN' && Array.isArray(sheet.data) && (
-                <MainSheet
-                    group={sheet.data} // Truyền data (là mảng) vào prop group
-                    cart={cartLookup} // Truyền Lookup Map để check sl
-                    isOpen={sheet.isOpen}
-                    lang={lang}
-                    onClose={closeSheet}
-                    onAddToCart={handleAddToCart}
-                />
-            )}
-
-            {/* 2. Review Sheet (Xem lại món đơn lẻ) - Nhận data là 1 Service */}
-            {sheet.isOpen && sheet.type === 'REVIEW' && !Array.isArray(sheet.data) && sheet.data && (
-                <ReviewSheet
-                    service={sheet.data}
-                    cart={cartLookup} // Truyền Lookup Map
-                    isOpen={sheet.isOpen}
-                    lang={lang}
-                    onClose={closeSheet}
-                    onUpdateCart={handleUpdateCart}
-                />
-            )}
-
-            {/* 3. Cart Drawer (Giỏ hàng) */}
-            {sheet.isOpen && sheet.type === 'CART' && (
-                <CartDrawer
-                    cart={cart}
-                    services={services}
-                    lang={lang}
-                    isOpen={sheet.isOpen}
-                    onClose={closeSheet}
-                    onUpdateCart={handleUpdateCart}
-                    onCheckout={onCheckout}
-                />
-            )}
-
-            {/* 4. Custom For You Modal (Mới tích hợp vào quy trình) */}
-            {sheet.isOpen && sheet.type === 'CUSTOM' && !Array.isArray(sheet.data) && sheet.data && (
-                <CustomForYouModal
-                    isOpen={sheet.isOpen}
-                    onClose={closeSheet}
-                    onSave={handleSaveCustom}
-                    serviceData={{
-                        ID: sheet.data.id,
-                        NAMES: sheet.data.names as Record<string, string>,
-                        FOCUS_POSITION: sheet.data.FOCUS_POSITION as any,
-                        TAGS: sheet.data.TAGS as any,
-                        SHOW_STRENGTH: sheet.data.SHOW_STRENGTH,
-                        HINT: sheet.data.HINT as Record<string, string>,
-                        PRICE_VN: sheet.data.priceVND,
-                        PRICE_USD: sheet.data.priceUSD,
-                        // Task E3: Pass visibility flags
-                        SHOW_NOTES: sheet.data.SHOW_NOTES,
-                        SHOW_PREFERENCES: sheet.data.SHOW_PREFERENCES,
                     }}
-                    lang={lang as any}
+                    onBack={onBack}
                 />
-            )}
+            ) : (
+                <motion.div
+                    key="menu"
+                    className="relative inset-0 z-20 bg-black flex flex-col h-[100dvh] w-full overflow-hidden font-sans"
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -40 }}
+                    transition={{ type: 'spring', stiffness: PAGE_TRANSITION_CONFIG.MENU_SPRING_STIFFNESS, damping: PAGE_TRANSITION_CONFIG.MENU_SPRING_DAMPING }}
+                    onAnimationComplete={() => {
+                        if (pendingScrollCategory) {
+                            setTimeout(() => {
+                                const el = document.getElementById(`cat-${pendingScrollCategory}`);
+                                if (el) el.scrollIntoView({ behavior: PAGE_TRANSITION_CONFIG.SCROLL_BEHAVIOR });
+                                setPendingScrollCategory(null);
+                            }, PAGE_TRANSITION_CONFIG.SCROLL_DELAY_AFTER_ANIMATION_MS); // Chỉnh thời gian delay cuộn ở đầu file
+                        }
+                    }}
+                >
 
-        </motion.div>
-        )}
+                    {/* A. HEADER */}
+                    <Header
+                        categories={displayCategories}
+                        activeCategory={activeCategory}
+                        lang={lang}
+                        onSelectCategory={(id) => {
+                            setActiveCategory(id);
+                            document.getElementById(`cat-${id}`)?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                    />
+
+                    {/* B. LIST */}
+                    <ServiceList
+                        categories={displayCategories}
+                        services={services}
+                        cart={cartLookup}
+                        lang={lang}
+                        onItemClick={handleServiceClick}
+                    />
+
+                    {/* C. FOOTER */}
+                    <Footer
+                        totalVND={totalVND}
+                        totalUSD={totalUSD}
+                        totalItems={totalItems}
+                        maxMinutes={maxMinutes}
+                        lang={lang}
+                        onBack={onBack}
+                        onToggleCart={handleOpenCart}
+                    />
+
+                    {/* D. KHU VỰC CÁC SHEET */}
+
+                    {/* 1. Main Sheet (Chọn thời gian) - Nhận data là Array (Group) */}
+                    {sheet.isOpen && sheet.type === 'MAIN' && Array.isArray(sheet.data) && (
+                        <MainSheet
+                            group={sheet.data} // Truyền data (là mảng) vào prop group
+                            cart={cartLookup} // Truyền Lookup Map để check sl
+                            isOpen={sheet.isOpen}
+                            lang={lang}
+                            onClose={closeSheet}
+                            onAddToCart={handleAddToCart}
+                        />
+                    )}
+
+                    {/* 2. Review Sheet (Xem lại món đơn lẻ) - Nhận data là 1 Service */}
+                    {sheet.isOpen && sheet.type === 'REVIEW' && !Array.isArray(sheet.data) && sheet.data && (
+                        <ReviewSheet
+                            service={sheet.data}
+                            cart={cartLookup} // Truyền Lookup Map
+                            isOpen={sheet.isOpen}
+                            lang={lang}
+                            onClose={closeSheet}
+                            onUpdateCart={handleUpdateCart}
+                        />
+                    )}
+
+                    {/* 3. Cart Drawer (Giỏ hàng) */}
+                    {sheet.isOpen && sheet.type === 'CART' && (
+                        <CartDrawer
+                            cart={cart}
+                            services={services}
+                            lang={lang}
+                            isOpen={sheet.isOpen}
+                            onClose={closeSheet}
+                            onUpdateCart={handleUpdateCart}
+                            onCheckout={onCheckout}
+                        />
+                    )}
+
+                    {/* 4. Custom For You Modal (Mới tích hợp vào quy trình) */}
+                    {sheet.isOpen && sheet.type === 'CUSTOM' && !Array.isArray(sheet.data) && sheet.data && (
+                        <CustomForYouModal
+                            isOpen={sheet.isOpen}
+                            onClose={closeSheet}
+                            onSave={handleSaveCustom}
+                            serviceData={{
+                                ID: sheet.data.id,
+                                NAMES: sheet.data.names as Record<string, string>,
+                                FOCUS_POSITION: sheet.data.FOCUS_POSITION as any,
+                                TAGS: sheet.data.TAGS as any,
+                                SHOW_STRENGTH: sheet.data.SHOW_STRENGTH,
+                                HINT: sheet.data.HINT as Record<string, string>,
+                                PRICE_VN: sheet.data.priceVND,
+                                PRICE_USD: sheet.data.priceUSD,
+                                // Task E3: Pass visibility flags
+                                SHOW_NOTES: sheet.data.SHOW_NOTES,
+                                SHOW_PREFERENCES: sheet.data.SHOW_PREFERENCES,
+                            }}
+                            lang={lang as any}
+                        />
+                    )}
+
+                </motion.div>
+            )}
         </AnimatePresence>
     );
 }
