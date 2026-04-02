@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { BodyPartKey, LanguageCode, MultiLangText, ServiceData } from './types';
 import { getText } from './utils';
 import { getDictionary } from '@/lib/dictionaries';
@@ -8,7 +8,7 @@ import { getDictionary } from '@/lib/dictionaries';
 // 🔧 UI CONFIGURATION — Chỉnh màu sắc tại đây
 // ============================================================================
 const SVG_CONFIG = {
-    viewBox: '0 0 120 310',
+    viewBox: '0 0 120 280',
     containerBg: '#ffffff',          // Nền trắng
     defaultFill: '#ffffff',          // Chưa chọn: fill trắng
     defaultStroke: '#1a1a1a',          // Chưa chọn: viền đen
@@ -39,21 +39,21 @@ const BODY_SVG: Record<BodyPartKey, SvgShape[]> = {
         { type: 'path', d: 'M 88,55 Q 108,55 106,75' },           // Vai phải
     ],
     ARM: [
-        { type: 'rect', x: 6, y: 76, width: 18, height: 75, rx: 9 },  // Tay trái
-        { type: 'rect', x: 96, y: 76, width: 18, height: 75, rx: 9 },  // Tay phải
+        { type: 'rect', x: 6, y: 76, width: 18, height: 65, rx: 9 },  // Tay trái
+        { type: 'rect', x: 96, y: 76, width: 18, height: 65, rx: 9 },  // Tay phải
     ],
-    BACK: [{ type: 'rect', x: 32, y: 52, width: 56, height: 95, rx: 9 }], // Thân
+    BACK: [{ type: 'rect', x: 32, y: 52, width: 56, height: 92, rx: 9 }], // Thân
     THIGH: [
-        { type: 'rect', x: 33, y: 150, width: 24, height: 65, rx: 12 },   // Đùi trái
-        { type: 'rect', x: 63, y: 150, width: 24, height: 65, rx: 12 },   // Đùi phải
+        { type: 'rect', x: 33, y: 147, width: 24, height: 55, rx: 12 },   // Đùi trái
+        { type: 'rect', x: 63, y: 147, width: 24, height: 55, rx: 12 },   // Đùi phải
     ],
     CALF: [
-        { type: 'rect', x: 35, y: 218, width: 20, height: 55, rx: 10 },   // Bắp chân trái
-        { type: 'rect', x: 65, y: 218, width: 20, height: 55, rx: 10 },   // Bắp chân phải
+        { type: 'rect', x: 35, y: 205, width: 20, height: 45, rx: 10 },   // Bắp chân trái
+        { type: 'rect', x: 65, y: 205, width: 20, height: 45, rx: 10 },   // Bắp chân phải
     ],
     FOOT: [
-        { type: 'ellipse', cx: 43, cy: 284, rx: 14, ry: 8 },              // Bàn chân trái
-        { type: 'ellipse', cx: 77, cy: 284, rx: 14, ry: 8 },              // Bàn chân phải
+        { type: 'ellipse', cx: 43, cy: 258, rx: 14, ry: 8 },              // Bàn chân trái
+        { type: 'ellipse', cx: 77, cy: 258, rx: 14, ry: 8 },              // Bàn chân phải
     ],
 };
 
@@ -126,17 +126,17 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
     if (availableParts.length === 0) return null;
 
     return (
-        <div className="flex gap-2 h-[450px]">
+        <div className="flex gap-2 h-[400px]">
 
             {/* CỘT TRÁI: Nút Toàn Thân */}
-            <div className="w-[15%] flex flex-col items-center justify-center border-r border-dashed border-gray-700 pr-2">
+            <div className="w-[15%] flex flex-col items-center justify-center border-r border-dashed border-gray-300 pr-2">
                 {availableParts.length > 1 && (
-                    <label className="flex flex-col items-center justify-center cursor-pointer bg-gray-900 p-2 rounded-xl border border-green-800 transition-all hover:border-green-500 active:scale-95 shadow-sm py-4 w-full">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 transition-colors border-2 ${isFullBody ? 'bg-green-600 border-green-500' : 'bg-gray-800 border-gray-600'}`}>
+                    <label className="flex flex-col items-center justify-center cursor-pointer bg-white p-2 rounded-xl border border-gray-200 transition-all hover:border-green-500 active:scale-95 shadow-sm py-4 w-full">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 transition-colors border-2 ${isFullBody ? 'bg-green-600 border-green-500' : 'bg-gray-100 border-gray-300'}`}>
                             <Check className={`w-5 h-5 text-white transition-opacity ${isFullBody ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3} />
                             <input type="checkbox" className="hidden" checked={isFullBody} onChange={handleFullBodyToggle} />
                         </div>
-                        <span className="text-[10px] font-bold text-green-400 uppercase leading-snug text-center tracking-tight">
+                        <span className="text-[10px] font-bold text-green-700 uppercase leading-snug text-center tracking-tight">
                             {getText({ en: 'Whole\nBody', vi: 'Toàn\nThân', jp: '全身', kr: '전신', cn: '全身' }, lang)}
                         </span>
                     </label>
@@ -241,7 +241,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                         </span>
 
                                         <div className="flex items-center justify-end gap-1 w-[60px]">
-                                            {/* Focus Checkbox (Xanh) */}
+                                            {/* Focus Checkbox (Xanh) — icon ✓ */}
                                             <label className="relative flex items-center justify-center cursor-pointer w-7">
                                                 <input
                                                     type="checkbox"
@@ -250,9 +250,10 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                                     style={{ width: LAYOUT_CONFIG.checklist.checkboxSize, height: LAYOUT_CONFIG.checklist.checkboxSize }}
                                                     className="peer appearance-none border-2 border-gray-200 rounded bg-white checked:bg-green-500 checked:border-green-500 transition-all"
                                                 />
+                                                <Check className="absolute w-4 h-4 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" strokeWidth={3} />
                                             </label>
 
-                                            {/* Avoid Checkbox (Đỏ) */}
+                                            {/* Avoid Checkbox (Đỏ) — icon ✗ */}
                                             <label className="relative flex items-center justify-center cursor-pointer w-7">
                                                 <input
                                                     type="checkbox"
@@ -261,6 +262,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                                                     style={{ width: LAYOUT_CONFIG.checklist.checkboxSize, height: LAYOUT_CONFIG.checklist.checkboxSize }}
                                                     className="peer appearance-none border-2 border-gray-200 rounded bg-white checked:bg-red-500 checked:border-red-500 transition-all"
                                                 />
+                                                <X className="absolute w-4 h-4 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" strokeWidth={3} />
                                             </label>
                                         </div>
                                     </>
