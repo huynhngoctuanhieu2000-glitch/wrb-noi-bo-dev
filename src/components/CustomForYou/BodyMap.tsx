@@ -8,7 +8,7 @@ import { getDictionary } from '@/lib/dictionaries';
 // 🔧 UI CONFIGURATION — Chỉnh màu sắc tại đây
 // ============================================================================
 const SVG_CONFIG = {
-    viewBox: '0 0 120 280',
+    viewBox: '0 0 120 270',
     containerBg: '#ffffff',          // Nền trắng
     defaultFill: '#ffffff',          // Chưa chọn: fill trắng
     defaultStroke: '#1a1a1a',          // Chưa chọn: viền đen
@@ -211,7 +211,7 @@ const BodyMap: React.FC<BodyMapProps> = ({ focus, avoid, lang, serviceData, onTo
                     </div>
                 </div>
 
-                <div className="flex flex-col flex-1 overflow-y-auto custom-scrollbar" style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}>
+                <div className="flex flex-col flex-1 justify-between overflow-y-auto custom-scrollbar" style={{ marginRight: LAYOUT_CONFIG.checklist.paddingRight }}>
                     {ALL_BODY_PARTS.map((part) => {
                         const isAvailable = availableParts.find(p => p.key === part.key);
                         const isFocus = focus.includes(part.key);
