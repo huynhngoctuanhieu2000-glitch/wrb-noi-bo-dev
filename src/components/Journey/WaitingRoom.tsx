@@ -40,21 +40,21 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
     return (
         <div className="flex flex-col items-center w-full animate-in fade-in duration-500">
             {/* Hero Card: Mã đơn rút gọn */}
-            <div className="relative w-full aspect-[4/3] bg-gray-100 rounded-3xl overflow-hidden shadow-sm mb-6">
+            <div className="relative w-full aspect-[4/3] bg-[#1c1c1e] rounded-3xl overflow-hidden shadow-sm mb-6 border border-white/5">
                 <img
                     src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1000&auto=format&fit=crop"
                     alt="Spa Relax"
-                    className="object-cover w-full h-full opacity-90"
+                    className="object-cover w-full h-full opacity-60"
                 />
-                <div className="absolute top-4 left-4 right-4 bg-amber-400/90 backdrop-blur-md rounded-2xl py-4 flex flex-col items-center justify-center shadow-md">
-                    <span className="text-amber-900 font-bold text-xs uppercase tracking-wider">
+                <div className="absolute top-4 left-4 right-4 bg-black/60 backdrop-blur-md rounded-2xl py-4 flex flex-col items-center justify-center shadow-md border border-[#C9A96E]/20">
+                    <span className="text-[#C9A96E] font-bold text-xs uppercase tracking-wider">
                         {lang === 'vi' ? 'Mã đơn hàng' : 'Order ID'}
                     </span>
-                    <span className="text-5xl font-black text-amber-950 mt-1">{shortOrderCode}</span>
+                    <span className="text-5xl font-black text-white mt-1 tracking-wider">{shortOrderCode}</span>
                 </div>
-                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></div>
-                    <span className="text-amber-700 font-bold text-xs uppercase tracking-wider">
+                <div className="absolute bottom-4 left-4 bg-[#0d0d0d]/90 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#C9A96E] animate-pulse"></div>
+                    <span className="text-[#C9A96E] font-bold text-xs uppercase tracking-wider">
                         {lang === 'vi' ? 'Đang chuẩn bị' : 'Preparing'}
                     </span>
                 </div>
@@ -62,7 +62,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
 
             {/* Welcome Message */}
             <div className="text-center px-4 mb-6">
-                <h2 className="text-xl font-bold text-gray-800 leading-relaxed">
+                <h2 className="text-xl font-bold text-white/90 leading-relaxed">
                     {lang === 'vi'
                         ? 'Mời bạn ngâm chân thảo dược, chườm túi nóng, uống tách trà và cho chúng tôi ít phút để chuẩn bị phòng.'
                         : 'Please enjoy herbal foot bath, hot compress, sip some tea, and give us a few minutes to prepare your room.'}
@@ -77,17 +77,17 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                     </span>
                     <div className="space-y-2">
                         {items.map((item, idx) => (
-                            <div key={item.id || idx} className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 flex items-center gap-4">
-                                <div className="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                            <div key={item.id || idx} className="bg-[#1c1c1e] rounded-2xl p-4 border border-white/5 flex items-center gap-4">
+                                <div className="w-11 h-11 rounded-xl bg-[#0d0d0d] border border-white/5 flex items-center justify-center flex-shrink-0">
                                     <span className="text-xl">💆</span>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-gray-800 text-sm leading-tight truncate">
+                                    <p className="font-bold text-white text-sm leading-tight truncate">
                                         {item.service_name}
                                     </p>
-                                    <p className="text-xs text-gray-400 font-medium mt-0.5">
+                                    <p className="text-xs text-[#C9A96E] font-medium mt-0.5">
                                         {item.duration} {t.minutes || 'min'}
-                                        {item.technicianCode && ` · ${t.staff || 'NV'}: ${item.technicianCode}`}
+                                        {item.technicianCode && <span className="text-gray-500">{` · ${t.staff || 'NV'}: ${item.technicianCode}`}</span>}
                                     </p>
                                 </div>
                                 {/* Room/Bed info hidden from customer view (Task C2a) */}
@@ -102,7 +102,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2 mb-3 block">
                     {lang === 'vi' ? 'Lộ trình dịch vụ' : 'Your Journey'}
                 </span>
-                <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100">
+                <div className="bg-[#1c1c1e] rounded-3xl p-5 border border-white/5">
                     {journeySteps.map((step, idx) => {
                         const isCompleted = idx < currentStep;
                         const isActive = idx === currentStep;
@@ -111,13 +111,13 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                                 <div className="flex flex-col items-center">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all duration-500 ${
                                         isCompleted
-                                            ? 'bg-green-500 border-2 border-green-400'
+                                            ? 'bg-[#C9A96E] border-2 border-[#C9A96E] shadow-[#C9A96E]/20 shadow-md'
                                             : isActive
-                                                ? 'bg-amber-100 border-2 border-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
-                                                : 'bg-gray-50 border border-gray-200'
+                                                ? 'bg-[#1c1c1e] border-2 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.3)]'
+                                                : 'bg-[#0d0d0d] border border-white/10 grayscale opacity-50'
                                     }`}>
                                         {isCompleted ? (
-                                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                                             </svg>
                                         ) : (
@@ -126,20 +126,20 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                                     </div>
                                     {idx < journeySteps.length - 1 && (
                                         <div className={`w-0.5 h-8 my-1 transition-all duration-500 ${
-                                            isCompleted ? 'bg-green-300' : 'bg-gray-200'
+                                            isCompleted ? 'bg-[#C9A96E]' : 'bg-white/10'
                                         }`}></div>
                                     )}
                                 </div>
                                 <div className="pt-1.5 flex-1 min-w-0">
                                     <p className={`font-bold text-sm transition-colors ${
-                                        isCompleted ? 'text-green-700 line-through' :
-                                        isActive ? 'text-amber-800' : 'text-gray-400'
+                                        isCompleted ? 'text-[#C9A96E] line-through opacity-60' :
+                                        isActive ? 'text-[#C9A96E]' : 'text-gray-500'
                                     }`}>
                                         {step.title}
                                     </p>
                                     <p className={`text-xs font-medium mt-0.5 ${
-                                        isCompleted ? 'text-green-400' :
-                                        isActive ? 'text-gray-500' : 'text-gray-300'
+                                        isCompleted ? 'text-[#C9A96E]/40' :
+                                        isActive ? 'text-gray-400' : 'text-gray-600'
                                     }`}>{step.sub}</p>
                                 </div>
                             </div>

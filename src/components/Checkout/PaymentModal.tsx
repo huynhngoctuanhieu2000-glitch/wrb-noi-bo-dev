@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { X } from 'lucide-react';
 import PaymentMethods from '@/components/Checkout/PaymentMethods';
 import ChangeDenominationSelector from '@/components/Checkout/ChangeDenominationSelector';
+import AlertModal from '@/components/Shared/AlertModal';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -31,6 +32,7 @@ export default function PaymentModal({
     const [paymentMethod, setPaymentMethod] = useState('');
     const [amountPaid, setAmountPaid] = useState<string>('');
     const [changeDenominations, setChangeDenominations] = useState<number[]>([]);
+    const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
 
@@ -102,7 +104,11 @@ export default function PaymentModal({
 
     const handleConfirmNext = () => {
         if (!paymentMethod) {
-            alert(dict.checkout?.alerts?.select_payment || 'Please select a payment method');
+            setAlertState({
+                isOpen: true,
+                message: dict.checkout?.alerts?.select_payment || 'Please select a payment method',
+                type: 'error'
+            });
             return;
         }
         
@@ -118,28 +124,28 @@ export default function PaymentModal({
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
             {/* Backdrop */}
             <div 
-                className={`fixed inset-0 bg-black/60 transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
+                className={`fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
                 onClick={handleClose}
             />
 
             {/* Modal Content */}
             <div className={`
-                relative w-full max-w-lg bg-[#f8fafc] sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col
+                relative w-full max-w-lg bg-[#1c1c1e] border border-white/5 sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col
                 transform transition-transform duration-300
                 pb-safe max-h-[90vh]
                 ${(isClosing || !isVisible) ? 'translate-y-full sm:scale-95 sm:translate-y-0 sm:opacity-0' : 'translate-y-0 sm:scale-100 sm:opacity-100'}
             `}>
                 
                 {/* Header handle bar (Mobile) */}
-                <div className="w-full flex justify-center pt-3 pb-2 sm:hidden bg-white rounded-t-3xl">
-                    <div className="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+                <div className="w-full flex justify-center pt-3 pb-2 sm:hidden bg-[#1c1c1e] rounded-t-3xl">
+                    <div className="w-12 h-1.5 bg-[#3f3f46] rounded-full"></div>
                 </div>
 
-                <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-white">
-                    <h2 className="text-xl font-bold text-gray-800 uppercase tracking-widest">{dict.checkout?.payment_method_title || 'Thanh toán'}</h2>
+                <div className="flex justify-between items-center p-4 border-b border-white/10 bg-[#1c1c1e]">
+                    <h2 className="text-xl font-bold text-[#C9A96E] uppercase tracking-widest">{dict.checkout?.payment_method_title || 'Thanh toán'}</h2>
                     <button 
                         onClick={handleClose}
-                        className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors"
+                        className="w-8 h-8 rounded-full bg-[#0d0d0d] flex items-center justify-center text-gray-400 hover:text-[#C9A96E] hover:bg-white/5 transition-colors"
                     >
                         <X size={20} />
                     </button>
@@ -156,14 +162,14 @@ export default function PaymentModal({
 
                     {/* Cash Payment Input Block */}
                     {(paymentMethod === 'cash_vnd' || paymentMethod === 'cash_usd') && (
-                        <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+                        <div className="bg-[#0d0d0d] p-5 rounded-3xl shadow-sm border border-white/5 space-y-4">
                             <div className="flex justify-between items-center">
-                                <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs">
+                                <h3 className="text-[#C9A96E] font-bold uppercase tracking-widest text-xs">
                                     {dict.checkout?.amount_paid_title || 'Amount Paid'}
                                 </h3>
                                 <button
                                     onClick={() => setAmountPaid('0')}
-                                    className="text-red-500 text-xs font-bold border border-red-100 px-3 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                                    className="text-red-500/80 text-xs font-bold border border-red-500/20 px-3 py-1 rounded-lg hover:bg-red-500/10 transition-colors"
                                 >
                                     {dict.checkout?.reset || 'Reset'}
                                 </button>
@@ -176,9 +182,9 @@ export default function PaymentModal({
                                     value={amountPaid}
                                     onChange={handleAmountPaidChange}
                                     placeholder="0"
-                                    className="w-full text-center text-4xl font-bold text-black border-b-2 border-gray-100 py-4 focus:outline-none focus:border-green-500 transition-colors bg-transparent placeholder-gray-200"
+                                    className="w-full text-center text-4xl font-bold text-white border-b-2 border-white/10 py-4 focus:outline-none focus:border-[#C9A96E] transition-colors bg-transparent placeholder-[#3f3f46]"
                                 />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold bg-gray-100 px-2 py-1 rounded">
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#C9A96E] font-bold bg-[#1c1c1e] border border-white/5 px-2 py-1 rounded">
                                     {currency}
                                 </span>
                             </div>
@@ -190,7 +196,7 @@ export default function PaymentModal({
                                         <button
                                             key={amt}
                                             onClick={() => setQuickAmount(amt)}
-                                            className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-all"
+                                            className="px-4 py-2 bg-[#1c1c1e] border border-white/5 rounded-xl text-gray-300 font-bold text-sm hover:border-[#C9A96E] hover:text-[#C9A96E] transition-all"
                                         >
                                             {currency === 'USD' ? amt : amt.toLocaleString('vi-VN')}
                                         </button>
@@ -199,15 +205,15 @@ export default function PaymentModal({
                             </div>
 
                             {/* Change Display */}
-                            <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
-                                <span className="text-gray-500 text-sm font-medium">{dict.checkout?.change_title || 'Change:'}</span>
+                            <div className="bg-[#1c1c1e] rounded-xl p-4 flex justify-between items-center border border-white/5">
+                                <span className="text-gray-400 text-sm font-medium">{dict.checkout?.change_title || 'Change:'}</span>
                                 {changeAmount >= 0 ? (
                                     <div className="text-right">
-                                        <span className="text-xl font-bold text-green-600 block">
+                                        <span className="text-xl font-bold text-[#C9A96E] block">
                                             {changeAmount.toLocaleString('vi-VN')} {currency}
                                         </span>
                                         {currency === 'USD' && (
-                                            <span className="text-green-700 font-bold text-lg block mt-1">
+                                            <span className="text-[#b09461] font-bold text-lg block mt-1">
                                                 = {(changeAmount * 24000).toLocaleString('vi-VN')} VND
                                             </span>
                                         )}
@@ -233,15 +239,24 @@ export default function PaymentModal({
                 </div>
 
                 {/* Footer Action */}
-                <div className="p-4 bg-white border-t border-gray-100 shadow-[0_-5px_20px_rgba(0,0,0,0.03)]">
+                <div className="p-4 bg-[#1c1c1e] border-t border-white/10">
                     <button
                         onClick={handleConfirmNext}
-                        className="w-full py-4 bg-[#0f172a] text-white font-bold uppercase rounded-xl shadow-lg shadow-gray-900/10 hover:bg-[#1e293b] active:scale-[0.98] transition-all text-lg"
+                        className="w-full py-4 bg-[#C9A96E] text-black font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] active:scale-[0.98] transition-all text-lg"
                     >
                         {dict.checkout?.continue || 'TIẾP TỤC'}
                     </button>
                 </div>
             </div>
+
+            {/* Alert Modal Overlay */}
+            <AlertModal
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                lang={lang}
+            />
         </div>
     );
 }

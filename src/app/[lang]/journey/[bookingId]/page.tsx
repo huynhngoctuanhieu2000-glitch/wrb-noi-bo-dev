@@ -21,6 +21,8 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const [isActionLoading, setIsActionLoading] = React.useState(false);
     const [actionSuccess, setActionSuccess] = React.useState<string | null>(null);
     const [serviceView, setServiceView] = React.useState<'TIMER' | 'CHECK_BELONGINGS' | 'RATING'>('TIMER');
+    const [confirmState, setConfirmState] = React.useState<{ isOpen: boolean; message: string; onConfirm: () => void; isDestructive?: boolean } | null>(null);
+    const [alertState, setAlertState] = React.useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     // State machine: derive từ booking.status + items status
     const rawStatus = journeyData?.status || 'PREPARING';
@@ -99,28 +101,38 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
     const handleSOS = async () => {
         if (sosSent || isSosLoading) return;
-        const ok = window.confirm(t.sosConfirm);
-        if (!ok) return;
-        setIsSosLoading(true);
-        try {
-            const res = await fetch('/api/notifications/emergency', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    bookingId,
-                    customerName: journeyData?.roomName || 'Khách',
-                    message: `🚨 KHẨN CẤP: Khách hàng tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} nhấn nút báo động.`
-                })
-            });
-            if (!res.ok) throw new Error('Failed to send SOS');
-            setSosSent(true);
-            setTimeout(() => setSosSent(false), 5000);
-        } catch (err) {
-            console.error('SOS Error:', err);
-            alert('Gửi yêu cầu thất bại. Vui lòng thử lại hoặc gọi nhân viên.');
-        } finally {
-            setIsSosLoading(false);
-        }
+        setConfirmState({
+            isOpen: true,
+            message: t.sosConfirm,
+            isDestructive: true,
+            onConfirm: async () => {
+                setConfirmState(null);
+                setIsSosLoading(true);
+                try {
+                    const res = await fetch('/api/notifications/emergency', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            bookingId,
+                            customerName: journeyData?.roomName || 'Khách',
+                            message: `🚨 KHẨN CẤP: Khách hàng tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} nhấn nút báo động.`
+                        })
+                    });
+                    if (!res.ok) throw new Error('Failed to send SOS');
+                    setSosSent(true);
+                    setTimeout(() => setSosSent(false), 5000);
+                } catch (err) {
+                    console.error('SOS Error:', err);
+                    setAlertState({
+                        isOpen: true,
+                        message: 'Gửi yêu cầu thất bại. Vui lòng thử lại hoặc gọi nhân viên.',
+                        type: 'error'
+                    });
+                } finally {
+                    setIsSosLoading(false);
+                }
+            }
+        });
     };
 
     const handleAddService = async () => {
@@ -146,25 +158,39 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
     const handleChangeStaff = async () => {
         if (isActionLoading) return;
-        const ok = window.confirm(lang === 'vi' ? 'Bạn muốn yêu cầu đổi nhân viên?' : 'Do you want to request a staff change?');
-        if (!ok) return;
-        setIsActionLoading(true);
-        try {
-            const res = await fetch('/api/notifications/emergency', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    bookingId,
-                    customerName: journeyData?.roomName || 'Khách',
-                    message: `🚨 ĐỔI NGƯỜI: Khách tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} yêu cầu ĐỔI NHÂN VIÊN.`
-                })
-            });
-            if (res.ok) {
-                setActionSuccess('CHANGE_STAFF');
-                setTimeout(() => setActionSuccess(null), 3000);
+        setConfirmState({
+            isOpen: true,
+            message: lang === 'vi' ? 'Bạn muốn yêu cầu đổi nhân viên?' : 'Do you want to request a staff change?',
+            onConfirm: async () => {
+                setConfirmState(null);
+                setIsActionLoading(true);
+                try {
+                    const res = await fetch('/api/notifications/emergency', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            bookingId,
+                            customerName: journeyData?.roomName || 'Khách',
+                            message: `🚨 ĐỔI NGƯỜI: Khách tại PHÒNG ${journeyData?.roomName || '???'}${journeyData?.bedId ? ` - GIƯỜNG ${journeyData.bedId}` : ''} yêu cầu ĐỔI NHÂN VIÊN.`
+                        })
+                    });
+                    if (res.ok) {
+                        setActionSuccess('CHANGE_STAFF');
+                        setTimeout(() => setActionSuccess(null), 3000);
+                    } else {
+                        throw new Error('Failed to change staff');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    setAlertState({
+                        isOpen: true,
+                        message: 'Gửi yêu cầu thất bại. Vui lòng thử lại.',
+                        type: 'error'
+                    });
+                }
+                finally { setIsActionLoading(false); }
             }
-        } catch (err) { console.error(err); }
-        finally { setIsActionLoading(false); }
+        });
     };
 
     // 🆕 Per-item rating handler (supports per-KTV ratings)
@@ -241,7 +267,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center font-sans text-amber-500">
+            <div className="min-h-screen bg-[#0d0d0d] flex items-center justify-center font-sans text-[#C9A96E]">
                 <svg className="animate-spin w-10 h-10" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -252,32 +278,32 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
     if (error) {
         return (
-            <div className="min-h-screen bg-[#FDFBF7] flex flex-col items-center justify-center font-sans">
-                <h2 className="text-xl font-bold text-gray-800 mb-2">{t.errorTitle}</h2>
-                <p className="text-gray-500">{error}</p>
-                <button onClick={refresh} className="mt-4 px-6 py-2 bg-amber-500 text-white font-bold rounded-xl">{t.retry}</button>
+            <div className="min-h-screen bg-[#0d0d0d] flex flex-col items-center justify-center font-sans">
+                <h2 className="text-xl font-bold text-[#C9A96E] mb-2">{t.errorTitle}</h2>
+                <p className="text-gray-400">{error}</p>
+                <button onClick={refresh} className="mt-4 px-6 py-2 bg-[#C9A96E] text-black font-bold rounded-xl hover:bg-[#b09461] transition-colors">{t.retry}</button>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFBF7] text-gray-900 pb-10 font-sans selection:bg-amber-200">
+        <div className="min-h-screen bg-[#0d0d0d] text-white pb-10 font-sans selection:bg-[#C9A96E]/20">
             {/* Header */}
-            <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-4 flex flex-col shadow-sm">
+            <header className="sticky top-0 z-40 bg-[#1c1c1e]/90 backdrop-blur-md border-b border-white/5 px-4 py-4 flex flex-col shadow-sm">
                 <div className="flex items-center w-full mb-4">
-                    <button className="p-2 -ml-2 text-gray-400 hover:text-gray-800 transition-colors">
+                    <button className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <h1 className="flex-1 text-center font-bold text-gray-800 text-lg uppercase tracking-widest mr-6">
+                    <h1 className="flex-1 text-center font-bold text-[#C9A96E] text-lg uppercase tracking-widest mr-6">
                         {t.title}
                     </h1>
                 </div>
 
                 {/* Progress Stepper — 4 bước */}
                 <div className="relative flex justify-between items-center w-full px-2 mt-2">
-                    <div className="absolute top-5 left-8 right-8 h-0.5 bg-gray-200 z-0">
+                    <div className="absolute top-5 left-8 right-8 h-0.5 bg-white/10 z-0">
                         <div
-                            className="h-full bg-amber-400 transition-all duration-700 ease-out"
+                            className="h-full bg-[#C9A96E] transition-all duration-700 ease-out shadow-[0_0_10px_rgba(201,169,110,0.5)]"
                             style={{ width: `${(Math.max(0, currentIndex) / (steps.length - 1)) * 100}%` }}
                         ></div>
                     </div>
@@ -286,9 +312,9 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         const isCompleted = currentIndex > index;
                         const isActive = currentIndex === index;
 
-                        let colorClass = 'bg-white border-gray-200 text-gray-300';
-                        if (isCompleted) colorClass = 'bg-amber-400 border-amber-400 text-white';
-                        if (isActive) colorClass = 'bg-amber-50 border-amber-500 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]';
+                        let colorClass = 'bg-[#0d0d0d] border-white/5 text-gray-500';
+                        if (isCompleted) colorClass = 'bg-[#C9A96E] border-[#C9A96E] text-black';
+                        if (isActive) colorClass = 'bg-[#1c1c1e] border-[#C9A96E] text-[#C9A96E] shadow-[0_0_15px_rgba(201,169,110,0.3)]';
 
                         return (
                             <div key={step.id} className="flex flex-col items-center gap-2 relative z-10">
@@ -299,7 +325,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                                         <span className="text-lg leading-none">{step.emoji}</span>
                                     )}
                                 </div>
-                                <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? 'text-amber-600' : isCompleted ? 'text-gray-800' : 'text-gray-400'}`}>
+                                <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? 'text-[#C9A96E]' : isCompleted ? 'text-white' : 'text-gray-500'}`}>
                                     {step.label}
                                 </span>
                             </div>
@@ -346,15 +372,60 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
                 {state === 'DONE' && (
                     <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in-95">
-                        <div className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-xl">
+                        <div className="w-24 h-24 bg-[#C9A96E]/10 text-[#C9A96E] rounded-full flex items-center justify-center mb-6 border-4 border-[#C9A96E]/20 shadow-[0_0_20px_rgba(201,169,110,0.2)]">
                             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-800 mb-2">{t.allDoneTitle}</h2>
-                        <p className="text-gray-500">{t.allDoneSub}</p>
-                        <button onClick={() => window.location.href = `/${lang}/customer-type`} className="mt-8 px-8 py-3 bg-white border-2 border-gray-100 rounded-2xl font-bold text-gray-800 shadow-sm hover:bg-gray-50">{t.goHome}</button>
+                        <h2 className="text-2xl font-black text-[#C9A96E] mb-2">{t.allDoneTitle}</h2>
+                        <p className="text-gray-400">{t.allDoneSub}</p>
+                        <button onClick={() => window.location.href = `/${lang}/customer-type`} className="mt-8 px-8 py-3 bg-[#C9A96E] border-none rounded-2xl font-bold text-black uppercase tracking-widest shadow-lg hover:bg-[#b09461] transition-colors">{t.goHome}</button>
                     </div>
                 )}
             </main>
+
+            {/* Custom Confirm Modal */}
+            {confirmState?.isOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#1c1c1e] w-full max-w-sm rounded-[32px] p-6 shadow-2xl border border-white/5 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 border ${confirmState.isDestructive ? 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20' : 'bg-[#C9A96E]/10 text-[#C9A96E] border-[#C9A96E]/20 shadow-[0_0_15px_rgba(201,169,110,0.2)]'}`}>
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">{lang === 'vi' ? 'Xác nhận' : 'Confirm Action'}</h3>
+                        <p className="text-gray-400 text-[15px] mb-8 leading-relaxed bg-[#0d0d0d] p-4 rounded-2xl w-full border border-white/5">{confirmState.message}</p>
+                        <div className="flex gap-3 w-full">
+                            <button onClick={() => setConfirmState(null)} className="flex-1 py-3.5 rounded-xl font-bold bg-[#0d0d0d] text-gray-400 border border-white/5 hover:border-white/10 hover:text-white transition-colors">
+                                {lang === 'vi' ? 'Hủy' : 'Cancel'}
+                            </button>
+                            <button onClick={confirmState.onConfirm} className={`flex-1 py-3.5 rounded-xl font-bold text-black border-none shadow-lg transition-colors ${confirmState.isDestructive ? 'bg-[#FF3B30] hover:bg-red-700 shadow-[#FF3B30]/20' : 'bg-[#C9A96E] hover:bg-[#b09461] shadow-[#C9A96E]/20'}`}>
+                                {lang === 'vi' ? 'Đồng ý' : 'Yes'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Alert Modal Overlay */}
+            {alertState.isOpen && (
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-[#1c1c1e] w-full max-w-sm rounded-[32px] p-6 shadow-2xl border border-white/5 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 border ${alertState.type === 'error' ? 'bg-[#FF3B30]/10 text-[#FF3B30] border-[#FF3B30]/20' : 'bg-[#C9A96E]/10 text-[#C9A96E] border-[#C9A96E]/20'} shadow-[0_0_15px_rgba(201,169,110,0.2)]`}>
+                            {alertState.type === 'error' ? (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            ) : (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            )}
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">{lang === 'vi' ? 'Thông báo' : 'Alert'}</h3>
+                        <p className="text-gray-400 text-[15px] mb-8 leading-relaxed bg-[#0d0d0d] p-4 rounded-2xl w-full border border-white/5">{alertState.message}</p>
+                        <div className="flex w-full">
+                            <button onClick={() => setAlertState(prev => ({ ...prev, isOpen: false }))} className={`w-full py-4 rounded-xl font-bold border-none shadow-lg transition-colors ${alertState.type === 'error' ? 'bg-[#FF3B30] text-white hover:bg-red-700 shadow-[#FF3B30]/20' : 'bg-[#C9A96E] text-black hover:bg-[#b09461] shadow-[#C9A96E]/20'}`}>
+                                {lang === 'vi' ? 'Đã hiểu' : 'Got it'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -11,6 +11,7 @@ import Invoice from '@/components/Checkout/Invoice';
 import PaymentModal from '@/components/Checkout/PaymentModal';
 import OrderConfirmModal from '@/components/Checkout/OrderConfirmModal';
 import CustomForYouModal from '@/components/CustomForYou';
+import AlertModal from '@/components/Shared/AlertModal';
 import { ServiceOptions, CartItem } from '@/components/Menu/types';
 import { getDictionary } from '@/lib/dictionaries';
 
@@ -19,7 +20,8 @@ const PAGE_CONFIG = {
     BOTTOM_PADDING: 'pb-32',
     ANIMATION_DURATION: 'duration-500',
     MAX_WIDTH: 'max-w-6xl',
-    BG_COLOR: 'bg-[#f8fafc]',
+    BG_COLOR: 'bg-[#0d0d0d]',
+    TEXT_COLOR: 'text-white'
 };
 
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
@@ -63,6 +65,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
     const [changeDenominations, setChangeDenominations] = useState<number[]>([]);
+    const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     // --- COMPUTED ---
     const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
@@ -125,7 +128,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     const handleConfirmOrder = () => {
         // At least 1 of 3 fields (name, email, phone) must be filled
         if (!customerInfo.name.trim() && !customerInfo.email.trim() && !customerInfo.phone.trim()) {
-            alert(dict.checkout.alerts?.fill_any_contact || 'Please enter at least Name, Email, or Phone');
+            setAlertState({
+                isOpen: true,
+                message: dict.checkout.alerts?.fill_any_contact || 'Please enter at least Name, Email, or Phone',
+                type: 'error'
+            });
             return;
         }
         setIsPaymentModalOpen(true);
@@ -175,7 +182,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         : [totalVND, 500000, 1000000];
 
     return (
-        <div className={`min-h-screen ${PAGE_CONFIG.BG_COLOR} text-black font-sans animate-in fade-in ${PAGE_CONFIG.ANIMATION_DURATION} ${PAGE_CONFIG.BOTTOM_PADDING}`}>
+        <div className={`min-h-screen ${PAGE_CONFIG.BG_COLOR} ${PAGE_CONFIG.TEXT_COLOR} font-sans animate-in fade-in ${PAGE_CONFIG.ANIMATION_DURATION} ${PAGE_CONFIG.BOTTOM_PADDING}`}>
             <CheckoutHeader
                 title={dict.checkout.title}
                 backLabel={dict.common?.back_to_menu}
@@ -212,7 +219,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                             <div className="hidden lg:block mt-6">
                                 <button
                                     onClick={handleConfirmOrder}
-                                    className="w-full py-4 bg-[#0f172a] text-white font-bold uppercase rounded-xl shadow-lg hover:bg-[#1e293b] transition-colors text-lg"
+                                    className="w-full py-4 bg-[#C9A96E] text-black font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
                                 >
                                     {dict.checkout.confirm_order_btn}
                                 </button>
@@ -223,11 +230,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             </main>
 
             {/* Bottom Bar - Confirm (Hidden on Desktop) */}
-            <div className="fixed bottom-0 left-0 w-full bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-gray-100 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] lg:hidden">
+            <div className="fixed bottom-0 left-0 w-full bg-[#1c1c1e] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-white/10 z-40 shadow-[0_-5px_20px_rgba(0,0,0,0.5)] lg:hidden">
                 <div className="max-w-2xl mx-auto">
                     <button
                         onClick={handleConfirmOrder}
-                        className="w-full py-4 bg-[#0f172a] text-white font-bold uppercase rounded-xl shadow-lg hover:bg-[#1e293b] transition-colors text-lg"
+                        className="w-full py-4 bg-[#C9A96E] text-black font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
                     >
                         {dict.checkout.confirm_order_btn}
                     </button>
@@ -273,6 +280,14 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 customerInfo={customerInfo}
                 paymentMethod={paymentMethod}
                 amountPaid={parseInt(amountPaid.replace(/\./g, '') || '0', 10)}
+            />
+
+            <AlertModal
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                lang={lang}
             />
         </div>
     );

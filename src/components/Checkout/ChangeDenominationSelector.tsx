@@ -94,12 +94,12 @@ const ChangeDenominationSelector = ({
 
   return (
     <div
-      className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-4 border border-amber-100 space-y-3 animate-in fade-in slide-in-from-bottom-2"
+      className="bg-gradient-to-br from-[#1c1c1e] to-[#0d0d0d] rounded-2xl p-4 border border-[#C9A96E]/20 space-y-3 animate-in fade-in slide-in-from-bottom-2"
       style={{ animationDuration: `${ANIMATION_DURATION}ms` }}
     >
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-amber-700">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-[#C9A96E]">
           💰 {t?.change_denomination_title || 'Preferred Change'}
         </h3>
         {selectedDenominations.length > 0 && (
@@ -124,8 +124,8 @@ const ChangeDenominationSelector = ({
               className={`
                 px-4 rounded-xl font-bold text-sm border transition-all duration-200
                 ${isDisabled
-                  ? 'bg-gray-100 border-gray-200 text-gray-300 cursor-not-allowed'
-                  : 'bg-white border-amber-200 text-amber-800 hover:bg-amber-100 hover:border-amber-300 active:scale-95 shadow-sm'
+                  ? 'bg-[#0d0d0d] border-white/5 text-[#3f3f46] cursor-not-allowed'
+                  : 'bg-[#1c1c1e] border-[#C9A96E]/50 text-[#C9A96E] hover:bg-[#C9A96E]/10 hover:border-[#C9A96E] active:scale-95 shadow-sm'
                 }
               `}
               style={{ minWidth: BUTTON_MIN_WIDTH, minHeight: BUTTON_TOUCH_TARGET }}
@@ -144,9 +144,9 @@ const ChangeDenominationSelector = ({
             {groupedDenominations.map(({ denom, count }) => (
               <div
                 key={denom}
-                className="flex items-center gap-1 bg-white rounded-lg px-3 py-1.5 border border-amber-200 shadow-sm"
+                className="flex items-center gap-1 bg-[#0d0d0d] rounded-lg px-3 py-1.5 border border-[#C9A96E]/40 shadow-sm"
               >
-                <span className="text-sm font-bold text-amber-800">
+                <span className="text-sm font-bold text-[#C9A96E]">
                   {count > 1 && `${count}×`}{formatAmount(denom)}
                 </span>
                 <button
@@ -163,11 +163,11 @@ const ChangeDenominationSelector = ({
           </div>
 
           {/* Remaining display */}
-          <div className="flex justify-between items-center bg-white/60 rounded-xl px-3 py-2">
-            <span className="text-xs text-gray-500 font-medium">
+          <div className="flex justify-between items-center bg-[#0d0d0d]/60 rounded-xl px-3 py-2">
+            <span className="text-xs text-gray-400 font-medium">
               {t?.change_denomination_remaining || 'Remaining'}
             </span>
-            <span className={`text-sm font-bold ${remaining === 0 ? 'text-green-600' : 'text-amber-600'}`}>
+            <span className={`text-sm font-bold ${remaining === 0 ? 'text-green-500' : 'text-[#C9A96E]'}`}>
               {remaining === 0
                 ? '✓ ' + (currency === 'VND' ? 'Đủ' : 'Complete')
                 : formatAmount(remaining) + ` ${currency}`

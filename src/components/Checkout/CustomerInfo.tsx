@@ -9,8 +9,8 @@ interface CustomerInfoProps {
 
 export default function CustomerInfo({ lang, dict, info, onChange }: CustomerInfoProps) {
     return (
-        <div className="bg-white text-black p-5 rounded-3xl shadow-sm border border-gray-100">
-            <h2 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4">
+        <div className="bg-[#1c1c1e] text-white p-5 rounded-3xl shadow-sm border border-white/5">
+            <h2 className="text-[#C9A96E] font-bold uppercase tracking-widest text-xs mb-4">
                 {dict.checkout.customer_info}
             </h2>
 
@@ -21,7 +21,7 @@ export default function CustomerInfo({ lang, dict, info, onChange }: CustomerInf
                     value={info.name}
                     onChange={(e) => onChange('name', e.target.value)}
                     placeholder={dict.checkout.full_name}
-                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 text-black placeholder-gray-400 focus:outline-none focus:border-yellow-500 transition-colors shadow-sm"
+                    className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
                 />
 
                 {/* Email */}
@@ -30,7 +30,7 @@ export default function CustomerInfo({ lang, dict, info, onChange }: CustomerInf
                     value={info.email}
                     onChange={(e) => onChange('email', e.target.value)}
                     placeholder={dict.checkout.email}
-                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 text-black placeholder-gray-400 focus:outline-none focus:border-yellow-500 transition-colors shadow-sm"
+                    className="w-full bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
                 />
 
                 <div className="flex gap-4">
@@ -40,7 +40,7 @@ export default function CustomerInfo({ lang, dict, info, onChange }: CustomerInf
                         value={info.phone}
                         onChange={(e) => onChange('phone', e.target.value)}
                         placeholder={dict.checkout.phone}
-                        className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-4 text-black placeholder-gray-400 focus:outline-none focus:border-yellow-500 transition-colors shadow-sm"
+                        className="flex-1 bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
                     />
 
                     {/* Gender */}
@@ -48,7 +48,7 @@ export default function CustomerInfo({ lang, dict, info, onChange }: CustomerInf
                         <select
                             value={info.gender}
                             onChange={(e) => onChange('gender', e.target.value)}
-                            className="w-full h-full appearance-none bg-white border border-gray-200 rounded-xl px-4 text-black focus:outline-none focus:border-yellow-500 transition-colors shadow-sm"
+                            className="w-full h-full appearance-none bg-[#0d0d0d] border border-white/10 rounded-xl px-4 text-white focus:outline-none focus:border-[#C9A96E] transition-colors shadow-sm"
                         >
                             <option value="Male">{dict.checkout.male}</option>
                             <option value="Female">{dict.checkout.female}</option>

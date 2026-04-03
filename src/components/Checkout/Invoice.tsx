@@ -26,18 +26,18 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
     return (
         <div className="space-y-4">
-            {/* Green Banner (Clickable) */}
+            {/* Gold Banner (Clickable) */}
             <div
-                className="bg-green-50 border border-green-100 p-3 rounded-xl flex items-center justify-center text-center cursor-pointer hover:bg-green-100 transition-colors"
+                className="bg-[#0d0d0d] border border-white/10 p-3 rounded-xl flex items-center justify-center text-center cursor-pointer hover:bg-white/5 transition-colors"
                 onClick={() => setShowWarningModal(true)}
             >
-                <span className="text-green-700 font-bold text-sm">*{dict.checkout.pay_warning}</span>
+                <span className="text-[#C9A96E] font-bold text-sm">*{dict.checkout.pay_warning}</span>
             </div>
 
-            <div className="bg-white text-black p-5 rounded-3xl shadow-sm border border-gray-100">
+            <div className="bg-[#1c1c1e] text-white p-5 rounded-3xl shadow-sm border border-white/5">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-gray-800 font-bold text-lg">{dict.checkout.invoice_details}</h2>
-                    <span className="bg-gray-100 text-gray-500 text-xs font-bold px-2 py-1 rounded">#INV-001</span>
+                    <h2 className="text-[#C9A96E] font-bold text-lg">{dict.checkout.invoice_details}</h2>
+                    {/* Bỏ `#INV-001` placeholder theo yêu cầu của người dùng */}
                 </div>
 
                 {/* List Items */}
@@ -88,11 +88,11 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                         };
 
                         return (
-                            <div key={item.cartId} className="border border-gray-100 rounded-2xl p-4 shadow-sm bg-white mb-4">
+                            <div key={item.cartId} className="border border-white/10 rounded-2xl p-4 shadow-sm bg-[#0d0d0d] mb-4">
                                 {/* Row 1: Name + Price */}
                                 <div className="flex justify-between items-start mb-1">
-                                    <h4 className="text-black font-bold text-lg">{idx + 1}. {item.names[lang] || item.names.en}</h4>
-                                    <span className={`font-bold text-lg ${currency === 'USD' ? 'text-orange-600' : 'text-yellow-600'}`}>
+                                    <h4 className="text-white font-bold text-lg">{idx + 1}. {item.names[lang] || item.names.en}</h4>
+                                    <span className={`font-bold text-lg ${currency === 'USD' ? 'text-orange-500' : 'text-[#C9A96E]'}`}>
                                         {currency === 'USD'
                                             ? `${(item.priceUSD * item.qty)} USD`
                                             : `${formatCurrency(item.priceVND * item.qty)} VND`
@@ -102,7 +102,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                                 {/* Row 2: Duration */}
                                 {item.timeValue > 0 && (
-                                    <div className="text-gray-400 text-sm font-medium mb-3 border-b border-dashed border-gray-100 pb-3">
+                                    <div className="text-gray-400 text-sm font-medium mb-3 border-b border-dashed border-white/10 pb-3">
                                         {item.timeValue}mins
                                     </div>
                                 )}
@@ -183,12 +183,12 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                 {/* Custom Button */}
                                 <button
                                     onClick={() => onCustomRequest(item)}
-                                    className={`w-[calc(100%+2rem)] -mx-4 -mb-4 py-4 rounded-t-none rounded-b-2xl border-t font-bold uppercase transition-all flex items-center justify-center gap-2 text-sm mt-4 ${hasCustom
-                                        ? 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100'
-                                        : 'border-gray-100 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-black'
+                                    className={`w-[calc(100%+2rem)] -mx-4 -mb-4 py-4 rounded-t-none rounded-b-2xl border-t font-bold uppercase transition-all flex items-center justify-center gap-2 text-sm mt-4 cursor-pointer ${hasCustom
+                                        ? 'border-[#166534] bg-[#166534]/20 text-[#22c55e] hover:bg-[#166534]/40'
+                                        : 'border-white/10 bg-[#1c1c1e] text-gray-400 hover:bg-white/5 hover:text-white'
                                         }`}
                                 >
-                                    {hasCustom ? <Check size={18} className="text-green-600" /> : <Wand2 size={16} />}
+                                    {hasCustom ? <Check size={18} className="text-[#22c55e]" /> : <Wand2 size={16} />}
                                     <span>{dict.checkout.custom_for_you_btn}</span>
                                 </button>
                             </div>
@@ -197,19 +197,19 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                 </div>
 
                 {/* Total Divider */}
-                <div className="h-0 border-t-2 border-dashed border-gray-100 my-6"></div>
+                <div className="h-0 border-t-2 border-dashed border-white/10 my-6"></div>
 
                 {/* Total */}
                 <div className="flex justify-between items-baseline">
-                    <span className="text-black font-bold text-lg">Total</span>
+                    <span className="text-white font-bold text-lg">Total</span>
                     <div className="text-right">
-                        <span className={`block text-3xl font-black ${currency === 'USD' ? 'text-orange-600' : 'text-yellow-600'}`}>
+                        <span className={`block text-3xl font-black ${currency === 'USD' ? 'text-orange-500' : 'text-[#C9A96E]'}`}>
                             {currency === 'USD'
                                 ? `${total} USD`
                                 : `${formatCurrency(total)} VND`
                             }
                         </span>
-                        <div className="text-xs text-gray-400 italic mt-1">*Price includes VAT</div>
+                        <div className="text-xs text-gray-500 italic mt-1">*Price includes VAT</div>
                     </div>
                 </div>
             </div>
@@ -217,32 +217,32 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
             {/* Regulation Popup */}
             {showWarningModal && (
                 <div
-                    className={`fixed inset-0 z-[140] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6 ${isClosing ? 'animate-out fade-out' : 'animate-in fade-in duration-200'}`}
+                    className={`fixed inset-0 z-[140] flex items-center justify-center bg-black/80 backdrop-blur-sm p-6 ${isClosing ? 'animate-out fade-out' : 'animate-in fade-in duration-200'}`}
                     onClick={closeModal}
                 >
                     <div
-                        className={`bg-white w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl p-6 flex flex-col items-center text-center gap-4 ${isClosing ? 'animate-out zoom-out-95' : 'animate-in zoom-in-95 duration-200'}`}
+                        className={`bg-[#1c1c1e] w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl border border-white/5 p-6 flex flex-col items-center text-center gap-4 ${isClosing ? 'animate-out zoom-out-95' : 'animate-in zoom-in-95 duration-200'}`}
                         onClick={e => e.stopPropagation()}
                     >
                         {/* Icon */}
-                        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-1">
-                            <AlertCircle size={32} className="text-green-600" />
+                        <div className="w-16 h-16 rounded-full bg-[#C9A96E]/10 flex items-center justify-center mb-1">
+                            <AlertCircle size={32} className="text-[#C9A96E]" />
                         </div>
 
                         {/* Title */}
-                        <h3 className="text-xl font-bold text-gray-900 leading-tight">
+                        <h3 className="text-xl font-bold text-[#C9A96E] leading-tight">
                             {dict.payment_methods?.payment_regulation?.title || "Payment Regulation"}
                         </h3>
 
                         {/* Content */}
-                        <p className="text-gray-600 text-[15px] leading-relaxed">
+                        <p className="text-gray-400 text-[15px] leading-relaxed">
                             {dict.payment_methods?.payment_regulation?.content || "We collect fees before service."}
                         </p>
 
                         {/* Button */}
                         <button
                             onClick={closeModal}
-                            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-lg shadow-green-200 mt-2"
+                            className="w-full bg-[#C9A96E] hover:bg-[#b09461] text-black font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-lg shadow-[#C9A96E]/20 mt-2"
                         >
                             {dict.payment_methods?.payment_regulation?.btn || "UNDERSTOOD"}
                         </button>

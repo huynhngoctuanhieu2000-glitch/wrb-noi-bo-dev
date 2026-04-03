@@ -4,6 +4,7 @@ import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 import { createClient } from '@/lib/supabase';
 import { QRCodeSVG } from 'qrcode.react';
+import AlertModal from '@/components/Shared/AlertModal';
 
 // 🔧 UI CONFIGURATION
 const UI_CONFIG = {
@@ -54,6 +55,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     const [countdown, setCountdown] = useState(2); // Countdown display
     const [isTabletDevice, setIsTabletDevice] = useState(false);
     const [tabletResetCountdown, setTabletResetCountdown] = useState(UI_CONFIG.TABLET_RESET_SECONDS);
+    const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     // Check if current device is a registered Tablet
     useEffect(() => {
@@ -159,7 +161,11 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
             // SUCCESS is already true
         } catch (error) {
             console.error("Submit error", error);
-            alert(dict.checkout.alerts?.order_error || "Error sending order. Please try again.");
+            setAlertState({
+                isOpen: true,
+                message: dict.checkout.alerts?.order_error || "Error sending order. Please try again.",
+                type: 'error'
+            });
             setIsSubmitting(false);
             setSuccess(false); // Revert if error
         }
@@ -245,59 +251,59 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
         // === NORMAL MODE: Auto-redirect to Journey ===
         return (
-            <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+            <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
                 <div 
-                    className="bg-white w-full p-8 shadow-2xl flex flex-col items-center text-center space-y-6 m-4 relative overflow-hidden animate-in zoom-in-95 duration-300"
+                    className="bg-[#1c1c1e] border border-white/5 w-full p-8 shadow-2xl flex flex-col items-center text-center space-y-6 m-4 relative overflow-hidden animate-in zoom-in-95 duration-300"
                     style={{ maxWidth: UI_CONFIG.SUCCESS_MODAL_MAX_WIDTH, borderRadius: UI_CONFIG.BORDER_RADIUS }}
                 >
-                    {/* Green Glow Background */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-green-100 rounded-full blur-3xl -z-10 opacity-50"></div>
+                    {/* Gold Glow Background */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-[#C9A96E]/20 rounded-full blur-3xl -z-10 opacity-50"></div>
 
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-2 animate-in zoom-in duration-500 border-4 border-green-50 shadow-inner">
-                        <Check size={40} className="text-green-600" strokeWidth={4} />
+                    <div className="w-20 h-20 bg-[#0d0d0d] rounded-full flex items-center justify-center mb-2 animate-in zoom-in duration-500 border-4 border-[#C9A96E]/30 shadow-inner">
+                        <Check size={40} className="text-[#C9A96E]" strokeWidth={4} />
                     </div>
 
-                    <h2 className="text-2xl font-bold text-gray-900">
+                    <h2 className="text-2xl font-bold text-white">
                         {dict.checkout.order_submitted}
                     </h2>
 
                     <div className="w-full space-y-4">
                         {/* Summary Card for Success - LIST ALL ITEMS */}
-                        <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3 text-left max-h-[30vh] overflow-y-auto custom-scrollbar">
+                        <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-4 shadow-sm space-y-3 text-left max-h-[30vh] overflow-y-auto custom-scrollbar">
                             <div className="space-y-3">
                                 {cart.map((item, idx) => (
-                                    <div key={item.cartId || idx} className="flex justify-between items-start border-b border-gray-50 pb-2 last:border-0 last:pb-0">
-                                        <div className="font-bold text-gray-900 pr-4">
+                                    <div key={item.cartId || idx} className="flex justify-between items-start border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                                        <div className="font-bold text-white pr-4">
                                             {idx + 1}. {item.names?.[lang] || item.names?.en || 'Service'}
-                                            {item.qty > 1 && <span className="text-gray-400 text-xs ml-2">x{item.qty}</span>}
+                                            {item.qty > 1 && <span className="text-gray-500 text-xs ml-2">x{item.qty}</span>}
                                         </div>
-                                        <div className="font-bold text-gray-900 shrink-0">{formatCurrency(item.priceVND * item.qty)} VND</div>
+                                        <div className="font-bold text-[#C9A96E] shrink-0">{formatCurrency(item.priceVND * item.qty)} VND</div>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Payment Totals */}
-                            <div className="pt-2 mt-2 border-t border-gray-100 space-y-1">
+                            <div className="pt-2 mt-2 border-t border-white/5 space-y-1">
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-gray-500 font-medium">{dict.checkout.payment_method}</span>
-                                    <span className="font-bold text-gray-900 uppercase">
+                                    <span className="text-gray-400 font-medium">{dict.checkout.payment_method}</span>
+                                    <span className="font-bold text-white uppercase">
                                         {dict.payment_methods?.[paymentMethod] || 'Cash'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-gray-500 font-bold">{dict.checkout.total_bill}</span>
-                                    <span className="font-bold text-amber-600 text-lg">{formatCurrency(totalVND)} VND</span>
+                                    <span className="text-gray-400 font-bold">{dict.checkout.total_bill}</span>
+                                    <span className="font-bold text-[#C9A96E] text-lg">{formatCurrency(totalVND)} VND</span>
                                 </div>
                             </div>
                         </div>
                         {/* Expected Time Card */}
-                        <div className="bg-yellow-50/50 border border-yellow-100 rounded-2xl p-4 space-y-2">
-                            <div className="text-[10px] font-bold text-yellow-800 uppercase tracking-wider mb-2">{dict.checkout.expected_time}</div>
-                            <div className="flex justify-between text-sm font-bold text-yellow-900">
+                        <div className="bg-[#0d0d0d] border border-[#C9A96E]/30 rounded-2xl p-4 space-y-2">
+                            <div className="text-[10px] font-bold text-[#C9A96E] uppercase tracking-wider mb-2">{dict.checkout.expected_time}</div>
+                            <div className="flex justify-between text-sm font-bold text-[#C9A96E] opacity-90">
                                 <span>{dict.checkout.start_time}</span>
                                 <span>{formatTime(startTimeComp)}</span>
                             </div>
-                            <div className="flex justify-between text-sm font-bold text-yellow-900">
+                            <div className="flex justify-between text-sm font-bold text-[#C9A96E] opacity-90">
                                 <span>{dict.checkout.end_time}</span>
                                 <span>{formatTime(endTimeComp)}</span>
                             </div>
@@ -307,7 +313,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     <button
                         onClick={handleDone}
                         disabled={!bookingId}
-                        className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg transition-all active:scale-95 text-sm flex items-center justify-center gap-2 ${bookingId ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-[#0f172a] text-white opacity-90'}`}
+                        className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg transition-all active:scale-95 text-sm flex items-center justify-center gap-2 ${bookingId ? 'bg-[#C9A96E] text-black shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461]' : 'bg-[#1c1c1e] text-gray-500 border border-white/5 opacity-90'}`}
                     >
                         <span>
                             {!bookingId 
@@ -340,43 +346,43 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in pb-0 sm:pb-0">
+        <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in pb-0 sm:pb-0">
             <div
-                className="bg-white w-full max-h-[90vh] sm:h-auto rounded-t-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300"
+                className="bg-[#1c1c1e] border border-white/10 w-full max-h-[90vh] sm:h-auto rounded-t-[32px] shadow-2xl flex flex-col overflow-hidden relative animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300"
                 style={{ maxWidth: UI_CONFIG.MODAL_MAX_WIDTH, borderRadius: UI_CONFIG.BORDER_RADIUS }}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="pt-8 pb-4 flex flex-col items-center text-center px-6 bg-white shrink-0 z-10">
-                    <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 mb-4 border-4 border-amber-50">
+                <div className="pt-8 pb-4 flex flex-col items-center text-center px-6 bg-[#1c1c1e] shrink-0 z-10">
+                    <div className="w-16 h-16 bg-[#0d0d0d] rounded-full flex items-center justify-center text-[#C9A96E] mb-4 border border-[#C9A96E]/30">
                         <ClipboardList size={32} strokeWidth={2.5} />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900">
+                    <h2 className="text-2xl font-bold text-white">
                         {dict.checkout.modal_title}
                     </h2>
-                    <p className="text-sm text-gray-500 mt-1 font-medium">
+                    <p className="text-sm text-gray-400 mt-1 font-medium">
                         {dict.checkout.review_text}
                     </p>
                 </div>
 
                 {/* Scrollable Body */}
-                <div className="flex-1 overflow-y-auto px-6 pb-6 custom-scrollbar space-y-6">
+                <div className="flex-1 overflow-y-auto px-6 pb-6 custom-scrollbar space-y-6 min-h-0">
 
                     {/* Customer Details */}
-                    <div className="bg-gray-50 rounded-2xl p-4 space-y-2">
-                        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">{dict.checkout.customer_details}</div>
+                    <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-4 space-y-2">
+                        <div className="text-[11px] font-bold text-[#C9A96E] uppercase tracking-wider mb-2">{dict.checkout.customer_details}</div>
                         <div className="space-y-1">
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">{dict.checkout.name}</span>
-                                <span className="font-bold text-gray-900">{customerInfo.name || 'Guest'}</span>
+                                <span className="text-gray-400 font-medium">{dict.checkout.name}</span>
+                                <span className="font-bold text-white">{customerInfo.name || 'Guest'}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">{dict.checkout.email_label}</span>
-                                <span className="font-bold text-gray-900 truncate max-w-[200px]">{customerInfo.email || '-'}</span>
+                                <span className="text-gray-400 font-medium">{dict.checkout.email_label}</span>
+                                <span className="font-bold text-white truncate max-w-[200px]">{customerInfo.email || '-'}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-medium">{dict.checkout.gender_label}</span>
-                                <span className="font-bold text-gray-900">{customerInfo.gender || 'Unknown'}</span>
+                                <span className="text-gray-400 font-medium">{dict.checkout.gender_label}</span>
+                                <span className="font-bold text-white">{customerInfo.gender || 'Unknown'}</span>
                             </div>
                         </div>
                     </div>
@@ -384,8 +390,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     {/* Order Summary */}
                     <div>
                         <div className="flex justify-between items-center mb-3 px-1">
-                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{dict.checkout.order_summary}</span>
-                            <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded-full">{cart.length} {dict.checkout.items}</span>
+                            <span className="text-[11px] font-bold text-white uppercase tracking-wider">{dict.checkout.order_summary}</span>
+                            <span className="bg-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-full border border-white/5">{cart.length} {dict.checkout.items}</span>
                         </div>
 
                         <div className="space-y-3">
@@ -417,14 +423,14 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 };
 
                                 return (
-                                    <div key={item.cartId} className="border border-gray-100 rounded-2xl p-4 shadow-sm bg-white">
+                                    <div key={item.cartId} className="border border-white/5 rounded-2xl p-4 shadow-sm bg-[#0d0d0d]">
                                         {/* Name & Price */}
                                         <div className="flex justify-between items-start mb-1">
-                                            <span className="font-bold text-gray-900 text-[15px]">{idx + 1}. {item.names[lang] || item.names.en}</span>
-                                            <span className="font-bold text-gray-900 text-[15px]">{formatCurrency(item.priceVND * item.qty)} VND</span>
+                                            <span className="font-bold text-white text-[15px]">{idx + 1}. {item.names[lang] || item.names.en}</span>
+                                            <span className="font-bold text-white text-[15px]">{formatCurrency(item.priceVND * item.qty)} VND</span>
                                         </div>
                                         {item.timeValue > 0 && (
-                                            <div className="text-xs text-gray-400 font-medium mb-3 border-b border-dashed border-gray-100 pb-2">{item.timeValue}mins</div>
+                                            <div className="text-xs text-gray-500 font-medium mb-3 border-b border-dashed border-white/5 pb-2">{item.timeValue}mins</div>
                                         )}
 
                                         {/* Attributes */}
@@ -472,9 +478,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
                                             {/* Note Content */}
                                             {item.options?.notes?.content && (
-                                                <div className="flex items-start gap-2 text-sm mt-1 pt-2 border-t border-gray-50">
-                                                    <div className="text-gray-500 italic text-xs bg-gray-50 p-2 rounded w-full">
-                                                        <span className="font-bold not-italic text-gray-400 mr-1">{dict.history?.note_label || 'Note'}:</span>
+                                                <div className="flex items-start gap-2 text-sm mt-1 pt-2 border-t border-white/5">
+                                                    <div className="text-gray-400 italic text-xs bg-[#1c1c1e] border border-white/5 p-2 rounded w-full">
+                                                        <span className="font-bold not-italic text-[#C9A96E] mr-1">{dict.history?.note_label || 'Note'}:</span>
                                                         {item.options.notes.content}
                                                     </div>
                                                 </div>
@@ -498,31 +504,31 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     </div>
 
                     {/* Payment Info */}
-                    <div className="bg-gray-50 rounded-2xl p-5 space-y-3">
-                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-5 space-y-3">
+                        <div className="flex justify-between text-sm text-gray-400 mb-2">
                             <span>{dict.checkout.payment_method}</span>
-                            <span className="font-bold text-gray-900 uppercase">
+                            <span className="font-bold text-white uppercase">
                                 {dict.payment_methods?.[paymentMethod] || dict.payment_methods?.cash_vnd || 'Cash (VND)'}
                             </span>
                         </div>
-                        <div className="flex justify-between text-sm text-gray-600 mb-4 border-b border-gray-200 pb-3">
+                        <div className="flex justify-between text-sm text-gray-400 mb-4 border-b border-white/5 pb-3">
                             <span>{dict.checkout.total_duration}</span>
-                            <span className="font-bold text-gray-900">{totalTime} mins</span>
+                            <span className="font-bold text-white">{totalTime} mins</span>
                         </div>
 
                         <div className="flex justify-between items-center">
-                            <span className="font-bold text-gray-700 text-lg">{dict.checkout.total_bill}</span>
-                            <span className="font-bold text-amber-600 text-xl">{formatCurrency(totalVND)} VND</span>
+                            <span className="font-bold text-[#C9A96E] text-lg">{dict.checkout.total_bill}</span>
+                            <span className="font-bold text-[#C9A96E] text-xl">{formatCurrency(totalVND)} VND</span>
                         </div>
                         {amountPaid > 0 && (
                             <>
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="font-medium text-gray-500">{dict.checkout.amount_paid}</span>
-                                    <span className="font-bold text-green-600">{formatCurrency(amountPaid)} VND</span>
+                                    <span className="font-medium text-gray-400">{dict.checkout.amount_paid}</span>
+                                    <span className="font-bold text-[#b09461]">{formatCurrency(amountPaid)} VND</span>
                                 </div>
                                 <div className="flex justify-between items-center text-base pt-1">
-                                    <span className="font-bold text-gray-500">{dict.checkout.change_due}</span>
-                                    <span className={`font-bold ${changeAmount >= 0 ? 'text-gray-900' : 'text-red-500'}`}>
+                                    <span className="font-bold text-gray-400">{dict.checkout.change_due}</span>
+                                    <span className={`font-bold ${changeAmount >= 0 ? 'text-[#C9A96E]' : 'text-red-500'}`}>
                                         {changeAmount >= 0
                                             ? <span>{formatCurrency(changeAmount)} VND</span>
                                             : <span>{dict.checkout.missing} {formatCurrency(Math.abs(changeAmount))} VND</span>
@@ -552,13 +558,13 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     )}
 
                     {/* Expected Time (Bottom Location) */}
-                    <div className="bg-yellow-50 border border-yellow-100 rounded-2xl p-4 space-y-2">
-                        <div className="text-[10px] font-bold text-yellow-800 uppercase tracking-wider mb-2">{dict.checkout.expected_time}</div>
-                        <div className="flex justify-between text-sm font-bold text-yellow-900">
+                    <div className="bg-[#0d0d0d] border border-[#C9A96E]/30 rounded-2xl p-4 space-y-2">
+                        <div className="text-[10px] font-bold text-[#C9A96E] uppercase tracking-wider mb-2">{dict.checkout.expected_time}</div>
+                        <div className="flex justify-between text-sm font-bold text-[#C9A96E] opacity-90">
                             <span>{dict.checkout.start_time}</span>
                             <span>{formatTime(startTimeComp)}</span>
                         </div>
-                        <div className="flex justify-between text-sm font-bold text-yellow-900">
+                        <div className="flex justify-between text-sm font-bold text-[#C9A96E] opacity-90">
                             <span>{dict.checkout.end_time}</span>
                             <span>{formatTime(endTimeComp)}</span>
                         </div>
@@ -566,24 +572,33 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-white border-t border-gray-100 flex gap-3 shrink-0">
+                <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-[#1c1c1e] border-t border-white/10 flex gap-3 shrink-0">
                     <button
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="flex-1 py-3.5 rounded-xl border border-gray-200 text-gray-500 font-bold uppercase text-sm tracking-widest hover:bg-gray-50 transition-colors"
+                        className="flex-1 py-3.5 rounded-xl border border-[#3f3f46] text-gray-400 font-bold uppercase text-sm tracking-widest hover:bg-white/5 transition-colors"
                     >
                         {dict.checkout.cancel}
                     </button>
                     <button
                         onClick={handleConfirm}
                         disabled={isSubmitting}
-                        className="flex-[1.5] bg-[#0f172a] text-white py-3.5 rounded-xl font-bold uppercase text-sm tracking-widest shadow-lg hover:bg-black transition-all active:scale-[0.98] flex items-center justify-center gap-2 group"
+                        className="flex-[1.5] bg-[#C9A96E] text-black py-3.5 rounded-xl font-bold uppercase text-sm tracking-widest shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-all active:scale-[0.98] flex items-center justify-center gap-2 group"
                     >
                         <span>{dict.checkout.submit}</span>
                         {!isSubmitting && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" strokeWidth={3} />}
                     </button>
                 </div>
             </div>
+
+            {/* Alert Modal Overlay */}
+            <AlertModal
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                lang={lang}
+            />
         </div>
     );
 };
