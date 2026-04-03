@@ -65,6 +65,7 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
     // --- STATE GIAO DIỆN ---
     const [mode, setMode] = useState<'PICKER' | 'MENU'>('PICKER');
     const [activeCategory, setActiveCategory] = useState<string>('Body');
+    const [slideDirection, setSlideDirection] = useState<number>(1);
     const [selectedCats, setSelectedCats] = useState<string[]>([]);
     const [pendingScrollCategory, setPendingScrollCategory] = useState<string | null>(null);
 
@@ -113,8 +114,10 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
         return lookup;
     }, [cart]);
 
-    // Categories luôn hiện đầy đủ, không tạo virtual category
-    const displayCategories = CATEGORIES;
+    // Array categories gốc (hiển thị đủ trên Header)
+    const allCategories = CATEGORIES;
+    // Array dành cho phần thân: CHỈ hiển thị category đang được chọn
+    const filteredCategories = CATEGORIES.filter(cat => cat.id === activeCategory);
 
     // --- 3. XỬ LÝ TƯƠNG TÁC ---
 
@@ -217,22 +220,27 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
                     }}
                 >
 
-                    {/* A. HEADER */}
+                    {/* A. HEADER (Vẫn đưa vào toàn bộ cat để user có thể tab qua lại) */}
                     <Header
-                        categories={displayCategories}
+                        categories={allCategories}
                         activeCategory={activeCategory}
                         lang={lang}
                         onSelectCategory={(id) => {
-                            setActiveCategory(id);
-                            document.getElementById(`cat-${id}`)?.scrollIntoView({ behavior: 'smooth' });
+                            if (id !== activeCategory) {
+                                const oldIdx = allCategories.findIndex(c => c.id === activeCategory);
+                                const newIdx = allCategories.findIndex(c => c.id === id);
+                                setSlideDirection(newIdx > oldIdx ? 1 : -1);
+                                setActiveCategory(id);
+                            }
                         }}
                     />
 
-                    {/* B. LIST */}
+                    {/* B. LIST (Chỉ truyền category đã lọc) */}
                     <ServiceList
-                        categories={displayCategories}
+                        categories={filteredCategories}
                         services={services}
                         cart={cartLookup}
+                        direction={slideDirection}
                         lang={lang}
                         onItemClick={handleServiceClick}
                     />

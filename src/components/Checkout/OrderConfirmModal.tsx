@@ -409,16 +409,16 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
                                 const getStrengthColor = (s: string) => {
                                     switch (s?.toLowerCase()) {
-                                        case 'light': return 'text-green-700';
-                                        case 'strong': return 'text-red-700';
-                                        case 'medium': default: return 'text-yellow-700';
+                                        case 'light': return 'text-green-500';
+                                        case 'strong': return 'text-red-500';
+                                        case 'medium': default: return 'text-[#C9A96E]';
                                     }
                                 };
                                 const getTherapistColor = (t: string) => {
                                     switch (t?.toLowerCase()) {
-                                        case 'male': return 'text-blue-700';
-                                        case 'female': return 'text-purple-700';
-                                        case 'random': default: return 'text-green-700';
+                                        case 'male': return 'text-blue-500';
+                                        case 'female': return 'text-purple-400';
+                                        case 'random': default: return 'text-green-500';
                                     }
                                 };
 
@@ -427,7 +427,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                         {/* Name & Price */}
                                         <div className="flex justify-between items-start mb-1">
                                             <span className="font-bold text-white text-[15px]">{idx + 1}. {item.names[lang] || item.names.en}</span>
-                                            <span className="font-bold text-white text-[15px]">{formatCurrency(item.priceVND * item.qty)} VND</span>
+                                            <span className="font-bold text-[#C9A96E] text-[15px]">{formatCurrency(item.priceVND * item.qty)} VND</span>
                                         </div>
                                         {item.timeValue > 0 && (
                                             <div className="text-xs text-gray-500 font-medium mb-3 border-b border-dashed border-white/5 pb-2">{item.timeValue}mins</div>
@@ -437,9 +437,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                         <div className="space-y-2">
                                             {/* Strength */}
                                             <div className="flex items-center gap-2 text-sm">
-                                                <div className="w-5 flex justify-center"><Hand size={14} className="text-gray-400" /></div>
+                                                <div className="w-5 flex justify-center"><Hand size={16} className="text-gray-400" /></div>
                                                 <span className="font-bold text-gray-400 w-20">{dict.checkout.strength}</span>
-                                                <span className="text-gray-300 mx-1">|</span>
+                                                <span className="text-gray-500 mx-1">|</span>
                                                 <span className={`font-bold capitalize ${getStrengthColor(strength || '')}`}>
                                                     {/* @ts-ignore */}
                                                     {dict.options?.strength_levels?.[strength?.toLowerCase()] || strength || 'Medium'}
@@ -447,9 +447,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             </div>
                                             {/* Therapist */}
                                             <div className="flex items-center gap-2 text-sm">
-                                                <div className="w-5 flex justify-center"><User size={14} className="text-purple-400" /></div>
+                                                <div className="w-5 flex justify-center"><User size={16} className="text-gray-400" /></div>
                                                 <span className="font-bold text-gray-400 w-20">{dict.checkout.therapist}</span>
-                                                <span className="text-gray-300 mx-1">|</span>
+                                                <span className="text-gray-500 mx-1">|</span>
                                                 <span className={`font-bold capitalize ${getTherapistColor(therapist || '')}`}>
                                                     {/* @ts-ignore */}
                                                     {dict.options?.therapist_options?.[therapist?.toLowerCase()] || therapist || 'Random'}
@@ -458,9 +458,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             {/* Focus */}
                                             {focus.length > 0 && (
                                                 <div className="flex items-start gap-2 text-sm">
-                                                    <div className="w-5 flex justify-center mt-0.5"><HeartPulse size={14} className="text-green-600" /></div>
-                                                    <span className="font-bold text-green-600 whitespace-nowrap w-20 shrink-0">{dict.checkout.focus}:</span>
-                                                    <span className="text-green-600 font-medium leading-tight">
+                                                    <div className="w-5 flex justify-center mt-0.5"><HeartPulse size={16} className="text-gray-400" /></div>
+                                                    <span className="font-bold text-gray-400 whitespace-nowrap w-20 shrink-0">{dict.checkout.focus}:</span>
+                                                    <span className="text-green-500 font-bold leading-tight mt-0.5">
                                                         {formatParts(focus)}
                                                     </span>
                                                 </div>
@@ -468,9 +468,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             {/* Avoid */}
                                             {avoid.length > 0 && (
                                                 <div className="flex items-start gap-2 text-sm">
-                                                    <div className="w-5 flex justify-center mt-0.5"><Ban size={14} className="text-red-500" /></div>
-                                                    <span className="font-bold text-red-500 whitespace-nowrap w-20 shrink-0">{dict.checkout.avoid}:</span>
-                                                    <span className="text-red-500 font-medium leading-tight">
+                                                    <div className="w-5 flex justify-center mt-0.5"><Ban size={16} className="text-gray-400" /></div>
+                                                    <span className="font-bold text-gray-400 whitespace-nowrap w-20 shrink-0">{dict.checkout.avoid}:</span>
+                                                    <span className="text-red-500 font-bold leading-tight mt-0.5">
                                                         {formatParts(avoid)}
                                                     </span>
                                                 </div>
@@ -478,9 +478,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
                                             {/* Note Content */}
                                             {item.options?.notes?.content && (
-                                                <div className="flex items-start gap-2 text-sm mt-1 pt-2 border-t border-white/5">
-                                                    <div className="text-gray-400 italic text-xs bg-[#1c1c1e] border border-white/5 p-2 rounded w-full">
-                                                        <span className="font-bold not-italic text-[#C9A96E] mr-1">{dict.history?.note_label || 'Note'}:</span>
+                                                <div className="flex items-start gap-2 text-sm mt-3 pt-3 border-t border-white/5">
+                                                    <div className="text-gray-300 italic text-xs bg-white/5 border border-white/5 p-2 rounded w-full">
+                                                        <span className="font-bold not-italic text-gray-400 mr-1">{dict.history?.note_label || 'Note'}:</span>
                                                         {item.options.notes.content}
                                                     </div>
                                                 </div>
@@ -488,9 +488,9 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
 
                                             {/* Tags */}
                                             {tags.length > 0 && (
-                                                <div className="flex gap-2 mt-2 pt-2">
+                                                <div className={`flex gap-2 ${!item.options?.notes?.content ? 'mt-3 pt-3 border-t border-white/5' : 'mt-2'}`}>
                                                     {tags.map(tag => (
-                                                        <span key={tag} className="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-1 rounded">
+                                                        <span key={tag} className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
                                                             {tag}
                                                         </span>
                                                     ))}

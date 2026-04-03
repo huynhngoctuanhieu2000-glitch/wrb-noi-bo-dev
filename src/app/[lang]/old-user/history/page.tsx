@@ -102,10 +102,9 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
             // 2. Fallback: Find by Name (exact match EN or VN) if ID not found
             if (!service && item.name) {
                 const cleanName = item.name.trim().toLowerCase();
-                service = services.find(s =>
-                    s.names.en.toLowerCase() === cleanName ||
-                    s.names.vn.toLowerCase() === cleanName ||
-                    s.names.en.toLowerCase() === cleanName // Fallback to whatever name property exists
+                service = services.find((s: any) =>
+                    s.names?.en?.toLowerCase() === cleanName ||
+                    s.names?.vn?.toLowerCase() === cleanName
                 );
             }
 

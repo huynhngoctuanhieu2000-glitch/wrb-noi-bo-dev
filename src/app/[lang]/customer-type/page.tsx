@@ -116,21 +116,7 @@ export default function CustomerTypePage() {
           </p>
         </div>
 
-        {/* --- NÚT KHÁCH HÀNG CŨ (thống nhất style với nút KH Mới) --- */}
-        <button
-          onClick={onSelectOldUser}
-          style={{ height: LAYOUT_CONFIG.buttons.height }}
-          className="w-full h-auto py-4 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
-        >
-          <span className="gold-text-shiny font-bold uppercase tracking-widest" style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}>
-            {t('btn_old_title')}
-          </span>
-          <div className="w-10 h-10 bg-[#B38728]/30 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <History size={LAYOUT_CONFIG.buttons.iconSize} className="text-[#D4AF37]" />
-          </div>
-        </button>
-
-        {/* --- NÚT KHÁCH HÀNG MỚI (Task E4: Thống nhất style với nút KH Cũ) --- */}
+        {/* --- NÚT KHÁCH HÀNG MỚI --- */}
         <button
           onClick={onSelectNewUser}
           style={{ height: LAYOUT_CONFIG.buttons.height }}
@@ -152,6 +138,20 @@ export default function CustomerTypePage() {
           </div>
           <div className="w-10 h-10 bg-[#B38728]/30 rounded-full flex items-center justify-center backdrop-blur-sm">
             <ArrowRight size={LAYOUT_CONFIG.buttons.iconSize} className="text-[#D4AF37]" />
+          </div>
+        </button>
+
+        {/* --- NÚT KHÁCH HÀNG CŨ --- */}
+        <button
+          onClick={onSelectOldUser}
+          style={{ height: LAYOUT_CONFIG.buttons.height }}
+          className="w-full h-auto py-4 bg-white/10 hover:bg-white/20 border-2 border-[#B38728]/60 rounded-[1.5rem] flex items-center justify-between px-8 transition-all active:scale-[0.98] backdrop-blur-sm"
+        >
+          <span className="gold-text-shiny font-bold uppercase tracking-widest" style={{ fontSize: LAYOUT_CONFIG.buttons.fontSizeTitle }}>
+            {t('btn_old_title')}
+          </span>
+          <div className="w-10 h-10 bg-[#B38728]/30 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <History size={LAYOUT_CONFIG.buttons.iconSize} className="text-[#D4AF37]" />
           </div>
         </button>
 

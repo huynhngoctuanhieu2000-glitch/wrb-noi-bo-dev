@@ -33,19 +33,19 @@ export default function ServiceItem({ service, quantity, lang, isBestSeller, onC
             className={`
         relative w-full rounded-2xl p-3 flex flex-row gap-4 items-center overflow-hidden
         transition-all duration-300 cursor-pointer active:scale-[0.98]
-        ${isSelected ? 'bg-[#1A1C2E] border border-yellow-500/30' : 'bg-[#131722] border border-transparent'}
-        shadow-lg hover:bg-[#1A1C2E]
+        ${isSelected ? 'bg-[#1c1c1e] border border-[#C9A96E]/30' : 'bg-[#0d0d0d] border border-transparent'}
+        shadow-lg hover:bg-[#1c1c1e]
       `}
         >
             {/* [LOGIC NEW] Badge Best Seller */}
             {isBestSeller && (
-                <div className="absolute top-0 right-0 z-20 bg-gradient-to-r from-yellow-600 to-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md">
+                <div className="absolute top-0 right-0 z-20 bg-gradient-to-r from-[#b6965b] to-[#dfc599] text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md">
                     BEST SELLER
                 </div>
             )}
 
             {/* 1. Ảnh vuông bo tròn */}
-            <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-gray-800 relative shadow-sm">
+            <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-[#1c1c1e] relative shadow-sm">
                 <img
                     src={service.img}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
@@ -70,12 +70,12 @@ export default function ServiceItem({ service, quantity, lang, isBestSeller, onC
             <div className="absolute bottom-3 right-3 z-10">
                 {isSelected ? (
                     // Nếu đã chọn: Hiện số lượng màu vàng
-                    <div className="w-9 h-9 rounded-full bg-[#D4AF37] text-black font-extrabold text-sm flex items-center justify-center shadow-lg shadow-yellow-500/20 animate-[pop_0.2s_ease-out]">
+                    <div className="w-9 h-9 rounded-full bg-[#D4AF37] text-black font-extrabold text-sm flex items-center justify-center shadow-lg shadow-[#C9A96E]/20 animate-[pop_0.2s_ease-out]">
                         {quantity}
                     </div>
                 ) : (
                     // Chưa chọn: Hiện nút Plus xám tròn
-                    <div className="w-9 h-9 rounded-full bg-gray-700/80 text-yellow-500 flex items-center justify-center backdrop-blur-sm hover:bg-gray-600 hover:text-white transition-colors">
+                    <div className="w-9 h-9 rounded-full bg-gray-700/80 text-[#C9A96E] flex items-center justify-center backdrop-blur-sm hover:bg-gray-600 hover:text-white transition-colors">
                         <Plus size={18} strokeWidth={2.5} />
                     </div>
                 )}

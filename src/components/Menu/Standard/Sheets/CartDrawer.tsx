@@ -24,8 +24,8 @@ const CONFIG = {
     BORDER_RADIUS: '30px',
     MAX_HEIGHT: '85vh',
     OVERLAY_COLOR: 'bg-black/60',
-    BG_COLOR: 'bg-[#131722]',
-    FOOTER_BG: 'bg-[#0f172a]',
+    BG_COLOR: 'bg-[#0d0d0d]',
+    FOOTER_BG: 'bg-[#1c1c1e]',
 };
 
 // Translate Text
@@ -59,6 +59,20 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
         return bodyPartsDict[key] || key;
     };
 
+    const getStrengthColor = (s?: string) => {
+        if (s === 'light') return 'text-green-500';
+        if (s === 'medium') return 'text-[#C9A96E]';
+        if (s === 'strong') return 'text-red-500';
+        return 'text-white';
+    };
+
+    const getTherapistColor = (t?: string) => {
+        if (t === 'female') return 'text-purple-400';
+        if (t === 'male') return 'text-blue-500';
+        if (t === 'random') return 'text-green-500';
+        return 'text-white';
+    };
+
     return (
         <div 
             onClick={onClick}
@@ -70,14 +84,14 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
                     <div className="flex items-center gap-1.5 min-w-fit">
                         <Hand size={13} className="text-gray-400" />
                         <span className="text-gray-400">{dict.checkout?.strength}:</span>
-                        <span className="font-bold text-red-500">{dict.options?.strength_levels?.[options.strength] || options.strength}</span>
+                        <span className={`font-bold ${getStrengthColor(options.strength)}`}>{dict.options?.strength_levels?.[options.strength] || options.strength}</span>
                     </div>
                 )}
                 {options.therapist && (
                     <div className="flex items-center gap-1.5 min-w-fit">
                         <User size={13} className="text-gray-400" />
                         <span className="text-gray-400">{dict.checkout?.therapist}:</span>
-                        <span className="font-bold text-purple-400">{dict.options?.therapist_options?.[options.therapist] || options.therapist}</span>
+                        <span className={`font-bold ${getTherapistColor(options.therapist)}`}>{dict.options?.therapist_options?.[options.therapist] || options.therapist}</span>
                     </div>
                 )}
             </div>
@@ -87,10 +101,10 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
                 <div className="space-y-1.5">
                     {options.bodyParts?.focus && options.bodyParts.focus.length > 0 && (
                         <div className="flex gap-2 text-[12px]">
-                            <Heart size={13} className="text-green-500 shrink-0 mt-0.5" />
+                            <Heart size={13} className="text-gray-400 shrink-0 mt-0.5" />
                             <div className="flex flex-wrap gap-1">
-                                <span className="text-green-500 font-bold">{dict.checkout?.focus}:</span>
-                                <span className="text-gray-300">
+                                <span className="text-gray-400">{dict.checkout?.focus}:</span>
+                                <span className="font-bold text-green-500">
                                     {options.bodyParts.focus.length === 8 
                                         ? (dict.custom_for_you?.full_body || 'Full Body')
                                         : options.bodyParts.focus.map(translatePart).join(', ')}
@@ -100,10 +114,10 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
                     )}
                     {options.bodyParts?.avoid && options.bodyParts.avoid.length > 0 && (
                         <div className="flex gap-2 text-[12px]">
-                            <Ban size={13} className="text-red-500 shrink-0 mt-0.5" />
+                            <Ban size={13} className="text-gray-400 shrink-0 mt-0.5" />
                             <div className="flex flex-wrap gap-1">
-                                <span className="text-red-500 font-bold">{dict.checkout?.avoid}:</span>
-                                <span className="text-gray-300">
+                                <span className="text-gray-400">{dict.checkout?.avoid}:</span>
+                                <span className="font-bold text-red-500">
                                     {options.bodyParts.avoid.length === 8 
                                         ? (dict.custom_for_you?.full_body || 'Full Body')
                                         : options.bodyParts.avoid.map(translatePart).join(', ')}
@@ -119,12 +133,12 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
                 <div className="space-y-2 pt-1 border-t border-white/5">
                     <div className="flex flex-wrap gap-2">
                         {options.notes?.tag0 && (
-                            <span className="bg-yellow-500/20 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-yellow-500/30">
+                            <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-[#C9A96E]/30">
                                 {dict.tags?.pregnant}
                             </span>
                         )}
                         {options.notes?.tag1 && (
-                            <span className="bg-yellow-500/20 text-yellow-500 text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-yellow-500/30">
+                            <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-[#C9A96E]/30">
                                 {dict.tags?.allergy}
                             </span>
                         )}
@@ -285,8 +299,8 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
                 {/* Title */}
                 <div className="text-center pb-6 pt-2">
-                    <h2 className="text-xl font-bold text-yellow-500 uppercase tracking-widest">{t('title')}</h2>
-                    <div className="w-10 h-0.5 bg-yellow-600 mx-auto mt-2"></div>
+                    <h2 className="text-xl font-bold text-[#C9A96E] uppercase tracking-widest">{t('title')}</h2>
+                    <div className="w-10 h-0.5 bg-[#b6965b] mx-auto mt-2"></div>
                 </div>
 
                 {/* 3. Danh sách món (Grouped) */}
@@ -297,7 +311,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                         </div>
                     ) : (
                         groupedCart.map((item) => (
-                            <div key={item.displayKey} className="flex flex-col gap-3 bg-gray-900/50 p-4 rounded-2xl border border-white/10 shadow-lg relative">
+                            <div key={item.displayKey} className="flex flex-col gap-3 bg-[#1c1c1e] p-4 rounded-2xl border border-white/5 shadow-lg relative">
                                 <div className="flex gap-4">
                                     {/* Ảnh */}
                                     <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-white/5">
@@ -308,7 +322,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                                     <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
                                         {/* Row 1: Name and Price */}
                                         <div className="flex justify-between items-start">
-                                            <h4 className="font-bold text-yellow-500 leading-tight truncate text-[16px]">{item.names[lang]}</h4>
+                                            <h4 className="font-bold text-[#C9A96E] leading-tight truncate text-[16px]">{item.names[lang]}</h4>
                                             <div className="font-bold text-white text-[15px] shrink-0 ml-2">
                                                 {formatMoney(item.priceVND * item.totalQty)} VND
                                             </div>
@@ -323,7 +337,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                                             )}
                                             
                                             {/* Quantity Controls (Condensed Pill Shape) */}
-                                            <div className="flex items-center gap-2 bg-gray-800 rounded-full px-2 py-0.5 border border-white/5">
+                                            <div className="flex items-center gap-2 bg-white/5 rounded-full px-2 py-0.5 border border-white/5">
                                                 <button
                                                     onClick={() => handleMinus(item.displayKey)}
                                                     className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
@@ -333,7 +347,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                                                 <span className="font-bold text-white w-4 text-center text-[13px]">{item.totalQty}</span>
                                                 <button
                                                     onClick={() => handlePlus(item)}
-                                                    className="w-7 h-7 flex items-center justify-center text-yellow-500 hover:text-yellow-400 transition-colors"
+                                                    className="w-7 h-7 flex items-center justify-center text-[#C9A96E] hover:text-[#dfc599] transition-colors"
                                                 >
                                                     <Plus size={12} />
                                                 </button>
@@ -354,13 +368,13 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                 </div>
 
                 {/* Footer Totals & Actions */}
-                <div className={`p-5 ${CONFIG.FOOTER_BG} border-t border-gray-800`}>
+                <div className={`p-5 ${CONFIG.FOOTER_BG} border-t border-white/5`}>
 
                     {/* Total Row */}
                     <div className="flex justify-between items-end mb-6">
                         <span className="text-gray-400 font-bold tracking-widest text-sm mb-1 uppercase">{t('total')}</span>
                         <div className="text-right">
-                            <div className="text-xl font-bold text-yellow-500">
+                            <div className="text-xl font-bold text-[#C9A96E]">
                                 {formatCurrency(totalVND)} VND <span className="text-sm font-normal text-gray-400">/</span> <span className="text-red-500 font-bold">{totalUSD} USD</span>
                             </div>
                         </div>
@@ -370,13 +384,13 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                     <div className="flex gap-4">
                         <button
                             onClick={handleClose}
-                            className="flex-1 py-4 rounded-2xl border border-gray-700 text-gray-400 font-bold uppercase hover:bg-gray-800 hover:text-white transition-all active:scale-95"
+                            className="flex-1 py-4 rounded-2xl border border-white/10 text-gray-400 font-bold uppercase hover:bg-white/5 hover:text-white transition-all active:scale-95"
                         >
                             {t('close')}
                         </button>
                         <button
                             onClick={handleContinue}
-                            className="flex-[1.5] py-4 rounded-2xl bg-yellow-600 text-black font-bold uppercase shadow-lg shadow-yellow-600/20 hover:bg-yellow-500 transition-all active:scale-95"
+                            className="flex-[1.5] py-4 rounded-2xl bg-[#b6965b] text-black font-bold uppercase shadow-lg shadow-[#b6965b]/20 hover:bg-[#C9A96E] transition-all active:scale-95"
                         >
                             {t('continue')}
                         </button>

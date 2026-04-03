@@ -212,7 +212,7 @@ export function useJourneyRealtime(bookingId: string) {
                     table: 'Bookings',
                     filter: `id=eq.${resolvedId}`,
                 },
-                (payload) => {
+                (payload: any) => {
                     console.log('[Journey] Booking Realtime Update:', payload.new);
                     const newBooking = payload.new;
                     
@@ -244,7 +244,7 @@ export function useJourneyRealtime(bookingId: string) {
                     table: 'BookingItems',
                     filter: `bookingId=eq.${resolvedId}`,
                 },
-                (payload) => {
+                (payload: any) => {
                     console.log('[Journey] BookingItem Realtime Update:', payload.new.id, payload.new.status);
                     const updatedItem = payload.new;
                     
@@ -276,7 +276,7 @@ export function useJourneyRealtime(bookingId: string) {
                     });
                 }
             )
-            .subscribe((status, err) => {
+            .subscribe((status: any, err?: any) => {
                 console.log('[useJourneyRealtime] Subscribe Status:', status);
                 if (err) {
                     console.error('[useJourneyRealtime] Subscribe Error:', err);

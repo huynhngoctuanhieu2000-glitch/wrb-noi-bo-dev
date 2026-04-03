@@ -66,7 +66,7 @@ export default function ReviewSheet({ service, cart, isOpen, lang, onClose, onUp
             {/* 2. Nội dung bảng (Sheet Content) */}
             <div
                 className={`
-          fixed bottom-0 left-0 w-full bg-[#131722] rounded-t-[30px] z-50 overflow-hidden flex flex-col shadow-2xl
+          fixed bottom-0 left-0 w-full bg-[#0d0d0d] rounded-t-[30px] z-50 overflow-hidden flex flex-col shadow-2xl
           transform transition-transform duration-300 ease-out pb-safe
           ${isClosing ? 'translate-y-full' : 'translate-y-0'}
         `}
@@ -95,7 +95,7 @@ export default function ReviewSheet({ service, cart, isOpen, lang, onClose, onUp
                 <div className="p-5">
                     <div className="flex gap-4 mb-6">
                         {/* Ảnh nhỏ */}
-                        <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-800 shrink-0 border border-gray-600 shadow-sm">
+                        <div className="w-20 h-20 rounded-xl overflow-hidden bg-[#1c1c1e] shrink-0 border border-gray-600 shadow-sm">
                             <img
                                 src={service.img}
                                 className="w-full h-full object-cover"
@@ -110,7 +110,7 @@ export default function ReviewSheet({ service, cart, isOpen, lang, onClose, onUp
                                 <span className="px-2 py-0.5 rounded bg-gray-700 text-xs text-gray-300 border border-gray-600">
                                     {service.timeValue} mins
                                 </span>
-                                <span className="text-yellow-500 font-mono font-bold text-lg">
+                                <span className="text-[#C9A96E] font-mono font-bold text-lg">
                                     {formatCurrency(service.priceVND)}
                                 </span>
                             </div>
@@ -118,7 +118,7 @@ export default function ReviewSheet({ service, cart, isOpen, lang, onClose, onUp
                     </div>
 
                     {/* Bộ điều khiển số lượng */}
-                    <div className="bg-gray-800/50 rounded-2xl p-4 flex items-center justify-between border border-gray-700 mb-6">
+                    <div className="bg-[#1c1c1e]/50 rounded-2xl p-4 flex items-center justify-between border border-gray-700 mb-6">
                         <button
                             onClick={() => setQty(q => Math.max(0, q - 1))}
                             className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${qty === 0 ? 'bg-red-500/10 text-red-500 border border-red-500/30' : 'bg-gray-700 text-white active:scale-90 hover:bg-gray-600'}`}
@@ -133,7 +133,7 @@ export default function ReviewSheet({ service, cart, isOpen, lang, onClose, onUp
 
                         <button
                             onClick={() => setQty(q => q + 1)}
-                            className="w-12 h-12 rounded-xl bg-yellow-500 text-black flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-yellow-500/20 hover:bg-yellow-400"
+                            className="w-12 h-12 rounded-xl bg-[#C9A96E] text-black flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-[#C9A96E]/20 hover:bg-[#dfc599]"
                         >
                             <Plus size={20} />
                         </button>

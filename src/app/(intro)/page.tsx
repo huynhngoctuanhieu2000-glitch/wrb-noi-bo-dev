@@ -18,13 +18,13 @@ import { animClasses } from "./animation";
 const LAYOUT_CONFIG = {
   // 1. LOGO TRÊN CÙNG
   topLogo: {
-    marginTop: "10px",
-    width: "180px",
+    marginTop: "50px", // Chỉnh lại một chút cho cân đối
+    width: "250px",    // Giảm từ 280px xuống 250px
   },
 
   // 2. VÒNG TRÒN CỜ (ORBIT)
   orbit: {
-    marginTop: "0px",
+    marginTop: "50px",  // Hạ thấp khối cờ xuống để không đè lên logo
     centerLogoSize: "100px",
     radius: 130,              // Tăng bán kính để chứa circle lớn hơn
   },
@@ -97,17 +97,7 @@ export default function LanguageSelectorPage() {
         className={animClasses.orbitContainer}
         style={{ marginTop: LAYOUT_CONFIG.orbit.marginTop }}
       >
-        <div
-          className={animClasses.centerLogoWrapper(showGreeting)}
-          style={{ width: LAYOUT_CONFIG.orbit.centerLogoSize, height: LAYOUT_CONFIG.orbit.centerLogoSize }}
-        >
-          <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full animate-pulse"></div>
-          <img
-            src="/assets/logos/logo-only-gold.webp"
-            alt="Logo Center"
-            className="w-[100%] h-[100%] object-contain rounded-full relative z-20 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]"
-          />
-        </div>
+
 
         {!showGreeting && languages.map((lang, index) => {
           const { x, y } = getFlagPosition(index);

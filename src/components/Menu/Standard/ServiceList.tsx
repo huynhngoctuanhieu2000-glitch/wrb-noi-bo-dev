@@ -11,6 +11,7 @@
  * Ngày cập nhật: 2026-01-31
  */
 import React, { useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Star } from 'lucide-react';
 import ServiceItem from '@/components/Menu/Standard/ServiceItem';
 import { Category, Service, CartState } from '@/components/Menu/types';
@@ -21,12 +22,29 @@ interface ServiceListProps {
     cart: Record<string, number>; // Lookup Map (ID -> Qty)
     lang: string;
     selectedTags?: string[]; // [NEW] Truyền tag khách chọn xuống để List biết cách sort
+    direction?: number; // Hướng trượt (1 là -> trái, -1 là <- phải)
     onItemClick: (services: Service[]) => void; // Thay đổi: Truyền vào 1 mảng các biến thể
 }
 
-// Đã bỏ logic mapCatKeyToTagStrings theo yêu cầu: phân loại thuần theo category thay vì comboTags
+// Lập trình hiệu ứng variants linh động cho Slider
+const listVariants = {
+    enter: (direction: number) => ({
+        x: direction > 0 ? 30 : -30,
+        opacity: 0
+    }),
+    center: {
+        zIndex: 1,
+        x: 0,
+        opacity: 1
+    },
+    exit: (direction: number) => ({
+        zIndex: 0,
+        x: direction < 0 ? 30 : -30,
+        opacity: 0
+    })
+};
 
-export default function ServiceList({ categories, services, cart, lang, selectedTags = [], onItemClick }: ServiceListProps) {
+export default function ServiceList({ categories, services, cart, lang, selectedTags = [], direction = 1, onItemClick }: ServiceListProps) {
 
     // 1. Hàm Gộp nhóm: Gom các món có cùng Tên Tiếng Anh (names.en) vào chung 1 mảng
     const groupedServices: Record<string, Service[]> = useMemo(() => {
@@ -47,50 +65,62 @@ export default function ServiceList({ categories, services, cart, lang, selected
 
     return (
         <div className="flex-1 overflow-y-auto px-4 pb-40 scroll-smooth no-scrollbar" id="service-list-container">
-            {categories.map(cat => {
-                // Phân loại NGHIÊM NGẶT theo category id (cat)
-                const categoryGroups = Object.values(groupedServices).filter(group => {
-                    const rep = group[0];
-                    return rep.cat === cat.id;
-                });
+            <AnimatePresence mode="wait" custom={direction}>
+                {categories.map(cat => {
+                    // Phân loại NGHIÊM NGẶT theo category id (cat)
+                    const categoryGroups = Object.values(groupedServices).filter(group => {
+                        const rep = group[0];
+                        return rep.cat === cat.id;
+                    });
 
-                if (categoryGroups.length === 0) return null;
+                    if (categoryGroups.length === 0) return null;
 
-                return (
-                    <div key={cat.id} id={`cat-${cat.id}`} className="mb-2 pt-2">
-                        {/* Tiêu đề nhóm */}
-                        <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 mt-2 flex items-center gap-1 border-b border-gray-800 pb-2">
-                            <Star className="w-4 h-4 text-yellow-600" />
-                            {cat.names[lang as keyof typeof cat.names] || cat.names['en']}
-                        </div>
+                    return (
+                        <motion.div 
+                            key={cat.id} 
+                            custom={direction}
+                            variants={listVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{ duration: 0.25, ease: "easeOut" }}
+                            id={`cat-${cat.id}`} 
+                            className="mb-2 pt-2"
+                        >
+                            {/* Tiêu đề nhóm */}
+                            <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 mt-2 flex items-center gap-1 border-b border-gray-800 pb-2">
+                                <Star className="w-4 h-4 text-[#b6965b]" />
+                                {cat.names[lang as keyof typeof cat.names] || cat.names['en']}
+                            </div>
 
-                        {/* Grid danh sách */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Grid responsive: 1 cột mobile, 2 cột tablet+ */}
-                            {categoryGroups.map((group) => {
-                                const representative = group[0]; // Lấy món đầu tiên làm đại diện hiển thị
+                            {/* Grid danh sách */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Grid responsive: 1 cột mobile, 2 cột tablet+ */}
+                                {categoryGroups.map((group) => {
+                                    const representative = group[0]; // Lấy món đầu tiên làm đại diện hiển thị
 
-                                // Tính tổng số lượng của tất cả các biến thể trong nhóm này
-                                // VD: Khách chọn 1 cái 60' + 1 cái 90' -> Tổng hiện thị ra ngoài là 2
-                                const totalQty = group.reduce((sum, item) => sum + (cart[item.id] || 0), 0);
+                                    // Tính tổng số lượng của tất cả các biến thể trong nhóm này
+                                    // VD: Khách chọn 1 cái 60' + 1 cái 90' -> Tổng hiện thị ra ngoài là 2
+                                    const totalQty = group.reduce((sum, item) => sum + (cart[item.id] || 0), 0);
 
-                                // [LOGIC NEW] Kiểm tra xem trong nhóm có item nào là Best Seller không
-                                const isBestSellerGroup = group.some(item => item.BEST_SELLER === true);
+                                    // [LOGIC NEW] Kiểm tra xem trong nhóm có item nào là Best Seller không
+                                    const isBestSellerGroup = group.some(item => item.BEST_SELLER === true);
 
-                                return (
-                                    <ServiceItem
-                                        key={representative.id}
-                                        service={representative} // Chỉ cần truyền thông tin đại diện (Tên, Ảnh)
-                                        quantity={totalQty}
-                                        lang={lang}
-                                        isBestSeller={isBestSellerGroup} // Truyền prop mới
-                                        onClick={() => onItemClick(group)} // Quan trọng: Truyền CẢ NHÓM vào để MainSheet xử lý
-                                    />
-                                );
-                            })}
-                        </div>
-                    </div>
-                );
-            })}
+                                    return (
+                                        <ServiceItem
+                                            key={representative.id}
+                                            service={representative} // Chỉ cần truyền thông tin đại diện (Tên, Ảnh)
+                                            quantity={totalQty}
+                                            lang={lang}
+                                            isBestSeller={isBestSellerGroup} // Truyền prop mới
+                                            onClick={() => onItemClick(group)} // Quan trọng: Truyền CẢ NHÓM vào để MainSheet xử lý
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </motion.div>
+                    );
+                })}
+            </AnimatePresence>
         </div>
     );
 }

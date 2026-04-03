@@ -15,10 +15,10 @@ const TOKENS = {
 
 // Cấu hình giao diện để người dùng dễ thay đổi bằng số Pixel (Dựa theo the rule)
 const UI_LAYOUT_CONFIG = {
-    HEADER_MARGIN_TOP_PX: 55,      // Thụt lề đầu trang xuống bao nhiêu Pixel (rất dễ chỉnh: 60, 80, 100...)
-    TITLE_SIZE: 'text-3xl',        // Cỡ chữ Select Category (text-2xl, text-3xl, text-4xl...)
+    HEADER_MARGIN_TOP_PX: 40,      // Thụt lề đầu trang xuống bao nhiêu Pixel 
+    TITLE_SIZE: 'text-3xl',        // Cỡ chữ Select Category 
     LINE_WIDTH: 'w-32',            // Độ dài của dải ánh kim bên dưới chữ
-    GRID_PADDING_TOP_PX: 24,       // Khoảng cách từ Header xuống danh sách thẻ menu (pixel: 16, 24, 32...)
+    GRID_PADDING_TOP_PX: 20,       // Khoảng cách từ Header xuống danh sách thẻ menu 
 };
 
 // Cấu hình thời gian và hiệu ứng chuyển cảnh của màn hình Chọn Danh Mục
@@ -120,16 +120,16 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                 <div className={`h-[1px] ${UI_LAYOUT_CONFIG.LINE_WIDTH} bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mt-4 opacity-30`}></div>
             </motion.div>
 
-            {/* Grid Area - Scrollable */}
+            {/* Grid Area - Auto-fit Height */}
             <motion.div
-                className={`flex-1 overflow-y-auto px-6 pb-32 hide-scrollbar`}
+                className={`flex-1 overflow-y-auto px-6 pb-28 hide-scrollbar flex flex-col`}
                 style={{ paddingTop: `${UI_LAYOUT_CONFIG.GRID_PADDING_TOP_PX}px` }}
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
             >
-                <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                <div className="grid grid-cols-2 grid-rows-5 gap-3 max-w-sm w-full mx-auto flex-1">
                     {categories.map((cat) => {
                         const name = cat.names[lang as keyof typeof cat.names] || cat.names['en'];
 
@@ -140,7 +140,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                 onClick={() => handleSelect(cat.id)}
                                 whileHover={{ scale: 1.04, borderColor: 'rgba(201,169,110,0.5)' }}
                                 whileTap={{ scale: 0.96 }}
-                                className={`flex flex-col items-center justify-center gap-4 py-6 px-4 rounded-3xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
+                                className={`w-full h-full flex flex-col items-center justify-center gap-3 px-3 rounded-2xl ${TOKENS.cardBg} ${TOKENS.cardBorder} border hover:border-[#C9A96E]/50 transition-colors relative overflow-hidden group shadow-lg`}
                             >
                                 {/* Glow Effect */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>

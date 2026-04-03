@@ -33,7 +33,7 @@ const CONFIG = {
     MAX_HEIGHT: '85vh',
     HEADER_IMAGE_HEIGHT: '12rem', // h-48 = 12rem = 192px
     OVERLAY_COLOR: 'bg-black/60',
-    BG_COLOR: 'bg-[#131722]',
+    BG_COLOR: 'bg-[#0d0d0d]',
 };
 
 // DICTIONARY
@@ -163,22 +163,13 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                     <X size={18} />
                 </button>
 
-                {/* --- HEADER CHUNG (Ảnh nền) --- */}
-                {/* Chỉ hiện ảnh to nếu ở mode ADD hoặc nếu muốn đẹp. Ở mode LIST có thể dùng header gọn hơn.
-                    Tuy nhiên để đồng nhất hiệu ứng, ta vẫn giữ Header ảnh cũ nhưng có thể chỉnh title.
-                */}
-
+                {/* --- HEADER CHUNG --- */}
                 {viewMode === 'ADD' && selectedService && (
-                    <div className="w-full relative shrink-0" style={{ height: CONFIG.HEADER_IMAGE_HEIGHT }}>
-                        <img src={selectedService.img} className="w-full h-full object-cover" alt={groupName} />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#131722] via-transparent to-transparent"></div>
-                        <div className="absolute bottom-4 left-5 right-5">
-                            <h2 className="text-2xl font-bold text-white font-luxury leading-tight">{groupName}</h2>
-                            <p className="text-sm text-gray-300 mt-1 opacity-80 leading-snug">
-                                {selectedService.descriptions[lang as keyof typeof selectedService.descriptions] || selectedService.descriptions['en']}
-                            </p>
-
-                        </div>
+                    <div className="w-full px-5 pt-6 pb-2 shrink-0">
+                        <h2 className="text-2xl font-bold text-[#C9A96E] font-luxury leading-tight">{groupName}</h2>
+                        <p className="text-sm text-gray-400 mt-1 opacity-80 leading-snug">
+                            {selectedService.descriptions[lang as keyof typeof selectedService.descriptions] || selectedService.descriptions['en']}
+                        </p>
                     </div>
                 )}
 
@@ -189,7 +180,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                     {viewMode === 'LIST' && (
                         <div className="px-5 pt-4">
                             <div className="flex items-center gap-3 mb-6">
-                                <List className="text-yellow-500" size={24} />
+                                <List className="text-[#C9A96E]" size={24} />
                                 <div>
                                     <h2 className="text-xl font-bold text-white">{t('selected_options')}</h2>
                                     <p className="text-sm text-gray-400">{tMsg(purchasedServices.length, groupName)}</p>
@@ -198,12 +189,12 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
 
                             <div className="flex flex-col gap-3">
                                 {purchasedServices.map(svc => (
-                                    <div key={svc.id} className="bg-gray-800/80 p-4 rounded-xl border border-gray-700 flex justify-between items-center group hover:border-gray-500 transition-colors">
+                                    <div key={svc.id} className="bg-[#1c1c1e]/80 p-4 rounded-xl border border-gray-700 flex justify-between items-center group hover:border-gray-500 transition-colors">
                                         <div>
                                             <div className="flex items-baseline gap-2">
                                                 {svc.timeValue > 0 && (
                                                     <>
-                                                        <span className="text-yellow-500 font-bold text-xl">{svc.timeValue}{t('mins')}</span>
+                                                        <span className="text-[#C9A96E] font-bold text-xl">{svc.timeValue}{t('mins')}</span>
                                                         <span className="text-gray-500 text-xs uppercase tracking-wider">{t('duration')}</span>
                                                     </>
                                                 )}
@@ -220,7 +211,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
 
                                         <button
                                             onClick={() => handleEditItem(svc)}
-                                            className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-yellow-500 hover:text-black transition-all shadow-lg"
+                                            className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-[#C9A96E] hover:text-black transition-all shadow-lg"
                                         >
                                             <Pencil size={18} />
                                         </button>
@@ -237,7 +228,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                     setSelectedService(sorted[0]);
                                     setQty(1);
                                 }}
-                                className="w-full mt-6 py-4 border border-dashed border-gray-600 text-gray-400 rounded-xl flex items-center justify-center gap-2 hover:border-yellow-500 hover:text-yellow-500 hover:bg-yellow-500/5 transition-all text-sm font-bold uppercase tracking-wide"
+                                className="w-full mt-6 py-4 border border-dashed border-gray-600 text-gray-400 rounded-xl flex items-center justify-center gap-2 hover:border-[#C9A96E] hover:text-[#C9A96E] hover:bg-[#C9A96E]/5 transition-all text-sm font-bold uppercase tracking-wide"
                             >
                                 <PlusCircle size={20} />
                                 <span>{t('add_another')}</span>
@@ -256,7 +247,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
 
                                     {/* Nếu list có item -> Cho nút Back to list */}
                                     {purchasedServices.length > 0 && (
-                                        <button onClick={() => setViewMode('LIST')} className="text-xs text-yellow-500 font-bold hover:underline">
+                                        <button onClick={() => setViewMode('LIST')} className="text-xs text-[#C9A96E] font-bold hover:underline">
                                             {t('back_to_list')}
                                         </button>
                                     )}
@@ -274,8 +265,8 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                 className={`
                                         flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-all relative overflow-hidden
                                         ${selectedService.id === svc.id
-                                                        ? 'bg-gray-800 text-white border-yellow-500 border-2 shadow-lg shadow-yellow-500/10'
-                                                        : 'bg-[#131722] text-gray-400 border-gray-700 hover:border-gray-500'}
+                                                        ? 'bg-[#1c1c1e] text-white border-[#C9A96E] border-2 shadow-lg shadow-[#C9A96E]/10'
+                                                        : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
                                     `}
                                             >
                                                 {/* [LOGIC NEW] Badge Best Choice */}
@@ -291,14 +282,14 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                     </span>
                                                 )}
                                                 <div className="text-sm font-medium flex gap-1 items-center justify-center w-full">
-                                                    <span className="text-yellow-500 font-bold">{formatCurrency(svc.priceVND)}</span>
+                                                    <span className="text-[#C9A96E] font-bold">{formatCurrency(svc.priceVND)}</span>
                                                     <span className="text-gray-500">/</span>
                                                     <span className="text-red-600 font-bold">{svc.priceUSD} USD</span>
                                                 </div>
 
                                                 {/* Badge số lượng nếu đã có trong giỏ (khi đang chọn món khác) */}
                                                 {cart[svc.id] > 0 && selectedService.id !== svc.id && (
-                                                    <div className="absolute top-2 right-2 w-5 h-5 bg-yellow-500 text-black text-[10px] font-bold rounded-full flex items-center justify-center">
+                                                    <div className="absolute top-2 right-2 w-5 h-5 bg-[#C9A96E] text-black text-[10px] font-bold rounded-full flex items-center justify-center">
                                                         {cart[svc.id]}
                                                     </div>
                                                 )}
@@ -325,16 +316,16 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
 
                 {/* FOOTER ACTION - CHỈ HIỆN Ở MODE ADD */}
                 {viewMode === 'ADD' && selectedService && (
-                    <div className="p-5 pt-2 bg-[#131722] border-t border-gray-700/50">
+                    <div className="p-5 pt-2 bg-[#0d0d0d] border-t border-gray-700/50">
                         <div className="flex items-center justify-center mb-6">
-                            <div className="flex items-center gap-6 bg-gray-800 rounded-full p-2 border border-gray-700 px-6">
+                            <div className="flex items-center gap-6 bg-[#1c1c1e] rounded-full p-2 border border-gray-700 px-6">
                                 <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors"><Minus size={18} /></button>
                                 <span className="text-xl font-bold text-white min-w-[30px] text-center font-mono">{qty}</span>
-                                <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 rounded-full bg-yellow-500 text-black flex items-center justify-center hover:bg-yellow-400 transition-colors"><Plus size={18} /></button>
+                                <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 rounded-full bg-[#C9A96E] text-black flex items-center justify-center hover:bg-[#dfc599] transition-colors"><Plus size={18} /></button>
                             </div>
                         </div>
 
-                        <button onClick={handleConfirm} className="w-full py-3.5 bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-base uppercase hover:brightness-110 transition-all">
+                        <button onClick={handleConfirm} className="w-full py-3.5 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-black font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-base uppercase hover:brightness-110 transition-all">
                             <span>{cart[selectedService.id] ? t('update_cart') : t('add_to_cart')}</span>
                             <span className="opacity-40">|</span>
                             <span>{formatCurrency(selectedService.priceVND * qty)} VND</span>

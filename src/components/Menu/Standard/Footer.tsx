@@ -55,7 +55,7 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
             <div className="flex-1 flex flex-col items-center justify-center min-w-0">
                 {maxMinutes > 0 && (
                     <div className="text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase mb-1 flex items-center gap-1 whitespace-nowrap">
-                        {t('total_est')} <span className="text-yellow-500 font-bold ml-1">• {maxMinutes} {t('mins')}</span>
+                        {t('total_est')} <span className="text-[#C9A96E] font-bold ml-1">• {maxMinutes} {t('mins')}</span>
                     </div>
                 )}
                 <div className="flex items-end justify-center gap-1 whitespace-nowrap">

@@ -73,17 +73,17 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                         // Helper for colors
                         const getStrengthColor = (s: string) => {
                             switch (s?.toLowerCase()) {
-                                case 'light': return 'text-green-700';
-                                case 'strong': return 'text-red-700';
-                                case 'medium': default: return 'text-yellow-700';
+                                case 'light': return 'text-green-500';
+                                case 'strong': return 'text-red-500';
+                                case 'medium': default: return 'text-[#C9A96E]';
                             }
                         };
 
                         const getTherapistColor = (t: string) => {
                             switch (t?.toLowerCase()) {
-                                case 'male': return 'text-blue-700';
-                                case 'female': return 'text-purple-700';
-                                case 'random': default: return 'text-green-700';
+                                case 'male': return 'text-blue-500';
+                                case 'female': return 'text-purple-400';
+                                case 'random': default: return 'text-green-500';
                             }
                         };
 
@@ -107,13 +107,16 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                     </div>
                                 )}
 
-                                {/* Vertical Attributes Stack */}
-                                <div className="space-y-2 text-sm">
+                                {/* Clickable Customization Region */}
+                                <div 
+                                    className="mt-1 p-3 bg-black/30 rounded-xl border border-white/5 space-y-2.5 cursor-pointer hover:bg-black/40 active:scale-[0.99] transition-all text-sm mb-1"
+                                    onClick={() => onCustomRequest(item)}
+                                >
                                     {/* Strength */}
                                     <div className="flex items-center gap-2">
                                         <div className="w-5 flex justify-center"><Hand size={16} className="text-gray-400" /></div>
-                                        <span className="font-bold text-gray-500 w-24">{dict.checkout.strength_label}</span>
-                                        <span className="text-gray-300 mx-1">|</span>
+                                        <span className="font-bold text-gray-400 w-24">{dict.checkout.strength_label}</span>
+                                        <span className="text-gray-500 mx-1">|</span>
                                         <span className={`font-bold capitalize ${getStrengthColor(strength)}`}>
                                             {dict.options?.strength_levels?.[strength?.toLowerCase()] || strength}
                                         </span>
@@ -121,9 +124,9 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                                     {/* Therapist */}
                                     <div className="flex items-center gap-2">
-                                        <div className="w-5 flex justify-center"><User size={16} className="text-purple-400" /></div>
-                                        <span className="font-bold text-gray-500 w-24">{dict.checkout.therapist_label}</span>
-                                        <span className="text-gray-300 mx-1">|</span>
+                                        <div className="w-5 flex justify-center"><User size={16} className="text-gray-400" /></div>
+                                        <span className="font-bold text-gray-400 w-24">{dict.checkout.therapist_label}</span>
+                                        <span className="text-gray-500 mx-1">|</span>
                                         <span className={`font-bold capitalize ${getTherapistColor(therapist)}`}>
                                             {dict.options?.therapist_options?.[therapist?.toLowerCase()] || therapist}
                                         </span>
@@ -132,9 +135,9 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                     {/* Focus */}
                                     {item.options?.bodyParts?.focus && item.options.bodyParts.focus.length > 0 && (
                                         <div className="flex items-start gap-2">
-                                            <div className="w-5 flex justify-center mt-0.5"><HeartPulse size={16} className="text-green-600" /></div>
-                                            <span className="font-bold text-green-600 w-24 shrink-0">{dict.checkout.focus}:</span>
-                                            <span className="text-green-600 font-medium leading-tight">
+                                            <div className="w-5 flex justify-center mt-0.5"><HeartPulse size={16} className="text-gray-400" /></div>
+                                            <span className="font-bold text-gray-400 w-24 shrink-0">{dict.checkout.focus}:</span>
+                                            <span className="text-green-500 font-bold leading-tight mt-0.5">
                                                 {formatParts(item.options.bodyParts.focus)}
                                             </span>
                                         </div>
@@ -143,54 +146,42 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                     {/* Avoid */}
                                     {item.options?.bodyParts?.avoid && item.options.bodyParts.avoid.length > 0 && (
                                         <div className="flex items-start gap-2">
-                                            <div className="w-5 flex justify-center mt-0.5"><Ban size={16} className="text-red-500" /></div>
-                                            <span className="font-bold text-red-500 w-24 shrink-0">{dict.checkout.avoid}:</span>
-                                            <span className="text-red-500 font-medium leading-tight">
+                                            <div className="w-5 flex justify-center mt-0.5"><Ban size={16} className="text-gray-400" /></div>
+                                            <span className="font-bold text-gray-400 w-24 shrink-0">{dict.checkout.avoid}:</span>
+                                            <span className="text-red-500 font-bold leading-tight mt-0.5">
                                                 {formatParts(item.options.bodyParts.avoid)}
                                             </span>
                                         </div>
                                     )}
+
+                                    {/* Tags & Note Content - Footer */}
+                                    {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.content) && (
+                                        <div className="mt-3 pt-3 border-t border-white/5 flex flex-col gap-2">
+                                            {/* Tags */}
+                                            {(item.options.notes.tag0 || item.options.notes.tag1) && (
+                                                <div className="flex gap-2">
+                                                    {item.options.notes.tag0 && (
+                                                        <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
+                                                            {dict.tags?.pregnant || 'Pregnant'}
+                                                        </span>
+                                                    )}
+                                                    {item.options.notes.tag1 && (
+                                                        <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
+                                                            {dict.tags?.allergy || 'Allergy'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {/* Note Content */}
+                                            {item.options.notes.content && (
+                                                <div className="text-gray-300 italic text-xs bg-white/5 p-2 rounded border border-white/5">
+                                                    <span className="font-bold not-italic text-gray-400 mr-1">{dict.history?.note_label || 'Note'}:</span>
+                                                    {item.options.notes.content}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-
-                                {/* Tags & Note Content - Footer */}
-                                {item.options?.notes && (item.options.notes.tag0 || item.options.notes.tag1 || item.options.notes.content) && (
-                                    <div className="mt-4 pt-3 border-t border-gray-50 flex flex-col gap-2">
-                                        {/* Tags */}
-                                        {(item.options.notes.tag0 || item.options.notes.tag1) && (
-                                            <div className="flex gap-2">
-                                                {item.options.notes.tag0 && (
-                                                    <span className="bg-yellow-100 text-yellow-800 text-[11px] px-2 py-1 rounded font-bold">
-                                                        {dict.tags?.pregnant || 'Pregnant'}
-                                                    </span>
-                                                )}
-                                                {item.options.notes.tag1 && (
-                                                    <span className="bg-yellow-100 text-yellow-800 text-[11px] px-2 py-1 rounded font-bold">
-                                                        {dict.tags?.allergy || 'Allergy'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        )}
-                                        {/* Note Content */}
-                                        {item.options.notes.content && (
-                                            <div className="text-gray-600 italic text-xs bg-gray-50 p-2 rounded border border-gray-100">
-                                                <span className="font-bold not-italic text-gray-400 mr-1">{dict.history?.note_label || 'Note'}:</span>
-                                                {item.options.notes.content}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Custom Button */}
-                                <button
-                                    onClick={() => onCustomRequest(item)}
-                                    className={`w-[calc(100%+2rem)] -mx-4 -mb-4 py-4 rounded-t-none rounded-b-2xl border-t font-bold uppercase transition-all flex items-center justify-center gap-2 text-sm mt-4 cursor-pointer ${hasCustom
-                                        ? 'border-[#166534] bg-[#166534]/20 text-[#22c55e] hover:bg-[#166534]/40'
-                                        : 'border-white/10 bg-[#1c1c1e] text-gray-400 hover:bg-white/5 hover:text-white'
-                                        }`}
-                                >
-                                    {hasCustom ? <Check size={18} className="text-[#22c55e]" /> : <Wand2 size={16} />}
-                                    <span>{dict.checkout.custom_for_you_btn}</span>
-                                </button>
                             </div>
                         );
                     })}
