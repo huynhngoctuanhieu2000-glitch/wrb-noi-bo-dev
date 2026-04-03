@@ -244,7 +244,7 @@ export default function StandardMenu({ lang, onBack, onCheckout }: StandardMenuP
                         totalItems={totalItems}
                         maxMinutes={maxMinutes}
                         lang={lang}
-                        onBack={onBack}
+                        onBack={() => setMode('PICKER')}
                         onToggleCart={handleOpenCart}
                     />
 

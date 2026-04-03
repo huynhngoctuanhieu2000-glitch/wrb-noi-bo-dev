@@ -60,3 +60,4 @@
 | 2026-03-27 | `98dc5a4b` | Hotfix hiển thị "Toàn thân" | `page.tsx` |
 | 2026-03-27 | `d66424b4` | Tạo trang nhận đơn Web Booking | `reception/web-booking/*`, `reception/dispatch/actions.ts`, `Sidebar.tsx` |
 | 2026-04-03 | `e96af4f5` | Đồng bộ UI: Thay `alert()` bằng `AlertModal` toàn project | `CartDrawer.tsx`, `ServiceList.tsx`, `Feedback.tsx`, `StaffSwitcherBtn.tsx`, `PostReviewScale.tsx`, `GoogleLoginBtn.tsx` |
+| 2026-04-03 | `e96af4f5` | Sửa logic nút Back từ Menu List về Category Picker (UX) | `src/components/Menu/Standard/index.tsx` |
