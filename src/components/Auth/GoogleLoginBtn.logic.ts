@@ -17,7 +17,7 @@ export function getSupabaseClient() {
     return browserClient;
 }
 
-export const useGoogleLogin = (lang: string = 'en') => {
+export const useGoogleLogin = (lang: string = 'en', onError?: (msg: string) => void) => {
     const { setUser, logout } = useAuthStore();
     const supabase = getSupabaseClient();
 
@@ -35,7 +35,7 @@ export const useGoogleLogin = (lang: string = 'en') => {
             // Note: Data will be empty due to redirect, state will be set upon reload/callback.
         } catch (err: any) {
             console.error('Error logging in with Google:', err.message);
-            alert('Đăng nhập thất bại. Vui lòng thử lại!');
+            if (onError) onError('Đăng nhập thất bại. Vui lòng thử lại!');
         }
     };
 

@@ -5,7 +5,8 @@ import { useServiceCountdown } from './useServiceCountdown.logic';
 export const useStaffSwitcherLogic = (
     startTimeISO: string | null,
     durationMinutes: number,
-    menuType: 'STANDARD' | 'VIP' = 'STANDARD'
+    menuType: 'STANDARD' | 'VIP' = 'STANDARD',
+    onError?: (msg: string) => void
 ) => {
     const { isAuthUser } = useAuthStore();
     const { elapsedMinutes, isFinished } = useServiceCountdown(startTimeISO, durationMinutes);
@@ -31,7 +32,7 @@ export const useStaffSwitcherLogic = (
             setIsRequested(true);
         } catch (error) {
             console.error('Lỗi khi gửi yêu cầu đổi nhân viên', error);
-            alert('Đã xảy ra lỗi, vui lòng thử lại.');
+            if (onError) onError('Đã xảy ra lỗi, vui lòng thử lại.');
         } finally {
             setIsLoading(false);
         }

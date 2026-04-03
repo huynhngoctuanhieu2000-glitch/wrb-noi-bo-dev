@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useStaffSwitcherLogic } from './StaffSwitcherBtn.logic';
 import { t } from './StaffSwitcherBtn.i18n';
+import AlertModal from '@/components/Shared/AlertModal';
 
 // 🔧 UI CONFIGURATION
 const BTN_HEIGHT = '54px';
@@ -23,10 +24,13 @@ export const StaffSwitcherBtn = ({
     menuType = 'STANDARD',
     lang = 'vi'
 }: Props) => {
+    const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
+
     const { isVisible, isLoading, isRequested, handleRequestSwitch } = useStaffSwitcherLogic(
         startTimeISO,
         durationMinutes,
-        menuType
+        menuType,
+        (msg) => setAlertState({ isOpen: true, message: msg, type: 'error' })
     );
     const localeText = t[lang];
 
@@ -63,6 +67,14 @@ export const StaffSwitcherBtn = ({
             {!isRequested && !isLoading && (
                 <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             )}
+
+            <AlertModal
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                lang={lang}
+            />
         </button>
     );
 };

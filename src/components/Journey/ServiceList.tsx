@@ -5,6 +5,7 @@ import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import TipModal from '@/components/Journey/TipModal';
 import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getViolations, getRatingLabel } from './Journey.constants';
 import { useServiceTimer, groupItemsByTech, useViolations, GroupedService } from './Journey.logic';
+import AlertModal from '@/components/Shared/AlertModal';
 import { translations } from './Journey.i18n';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -77,15 +78,15 @@ const TabTimerView = ({
                         const isDone = group.isCompleted;
                         return (
                             <button key={group.technicianCode || idx} onClick={() => setSelectedIdx(idx)}
-                                className={`flex-shrink-0 snap-start px-4 py-2.5 rounded-2xl border-2 transition-all text-left ${
-                                    isActive ? 'bg-amber-50 border-amber-400 shadow-sm' :
-                                    isDone ? 'bg-green-50 border-green-200' :
-                                    'bg-white border-gray-100 hover:border-gray-200'
+                                className={`flex-shrink-0 snap-start px-4 py-2.5 rounded-2xl border transition-all text-left ${
+                                    isActive ? 'bg-[#1c1c1e] border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.3)]' :
+                                    isDone ? 'bg-[#1c1c1e] border-[#C9A96E]/20 opacity-80' :
+                                    'bg-[#0d0d0d] border-white/5 hover:border-white/10'
                                 }`}>
-                                <p className={`text-xs font-black leading-tight truncate max-w-[150px] ${isActive ? 'text-amber-800' : isDone ? 'text-green-700' : 'text-gray-700'}`}>
+                                <p className={`text-xs font-black leading-tight truncate max-w-[150px] ${isActive ? 'text-[#C9A96E]' : isDone ? 'text-[#C9A96E]/60' : 'text-gray-500'}`}>
                                     {group.combinedName}
                                 </p>
-                                <p className={`text-[10px] font-bold ${isActive ? 'text-amber-500' : isDone ? 'text-green-500' : 'text-gray-400'}`}>
+                                <p className={`text-[10px] font-bold mt-0.5 ${isActive ? 'text-[#C9A96E]/80' : isDone ? 'text-[#C9A96E]/50' : 'text-gray-600'}`}>
                                     {isDone
                                         ? `✅ ${t.done}`
                                         : `${group.totalDuration} ${t.minutes}${group.itemCount > 1 ? ` · ${group.itemCount} ${t.services}` : ''}`
@@ -101,27 +102,27 @@ const TabTimerView = ({
             <div className="flex flex-col items-center mb-4">
                 <div className="relative flex items-center justify-center">
                     <svg className="-rotate-90 drop-shadow-lg" width={TIMER_CONFIG_COMPACT.TIMER_SIZE} height={TIMER_CONFIG_COMPACT.TIMER_SIZE} viewBox="0 0 260 260">
-                        <circle cx="130" cy="130" r={TIMER_CONFIG_COMPACT.RADIUS} fill="none" stroke={isStarted ? TIMER_CONFIG_COMPACT.AMBER_LIGHT : '#F3F4F6'} strokeWidth="8" />
+                        <circle cx="130" cy="130" r={TIMER_CONFIG_COMPACT.RADIUS} fill="none" stroke={isStarted ? 'rgba(201,169,110,0.1)' : '#1c1c1e'} strokeWidth="8" />
                         <circle cx="130" cy="130" r={TIMER_CONFIG_COMPACT.RADIUS} fill="none"
-                            stroke={isCompleted ? '#10B981' : isStarted ? TIMER_CONFIG_COMPACT.AMBER_MAIN : '#D1D5DB'}
+                            stroke={isCompleted ? '#C9A96E' : isStarted ? '#C9A96E' : '#333'}
                             strokeWidth="12" strokeLinecap="round"
                             strokeDasharray={circumference}
                             strokeDashoffset={isCompleted ? 0 : circumference - (pct / 100) * circumference}
                             className="transition-all duration-1000 ease-linear" />
                     </svg>
-                    <div className={`absolute rounded-full flex flex-col items-center justify-center shadow-lg ${
-                        isCompleted ? 'bg-green-50' : isStarted ? 'bg-amber-50' : 'bg-gray-50'
+                    <div className={`absolute rounded-full flex flex-col items-center justify-center shadow-lg transition-colors ${
+                        isCompleted ? 'bg-[#1c1c1e] shadow-[#C9A96E]/20 border border-[#C9A96E]/30' : isStarted ? 'bg-[#1c1c1e] shadow-[#C9A96E]/20' : 'bg-[#0d0d0d] border border-white/5'
                     }`} style={{ width: TIMER_CONFIG_COMPACT.INNER_SIZE, height: TIMER_CONFIG_COMPACT.INNER_SIZE }}>
                         {isCompleted ? (
                             <>
                                 <span className="text-4xl">✅</span>
-                                <span className="text-sm font-black text-green-700 mt-1">{t.done}</span>
+                                <span className="text-sm font-black text-[#C9A96E] mt-1">{t.done}</span>
                             </>
                         ) : (
                             <>
-                                <span className={`text-5xl font-black tracking-tighter ${isStarted ? 'text-amber-900' : 'text-gray-400'}`}>{formattedTime}</span>
-                                {!isStarted && <span className="text-xs font-bold text-gray-400 uppercase tracking-wider animate-pulse">{t.waiting}</span>}
-                                {isStarted && isPaused && <span className="text-[9px] font-bold text-amber-600 uppercase tracking-tighter animate-pulse bg-amber-100/50 px-2 py-0.5 rounded-full mt-1">ĐỢI CHUYỂN PHÒNG / KTV</span>}
+                                <span className={`text-5xl font-black tracking-tighter ${isStarted ? 'text-[#C9A96E]' : 'text-gray-600'}`}>{formattedTime}</span>
+                                {!isStarted && <span className="text-xs font-bold text-gray-600 uppercase tracking-wider animate-pulse">{t.waiting}</span>}
+                                {isStarted && isPaused && <span className="text-[9px] font-bold text-[#C9A96E] uppercase tracking-tighter animate-pulse bg-[#C9A96E]/10 border border-[#C9A96E]/20 px-2 py-0.5 rounded-full mt-1">ĐỢI CHUYỂN PHÒNG</span>}
                             </>
                         )}
                     </div>
@@ -129,13 +130,13 @@ const TabTimerView = ({
 
                 {/* Service Info — grouped */}
                 <div className="text-center mt-3">
-                    <p className="font-black text-gray-800 text-lg">{currentGroup.combinedName}</p>
-                    <p className="text-gray-400 text-sm font-medium">
+                    <p className="font-black text-white/90 text-lg">{currentGroup.combinedName}</p>
+                    <p className="text-gray-500 text-sm font-medium">
                         {currentGroup.technicianCode && `${t.staff}: ${currentGroup.technicianCode}`}
                         {/* Room/Bed info hidden from customer view (Task C2a) */}
                     </p>
                     {currentGroup.itemCount > 1 && (
-                        <p className="text-xs font-bold text-amber-500 mt-1">
+                        <p className="text-xs font-bold text-[#C9A96E] mt-1">
                             {currentGroup.totalDuration} {t.minutes} · {currentGroup.itemCount} {t.services}
                         </p>
                     )}
@@ -152,8 +153,8 @@ const TabTimerView = ({
             {/* Quick Violations */}
             <div className="mb-4">
                 <div className="flex items-center justify-between mb-2 px-1">
-                    <h3 className="font-bold text-gray-700 text-sm">{t.quickFeedback}</h3>
-                    <span className="text-[9px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+                    <h3 className="font-bold text-white/90 text-sm">{t.quickFeedback}</h3>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-[#C9A96E] bg-[#C9A96E]/10 px-2 py-0.5 rounded-full border border-[#C9A96E]/20">
                         {t.optional}
                     </span>
                 </div>
@@ -163,16 +164,16 @@ const TabTimerView = ({
                         const isSent = sentViolations.has(idx);
                         return (
                             <div key={idx} onClick={() => toggleViolation(idx)}
-                                className={`flex items-start gap-3 p-3 bg-white rounded-2xl cursor-pointer border transition-all ${
-                                    isSel ? (isSent ? 'border-green-200 bg-green-50/30' : 'border-amber-200') : 'border-gray-100'
+                                className={`flex items-start gap-3 p-3 bg-[#1c1c1e] rounded-2xl cursor-pointer border transition-all ${
+                                    isSel ? (isSent ? 'border-[#C9A96E]/50 bg-[#C9A96E]/5' : 'border-[#C9A96E]') : 'border-white/5'
                                 }`}>
                                 <div className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex-shrink-0 flex items-center justify-center ${
-                                    isSel ? (isSent ? 'border-green-500 bg-green-500' : 'border-amber-500 bg-amber-500') : 'border-gray-300'
+                                    isSel ? (isSent ? 'border-[#C9A96E] bg-[#C9A96E]' : 'border-[#C9A96E] bg-[#C9A96E]') : 'border-gray-600'
                                 }`}>
-                                    {isSel && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                    {isSel && <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
                                 </div>
-                                <span className={`text-xs leading-snug font-medium flex-1 ${isSel ? (isSent ? 'text-green-700' : 'text-amber-900') : 'text-gray-500'}`}>{v}</span>
-                                {isSel && isSent && <span className="text-[9px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full flex-shrink-0">{t.sent}</span>}
+                                <span className={`text-xs leading-snug font-medium flex-1 ${isSel ? (isSent ? 'text-[#C9A96E]/80' : 'text-[#C9A96E]') : 'text-gray-400'}`}>{v}</span>
+                                {isSel && isSent && <span className="text-[9px] font-bold text-black bg-[#C9A96E] px-1.5 py-0.5 rounded-full flex-shrink-0">{t.sent}</span>}
                             </div>
                         );
                     })}
@@ -184,7 +185,7 @@ const TabTimerView = ({
                 <div className="flex gap-3">
                     <button onClick={onAddService} disabled={isActionLoading || actionSuccess === 'ADD_SERVICE'}
                         className={`w-full py-4 font-bold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 shadow-md active:scale-95 ${
-                            actionSuccess === 'ADD_SERVICE' ? 'bg-green-500 text-white' : 'bg-amber-500 text-white hover:bg-amber-600'
+                            actionSuccess === 'ADD_SERVICE' ? 'bg-[#C9A96E]/80 text-black' : 'bg-[#C9A96E] text-black hover:bg-[#b09461]'
                         }`}>
                         {actionSuccess === 'ADD_SERVICE' ? '✓ ' : '+ '}{actionSuccess === 'ADD_SERVICE' ? t.notified : t.addServiceShort}
                     </button>
@@ -192,7 +193,7 @@ const TabTimerView = ({
                 </div>
                 <button onClick={onSOS} disabled={isSosLoading || sosSent}
                     className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 ${
-                        isSosLoading ? 'bg-gray-200 text-gray-400' : sosSent ? 'bg-green-500 text-white' : 'bg-red-600 text-white hover:bg-red-700 shadow-red-200'
+                        isSosLoading ? 'bg-[#1c1c1e] text-gray-500 border border-white/5' : sosSent ? 'bg-green-600 text-white' : 'bg-red-600 text-white hover:bg-red-700 shadow-red-900/20'
                     }`}>
                     {sosSent ? '✓ ' : '🚨 '}<span className="tracking-widest uppercase">{sosSent ? t.sosSentBtn : t.sosBtn}</span>
                 </button>
@@ -210,24 +211,24 @@ const CheckBelongingsView = ({ lang = 'vi', onConfirm }: { lang?: string; onConf
 
     return (
         <div className="flex flex-col items-center w-full py-8 animate-in fade-in slide-in-from-bottom-5 duration-500">
-            <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center text-4xl border-2 border-amber-100 mb-6 shadow-lg">
+            <div className="w-20 h-20 bg-[#1c1c1e] rounded-full flex items-center justify-center text-4xl border border-[#C9A96E]/30 mb-6 shadow-[#C9A96E]/10 shadow-lg">
                 👜
             </div>
-            <h2 className="text-2xl font-black text-gray-800 text-center mb-2">
+            <h2 className="text-2xl font-black text-[#C9A96E] text-center mb-2">
                 {t.beforeYouLeave}
             </h2>
-            <p className="text-gray-500 text-sm text-center leading-relaxed mb-8 max-w-xs">
+            <p className="text-gray-400 text-sm text-center leading-relaxed mb-8 max-w-xs">
                 {t.checkBeforeLeave}
             </p>
             <div className="w-full space-y-3 mb-8">
                 {checkItems.map((item) => (
-                    <div key={item} className="flex items-center gap-4 bg-white rounded-2xl px-5 py-4 border border-gray-100 shadow-sm">
-                        <span className="font-bold text-gray-800 text-base">{item}</span>
+                    <div key={item} className="flex items-center gap-4 bg-[#1c1c1e] rounded-2xl px-5 py-4 border border-white/5 shadow-sm">
+                        <span className="font-bold text-white/90 text-base">{item}</span>
                     </div>
                 ))}
             </div>
             <button onClick={onConfirm}
-                className="w-full py-4 bg-gray-900 text-white font-black rounded-2xl text-base shadow-xl active:scale-95 transition-all">
+                className="w-full py-4 bg-[#C9A96E] hover:bg-[#b09461] text-black font-black rounded-2xl text-base shadow-xl active:scale-95 transition-all">
                 {t.checkedRateNow}
             </button>
         </div>
@@ -251,6 +252,7 @@ const CombinedRatingView = ({
     const [submitted, setSubmitted] = useState<Set<string>>(new Set());
     const [showTipFor, setShowTipFor] = useState<string | null>(null);
     const [savedViolations, setSavedViolations] = useState<number[]>([]);
+    const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
     const t = translations[lang || 'vi'] || translations['en'];
 
     // 🔧 RATING CONSTRAINT: max rating based on number of violations
@@ -314,7 +316,11 @@ const CombinedRatingView = ({
             setExpandedId(null);
         } catch (err: any) {
             console.error('Rating submit error:', err);
-            alert(lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.');
+            setAlertState({
+                isOpen: true,
+                message: lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.',
+                type: 'error'
+            });
         }
         finally { setSubmitting(null); }
     };
@@ -331,7 +337,11 @@ const CombinedRatingView = ({
             setExpandedId(null);
         } catch (err: any) {
             console.error('Rating submit error:', err);
-            alert(lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.');
+            setAlertState({
+                isOpen: true,
+                message: lang === 'vi' ? 'Gửi đánh giá thất bại. Vui lòng thử lại.' : 'Failed to submit rating. Please try again.',
+                type: 'error'
+            });
         }
         finally { setSubmitting(null); }
     };
@@ -340,10 +350,10 @@ const CombinedRatingView = ({
         <div className="flex flex-col w-full py-4 animate-in fade-in slide-in-from-bottom-5 duration-500">
             {/* Header */}
             <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 border-2 border-amber-200">
+                <div className="w-16 h-16 bg-[#1c1c1e] rounded-full flex items-center justify-center text-3xl mx-auto mb-3 border border-[#C9A96E]/30 shadow-[0_0_15px_rgba(201,169,110,0.2)]">
                     ⭐
                 </div>
-                <h2 className="text-xl font-black text-gray-800">
+                <h2 className="text-xl font-black text-[#C9A96E]">
                     {t.rateTitle}
                 </h2>
                 <p className="text-gray-400 text-sm mt-1">
@@ -352,12 +362,12 @@ const CombinedRatingView = ({
             </div>
 
             {/* Violations Checklist — full 6 questions, editable */}
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-5 animate-in fade-in duration-300">
+            <div className="bg-[#1c1c1e] border border-white/5 rounded-2xl p-4 mb-5 animate-in fade-in duration-300">
                 <div className="flex items-center gap-2 mb-3">
-                    <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0">
+                    <div className="w-7 h-7 rounded-lg bg-[#C9A96E]/10 border border-[#C9A96E]/20 text-[#C9A96E] flex items-center justify-center flex-shrink-0">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
-                    <h3 className="text-sm font-black text-amber-800">
+                    <h3 className="text-sm font-black text-[#C9A96E]">
                         {t.violationsSectionTitle}
                     </h3>
                 </div>
@@ -387,15 +397,15 @@ const CombinedRatingView = ({
                                         return changed ? next : prev;
                                     });
                                 }}
-                                className={`flex items-start gap-3 p-3 bg-white rounded-2xl cursor-pointer border transition-all ${
-                                    isChecked ? 'border-amber-300 shadow-sm ring-1 ring-amber-100' : 'border-gray-100/80'
+                                className={`flex items-start gap-3 p-3 bg-[#0d0d0d] rounded-2xl cursor-pointer border transition-all ${
+                                    isChecked ? 'border-[#C9A96E] shadow-[#C9A96E]/10 shadow-sm ring-1 ring-[#C9A96E]/20' : 'border-white/5'
                                 }`}>
                                 <div className={`mt-0.5 w-5 h-5 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-                                    isChecked ? 'border-amber-500 bg-amber-500' : 'border-gray-300 bg-white'
+                                    isChecked ? 'border-[#C9A96E] bg-[#C9A96E]' : 'border-gray-600 bg-transparent'
                                 }`}>
-                                    {isChecked && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                    {isChecked && <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
                                 </div>
-                                <span className={`text-xs leading-snug font-medium flex-1 ${isChecked ? 'text-amber-900' : 'text-gray-500'}`}>{v}</span>
+                                <span className={`text-xs leading-snug font-medium flex-1 ${isChecked ? 'text-[#C9A96E]' : 'text-gray-400'}`}>{v}</span>
                             </div>
                         );
                     })}
@@ -403,10 +413,10 @@ const CombinedRatingView = ({
             </div>
 
             {/* Progress */}
-            <div className="bg-white rounded-2xl p-3 border border-gray-100 shadow-sm flex items-center gap-3 mb-5">
+            <div className="bg-[#1c1c1e] rounded-2xl p-3 border border-white/5 flex items-center gap-3 mb-5">
                 <div className="flex-1">
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber-400 rounded-full transition-all duration-700"
+                    <div className="h-2 bg-[#0d0d0d] rounded-full overflow-hidden border border-white/5">
+                        <div className="h-full bg-[#C9A96E] rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(201,169,110,0.5)]"
                             style={{ width: `${(ratedCount / items.length) * 100}%` }} />
                     </div>
                 </div>
@@ -425,38 +435,38 @@ const CombinedRatingView = ({
                     const isSubmittingThis = submitting === item.id;
 
                     return (
-                        <div key={item.id} className={`bg-white rounded-3xl border-2 transition-all overflow-hidden ${
-                            isRated ? 'border-green-100' : isExpanded ? 'border-amber-300 shadow-md' : 'border-gray-100'
+                        <div key={item.id} className={`bg-[#1c1c1e] rounded-3xl border-2 transition-all overflow-hidden ${
+                            isRated ? 'border-white/5 opacity-80' : isExpanded ? 'border-[#C9A96E] shadow-[#C9A96E]/20 shadow-lg' : 'border-white/5'
                         }`}>
                             {/* Accordion Header — chỉ hiện tên dịch vụ, ẩn NV */}
                             <button onClick={() => !isRated && setExpandedId(isExpanded ? null : item.id)}
                                 className="w-full text-left p-4 flex items-center gap-3">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
-                                    isRated ? 'bg-green-50 border-2 border-green-100' : 'bg-amber-50 border-2 border-amber-100'
+                                    isRated ? 'bg-[#0d0d0d] border border-white/5' : 'bg-[#0d0d0d] border border-[#C9A96E]/30 text-[#C9A96E]'
                                 }`}>
                                     {isRated ? '✅' : '💆'}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-black text-gray-800 text-sm leading-tight truncate">
+                                    <p className={`font-black text-sm leading-tight truncate ${isRated ? 'text-gray-400' : 'text-white/90'}`}>
                                         {item.service_name}
                                     </p>
-                                    <p className="text-gray-400 text-xs font-medium truncate">
+                                    <p className="text-gray-500 text-xs font-medium truncate">
                                         {item.technicianCode && `${t.staff}: ${item.technicianCode} · `}{item.duration} {t.minutes}
                                     </p>
                                     {/* Show KTV badge for multi-KTV items */}
                                     {item.id.includes('-ktv') && item.technicianCode && (
-                                        <span className="inline-block mt-1 text-[9px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                                        <span className="inline-block mt-1 text-[9px] font-black text-[#C9A96E] bg-[#C9A96E]/10 px-2 py-0.5 rounded-full border border-[#C9A96E]/20">
                                             NV: {item.technicianCode}
                                         </span>
                                     )}
                                 </div>
                                 {isRated ? (
-                                    <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-full border border-green-200">
+                                    <div className="flex items-center gap-1.5 bg-[#C9A96E]/20 text-[#C9A96E] px-3 py-1.5 rounded-full border border-[#C9A96E]/30">
                                         <span className="text-lg leading-none">{ratedOpt?.emoji || '⭐'}</span>
                                         <span className="text-[10px] font-black">{t.ratedSent}</span>
                                     </div>
                                 ) : (
-                                    <svg className={`w-5 h-5 text-gray-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                     </svg>
                                 )}
@@ -464,24 +474,36 @@ const CombinedRatingView = ({
 
                             {/* Expanded Rating Area */}
                             {isExpanded && !isRated && (
-                                <div className="px-4 pb-4 border-t border-gray-50 pt-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                                    <p className="text-sm font-bold text-gray-700 mb-3">
+                                <div className="px-4 pb-4 border-t border-white/5 pt-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-[#0d0d0d]/50">
+                                    <p className="text-sm font-bold text-[#C9A96E] mb-3">
                                         {t.yourExperience}
                                     </p>
                                     <div className="grid grid-cols-4 gap-2 mb-4">
                                         {RATING_OPTIONS.map((opt) => {
                                             const isDisabled = opt.value > maxAllowedRating;
+                                            // TODO: Update opt.bgSel in Journey.constants.ts to dark mode version later, for now we inject Tailwind class string conditionally here if we need to. 
+                                            // Actually RATING_OPTIONS.bgSel might be using bright colors like bg-green-100.
+                                            // We'll customize it here:
+                                            const isSel = ratings[item.id] === opt.value;
+                                            let bgClass = "bg-[#1c1c1e] border-white/5 hover:border-white/10";
+                                            if (isSel) {
+                                                if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
+                                                else if (opt.value === 3) bgClass = "bg-blue-900/40 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.2)]";
+                                                else if (opt.value === 2) bgClass = "bg-[#C9A96E]/20 border-[#C9A96E] shadow-[0_0_10px_rgba(201,169,110,0.2)]";
+                                                else bgClass = "bg-red-900/40 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
+                                            }
+
                                             return (
                                                 <button key={opt.value}
                                                     disabled={isDisabled}
                                                     onClick={() => !isDisabled && setRatings(prev => ({ ...prev, [item.id]: opt.value }))}
                                                     className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
                                                         isDisabled
-                                                            ? 'opacity-40 grayscale cursor-not-allowed bg-gray-100 border-gray-200'
-                                                            : `active:scale-95 ${ratings[item.id] === opt.value ? opt.bgSel : opt.bg}`
+                                                            ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
+                                                            : `active:scale-95 ${bgClass}`
                                                     }`}>
                                                     <span className="text-2xl mb-0.5">{opt.emoji}</span>
-                                                    <span className="text-[10px] font-bold leading-tight text-center text-gray-700">
+                                                    <span className={`text-[10px] font-bold leading-tight text-center ${isSel ? 'text-white' : 'text-gray-500'}`}>
                                                         {getRatingLabel(lang || 'vi', opt.value)}
                                                     </span>
                                                 </button>
@@ -492,8 +514,8 @@ const CombinedRatingView = ({
                                         disabled={!ratings[item.id] || isSubmittingThis}
                                         className={`w-full py-3 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                                             ratings[item.id] && !isSubmittingThis
-                                                ? 'bg-gray-900 text-white shadow-md active:scale-95'
-                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                ? 'bg-[#C9A96E] text-black shadow-md active:scale-95 hover:bg-[#b09461]'
+                                                : 'bg-[#1c1c1e] border border-white/5 text-gray-500 cursor-not-allowed'
                                         }`}>
                                         {isSubmittingThis
                                             ? <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{t.submitting}</>
@@ -527,7 +549,7 @@ const CombinedRatingView = ({
                         finally { setSubmitting(null); }
                     }}
                     disabled={!!submitting}
-                    className="w-full py-3 mt-4 rounded-2xl font-bold text-sm text-gray-400 bg-white border-2 border-gray-100 hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3 mt-4 rounded-2xl font-bold text-sm text-gray-400 bg-[#1c1c1e] border border-white/5 hover:border-white/10 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                     {submitting === '__skip__' ? (
                         <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{t.processing}</>
@@ -547,6 +569,15 @@ const CombinedRatingView = ({
 
             {/* TipModal */}
             {showTipFor && <TipModal onClose={handleTipClose} lang={lang} />}
+
+            {/* Alert Modal Overlay */}
+            <AlertModal
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                lang={lang}
+            />
         </div>
     );
 };

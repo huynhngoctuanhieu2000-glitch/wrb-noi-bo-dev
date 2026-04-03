@@ -3,6 +3,7 @@
 import React from 'react';
 import { usePostReviewLogic, ReviewScore } from './PostReviewScale.logic';
 import { t } from './PostReviewScale.i18n';
+import AlertModal from '@/components/Shared/AlertModal';
 
 // 🔧 UI CONFIGURATION
 const ICON_SIZE = '48px';
@@ -38,7 +39,12 @@ const FACES = [
 ] as const;
 
 export const PostReviewScale = ({ lang = 'vi' }: { lang?: 'vi' | 'en' }) => {
-    const { score, showTipping, setShowTipping, handleScoreSelect, submitReview } = usePostReviewLogic(lang);
+    const [alertState, setAlertState] = React.useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
+
+    const { score, showTipping, setShowTipping, handleScoreSelect, submitReview } = usePostReviewLogic(
+        lang, 
+        (msg) => setAlertState({ isOpen: true, message: msg, type: 'success' })
+    );
     const localeText = t[lang];
 
     return (
@@ -125,6 +131,14 @@ export const PostReviewScale = ({ lang = 'vi' }: { lang?: 'vi' | 'en' }) => {
                     </div>
                 )}
             </div>
+
+            <AlertModal
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                lang={lang}
+            />
         </div>
     );
 };

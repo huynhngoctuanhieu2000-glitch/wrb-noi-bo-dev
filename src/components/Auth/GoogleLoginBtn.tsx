@@ -4,6 +4,7 @@ import React from 'react';
 import { useGoogleLogin } from './GoogleLoginBtn.logic';
 import { useAuthStore } from '@/lib/authStore.logic';
 import { t } from './GoogleLoginBtn.i18n';
+import AlertModal from '@/components/Shared/AlertModal';
 
 // 🔧 UI CONFIGURATION
 const BTN_BORDER_RADIUS = '8px';
@@ -20,12 +21,18 @@ const GoogleIcon = () => (
 );
 
 export const GoogleLoginBtn = ({ lang = 'vi' }: { lang?: string }) => {
-    const { handleLogin, handleLogout } = useGoogleLogin(lang);
+    const [alertState, setAlertState] = React.useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
+
+    const { handleLogin, handleLogout } = useGoogleLogin(
+        lang,
+        (msg) => setAlertState({ isOpen: true, message: msg, type: 'error' })
+    );
     const { isAuthUser } = useAuthStore();
     // Default to 'en' texts if the language string is unrecognized.
     const localeText = t[lang as keyof typeof t] || t['en'];
 
     return (
+        <>
         <button
             onClick={isAuthUser ? handleLogout : handleLogin}
             className="flex items-center justify-center gap-3 w-full bg-white border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors shadow-sm"
@@ -37,5 +44,14 @@ export const GoogleLoginBtn = ({ lang = 'vi' }: { lang?: string }) => {
             {!isAuthUser && <GoogleIcon />}
             <span>{isAuthUser ? localeText.logout : localeText.loginWithGoogle}</span>
         </button>
+        
+        <AlertModal
+            isOpen={alertState.isOpen}
+            message={alertState.message}
+            type={alertState.type}
+            onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+            lang={lang}
+        />
+        </>
     );
 };

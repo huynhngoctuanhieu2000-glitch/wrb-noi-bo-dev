@@ -4,7 +4,7 @@ import { t } from './PostReviewScale.i18n';
 
 export type ReviewScore = 1 | 2 | 3 | 4 | 5 | null;
 
-export const usePostReviewLogic = (lang: 'vi' | 'en') => {
+export const usePostReviewLogic = (lang: 'vi' | 'en', onSuccess?: (msg: string) => void) => {
     const [score, setScore] = React.useState<ReviewScore>(null);
     const [showTipping, setShowTipping] = React.useState(false);
     const localeText = t[lang];
@@ -25,7 +25,7 @@ export const usePostReviewLogic = (lang: 'vi' | 'en') => {
         try {
             // API Gửi đánh giá
             await new Promise(resolve => setTimeout(resolve, 500));
-            alert(localeText.thanksMsg);
+            if (onSuccess) onSuccess(localeText.thanksMsg);
         } catch (e) {
             console.error(e);
         }

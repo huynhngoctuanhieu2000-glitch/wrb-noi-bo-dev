@@ -1,24 +1,62 @@
-# Coordination File
+# 🔒 Multi-Conversation Coordination Log
 
-## Đang làm việc
+> **Mục đích**: Giúp nhiều conversation Antigravity phối hợp, tránh conflict khi edit cùng file.
+> **Quy tắc**: Mỗi conversation PHẢI đọc file này trước khi edit, và ghi lại file mình đang sửa.
 
-| Conversation | Mô tả | Files đang sửa | Status |
-|---|---|---|---|
-| Không có tiến trình | - | - | - |
+---
 
-## Lịch sử
+## 📡 Active Conversations
 
-| Thời gian | Conversation | Hành động |
-|---|---|---|
-| 2026-04-01 14:00 | current | Hoàn tất đồng bộ language code vn -> vi (Middleware, UI, Services) | 🔴 Xong |
-| 2026-03-31 13:45 | current | Cập nhật báo cáo tiến độ dự án | 🔴 Xong |
-| 2026-03-28 11:00 | e06db2c1 | Fix Web Booking Status Transition (Chuyển WB sang trạng thái chờ điều phối) | 🔴 Xong |
-| 2026-03-28 04:40 | 89e21468 | Tối ưu UI/UX Web Booking (Fix lỗi mobile overflow, multi-step flow) | 🔴 Xong |
-| 2026-03-27 17:20 | d66424b4 | Tích hợp Dashboard Web Booking cho Lễ tân (Calendar 8:00-24:00) | 🔴 Xong |
-| 2026-03-27 08:30 | 28a4c429 | Tích hợp Web Booking với Supabase (Tạo mã WB, lưu Guest/Staff preference) | 🔴 Xong |
-| 2026-03-27 04:20 | 98dc5a4b | Thêm nút "Chọn tất cả" cho danh sách chuẩn bị/vệ sinh phòng KTV | 🔴 Xong |
-| 2026-03-27 04:05 | ef54ea70 | Fix Stepper & Notifications (Nút SOS/Thêm dịch vụ gửi về Lễ tân) | 🔴 Xong |
-| 2026-03-27 01:13 | bda60789 | ✅ Hoàn thành fix lỗi full_body | 🔴 Xong |
-| 2026-03-27 00:28 | bda60789 | ✅ Hoàn thành fix TS error CartDrawer | 🔴 Xong |
-| 2026-03-27 00:22 | bda60789 | ✅ Hoàn thành fix TS error handleBack & fill_any_contact | 🔴 Xong |
-| 2026-03-26 21:42 | 36f52950 | ✅ Hoàn thành 13/13 task Web Booking | 🔴 Xong |
+### Trang Nhận Đơn Web Booking (/reception/web-booking)
+- **Conversation**: `d66424b4-0a58-404c-8df6-2992511cbcb8`
+- **Đang sửa**:
+  - `app/reception/dispatch/actions.ts` (fix filter NEW)
+  - `app/reception/web-booking/page.tsx` [MỚI]
+  - `app/reception/web-booking/WebBookingCalendar.tsx` [MỚI]
+  - `app/reception/web-booking/WebBookingCard.tsx` [MỚI]
+  - `app/reception/web-booking/WebBookingDetailPanel.tsx` [MỚI]
+  - `app/reception/web-booking/actions.ts` [MỚI]
+  - `app/admin/web-booking/page.tsx` (redirect)
+  - `components/layout/Sidebar.tsx` (thêm menu item)
+- **Trạng thái**: 🔴 Xong
+
+### Báo cáo tiến độ trang báo cáo
+- **Conversation**: `9a73d883-85c4-4884-b88a-a14163ae7980`
+- **Đang sửa**: _Không sửa file, chỉ đọc để báo cáo tiến độ_
+- **Trạng thái**: 🔴 Xong
+
+### Triển khai Xuất Excel Báo cáo
+- **Conversation**: `9a73d883-85c4-4884-b88a-a14163ae7980`
+- **Đang sửa**: `app/finance/revenue/RevenueReport.logic.ts`, `app/finance/revenue/page.tsx`
+- **Trạng thái**: 🔴 Xong
+
+### Nâng cấp Service Menu Edit Drawer
+- **Conversation**: `597dce05-8df1-43dd-a0fa-9e1cdc08f91f`
+- **Đang sửa**: `lib/types.ts`, `app/admin/service-menu/actions.ts`, `app/admin/service-menu/page.tsx`, `EditServiceDrawer.tsx`
+- **Trạng thái**: 🔴 Xong
+
+### Thêm nút chọn tất cả trên KTV Dashboard
+- **Conversation**: `98dc5a4b-0dad-4500-9138-c17fecbc6e4a`
+- **Đang sửa**: `app/ktv/dashboard/page.tsx`, `app/ktv/dashboard/KTVDashboard.logic.ts`
+- **Trạng thái**: 🔴 Xong
+
+---
+
+## 📜 Quy tắc phối hợp
+
+1. **CHECK TRƯỚC**: Trước khi edit file, kiểm tra xem file đó có đang được conversation khác sửa không.
+2. **GHI LẠI**: Khi bắt đầu sửa file, thêm entry vào mục Active Conversations.
+3. **DỌN DẸP**: Khi xong việc, xóa hoặc đánh dấu 🔴 entry của mình.
+4. **KHÔNG TRANH CHẤP**: Nếu file đã bị "khóa" bởi conversation khác → thông báo cho user và đợi.
+
+---
+
+## 📋 Lịch sử (Log)
+
+| Thời gian | Conversation | Hành động | File |
+|-----------|-------------|-----------|------|
+| 2026-03-23 | `9a73d883` | Kiểm tra tiến độ | `RevenueReport.logic.ts`, `page.tsx`, `api/finance/reports/route.ts` |
+| 2026-03-27 | `98dc5a4b` | Thêm nút chọn tất cả | `page.tsx`, `KTVDashboard.logic.ts` |
+| 2026-03-27 | `98dc5a4b` | Hotfix hiển thị "Toàn thân" | `page.tsx` |
+| 2026-03-27 | `d66424b4` | Tạo trang nhận đơn Web Booking | `reception/web-booking/*`, `reception/dispatch/actions.ts`, `Sidebar.tsx` |
+| 2026-04-03 | `e96af4f5` | Đồng bộ UI: Thay `alert()` bằng `AlertModal` toàn project | `CartDrawer.tsx`, `ServiceList.tsx`, `Feedback.tsx`, `StaffSwitcherBtn.tsx`, `PostReviewScale.tsx`, `GoogleLoginBtn.tsx` |

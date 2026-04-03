@@ -6,6 +6,7 @@ import { formatCurrency as formatMoney, formatCurrency } from '@/components/Menu
 import CustomForYouModal from '@/components/CustomForYou';
 import { ServiceData, CustomPreferences, LanguageCode } from '@/components/CustomForYou/types';
 import { getDictionary } from '@/lib/dictionaries';
+import AlertModal from '@/components/Shared/AlertModal';
 
 interface CartDrawerProps {
     cart: CartState;
@@ -147,6 +148,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
     // [LOGIC NEW] Customization State
     const [editingItem, setEditingItem] = useState<CartItem | null>(null);
     const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+    const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     const { addToCart, removeFromCart, updateCartItemOptions } = useMenuData();
 
@@ -251,7 +253,11 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
     const handleContinue = () => {
         if (cart.length === 0) {
-            alert(t('alert_empty'));
+            setAlertState({
+                isOpen: true,
+                message: t('alert_empty'),
+                type: 'error'
+            });
             return;
         }
         onCheckout();
@@ -393,6 +399,14 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                     initialData={editingItem.options as any}
                 />
             )}
+
+            <AlertModal
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+                lang={lang}
+            />
         </>
     );
 }

@@ -5,6 +5,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 import TipModal from '@/components/Journey/TipModal';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import { getViolations } from './Journey.constants';
+import AlertModal from '@/components/Shared/AlertModal';
 
 interface FeedbackProps {
     onComplete: (result: { rating: number, violations: number[], tipAmount: number, feedbackNote?: string }) => void;
@@ -28,6 +29,7 @@ export default function Feedback({
     const [showTip, setShowTip] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     // Checkbox state for violations
     const violations = getViolations('vi');
@@ -111,7 +113,11 @@ export default function Feedback({
         } catch (error) {
             setIsLoading(false);
             console.error("Feedback submission error:", error);
-            alert("Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.");
+            setAlertState({
+                isOpen: true,
+                message: "Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.",
+                type: 'error'
+            });
         }
     };
 
@@ -271,6 +277,14 @@ export default function Feedback({
                 setShowTip(false);
                 clearStorageAndComplete({ rating: rating!, violations: selectedViolations, tipAmount: tip });
             }} />}
+
+            {/* Alert Modal Overlay */}
+            <AlertModal
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+            />
         </div>
     );
 }
