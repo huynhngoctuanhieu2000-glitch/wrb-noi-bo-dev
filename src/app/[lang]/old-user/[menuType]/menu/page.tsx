@@ -3,7 +3,7 @@
 import React from 'react';
 import { useParams, useRouter, notFound } from 'next/navigation';
 import StandardMenu from '@/components/Menu/Standard';
-// import VipMenu from '@/components/Menu/VIP'; 
+import PremiumMenu from '@/components/Menu/Premium';
 
 export default function OldUserMenuPage() {
     const params = useParams();
@@ -23,6 +23,10 @@ export default function OldUserMenuPage() {
 
     if (menuType === 'standard') {
         return <StandardMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} />;
+    }
+
+    if (menuType === 'premium') {
+        return <PremiumMenu lang={lang} onBack={handleBack} onCheckout={handleCheckout} />;
     }
 
     return notFound();
