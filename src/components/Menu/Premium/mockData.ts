@@ -36,7 +36,7 @@ export interface MockSkill {
 // ---- DANH SÁCH NHÂN VIÊN (KTV) ----
 export const mockStaff: MockStaff[] = [
   {
-    id: 'NV01',
+    id: 'NH001',
     name: 'Minh Anh',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD8CjMbUGAiDeH8FOV-aFYwsMgXYMKhRzihUvDT4QfFemF1SeQayK_ht022P2_x2hnkzU09sXSvjX1hq0Ry7ldJMw29k9hmyr7NBLjhF90M1QHB0P7pN6zoPVYF2oDp1yO8r--xaAAyLFwNOpmMVfdIepRxhUN1zmvhiI9Ykgsg8oCePJkLtLJsdzy0YChZkXLBjOhP7qgFX9DSNsQ5AwMYSwKQjGEewOcnklpl1eqtEYOcnHLaRDsTkSJakwekJjYzLNWj9WxQkTc',
     title: { vi: 'Chuyên gia Massage Thụy Điển & Đá Nóng', en: 'Swedish & Hot Stone Specialist' },
@@ -49,7 +49,7 @@ export const mockStaff: MockStaff[] = [
     skills: { body: true, facial: true, foot: false, hotstone: true }
   },
   {
-    id: 'NV02',
+    id: 'NH002',
     name: 'Tuấn Kiệt',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDv1BO05fmTERTJE8ClehvdWNRc5-DDVP-Aovf_N5Uk1HugvNo0gV7RhFSB1oizv6SNHpJDktwGI2h5-X9rEDB367LOfnRZa4pBrgtmUKgKdwd4EMpTI1Nrg9u4qobrKaAuncgD6TpOi-SIv63ezKS-ZAYm473jBeNU_hfUvjCxt93kGKd0SAlbK5VD_UogoGQPaxacPsd7GM_tmI3akaugXEEQCFA1Emw5taKwQEgyRnXlmMJzQe6CpeJ4mew1636KdOjGzeB2WuU',
     title: { vi: 'Trị liệu chuyên sâu & Bấm huyệt', en: 'Deep Tissue & Acupressure' },
@@ -62,7 +62,7 @@ export const mockStaff: MockStaff[] = [
     skills: { body: true, facial: false, foot: true, hotstone: false }
   },
   {
-    id: 'NV03',
+    id: 'NH003',
     name: 'Hương Ly',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD--9-ma9e7Hb4zoRf236qXbPAET3ci5gUi0er1topSCkyKPT73qvbQDCxpO1_zCxEbHNxTGfj1Nrof_AIkyvu8qAo04CXlzpl3gWRbsUMYX434qz0QCUnDBB2xlxnxBDXx7A7XGF238_k4daWgNrb7JyLaN-lz8XLL8XkvNtGlJr9wbPayvnWzn5lKvNDyvu9uU404D4Q3HINsE1XagbBGfXSO3os-qU_kucD9Fh1X9kpR0hwcdUsYiIiKVnmOVjK3OgpPjq6ift4',
     title: { vi: 'Chăm sóc da mặt & Liệu pháp hương thơm', en: 'Facial Care & Aromatherapy' },
@@ -75,7 +75,7 @@ export const mockStaff: MockStaff[] = [
     skills: { body: false, facial: true, foot: true, hotstone: false }
   },
   {
-    id: 'NV04',
+    id: 'NH004',
     name: 'Bảo Trâm',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDLXtLmZJGE9Fx1luWWCYtf4Yqc-zC8c7xP2KBZMfM1iEHCGBRdajpQ9LKckhoUWvg3b6Yh6ct9oSIlPN8sFTf3LVG8MydwUHYrH__dNn20n7jQtFeLpcvq3yDPeIIyXxmhkAvw84x_LJQCJzffNJWD62BYrfjN70lHAGUmz-5x-QyndcCdFc4T1DompjmlnixZFoZoVjf59JwcCH7CvrlD-f_DuKq-s3ak4rTci9uH_s1uDtIhvq8QhR6xd661sAA7yXHMWrgyUDc',
     title: { vi: 'Massage toàn diện & Trị liệu Shiatsu', en: 'Full Body & Shiatsu Therapy' },

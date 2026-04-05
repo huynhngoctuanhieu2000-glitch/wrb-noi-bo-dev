@@ -86,14 +86,8 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
             }
           </h1>
 
-          {/* Right spacer / avatar */}
-          <div className="w-8 h-8 rounded-full overflow-hidden border border-[#e6c487]/20">
-            <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbZqpGjw34iHHsBZpyOBogjZzjiGxDbEAjYfpSBm13HLNG7g9f8MYd8Yc_7Kg0Kd6ed87dfuKNGca6wtGSgX22n9uzMTvqTmdSWTjIiCndt4mVujuvi_AdSM-SJeyretAr72r4spb-4tpGM0pzH08IUvqPOoqZLonjQqUPufRgMlv97zvnBaNtdlcmkET6dnTjpjc-KW_FwaZyT8QoExhbzhuxWVm9x1-5d8VxDwP5r_PmyDefW_0bqDOUvNO1oS-0j7_kuO3UU-8"
-              alt=""
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* Right spacer */}
+          <div className="w-6" />
         </div>
       </header>
 

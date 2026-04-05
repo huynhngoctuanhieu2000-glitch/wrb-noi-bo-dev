@@ -1,84 +1,139 @@
-# 🔍 Phân Tích Luồng Menu VIP/Premium - Ngân Hà Spa
+# 🔍 Luồng Menu VIP/Premium – Ngân Hà Spa
 
-> Phiên bản đã được tinh chỉnh Tối Ưu UX (Service-led vs Staff-led) và Bổ sung Business Logic "Lịch làm việc KTV theo ngày".
+> **Phiên bản cuối** – Tổng hợp toàn bộ yêu cầu đã thống nhất.
+> Cập nhật: 2026-04-04
 
 ---
 
-## 📊 Sơ Đồ Luồng VIP Cập Nhật (Hybrid Flow + Date Calendar)
+## 📊 Tổng Quan Luồng (User Journey)
 
 ```mermaid
 flowchart TB
-    subgraph CLIENT["🧑 TRẢI NGHIỆM KHÁCH HÀNG (VIP JOURNEY)"]
-        A["1. Lời Chào Tiên Quyết\n'Hôm nay quý khách muốn tập trung vào điều gì?'"]
-        
-        A -->|Lựa chọn 1| B1["Chọn Theo Dịch Vụ\n(VD: Chọn 'Body')"]
-        A -->|Lựa chọn 2| B2["Chọn Nhân Viên Trực Tiếp\n(Tìm KTV quen)"]
+    START["🏠 Khách chọn cuốn sách Menu PREMIUM"] --> S1
 
-        B1 --> DD1["Chọn Ngày Dự Kiến\n(Lọc ra danh sách KTV đi làm ngày đó)"]
-        DD1 --> C1["Hiển thị Danh sách KTV (Có đi làm)\n(ƯU TIÊN KTV giỏi 'Body' lên hàng đầu)"]
-
-        B2 --> C2["Mở trực tiếp Danh sách Toàn bộ KTV"]
-        C2 --> DD2{"KTV hôm nay có đi làm không?"}
-        DD2 -->|Đi làm| C1
-        DD2 -->|Nghỉ làm hôm nay| DD3["Gợi ý chọn sang ngày khác KTV có lịch trực"]
-        DD3 --> C1
-
-        C1 --> E["Chọn Kỹ năng (Skill)\n(Tra thời gian từ DB)"]
-
-        E --> F{"Quyết Định Thời Gian"}
-        
-        F -->|Mốc Giờ Cụ Thể| F1["TimeSlot Picker\n(Tính giờ rảnh chung của nhóm KTV)"]
-        F -->|Tại Chi Nhánh| F2["Cập nhật trạng thái Realtime lên Lễ Tân\n(Báo KTV chuẩn bị đón VIP tới)"]
-
-        F1 --> G["Review & Checkout"]
-        F2 --> G
-        G --> H["Hoàn tất (Lưu Data + Mảng KTV)"]
-    end
-
-    subgraph SYSTEM["⚙️ HỆ THỐNG XỬ LÝ (BACKEND)"]
-        S1["DB: Đọc JSONB 'skills' của Staff -> Sort NV"]
-        S2["DB: Check Ca Làm Việc (Schedules) để chặn ngày nghỉ"]
-        S3["Tính Giờ Rảnh: Quét 'TurnQueue' -> Báo giờ bận thực tế trong ngày"]
-    end
+    S1["Bước 1: LỜI CHÀO TIÊN QUYẾT\n'Hôm nay quý khách muốn tập trung vào điều gì?'"]
     
-    CLIENT -.-> SYSTEM
+    S1 -->|"Lựa chọn 1"| S1A["Chọn Theo Dịch Vụ\n(VD: Body, Facial, Foot...)"]
+    S1 -->|"Lựa chọn 2"| S1B["Chọn Nhân Viên Trực Tiếp\n(Tìm KTV quen)"]
+
+    S1A --> S2A["Hiển thị KTV theo ngày đi làm\nƯU TIÊN KTV giỏi dịch vụ đã chọn lên đầu"]
+    S1B --> S2B["Hiển thị toàn bộ KTV\nKTV nghỉ hôm nay → Mờ đi, bấm vào xem lịch ngày khác"]
+
+    S2A --> S3["Bước 2: CHỌN CHUYÊN GIA\nChọn 1–3 KTV làm cùng lúc (Co-working)\nHiện badge: 🟢 Sẵn sàng / 🔴 Nghỉ hôm nay / 🟡 Rảnh sau XX:YY"]
+    S2B --> S3
+
+    S3 --> S4["Bước 3: CẤU HÌNH ĐẶT LỊCH\n(Tất cả trên 1 màn hình)"]
+
+    subgraph S4_DETAIL["📋 Màn hình Cấu Hình Đặt Lịch"]
+        D1["📅 Chọn Ngày đến\n(Day Chips cuộn ngang)"]
+        D2["⚡ Chọn Kỹ Năng (Skill Chips)\n(Deep Tissue, Hot Stone, Facial...)\nMỗi skill có thời gian → Cộng dồn tự động"]
+        D3["🕒 Chọn Khung Giờ\n(Sáng / Chiều / Tối)\nChỉ hiện slot mà TẤT CẢ KTV đã chọn đều rảnh"]
+        D4["📍 HOẶC: Đến Chi Nhánh lấy vé\n(Push realtime báo Lễ Tân)"]
+    end
+    S4 --> D1 --> D2 --> D3
+    D3 -.->|"Hoặc"| D4
+
+    D3 --> S5["Bước 4: XÁC NHẬN DỊCH VỤ\nHiện tóm tắt: KTV, Ngày, Giờ, Skill, Giá tiền"]
+    D4 --> S5
+
+    S5 --> S6["Bước 5: HOÀN TẤT ĐẶT LỊCH\n→ Chuyển sang Checkout chung"]
 ```
 
 ---
 
-## 🎯 Phân Tích Sự Tinh Chỉnh (Tích hợp Lịch Làm Việc KTV)
+## 🚶 Chi Tiết Từng Bước
 
-Để ứng phó với trường hợp "Khách chọn bạn A, nhưng bạn A hôm nay nghỉ làm", hệ thống cần một kiến trúc lịch thông minh:
+### Bước 1: Lời Chào Tiên Quyết (Intent Selector)
+| Thông tin | Chi tiết |
+|-----------|----------|
+| **Mục đích** | Phân luồng khách mới vs khách quen |
+| **Giao diện** | 2 thẻ lớn có ảnh nền, phong cách Luxury Dark + Gold |
+| **Lựa chọn 1** | "Chọn theo dịch vụ" → Dẫn vào chọn Category (Body/Facial/Foot...) → Hệ thống sort KTV có kỹ năng matching lên đầu |
+| **Lựa chọn 2** | "Gặp kỹ thuật viên quen" → Đi thẳng vào danh sách KTV |
 
-### Bước 1: Quyền Lựa Chọn Nhu Cầu & Lọc Theo Ngày
-- **Hướng 1 (Service-led):** Khách chọn "Chăm sóc Body". Lúc này hệ thống ngầm gán Ngày Mặc Định là **Hôm Nay**. Nếu khách đổi lịch sang **Ngày mai**, thuật toán sẽ quét Lịch Trực (Shift Schedule) của toàn bộ nhân viên vào Ngày Mai -> Sau đó mới mang ra chấm điểm Skill "Body" -> Đẩy các KTV thỏa mãn cả 2 điều kiện (Đi làm Ngày đó + Giỏi Body) lên Top đầu.
-- **Hướng 2 (Staff-led):** Khách đi thẳng vào Sảnh KTV để chọn người quen. Khách bấm thẳng vào KTV "Mai Anh".
-  - Nếu hôm nay Mai Anh **Nghỉ Ca**: App sẽ bung ra tờ Lịch (`Calendar UI`) nháy sáng các ngày Mai Anh có ca làm tiếp theo (VD: *"Hôm nay Mai Anh đang nghỉ dưỡng sức. Mai Anh có lịch trực vào Thứ 3 (15/4) và Thứ 4 (16/4). Bạn bấm để book lịch ngày báo nhé!"*). Vô cùng tinh tế và níu chân khách.
+### Bước 2: Sảnh Chọn Chuyên Gia (Staff Selector)
+| Thông tin | Chi tiết |
+|-----------|----------|
+| **Giao diện** | Gallery card lớn (380px), ảnh toàn thân KTV, gradient overlay |
+| **Multi-Select** | 1 khách có thể chọn 1–3 KTV làm cùng lúc (Co-working / Massage 4 tay) |
+| **Badge trạng thái** | 🟢 `SẴN SÀNG` · 🟡 `RẢNH SAU 15:30` · 🔴 `NGHỈ HÔM NAY` |
+| **Nếu KTV nghỉ** | Thẻ mờ đi, bấm vào hiện Calendar chọn ngày KTV có lịch trực → Book ngày khác |
+| **Nếu chọn từ Category** | KTV có matching skill được gắn badge `⭐ ĐỀ XUẤT` và đẩy lên top |
+| **Data source** | Bảng `Staff` (avatar, skills JSONB) + `TurnQueue` (status, estimated_end_time) |
 
-### Bước 2 & 3: Co-working Team & Skill Builder
-- Hệ thống hỗ trợ **Co-working**: Vẫn cho phép khách tick chọn 1 đến 3 KTV làm chung đi làm cùng ngày.
-- Khi đã chọn NV xong, mỗi NV sẽ bung ra mảng **SKILLS** của chính họ, đi kèm **THỜI GIAN** kéo từ DB. VD: Khách tích chọn Skill Cổ Vai Gáy của NV A, và Skill Ngâm Chân của NV B. Hệ thống tự cộng duration và tính giá trị thật để đẩy sang thanh toán.
+### Bước 3: Cấu Hình Đặt Lịch (Booking Config)
+Tất cả gộp trên **1 màn hình duy nhất** (không chuyển trang), gồm 4 phần:
 
-### Bước 4: Thời Gian vs "Chi Nhánh" (Status Trực Tuyến)
-Sau khi setup xong nhân sự, ngày làm, và dịch vụ:
-- **Chọn Slot Giờ Cụ Thể trong Ngày đã chốt:** App tính toán sự chồng chéo lịch hẹn của nhóm KTV. Đưa ra list các giờ rảnh chung. Nếu có 1 KTV bận, các khung giờ trùng sẽ bị Disable.
-- **Báo cáo Tới Chi Nhánh ngay:** Chỉ dùng được nếu Khách chốt KTV làm Ngày Hôm Nay. Nếu đặt cho các Ngày khác thì bắt buộc phải chọn Khung Giờ giữ chỗ.
+| Phần | Chi tiết |
+|------|----------|
+| **📅 Chọn Ngày** | Day Chips cuộn ngang (5 ngày tới). Chọn ngày → Lọc lại KTV có đi làm ngày đó |
+| **⚡ Chọn Kỹ Năng** | Skill Chips (Deep Tissue, Hot Stone, Facial Ritual...). Mỗi chip hiện thời gian (VD: 60p). Chọn xong → Tự cộng dồn tổng thời gian |
+| **🕒 Chọn Giờ** | Grid 3 cột, chia 3 buổi (Sáng/Chiều/Tối). Slot bận = disable + gạch ngang. Chỉ hiện slot mà **TẤT CẢ** KTV đã chọn đều rảnh |
+| **📍 Tại Chi Nhánh** | Nút thay thế cho chọn giờ. Bấm = Push realtime tới màn Lễ Tân báo "Khách VIP đang đến" |
+
+**Công thức tính giá:**
+```
+Giá = (Tổng phút / 60) × 200.000 VNĐ
+VD: Deep Tissue 60p + Hot Stone 90p = 150p → (150/60) × 200k = 500.000đ
+```
+> Config key trên Supabase: `SystemConfigs.vip_price_per_60min = 200000`
+
+### Bước 4: Xác Nhận Dịch Vụ (Confirmation)
+| Thông tin | Chi tiết |
+|-----------|----------|
+| **Giao diện** | Banner ảnh trên cùng + Thông tin đặt lịch dạng card tối |
+| **Hiển thị** | Avatar KTV, Tên KTV, Ngày/Giờ (hoặc "Tại chi nhánh"), Danh sách Skill, Tổng thời gian, Tổng tiền |
+| **CTA** | Nút "HOÀN TẤT ĐẶT LỊCH" → Push payload vào Checkout chung |
+
+### Bước 5: Checkout (Dùng chung)
+- Tái sử dụng trang Checkout của Standard Menu
+- Bổ sung payload VIP: mảng `technicianCodes`, `timeSlot`, `bookingType`, `skills`
+- Database `BookingItems.technicianCodes` (text[]) đã hỗ trợ sẵn nhiều KTV
 
 ---
 
-## 📅 Lộ Trình Triển Khai Thực Tế Mới (3 Phase Cập Nhật)
+## 🗄️ Database Liên Quan
 
-### Phase 1: Mở rộng Back-end & Kéo Schedule KTV
-- [ ] API lấy Danh sách KTV kèm **Lịch Làm Việc (Schedules)**: Truy vấn xem từ bảng Data nào (TurnQueue theo ngày, hoặc Cấu hình ca làm) để xác định hôm nay/ngày mai ai có ca.
-- [ ] Hàm lấy trạng thái rảnh/bận chuẩn từ `TurnQueue` của các KTV có trực hôm đó.
-- [ ] API Skill Tracker: Lọc danh sách NV ưu tiên theo Skill (Jsonb matching).
-- [ ] Khởi tạo structure `MenuContext` để handle Day, Staff Array, Custom Skills.
+| Bảng | Vai trò trong luồng VIP |
+|------|------------------------|
+| `Staff` | Lấy `id`, `full_name`, `avatar_url`, `skills` (JSONB), `gender` để render thẻ KTV |
+| `TurnQueue` | Lấy `status` (`waiting`/`working`/`off`) + `estimated_end_time` → Badge rảnh/bận realtime |
+| `Services` | Lấy `duration` của từng skill để tính tổng thời gian |
+| `SystemConfigs` | Key `vip_price_per_60min` = 200000 → Công thức tính giá VIP |
+| `BookingItems` | Cột `technicianCodes` (text[]) lưu mảng KTV phục vụ 1 item |
 
-### Phase 2: Chế Tác Giao Diện Đầu Vào (Tâm Lý Học Khách Hàng)
-- [ ] **Greeting Screen:** 2 định hướng rõ rệt.
-- [ ] **Calendar Interception:** KTV Card Component. Nếu đi làm hiển thị *"🟢 Rảnh lúc X"*. Nếu hôm nay Nghỉ -> Mờ đi nửa thẻ, nháy chữ *"🔴 Đặt lịch vào Thứ X"*, click vào sổ ra bảng chọn ngày của riêng KTV đó.
+---
 
-### Phase 3: Khối Kỹ Năng & Thanh Toán (Skill Builder)
-- [ ] KTV's Profile Sheet bao gồm Checklist Kỹ Năng siêu mượt.
-- [ ] `TimeSlotPicker` hiển thị dọc/vuốt chip ngang tùy chọn khung giờ cho Ngày đã chọn.
-- [ ] Kết nối Checkout (Dồn Array data KTVs, Skills, Slot đẩy vào đơn).
+## 🎨 Design System
+
+| Token | Giá trị | Dùng cho |
+|-------|---------|----------|
+| Surface (nền) | `#131315` | Background chính |
+| Primary (gold) | `#e6c487` | Tiêu đề, nút CTA, accent |
+| Primary Container | `#c9a96e` | Skill chip selected, badge |
+| On Primary | `#412d00` | Chữ trên nút gold |
+| On Surface | `#e4e2e4` | Chữ chính |
+| On Surface Variant | `#d0c5b5` | Chữ phụ, mô tả |
+| Secondary | `#ffb597` | Label phụ (salmon) |
+| Error | `#ffb4ab` | Badge "Nghỉ hôm nay" |
+| Font Headline | Noto Serif italic | Tiêu đề lớn |
+| Font Body | Manrope / Be Vietnam Pro | Nội dung, label |
+| Card radius | `2rem` (32px) | Bo góc thẻ KTV, thẻ Intent |
+
+---
+
+## 📁 Cấu Trúc File Hiện Tại
+
+```
+src/components/Menu/Premium/
+├── index.tsx                  ← State Machine chính (5 bước)
+├── mockData.ts                ← Dữ liệu giả (sẽ thay bằng API)
+├── premium.constants.ts       ← Design tokens
+├── IntentSelector/index.tsx   ← Bước 1: Lời chào
+├── CategorySelector/index.tsx ← Chọn nhóm dịch vụ (nếu Service-led)
+├── StaffSelector/index.tsx    ← Bước 2: Gallery KTV
+├── BookingConfig/index.tsx    ← Bước 3: Ngày + Skill + Giờ
+├── ConfirmationScreen/index.tsx ← Bước 4: Xác nhận
+├── SkillBuilder/index.tsx     ← (Legacy, đã gộp vào BookingConfig)
+└── TimeSlotPicker/index.tsx   ← (Legacy, đã gộp vào BookingConfig)
+```

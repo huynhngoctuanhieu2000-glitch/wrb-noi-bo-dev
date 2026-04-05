@@ -18,27 +18,27 @@ import { animClasses } from "./animation";
 const LAYOUT_CONFIG = {
   // 1. LOGO TRÊN CÙNG
   topLogo: {
-    marginTop: "50px", // Chỉnh lại một chút cho cân đối
-    width: "250px",    // Giảm từ 280px xuống 250px
+    marginTop: "20px", // Kéo logo lên trên (trước là 50px)
+    width: "200px",    // Kích thước logo vừa vặn với iPhone (trước là 250px)
   },
 
   // 2. VÒNG TRÒN CỜ (ORBIT)
   orbit: {
-    marginTop: "50px",  // Hạ thấp khối cờ xuống để không đè lên logo
+    marginTop: "120px",  // Hạ thấp tâm vòng tròn cờ xuống để tránh logo (trước là 50px)
     centerLogoSize: "100px",
-    radius: 130,              // Tăng bán kính để chứa circle lớn hơn
+    radius: 120,        // Thu nhỏ lại bán kính 1 chút (trước là 130)
   },
 
   // 3. CẤU HÌNH LÁ CỜ
   flag: {
-    circleSize: 70,           // Kích thước vòng tròn cờ (px) — nhỏ hơn
+    circleSize: 64,           // Kích thước vòng tròn cờ (trước là 70)
     flagSize: "55px",         // Cỡ ảnh cờ bên trong circle
-    textSize: "13px",         // Cỡ chữ tên ngôn ngữ — to hơn
+    textSize: "12px",         // Cỡ chữ tên ngôn ngữ
   },
 
   // 4. CHỮ CHẠY (MARQUEE)
   marquee: {
-    marginBottom: "80px",
+    marginBottom: "20px",     // Kéo phần marquee xuống dưới 1 chút (trước là 80px)
     height: "100px",
     fontSize: "17px",
   }

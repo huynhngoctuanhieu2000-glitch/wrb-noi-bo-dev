@@ -5,6 +5,7 @@ import { mockStaff, type MockStaff } from '../mockData';
 // =============================================
 // 🧑 Staff Selector – CELESTIAL Gallery Design
 // Mockup Screen 2: Danh sách Chuyên Gia
+// Có thanh tìm kiếm theo mã nhân viên (NH001–NH050)
 // =============================================
 
 interface StaffSelectorProps {
@@ -16,10 +17,18 @@ interface StaffSelectorProps {
 const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffSelectorProps) => {
   const isVi = lang === 'vi';
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter by search query (match staff code)
+  const filteredStaff = useMemo(() => {
+    const query = searchQuery.trim().toUpperCase();
+    if (!query) return mockStaff;
+    return mockStaff.filter(s => s.id.toUpperCase().includes(query));
+  }, [searchQuery]);
 
   // Sort: Working today first, then by skill match, then by rating
   const sortedStaff = useMemo(() => {
-    return [...mockStaff].sort((a, b) => {
+    return [...filteredStaff].sort((a, b) => {
       if (!a.isWorkingToday && b.isWorkingToday) return 1;
       if (a.isWorkingToday && !b.isWorkingToday) return -1;
       if (preferredCategoryId) {
@@ -29,7 +38,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
       }
       return b.rating - a.rating;
     });
-  }, [preferredCategoryId]);
+  }, [filteredStaff, preferredCategoryId]);
 
   const handleToggle = (id: string) => {
     setSelectedIds(prev =>
@@ -76,7 +85,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
       <motion.section
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-6"
       >
         <h2 className="text-3xl font-serif italic text-[#e6c487] leading-tight mb-2">
           {isVi ? 'DANH SÁCH CHUYÊN GIA' : 'OUR EXPERTS'}
@@ -85,6 +94,42 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
           {isVi ? 'Những đôi tay tài hoa sẵn sàng chăm sóc bạn' : 'Talented hands ready to care for you'}
         </p>
       </motion.section>
+
+      {/* 🔍 Search Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex gap-3 mb-8"
+      >
+        <div className="flex-1 bg-[#1b1b1d] rounded-full px-5 py-3 flex items-center gap-3 border border-[#4d463a]/30 focus-within:border-[#e6c487]/40 transition-colors">
+          <svg className="w-4 h-4 text-[#e6c487]/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={isVi ? 'Nhập mã nhân viên (VD: NH001)' : 'Enter staff code (e.g. NH001)'}
+            className="bg-transparent border-none focus:ring-0 focus:outline-none text-sm w-full placeholder:text-[#998f81]/50 text-[#e4e2e4]"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-[#998f81] hover:text-[#e4e2e4] transition-colors flex-shrink-0"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Empty state */}
+      {sortedStaff.length === 0 && (
+        <div className="text-center py-16">
+          <p className="text-[#998f81] text-sm">{isVi ? 'Không tìm thấy nhân viên với mã này' : 'No staff found with this code'}</p>
+        </div>
+      )}
 
       {/* Therapist Gallery */}
       <div className="space-y-8">
@@ -139,6 +184,11 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
 
                 {/* Content Overlay */}
                 <div className="absolute bottom-0 left-0 w-full p-7 bg-gradient-to-t from-[#131315] via-[#131315]/60 to-transparent">
+                  {/* Staff Code Badge */}
+                  <div className="inline-block bg-[#e6c487]/15 border border-[#e6c487]/30 px-3 py-1 rounded-full mb-2">
+                    <span className="text-[11px] tracking-[0.15em] text-[#e6c487] font-bold">{staff.id}</span>
+                  </div>
+
                   <h3 className="font-serif italic text-2xl text-[#e4e2e4] mb-1">{staff.name}</h3>
                   <p className="text-[11px] tracking-[0.12em] text-[#e6c487] uppercase mb-5">
                     {isVi ? staff.title.vi : staff.title.en}
@@ -189,14 +239,16 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
       </AnimatePresence>
 
       {/* Editorial Quote */}
-      <div className="mt-16 text-center px-4 opacity-40">
-        <p className="font-serif italic text-base text-[#c9a96e] leading-relaxed">
-          {isVi
-            ? '"Nghệ thuật của sự thư giãn bắt đầu từ những tâm hồn tinh tế nhất."'
-            : '"The art of relaxation begins with the most refined souls."'
-          }
-        </p>
-      </div>
+      {sortedStaff.length > 0 && (
+        <div className="mt-16 text-center px-4 opacity-40">
+          <p className="font-serif italic text-base text-[#c9a96e] leading-relaxed">
+            {isVi
+              ? '"Nghệ thuật của sự thư giãn bắt đầu từ những tâm hồn tinh tế nhất."'
+              : '"The art of relaxation begins with the most refined souls."'
+            }
+          </p>
+        </div>
+      )}
     </motion.div>
   );
 };
