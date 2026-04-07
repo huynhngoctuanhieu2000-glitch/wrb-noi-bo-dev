@@ -105,6 +105,7 @@ export const mockSkills: MockSkill[] = [
   { id: 'sk_aromatherapy', name: { vi: 'Aromatherapy', en: 'Aromatherapy' }, icon: 'psychology', duration: 60, cat: 'body' },
   { id: 'sk_foot_reflexology', name: { vi: 'Reflexology', en: 'Reflexology' }, icon: 'footprint', duration: 30, cat: 'foot' },
   { id: 'sk_shiatsu', name: { vi: 'Shiatsu', en: 'Shiatsu' }, icon: 'self_improvement', duration: 60, cat: 'body' },
+  { id: 'sk_ray_body', name: { vi: 'Ray Body chuyên sâu', en: 'Deep Ray Body' }, icon: 'accessibility_new', duration: 70, cat: 'body' },
 ];
 
 // ---- MOCK TIME SLOTS ----

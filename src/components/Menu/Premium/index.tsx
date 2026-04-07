@@ -30,7 +30,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
   const [intent, setIntent] = useState<'service_led' | 'staff_led' | null>(null);
   const [preferredCategory, setPreferredCategory] = useState<string | undefined>();
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedSkillsMap, setSelectedSkillsMap] = useState<Record<string, string[]>>({});
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [timeSlot, setTimeSlot] = useState<string | null>(null);
 
@@ -162,7 +162,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
                 lang={lang}
                 selectedStaffIds={selectedStaffIds}
                 onConfirm={(data) => {
-                  setSelectedSkills(data.skills);
+                  setSelectedSkillsMap(data.skillsMap);
                   setTotalDuration(data.totalDuration);
                   setTimeSlot(data.timeSlot);
                   setStep('CONFIRMATION');
@@ -182,7 +182,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
               <ConfirmationScreen
                 lang={lang}
                 selectedStaffIds={selectedStaffIds}
-                selectedSkills={selectedSkills}
+                selectedSkillsMap={selectedSkillsMap}
                 totalDuration={totalDuration}
                 timeSlot={timeSlot}
                 onConfirm={() => {

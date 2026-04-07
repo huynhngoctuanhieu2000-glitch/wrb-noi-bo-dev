@@ -4,16 +4,15 @@ import { mockStaff, mockSkills, VIP_PRICE_PER_60_MIN } from '../mockData';
 
 // =============================================
 // ✅ Confirmation Screen – CELESTIAL Design
-// Mockup Screen 4: Xác Nhận Dịch Vụ
+// Xác nhận lại KTV, ngày giờ và các Skill
 // =============================================
 
-// Hero banner image
 const CONFIRM_BG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCb8UBdrKfqj8bwY8Ol1VYYTqTv8p2T0yyEJVvcjF3qyw7yX04ejqe4a3Y0kwkxKdbhCaydf5_7Tq4g_nd1fY7QDPFsZtsJvIqP5_TRzNdwIVGQc9AOc0k9F2hcvptyAMmgQGFyW5qZUQJ7jpSI9O7j-KU-sDr_QO4ZnldJ-HZkos8uLs_8w4mj_pWWsFpTSVt-RI-FppnFxuwC3dt7TysAsA9a3uKN4dXLIHCyk9EqCFhNMiJxqm0UFNw88xvXYZe33yLT6N49M9k';
 
 interface ConfirmationScreenProps {
   lang: string;
   selectedStaffIds: string[];
-  selectedSkills: string[];
+  selectedSkillsMap: Record<string, string[]>;
   totalDuration: number;
   timeSlot: string | null;
   onConfirm: () => void;
@@ -22,16 +21,16 @@ interface ConfirmationScreenProps {
 const ConfirmationScreen = ({
   lang,
   selectedStaffIds,
-  selectedSkills,
+  selectedSkillsMap,
   totalDuration,
   timeSlot,
   onConfirm,
 }: ConfirmationScreenProps) => {
   const isVi = lang === 'vi';
   const staffList = mockStaff.filter(s => selectedStaffIds.includes(s.id));
-  const primaryStaff = staffList[0];
-  const skills = mockSkills.filter(s => selectedSkills.includes(s.id));
-  const totalPrice = (totalDuration / 60) * VIP_PRICE_PER_60_MIN;
+  
+  // Tổng giá = Giá cơ bản theo giờ * Số giờ * Số lượng KTV
+  const totalPrice = (totalDuration / 60) * VIP_PRICE_PER_60_MIN * staffList.length;
 
   const isBranch = timeSlot === 'BRANCH_DECIDE';
 
@@ -97,20 +96,35 @@ const ConfirmationScreen = ({
           </div>
         </div>
 
-        {/* Services */}
+        {/* Services Group by Staff */}
         <div className="flex items-start gap-4 bg-[#1b1b1d] p-4 rounded-2xl border border-[#4d463a]/20">
-          <div className="w-10 h-10 rounded-full bg-[#2a2a2c] flex items-center justify-center mt-0.5">
+          <div className="w-10 h-10 rounded-full bg-[#2a2a2c] flex items-center justify-center mt-0.5 shrink-0">
             <svg className="w-5 h-5 text-[#e6c487]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
           </div>
           <div className="flex-1">
-            <div className="text-[10px] text-[#998f81] tracking-wider uppercase">{isVi ? 'Dịch vụ đã chọn' : 'Selected Services'}</div>
-            <div className="mt-1.5 space-y-1.5">
-              {skills.map(s => (
-                <div key={s.id} className="flex justify-between items-center">
-                  <span className="text-sm text-[#e4e2e4]">{isVi ? s.name.vi : s.name.en}</span>
-                  <span className="text-xs text-[#998f81]">{s.duration} {isVi ? 'phút' : 'mins'}</span>
-                </div>
-              ))}
+            <div className="text-[10px] text-[#998f81] tracking-wider uppercase mb-2">{isVi ? 'Dịch vụ đã chọn' : 'Selected Services'}</div>
+            
+            <div className="space-y-3">
+              {staffList.map(staff => {
+                const skillsOfStaff = mockSkills.filter(s => (selectedSkillsMap[staff.id] || []).includes(s.id));
+                if (skillsOfStaff.length === 0) return null;
+                
+                return (
+                  <div key={staff.id}>
+                    {staffList.length > 1 && (
+                      <div className="text-[10px] text-[#e6c487] font-bold mb-1 opacity-90">{staff.name}</div>
+                    )}
+                    <div className="space-y-1">
+                      {skillsOfStaff.map(s => (
+                        <div key={s.id} className={`flex justify-between items-center ${staffList.length > 1 ? 'pl-2 border-l border-[#4d463a]/30' : ''}`}>
+                          <span className="text-sm text-[#e4e2e4]">{isVi ? s.name.vi : s.name.en}</span>
+                          <span className="text-[10px] text-[#998f81]">{s.duration}p</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -121,6 +135,9 @@ const ConfirmationScreen = ({
             <div>
               <div className="text-[10px] text-[#998f81] tracking-wider uppercase">{isVi ? 'Tổng thời gian' : 'Total Duration'}</div>
               <div className="text-lg font-bold text-[#e4e2e4] mt-0.5">{totalDuration} {isVi ? 'phút' : 'minutes'}</div>
+              {staffList.length > 1 && (
+                <div className="text-[10px] text-[#998f81]">x {staffList.length} {isVi ? 'KTV' : 'Therapists'}</div>
+              )}
             </div>
             <div className="text-right">
               <div className="text-[10px] text-[#e6c487] tracking-wider uppercase font-bold">Bespoke Pricing</div>
