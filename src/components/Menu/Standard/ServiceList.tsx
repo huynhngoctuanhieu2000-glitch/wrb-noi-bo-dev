@@ -87,11 +87,6 @@ export default function ServiceList({ categories, services, cart, lang, selected
                             id={`cat-${cat.id}`} 
                             className="mb-2 pt-2"
                         >
-                            {/* Tiêu đề nhóm */}
-                            <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 mt-2 flex items-center gap-1 border-b border-gray-800 pb-2">
-                                <Star className="w-4 h-4 text-[#b6965b]" />
-                                {cat.names[lang as keyof typeof cat.names] || cat.names['en']}
-                            </div>
 
                             {/* Grid danh sách */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Grid responsive: 1 cột mobile, 2 cột tablet+ */}
