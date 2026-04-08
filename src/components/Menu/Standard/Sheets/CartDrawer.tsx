@@ -43,93 +43,91 @@ const TEXT = {
  * [NEW] CustomizationSummary Component
  * Displays the details of "Custom For You" options.
  */
-const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOptions; lang: string; onClick?: () => void }) => {
-    if (!options) return null;
+const CustomizationSummary = ({ item, lang, onClick }: { item: CartItem & { totalQty: number }; lang: string; onClick?: () => void }) => {
     const dict = getDictionary(lang);
-
-    const hasAnyOption = options.strength || options.therapist || 
-                         (options.bodyParts?.focus && options.bodyParts.focus.length > 0) || 
-                         (options.bodyParts?.avoid && options.bodyParts.avoid.length > 0) ||
-                         options.notes?.tag0 || options.notes?.tag1 || options.notes?.content;
-
-    if (!hasAnyOption) return null;
+    const options = item.options;
 
     const translatePart = (key: string) => {
         const bodyPartsDict = dict.body_parts as Record<string, string>;
         return bodyPartsDict[key] || key;
     };
 
-    const getStrengthColor = (s?: string) => {
-        if (s === 'light') return 'text-green-500';
-        if (s === 'medium') return 'text-[#C9A96E]';
-        if (s === 'strong') return 'text-red-500';
-        return 'text-white';
-    };
-
-    const getTherapistColor = (t?: string) => {
-        if (t === 'female') return 'text-purple-400';
-        if (t === 'male') return 'text-blue-500';
-        if (t === 'random') return 'text-green-500';
-        return 'text-white';
-    };
+    const getStrengthColor = (s?: string) => 'text-[#C9A96E]';
+    const getTherapistColor = (t?: string) => 'text-[#C9A96E]';
 
     return (
         <div 
             onClick={onClick}
             className="mt-1 p-3 bg-black/30 rounded-xl border border-white/5 space-y-2.5 cursor-pointer hover:bg-black/40 active:scale-[0.99] transition-all"
         >
-            {/* Strength & Therapist Row */}
-            <div className="flex flex-wrap gap-x-4 gap-y-2 text-[12px]">
-                {options.strength && (
-                    <div className="flex items-center gap-1.5 min-w-fit">
-                        <Hand size={13} className="text-gray-400" />
-                        <span className="text-gray-400">{dict.checkout?.strength}:</span>
-                        <span className={`font-bold ${getStrengthColor(options.strength)}`}>{dict.options?.strength_levels?.[options.strength] || options.strength}</span>
+            {/* Time */}
+            {(item.timeValue > 0 || item.timeDisplay) && (
+                <div className="flex justify-between items-center text-[12px]">
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-gray-400">{dict.checkout?.total_duration || 'Thời gian'}</span>
                     </div>
-                )}
-                {options.therapist && (
-                    <div className="flex items-center gap-1.5 min-w-fit">
-                        <User size={13} className="text-gray-400" />
-                        <span className="text-gray-400">{dict.checkout?.therapist}:</span>
-                        <span className={`font-bold ${getTherapistColor(options.therapist)}`}>{dict.options?.therapist_options?.[options.therapist] || options.therapist}</span>
-                    </div>
-                )}
-            </div>
+                    <span className="font-bold text-white">{item.timeDisplay || `${item.timeValue} mins`}</span>
+                </div>
+            )}
 
-            {/* Focus / Avoid */}
-            {((options.bodyParts?.focus || []).length > 0 || (options.bodyParts?.avoid || []).length > 0) && (
-                <div className="space-y-1.5">
-                    {options.bodyParts?.focus && options.bodyParts.focus.length > 0 && (
-                        <div className="flex gap-2 text-[12px]">
-                            <Heart size={13} className="text-gray-400 shrink-0 mt-0.5" />
-                            <div className="flex flex-wrap gap-1">
-                                <span className="text-gray-400">{dict.checkout?.focus}:</span>
-                                <span className="font-bold text-green-500">
-                                    {options.bodyParts.focus.length === 8 
-                                        ? (dict.custom_for_you?.full_body || 'Full Body')
-                                        : options.bodyParts.focus.map(translatePart).join(', ')}
-                                </span>
-                            </div>
-                        </div>
-                    )}
-                    {options.bodyParts?.avoid && options.bodyParts.avoid.length > 0 && (
-                        <div className="flex gap-2 text-[12px]">
-                            <Ban size={13} className="text-gray-400 shrink-0 mt-0.5" />
-                            <div className="flex flex-wrap gap-1">
-                                <span className="text-gray-400">{dict.checkout?.avoid}:</span>
-                                <span className="font-bold text-red-500">
-                                    {options.bodyParts.avoid.length === 8 
-                                        ? (dict.custom_for_you?.full_body || 'Full Body')
-                                        : options.bodyParts.avoid.map(translatePart).join(', ')}
-                                </span>
-                            </div>
-                        </div>
-                    )}
+            {/* Strength */}
+            {options?.strength && (
+                <div className="flex justify-between items-center text-[12px]">
+                    <div className="flex items-center gap-1.5">
+                        <Hand size={13} className="text-gray-400" />
+                        <span className="text-gray-400">{dict.checkout?.strength}</span>
+                    </div>
+                    <span className={`font-bold ${getStrengthColor(options.strength)}`}>
+                        {dict.options?.strength_levels?.[options.strength] || options.strength}
+                    </span>
+                </div>
+            )}
+
+            {/* Therapist */}
+            {options?.therapist && (
+                <div className="flex justify-between items-center text-[12px]">
+                    <div className="flex items-center gap-1.5">
+                        <User size={13} className="text-gray-400" />
+                        <span className="text-gray-400">{dict.checkout?.therapist}</span>
+                    </div>
+                    <span className={`font-bold ${getTherapistColor(options.therapist)}`}>
+                        {dict.options?.therapist_options?.[options.therapist] || options.therapist}
+                    </span>
+                </div>
+            )}
+
+            {/* Avoid */}
+            {options?.bodyParts?.avoid && options.bodyParts.avoid.length > 0 && (
+                <div className="flex justify-between items-start text-[12px]">
+                    <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                        <Ban size={13} className="text-gray-400" />
+                        <span className="text-gray-400">{dict.checkout?.avoid}</span>
+                    </div>
+                    <span className="font-bold text-[#C9A96E] text-right">
+                        {options.bodyParts.avoid.length === 8 
+                            ? (dict.custom_for_you?.full_body || 'Full Body')
+                            : options.bodyParts.avoid.map(translatePart).join(', ')}
+                    </span>
+                </div>
+            )}
+
+            {/* Focus - Xếp cuối cùng trong nhóm thuộc tính */}
+            {options?.bodyParts?.focus && options.bodyParts.focus.length > 0 && (
+                <div className="flex justify-between items-start text-[12px]">
+                    <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                        <Heart size={13} className="text-gray-400" />
+                        <span className="text-gray-400">{dict.checkout?.focus}</span>
+                    </div>
+                    <span className="font-bold text-[#C9A96E] text-right">
+                        {options.bodyParts.focus.length === 8 
+                            ? (dict.custom_for_you?.full_body || 'Full Body')
+                            : options.bodyParts.focus.map(translatePart).join(', ')}
+                    </span>
                 </div>
             )}
 
             {/* Tags & Content */}
-            {(options.notes?.tag0 || options.notes?.tag1 || options.notes?.content) && (
+            {(options?.notes?.tag0 || options?.notes?.tag1 || options?.notes?.content) && (
                 <div className="space-y-2 pt-1 border-t border-white/5">
                     <div className="flex flex-wrap gap-2">
                         {options.notes?.tag0 && (
@@ -144,9 +142,9 @@ const CustomizationSummary = ({ options, lang, onClick }: { options?: ServiceOpt
                         )}
                     </div>
                     {options.notes?.content && (
-                        <div className="flex gap-2 text-[11px] italic text-gray-400">
-                            <MessageSquare size={11} className="shrink-0 mt-1" />
-                            <span>{options.notes.content}</span>
+                        <div className="flex justify-between gap-4 text-[11px] italic text-gray-400">
+                            <span className="shrink-0">{dict.history?.note_label || 'Note'}</span>
+                            <span className="text-right text-[#C9A96E] font-medium not-italic">{options.notes.content}</span>
                         </div>
                     )}
                 </div>
@@ -313,29 +311,19 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                         groupedCart.map((item) => (
                             <div key={item.displayKey} className="flex flex-col gap-3 bg-[#1c1c1e] p-4 rounded-2xl border border-white/5 shadow-lg relative">
                                 <div className="flex gap-4">
-                                    {/* Ảnh */}
-                                    <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-white/5">
-                                        <img src={item.img} alt={item.names[lang]} className="w-full h-full object-cover" />
-                                    </div>
-
                                     {/* Info Middle */}
                                     <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
                                         {/* Row 1: Name and Price */}
                                         <div className="flex justify-between items-start">
-                                            <h4 className="font-bold text-[#C9A96E] leading-tight truncate text-[16px]">{item.names[lang]}</h4>
-                                            <div className="font-bold text-white text-[15px] shrink-0 ml-2">
+                                            <h4 className="font-bold text-[#C9A96E] leading-tight text-[16px] pr-2">{item.names[lang]}</h4>
+                                            <div className="font-bold text-white text-[15px] shrink-0">
                                                 {formatMoney(item.priceVND * item.totalQty)} VND
                                             </div>
                                         </div>
 
-                                        {/* Row 2: Time and Quantity */}
-                                        <div className="flex justify-between items-center mt-1">
-                                            {(item.timeValue > 0 || item.timeDisplay) && (
-                                                <div className="text-xs text-gray-400">
-                                                    <span>{item.timeDisplay || `${item.timeValue} mins`}</span>
-                                                </div>
-                                            )}
-                                            
+                                        {/* Row 2: Quantity Only */}
+                                        <div className="flex justify-between items-center mt-2 border-t border-white/5 pt-2">
+                                            <span className="text-xs text-gray-400 font-medium">Số lượng (Qty)</span>
                                             {/* Quantity Controls (Condensed Pill Shape) */}
                                             <div className="flex items-center gap-2 bg-white/5 rounded-full px-2 py-0.5 border border-white/5">
                                                 <button
@@ -358,7 +346,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
                                 {/* [LOGIC NEW] Customization Summary (Clickable to Edit) */}
                                 <CustomizationSummary 
-                                    options={item.options} 
+                                    item={item} 
                                     lang={lang} 
                                     onClick={() => handleOpenCustomModal(item)}
                                 />

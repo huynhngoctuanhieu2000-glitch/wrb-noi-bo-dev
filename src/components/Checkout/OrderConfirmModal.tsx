@@ -408,26 +408,18 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 ].filter(Boolean) as string[];
 
                                 const getStrengthColor = (s: string) => {
-                                    switch (s?.toLowerCase()) {
-                                        case 'light': return 'text-green-500';
-                                        case 'strong': return 'text-red-500';
-                                        case 'medium': default: return 'text-[#C9A96E]';
-                                    }
+                                    return 'text-[#C9A96E]';
                                 };
                                 const getTherapistColor = (t: string) => {
-                                    switch (t?.toLowerCase()) {
-                                        case 'male': return 'text-blue-500';
-                                        case 'female': return 'text-purple-400';
-                                        case 'random': default: return 'text-green-500';
-                                    }
+                                    return 'text-[#C9A96E]';
                                 };
 
                                 return (
                                     <div key={item.cartId} className="border border-white/5 rounded-2xl p-4 shadow-sm bg-[#0d0d0d]">
                                         {/* Name & Price */}
-                                        <div className="flex justify-between items-start mb-1">
-                                            <span className="font-bold text-white text-[15px]">{idx + 1}. {item.names[lang] || item.names.en}</span>
-                                            <span className="font-bold text-[#C9A96E] text-[15px]">{formatCurrency(item.priceVND * item.qty)} VND</span>
+                                        <div className="flex justify-between items-start mb-1 gap-2">
+                                            <span className="font-bold text-white text-[15px] truncate flex-1">{idx + 1}. {item.names[lang] || item.names.en}</span>
+                                            <span className="font-bold text-[#C9A96E] text-[15px] shrink-0">{formatCurrency(item.priceVND * item.qty)} VND</span>
                                         </div>
                                         {item.timeValue > 0 && (
                                             <div className="text-xs text-gray-500 font-medium mb-3 border-b border-dashed border-white/5 pb-2">{item.timeValue}mins</div>
@@ -436,64 +428,73 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                         {/* Attributes */}
                                         <div className="space-y-2">
                                             {/* Strength */}
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <div className="w-5 flex justify-center"><Hand size={16} className="text-gray-400" /></div>
-                                                <span className="font-bold text-gray-400 w-20">{dict.checkout.strength}</span>
-                                                <span className="text-gray-500 mx-1">|</span>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="w-5 flex justify-center"><Hand size={16} className="text-gray-400" /></div>
+                                                    <span className="font-medium text-gray-400">{dict.checkout.strength}</span>
+                                                </div>
                                                 <span className={`font-bold capitalize ${getStrengthColor(strength || '')}`}>
                                                     {/* @ts-ignore */}
                                                     {dict.options?.strength_levels?.[strength?.toLowerCase()] || strength || 'Medium'}
                                                 </span>
                                             </div>
                                             {/* Therapist */}
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <div className="w-5 flex justify-center"><User size={16} className="text-gray-400" /></div>
-                                                <span className="font-bold text-gray-400 w-20">{dict.checkout.therapist}</span>
-                                                <span className="text-gray-500 mx-1">|</span>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <div className="flex gap-2 items-center">
+                                                    <div className="w-5 flex justify-center"><User size={16} className="text-gray-400" /></div>
+                                                    <span className="font-medium text-gray-400">{dict.checkout.therapist}</span>
+                                                </div>
                                                 <span className={`font-bold capitalize ${getTherapistColor(therapist || '')}`}>
                                                     {/* @ts-ignore */}
                                                     {dict.options?.therapist_options?.[therapist?.toLowerCase()] || therapist || 'Random'}
                                                 </span>
                                             </div>
-                                            {/* Focus */}
-                                            {focus.length > 0 && (
-                                                <div className="flex items-start gap-2 text-sm">
-                                                    <div className="w-5 flex justify-center mt-0.5"><HeartPulse size={16} className="text-gray-400" /></div>
-                                                    <span className="font-bold text-gray-400 whitespace-nowrap w-20 shrink-0">{dict.checkout.focus}:</span>
-                                                    <span className="text-green-500 font-bold leading-tight mt-0.5">
-                                                        {formatParts(focus)}
-                                                    </span>
-                                                </div>
-                                            )}
                                             {/* Avoid */}
                                             {avoid.length > 0 && (
-                                                <div className="flex items-start gap-2 text-sm">
-                                                    <div className="w-5 flex justify-center mt-0.5"><Ban size={16} className="text-gray-400" /></div>
-                                                    <span className="font-bold text-gray-400 whitespace-nowrap w-20 shrink-0">{dict.checkout.avoid}:</span>
-                                                    <span className="text-red-500 font-bold leading-tight mt-0.5">
+                                                <div className="flex justify-between items-start text-sm">
+                                                    <div className="flex gap-2 items-center shrink-0 mt-0.5">
+                                                        <div className="w-5 flex justify-center"><Ban size={16} className="text-gray-400" /></div>
+                                                        <span className="font-medium text-gray-400">{dict.checkout.avoid}</span>
+                                                    </div>
+                                                    <span className="text-[#C9A96E] font-bold leading-tight mt-0.5 text-right w-2/3">
                                                         {formatParts(avoid)}
                                                     </span>
                                                 </div>
                                             )}
 
-                                            {/* Note Content */}
-                                            {item.options?.notes?.content && (
-                                                <div className="flex items-start gap-2 text-sm mt-3 pt-3 border-t border-white/5">
-                                                    <div className="text-gray-300 italic text-xs bg-white/5 border border-white/5 p-2 rounded w-full">
-                                                        <span className="font-bold not-italic text-gray-400 mr-1">{dict.history?.note_label || 'Note'}:</span>
-                                                        {item.options.notes.content}
+                                            {/* Focus */}
+                                            {focus.length > 0 && (
+                                                <div className="flex justify-between items-start text-sm">
+                                                    <div className="flex gap-2 items-center shrink-0 mt-0.5">
+                                                        <div className="w-5 flex justify-center"><HeartPulse size={16} className="text-gray-400" /></div>
+                                                        <span className="font-medium text-gray-400">{dict.checkout.focus}</span>
                                                     </div>
+                                                    <span className="text-[#C9A96E] font-bold leading-tight mt-0.5 text-right w-2/3">
+                                                        {formatParts(focus)}
+                                                    </span>
                                                 </div>
                                             )}
 
-                                            {/* Tags */}
-                                            {tags.length > 0 && (
-                                                <div className={`flex gap-2 ${!item.options?.notes?.content ? 'mt-3 pt-3 border-t border-white/5' : 'mt-2'}`}>
-                                                    {tags.map(tag => (
-                                                        <span key={tag} className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
-                                                            {tag}
-                                                        </span>
-                                                    ))}
+                                            {/* Tags & Note Content - Footer */}
+                                            {(tags.length > 0 || item.options?.notes?.content) && (
+                                                <div className="mt-2 pt-2 border-t border-white/5 flex flex-col gap-2">
+                                                    {/* Tags */}
+                                                    {tags.length > 0 && (
+                                                        <div className="flex gap-2">
+                                                            {tags.map(tag => (
+                                                                <span key={tag} className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
+                                                                    {tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    {/* Note Content */}
+                                                    {item.options?.notes?.content && (
+                                                        <div className="flex justify-between gap-4 text-xs italic text-gray-400 mt-1">
+                                                            <span className="shrink-0">{dict.history?.note_label || 'Note'}</span>
+                                                            <span className="text-right text-[#C9A96E] font-medium not-italic">{item.options.notes.content}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
