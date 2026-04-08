@@ -66,6 +66,8 @@ const dictionaries = {
             alerts: {
                 fill_name_email: "Please enter Full Name and Email",
                 fill_any_contact: "Please enter at least Name, Email, or Phone",
+                fill_name: "Please enter your Full Name",
+                fill_phone_or_email: "Please enter either your Phone Number or Email",
                 select_payment: "Please select a payment method",
                 order_error: "Error sending order. Please try again.",
                 redirecting: "Redirecting...",
@@ -218,6 +220,8 @@ const dictionaries = {
             alerts: {
                 fill_name_email: "Vui lòng điền Tên và Email",
                 fill_any_contact: "Vui lòng điền ít nhất Tên, Email hoặc Số điện thoại",
+                fill_name: "Vui lòng điền Họ và Tên",
+                fill_phone_or_email: "Vui lòng điền Số điện thoại hoặc Email",
                 select_payment: "Vui lòng chọn phương thức thanh toán",
                 order_error: "Lỗi gửi đơn. Vui lòng thử lại.",
                 redirecting: "Đang chuyển hướng...",
@@ -370,6 +374,8 @@ const dictionaries = {
             alerts: {
                 fill_name_email: "이름과 이메일을 입력해 주세요",
                 fill_any_contact: "이름, 이메일, 또는 전화번호 중 하나를 입력해 주세요",
+                fill_name: "성명을 입력해 주세요",
+                fill_phone_or_email: "전화번호 또는 이메일을 입력해 주세요",
                 select_payment: "결제 방법을 선택해 주세요",
                 order_error: "주문 전송 오류. 다시 시도해 주세요.",
                 redirecting: "리다이렉트 중...",
@@ -522,6 +528,8 @@ const dictionaries = {
             alerts: {
                 fill_name_email: "请输入姓名和电子邮箱",
                 fill_any_contact: "请输入至少姓名、电子邮箱或电话号码其中之一",
+                fill_name: "请输入您的姓名",
+                fill_phone_or_email: "请输入您的电话号码或电子邮箱",
                 select_payment: "请选择支付方式",
                 order_error: "发送订单时出错。请重试。",
                 redirecting: "正在跳转...",
@@ -674,6 +682,8 @@ const dictionaries = {
             alerts: {
                 fill_name_email: "お名前とメールアドレスを入力してください",
                 fill_any_contact: "名前、メールアドレス、電話番号のいずれかを入力してください",
+                fill_name: "氏名を入力してください",
+                fill_phone_or_email: "電話番号またはメールアドレスのいずれかを入力してください",
                 select_payment: "お支払い方法を選択してください",
                 order_error: "注文の送信中にエラーが発生しました。もう一度お試しください。",
                 redirecting: "リダイレクト中...",

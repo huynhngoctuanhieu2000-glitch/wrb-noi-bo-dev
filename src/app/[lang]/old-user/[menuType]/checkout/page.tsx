@@ -139,11 +139,21 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     };
 
     const handleConfirmOrder = () => {
-        // At least 1 of 3 fields (name, email, phone) must be filled
-        if (!customerInfo.name.trim() && !customerInfo.email.trim() && !customerInfo.phone.trim()) {
+        // Validation 1: Name is required
+        if (!customerInfo.name.trim()) {
             setAlertState({
                 isOpen: true,
-                message: dict.checkout.alerts?.fill_any_contact || 'Please enter at least Name, Email, or Phone',
+                message: dict.checkout.alerts?.fill_name || 'Please enter your Full Name',
+                type: 'error'
+            });
+            return;
+        }
+
+        // Validation 2: Either Phone or Email is required
+        if (!customerInfo.email.trim() && !customerInfo.phone.trim()) {
+            setAlertState({
+                isOpen: true,
+                message: dict.checkout.alerts?.fill_phone_or_email || 'Please enter Phone Number or Email',
                 type: 'error'
             });
             return;

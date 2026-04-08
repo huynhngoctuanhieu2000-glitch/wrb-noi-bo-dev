@@ -7,6 +7,14 @@
 
 ## 📡 Active Conversations
 
+### Bắt buộc thông tin Khách Hàng Name và (Phone|Email)
+- **Conversation**: `b81b3ab8-9dd4-4b56-ad3f-5376604fd12c`
+- **Đang sửa**:
+  - `src/lib/dictionaries.ts`
+  - `src/app/[lang]/new-user/[menuType]/checkout/page.tsx`
+  - `src/app/[lang]/old-user/[menuType]/checkout/page.tsx`
+- **Trạng thái**: 🔴 Xong
+
 ### Trang Nhận Đơn Web Booking (/reception/web-booking)
 - **Conversation**: `d66424b4-0a58-404c-8df6-2992511cbcb8`
 - **Đang sửa**:
