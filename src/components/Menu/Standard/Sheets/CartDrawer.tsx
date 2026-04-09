@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Minus, Plus, Hand, User, Heart, Ban, Tag, MessageSquare } from 'lucide-react';
+import { X, Minus, Plus, Hand, User, Heart, Ban, Tag, MessageSquare, Clock } from 'lucide-react';
 import { useMenuData } from '@/components/Menu/MenuContext';
 import { Service, CartState, CartItem, ServiceOptions } from '@/components/Menu/types';
 import { formatCurrency as formatMoney, formatCurrency } from '@/components/Menu/utils'; // Alias formatMoney to formatCurrency
@@ -64,9 +64,15 @@ const CustomizationSummary = ({ item, lang, onClick }: { item: CartItem & { tota
             {(item.timeValue > 0 || item.timeDisplay) && (
                 <div className="flex justify-between items-center text-[12px]">
                     <div className="flex items-center gap-1.5">
-                        <span className="text-gray-400">{dict.checkout?.total_duration || 'Thời gian'}</span>
+                        <Clock size={13} className="text-gray-400" />
+                        <span className="text-gray-400">{dict.checkout?.time || (lang === 'en' ? 'Time' : 'Thời gian')}</span>
                     </div>
-                    <span className="font-bold text-white">{item.timeDisplay || `${item.timeValue} mins`}</span>
+                    <span className="font-bold text-[#C9A96E]">
+                        {item.timeDisplay 
+                            ? item.timeDisplay.replace('mins', dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins'))
+                            : `${item.timeValue} ${dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}`
+                        }
+                    </span>
                 </div>
             )}
 
@@ -129,7 +135,7 @@ const CustomizationSummary = ({ item, lang, onClick }: { item: CartItem & { tota
             {/* Tags & Content */}
             {(options?.notes?.tag0 || options?.notes?.tag1 || options?.notes?.content) && (
                 <div className="space-y-2 pt-1 border-t border-white/5">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap justify-end gap-2">
                         {options.notes?.tag0 && (
                             <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-[#C9A96E]/30">
                                 {dict.tags?.pregnant}
@@ -363,7 +369,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                         <span className="text-gray-400 font-bold tracking-widest text-sm mb-1 uppercase">{t('total')}</span>
                         <div className="text-right">
                             <div className="text-xl font-bold text-[#C9A96E]">
-                                {formatCurrency(totalVND)} VND <span className="text-sm font-normal text-gray-400">/</span> <span className="text-red-500 font-bold">{totalUSD} USD</span>
+                                {formatCurrency(totalVND)} VND <span className="text-sm font-normal text-gray-400">/</span> <span className="text-emerald-600 font-bold">{totalUSD} USD</span>
                             </div>
                         </div>
                     </div>

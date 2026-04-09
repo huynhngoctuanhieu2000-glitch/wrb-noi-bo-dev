@@ -200,7 +200,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                 )}
                                             </div>
                                             <div className="text-white font-medium mt-1">
-                                                {formatCurrency(svc.priceVND)} VND <span className="text-gray-600">/</span> <span className="text-red-400">{svc.priceUSD} USD</span>
+                                                {formatCurrency(svc.priceVND)} VND <span className="text-gray-600">/</span> <span className="text-emerald-600">{svc.priceUSD} USD</span>
                                             </div>
                                             <div className="text-sm text-gray-400 mt-1 flex items-center gap-1">
                                                 <span>{t('qty')}:</span>
@@ -284,7 +284,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                 <div className="text-sm font-medium flex gap-1 items-center justify-center w-full">
                                                     <span className="text-[#C9A96E] font-bold">{formatCurrency(svc.priceVND)}</span>
                                                     <span className="text-gray-500">/</span>
-                                                    <span className="text-red-600 font-bold">{svc.priceUSD} USD</span>
+                                                    <span className="text-emerald-600 font-bold">{svc.priceUSD} USD</span>
                                                 </div>
 
                                                 {/* Badge số lượng nếu đã có trong giỏ (khi đang chọn món khác) */}
@@ -330,7 +330,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                             <span className="opacity-40">|</span>
                             <span>{formatCurrency(selectedService.priceVND * qty)} VND</span>
                             <span className="opacity-40">/</span>
-                            <span className="text-red-600 font-bold">{selectedService.priceUSD * qty} USD</span>
+                            <span className="text-emerald-600 font-bold">{selectedService.priceUSD * qty} USD</span>
                         </button>
                     </div>
                 )}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PencilLine, Wand2, Check, GripHorizontal, User, HeartPulse, Ban, Hand, AlertCircle } from 'lucide-react';
+import { PencilLine, Wand2, Check, GripHorizontal, User, HeartPulse, Ban, Hand, AlertCircle, Clock } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 
@@ -84,7 +84,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                 {/* Row 1: Name + Price */}
                                 <div className="flex justify-between items-start mb-1 gap-2">
                                     <h4 className="text-white font-bold text-lg truncate flex-1">{idx + 1}. {item.names[lang] || item.names.en}</h4>
-                                    <span className={`font-bold text-lg shrink-0 ${currency === 'USD' ? 'text-orange-500' : 'text-[#C9A96E]'}`}>
+                                    <span className={`font-bold text-lg shrink-0 ${currency === 'USD' ? 'text-emerald-600' : 'text-[#C9A96E]'}`}>
                                         {currency === 'USD'
                                             ? `${(item.priceUSD * item.qty)} USD`
                                             : `${formatCurrency(item.priceVND * item.qty)} VND`
@@ -92,18 +92,27 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                     </span>
                                 </div>
 
-                                {/* Row 2: Duration */}
-                                {item.timeValue > 0 && (
-                                    <div className="text-gray-400 text-sm font-medium mb-3 border-b border-dashed border-white/10 pb-3">
-                                        {item.timeValue}mins
-                                    </div>
-                                )}
-
                                 {/* Clickable Customization Region */}
                                 <div 
-                                    className="mt-1 p-3 bg-black/30 rounded-xl border border-white/5 space-y-2.5 cursor-pointer hover:bg-black/40 active:scale-[0.99] transition-all text-sm mb-1"
+                                    className="mt-2 p-3 bg-black/30 rounded-xl border border-white/5 space-y-2.5 cursor-pointer hover:bg-black/40 active:scale-[0.99] transition-all text-sm mb-1"
                                     onClick={() => onCustomRequest(item)}
                                 >
+                                    {/* Duration */}
+                                    {(item.timeValue > 0 || item.timeDisplay) && (
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex gap-2 items-center">
+                                                <div className="w-5 flex justify-center"><Clock size={16} className="text-gray-400" /></div>
+                                                <span className="font-medium text-gray-400">{dict.checkout?.time || (lang === 'en' ? 'Time' : 'Thời gian')}</span>
+                                            </div>
+                                            <span className="font-bold text-[#C9A96E]">
+                                                {item.timeDisplay 
+                                                    ? item.timeDisplay.replace('mins', dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins'))
+                                                    : `${item.timeValue} ${dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}`
+                                                }
+                                            </span>
+                                        </div>
+                                    )}
+
                                     {/* Strength */}
                                     <div className="flex justify-between items-center">
                                         <div className="flex gap-2 items-center">
@@ -157,7 +166,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                         <div className="mt-2 pt-2 border-t border-white/5 flex flex-col gap-2">
                                             {/* Tags */}
                                             {(item.options.notes.tag0 || item.options.notes.tag1) && (
-                                                <div className="flex gap-2">
+                                                <div className="flex justify-end gap-2">
                                                     {item.options.notes.tag0 && (
                                                         <span className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
                                                             {dict.tags?.pregnant || 'Pregnant'}
@@ -192,7 +201,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                 <div className="flex justify-between items-baseline">
                     <span className="text-white font-bold text-lg">Total</span>
                     <div className="text-right">
-                        <span className={`block text-3xl font-black ${currency === 'USD' ? 'text-orange-500' : 'text-[#C9A96E]'}`}>
+                        <span className={`block text-3xl font-black ${currency === 'USD' ? 'text-emerald-600' : 'text-[#C9A96E]'}`}>
                             {currency === 'USD'
                                 ? `${total} USD`
                                 : `${formatCurrency(total)} VND`

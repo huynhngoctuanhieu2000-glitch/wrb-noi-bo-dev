@@ -64,8 +64,8 @@ export default function Footer({ totalVND, totalUSD, totalItems, maxMinutes, lan
 
                     <span className="text-gray-600 mx-1.5 text-sm font-light">/</span>
 
-                    <span className="text-lg font-bold text-red-500 tracking-wide tabular-nums leading-none">{totalUSD}</span>
-                    <span className="text-[10px] text-red-500 font-bold mb-0.5 ml-0.5">USD</span>
+                    <span className="text-lg font-bold text-emerald-600 tracking-wide tabular-nums leading-none">{totalUSD}</span>
+                    <span className="text-[10px] text-emerald-600 font-bold mb-0.5 ml-0.5">USD</span>
                 </div>
             </div>
 

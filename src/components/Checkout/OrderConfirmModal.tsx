@@ -219,9 +219,12 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 <span className="text-indigo-300">{dict.checkout.total_bill || 'Total'}</span>
                                 <span className="font-bold text-amber-400 text-lg">{formatCurrency(totalVND)} VND</span>
                             </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-indigo-300">{dict.checkout.total_duration || 'Duration'}</span>
-                                <span className="font-bold text-white">{totalTime} mins</span>
+                            <div className="flex justify-between items-center text-sm">
+                                <div className="flex gap-2 items-center text-indigo-300">
+                                    <Clock size={16} />
+                                    <span>{dict.checkout?.time || (lang === 'en' ? 'Time' : 'Thời gian')}</span>
+                                </div>
+                                <span className="font-bold text-white">{totalTime} {dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}</span>
                             </div>
                         </div>
 
@@ -421,12 +424,24 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             <span className="font-bold text-white text-[15px] truncate flex-1">{idx + 1}. {item.names[lang] || item.names.en}</span>
                                             <span className="font-bold text-[#C9A96E] text-[15px] shrink-0">{formatCurrency(item.priceVND * item.qty)} VND</span>
                                         </div>
-                                        {item.timeValue > 0 && (
-                                            <div className="text-xs text-gray-500 font-medium mb-3 border-b border-dashed border-white/5 pb-2">{item.timeValue}mins</div>
-                                        )}
-
                                         {/* Attributes */}
                                         <div className="space-y-2">
+                                            {/* Duration */}
+                                            {(item.timeValue > 0 || item.timeDisplay) && (
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <div className="flex gap-2 items-center">
+                                                        <div className="w-5 flex justify-center"><Clock size={16} className="text-gray-400" /></div>
+                                                        <span className="font-medium text-gray-400">{dict.checkout?.time || (lang === 'en' ? 'Time' : 'Thời gian')}</span>
+                                                    </div>
+                                                    <span className="font-bold text-[#C9A96E]">
+                                                        {item.timeDisplay 
+                                                            ? item.timeDisplay.replace('mins', dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins'))
+                                                            : `${item.timeValue} ${dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}`
+                                                        }
+                                                    </span>
+                                                </div>
+                                            )}
+
                                             {/* Strength */}
                                             <div className="flex justify-between items-center text-sm">
                                                 <div className="flex gap-2 items-center">
@@ -480,7 +495,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                                 <div className="mt-2 pt-2 border-t border-white/5 flex flex-col gap-2">
                                                     {/* Tags */}
                                                     {tags.length > 0 && (
-                                                        <div className="flex gap-2">
+                                                        <div className="flex justify-end gap-2">
                                                             {tags.map(tag => (
                                                                 <span key={tag} className="bg-[#C9A96E]/20 text-[#C9A96E] text-[10px] px-2 py-1 rounded border border-[#C9A96E]/30 font-bold uppercase">
                                                                     {tag}
@@ -512,9 +527,12 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 {dict.payment_methods?.[paymentMethod] || dict.payment_methods?.cash_vnd || 'Cash (VND)'}
                             </span>
                         </div>
-                        <div className="flex justify-between text-sm text-gray-400 mb-4 border-b border-white/5 pb-3">
-                            <span>{dict.checkout.total_duration}</span>
-                            <span className="font-bold text-white">{totalTime} mins</span>
+                        <div className="flex justify-between items-center text-sm text-gray-400 mb-4 border-b border-white/5 pb-3">
+                            <div className="flex gap-2 items-center">
+                                <Clock size={16} className="text-gray-400" />
+                                <span>{dict.checkout?.time || (lang === 'en' ? 'Time' : 'Thời gian')}</span>
+                            </div>
+                            <span className="font-bold text-white">{totalTime} {dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}</span>
                         </div>
 
                         <div className="flex justify-between items-center">
