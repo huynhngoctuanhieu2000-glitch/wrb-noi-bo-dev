@@ -103,7 +103,7 @@ export default function CustomerTypePage() {
         {/* --- TIÊU ĐỀ (Dùng t() để dịch) --- */}
         <div className="text-center flex flex-col items-center" style={{ marginBottom: LAYOUT_CONFIG.text.marginBottom }}>
           <h1
-            className="font-bold uppercase tracking-[0.1em] mb-2 font-bold luxury gold-text-shiny drop-shadow-md"
+            className="font-bold uppercase tracking-[0.1em] mb-2 font-luxury gold-text-shiny drop-shadow-md"
             style={{ fontSize: LAYOUT_CONFIG.text.titleSize }}
           >
             {t('wc_title')}

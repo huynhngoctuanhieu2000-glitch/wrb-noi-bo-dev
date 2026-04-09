@@ -15,7 +15,8 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       fontFamily: {
-        luxury: ['"Cinzel"', "serif"], // Font chữ sang trọng của bạn
+        sans: ['var(--font-primary)', 'sans-serif'],
+        luxury: ['var(--font-luxury)', 'serif'],
       },
     },
   },
