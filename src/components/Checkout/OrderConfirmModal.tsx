@@ -377,15 +377,15 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                         <div className="space-y-1">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-400 font-medium">{dict.checkout.name}</span>
-                                <span className="font-bold text-white">{customerInfo.name || 'Guest'}</span>
+                                <span className="font-bold text-[#C9A96E]">{customerInfo.name || 'Guest'}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-400 font-medium">{dict.checkout.email_label}</span>
-                                <span className="font-bold text-white truncate max-w-[200px]">{customerInfo.email || '-'}</span>
+                                <span className="font-bold text-[#C9A96E] truncate max-w-[200px]">{customerInfo.email || '-'}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-400 font-medium">{dict.checkout.gender_label}</span>
-                                <span className="font-bold text-white">{customerInfo.gender || 'Unknown'}</span>
+                                <span className="font-bold text-[#C9A96E]">{customerInfo.gender || 'Unknown'}</span>
                             </div>
                         </div>
                     </div>
@@ -393,7 +393,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     {/* Order Summary */}
                     <div>
                         <div className="flex justify-between items-center mb-3 px-1">
-                            <span className="text-[11px] font-bold text-white uppercase tracking-wider">{dict.checkout.order_summary}</span>
+                            <span className="text-[11px] font-bold text-[#C9A96E] uppercase tracking-wider">{dict.checkout.order_summary}</span>
                             <span className="bg-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-full border border-white/5">{cart.length} {dict.checkout.items}</span>
                         </div>
 
@@ -523,7 +523,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-5 space-y-3">
                         <div className="flex justify-between text-sm text-gray-400 mb-2">
                             <span>{dict.checkout.payment_method}</span>
-                            <span className="font-bold text-white uppercase">
+                            <span className="font-bold text-[#C9A96E] uppercase">
                                 {dict.payment_methods?.[paymentMethod] || dict.payment_methods?.cash_vnd || 'Cash (VND)'}
                             </span>
                         </div>
@@ -532,11 +532,11 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 <Clock size={16} className="text-gray-400" />
                                 <span>{dict.checkout?.time || (lang === 'en' ? 'Time' : 'Thời gian')}</span>
                             </div>
-                            <span className="font-bold text-white">{totalTime} {dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}</span>
+                            <span className="font-bold text-[#C9A96E]">{totalTime} {dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}</span>
                         </div>
 
                         <div className="flex justify-between items-center">
-                            <span className="font-bold text-[#C9A96E] text-lg">{dict.checkout.total_bill}</span>
+                            <span className="font-bold text-white text-lg">{dict.checkout.total_bill}</span>
                             <span className="font-bold text-[#C9A96E] text-xl">{formatCurrency(totalVND)} VND</span>
                         </div>
                         {amountPaid > 0 && (
