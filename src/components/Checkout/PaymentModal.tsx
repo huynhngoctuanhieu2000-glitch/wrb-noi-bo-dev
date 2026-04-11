@@ -144,7 +144,7 @@ export default function PaymentModal({
                 </div>
 
                 <div className="flex justify-between items-center p-4 border-b border-white/10 bg-[#1c1c1e]">
-                    <h2 className="text-xl font-bold text-[#C9A96E] uppercase tracking-widest">{dict.checkout?.payment_method_title || 'Thanh toán'}</h2>
+                    <h2 className="text-xl font-bold text-[#C9A96E] uppercase tracking-widest">{dict.checkout?.payment_method_title || (lang === 'vi' ? 'Thanh toán' : 'Payment')}</h2>
                     <button 
                         onClick={handleClose}
                         className="w-8 h-8 rounded-full bg-[#0d0d0d] flex items-center justify-center text-gray-400 hover:text-[#C9A96E] hover:bg-white/5 transition-colors"
@@ -254,7 +254,7 @@ export default function PaymentModal({
                         onClick={handleConfirmNext}
                         className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] active:scale-[0.98] transition-all text-lg"
                     >
-                        {dict.checkout?.continue || 'TIẾP TỤC'}
+                        {dict.checkout?.continue || (lang === 'vi' ? 'TIẾP TỤC' : 'CONTINUE')}
                     </button>
                 </div>
             </div>

@@ -422,7 +422,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                         {/* Name & Price */}
                                         <div className="flex justify-between items-start mb-1 gap-2">
                                             <span className="font-bold text-white text-[15px] truncate flex-1">{idx + 1}. {item.names[lang] || item.names.en}</span>
-                                            <span className="font-bold text-[#C9A96E] text-[15px] shrink-0">{formatCurrency(item.priceVND * item.qty)} VND</span>
+                                            <span className="font-bold text-white text-[15px] shrink-0">{formatCurrency(item.priceVND * item.qty)} VND</span>
                                         </div>
                                         {/* Attributes */}
                                         <div className="space-y-2">

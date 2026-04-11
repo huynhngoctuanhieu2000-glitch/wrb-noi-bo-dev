@@ -321,8 +321,8 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
                                     <div className="flex-1 flex flex-col justify-between py-0.5 min-w-0">
                                         {/* Row 1: Name and Price */}
                                         <div className="flex justify-between items-start">
-                                            <h4 className="font-bold text-[#C9A96E] leading-tight text-[16px] pr-2">{item.names[lang]}</h4>
-                                            <div className="font-bold text-[#C9A96E] text-[15px] shrink-0">
+                                            <h4 className="font-bold text-white leading-tight text-[16px] pr-2">{item.names[lang]}</h4>
+                                            <div className="font-bold text-white text-[15px] shrink-0">
                                                 {formatMoney(item.priceVND * item.totalQty)} VND
                                             </div>
                                         </div>
