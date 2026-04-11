@@ -145,7 +145,7 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                                 {/* Glow Effect */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-[#C9A96E]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-                                <div className="w-10 h-10 flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
+                                <div className="w-14 h-14 flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-110">
                                     <img
                                         src={cat.image}
                                         alt={name}
@@ -161,27 +161,6 @@ const CategoryPicker = ({ categories, lang, onSelect, onBack }: Props) => {
                 </div>
             </motion.div>
 
-            {/* Footer - Back button only */}
-            <motion.div
-                className="fixed bottom-0 left-0 right-0 p-8 pb-10 bg-gradient-to-t from-[#0d0d0d] via-[#0d0d0d] to-transparent pointer-events-none"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.4 }}
-            >
-                <div className="pointer-events-auto">
-                    <motion.button
-                        onClick={onBack}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`mx-auto w-[65%] max-w-xs py-4 px-6 rounded-[2rem] border-[0.5px] ${TOKENS.borderLight} bg-[#141414] hover:bg-[#1a1a1a] flex items-center justify-center gap-3 transition-all shadow-2xl`}
-                    >
-                        <ArrowLeft size={16} className={`${TOKENS.textGold} opacity-70`} strokeWidth={1.5} />
-                        <span className={`text-xs font-semibold tracking-[0.2em] uppercase ${TOKENS.textGold}`}>
-                            {tBack}
-                        </span>
-                    </motion.button>
-                </div>
-            </motion.div>
         </motion.div>
     );
 };

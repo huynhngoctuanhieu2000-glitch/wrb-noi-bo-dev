@@ -30,14 +30,6 @@ const LAYOUT_CONFIG = {
     fontSizeTitle: "16px",   // Cỡ chữ tiêu đề trong nút
     fontSizeDesc: "11px",    // Cỡ chữ mô tả (nhỏ) trong nút KH mới
     iconSize: 22,            // Kích thước Icon (số, không phải px)
-  },
-
-  // 4. CẤU HÌNH NÚT BACK
-  backButton: {
-    marginTop: "20px",       // Khoảng cách từ nút KH mới xuống nút Back
-    fontSize: "14px",        // Cỡ chữ
-    paddingX: "30px",        // Độ rộng nút
-    paddingY: "10px",        // Độ dày nút
   }
 };
 // ============================================================================
@@ -83,6 +75,15 @@ export default function CustomerTypePage() {
         <div className="shooting-star star-3"></div>
 
       </div>
+
+      {/* --- MŨI TÊN QUAY LẠI (GÓC TRÁI TRÊN) --- */}
+      <button
+        onClick={user ? handleLogoutClick : handleBack}
+        className="absolute top-4 left-4 z-20 p-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity flex items-center"
+        style={{ top: 'calc(16px + env(safe-area-inset-top))' }}
+      >
+        <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
+      </button>
 
       <div className={`z-10 w-full max-w-md flex flex-col ${getCommonAnimationClass()}`} style={{ gap: LAYOUT_CONFIG.buttons.gap }}>
 
@@ -149,22 +150,6 @@ export default function CustomerTypePage() {
           </div>
         </button>
 
-        {/* --- NÚT QUAY LẠI / ĐĂNG XUẤT --- */}
-        <button
-          onClick={user ? handleLogoutClick : handleBack}
-          style={{
-            marginTop: LAYOUT_CONFIG.backButton.marginTop,
-            paddingTop: LAYOUT_CONFIG.backButton.paddingY,
-            paddingBottom: LAYOUT_CONFIG.backButton.paddingY,
-            paddingLeft: LAYOUT_CONFIG.backButton.paddingX,
-            paddingRight: LAYOUT_CONFIG.backButton.paddingX,
-            fontSize: LAYOUT_CONFIG.backButton.fontSize
-          }}
-          className="w-fit mx-auto rounded-[1.5rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-1.5 text-black hover:text-white uppercase tracking-widest transition-colors py-2"
-        >
-          <ArrowLeft size={14} />
-          {user ? t('btn_logout') : t('btn_back')}
-        </button>
 
       </div>
 

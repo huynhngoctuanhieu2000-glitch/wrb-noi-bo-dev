@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, AlertCircle } from 'lucide-react';
 import PaymentMethods from '@/components/Checkout/PaymentMethods';
 import ChangeDenominationSelector from '@/components/Checkout/ChangeDenominationSelector';
 import AlertModal from '@/components/Shared/AlertModal';
@@ -33,6 +33,8 @@ export default function PaymentModal({
     const [amountPaid, setAmountPaid] = useState<string>('');
     const [changeDenominations, setChangeDenominations] = useState<number[]>([]);
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
+    const [showWarningModal, setShowWarningModal] = useState(false);
+    const [isWarningClosing, setIsWarningClosing] = useState(false);
 
     const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
 
@@ -153,6 +155,14 @@ export default function PaymentModal({
 
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                    {/* Pay Warning Banner */}
+                    <div
+                        className="bg-[#0d0d0d] border border-white/10 p-3 rounded-xl flex items-center justify-center text-center cursor-pointer hover:bg-white/5 transition-colors"
+                        onClick={() => setShowWarningModal(true)}
+                    >
+                        <span className="text-[#C9A96E] font-bold text-sm">*{dict.checkout?.pay_warning}</span>
+                    </div>
+
                     <PaymentMethods
                         lang={lang}
                         dict={dict}
@@ -257,6 +267,41 @@ export default function PaymentModal({
                 onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
                 lang={lang}
             />
+
+            {/* Payment Regulation Popup */}
+            {showWarningModal && (
+                <div
+                    className={`fixed inset-0 z-[140] flex items-center justify-center bg-black/80 backdrop-blur-sm p-6 ${isWarningClosing ? 'animate-out fade-out' : 'animate-in fade-in duration-200'}`}
+                    onClick={() => {
+                        setIsWarningClosing(true);
+                        setTimeout(() => { setShowWarningModal(false); setIsWarningClosing(false); }, 200);
+                    }}
+                >
+                    <div
+                        className={`bg-[#1c1c1e] w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl border border-white/5 p-6 flex flex-col items-center text-center gap-4 ${isWarningClosing ? 'animate-out zoom-out-95' : 'animate-in zoom-in-95 duration-200'}`}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="w-16 h-16 rounded-full bg-[#C9A96E]/10 flex items-center justify-center mb-1">
+                            <AlertCircle size={32} className="text-[#C9A96E]" />
+                        </div>
+                        <h3 className="text-xl font-bold text-[#C9A96E] leading-tight">
+                            {dict.payment_methods?.payment_regulation?.title || "Payment Regulation"}
+                        </h3>
+                        <p className="text-gray-400 text-[15px] leading-relaxed">
+                            {dict.payment_methods?.payment_regulation?.content || "We collect fees before service."}
+                        </p>
+                        <button
+                            onClick={() => {
+                                setIsWarningClosing(true);
+                                setTimeout(() => { setShowWarningModal(false); setIsWarningClosing(false); }, 200);
+                            }}
+                            className="w-full bg-[#C9A96E] hover:bg-[#b09461] text-black font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-lg shadow-[#C9A96E]/20 mt-2"
+                        >
+                            {dict.payment_methods?.payment_regulation?.btn || "UNDERSTOOD"}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

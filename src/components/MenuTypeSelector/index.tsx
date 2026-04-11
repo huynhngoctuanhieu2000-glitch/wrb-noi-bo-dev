@@ -36,16 +36,6 @@ const LAYOUT_CONFIG = {
         gap: "20px",             // Giảm khoảng cách giữa 2 sách
         titleSize: "20px",       // Cỡ chữ tên gói
         descSize: "11px",        // Cỡ chữ mô tả
-    },
-
-    // 3. CẤU HÌNH NÚT BACK (QUAY LẠI)
-    backButton: {
-        marginTop: "15px",       // Khoảng cách từ sách xuống nút
-        marginBottom: "15px",    // Cách đáy màn hình
-        fontSize: "13px",        // Cỡ chữ nút
-        paddingY: "10px",        // Độ dày nút
-        paddingX: "30px",        // Độ rộng nút
-        minWidth: "30px",       // Chiều dài tối thiểu
     }
 };
 // ============================================================================
@@ -80,7 +70,17 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
 
     return (
     <>
-        <div className="flex flex-col items-center justify-between h-full w-full max-h-full py-2">
+        <div className="flex flex-col items-center justify-between h-full w-full max-h-full py-2 relative">
+
+            {/* MŨI TÊN QUAY LẠI (GÓC TRÁI TRÊN) */}
+            {onBack && (
+                <button
+                    onClick={onBack}
+                    className="absolute top-4 left-2 z-30 p-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity flex items-center"
+                >
+                    <ArrowLeft className="text-white w-6 h-6" strokeWidth={1.5} />
+                </button>
+            )}
 
             {/* 1. HEADER */}
             <div
@@ -240,37 +240,6 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
 
             </div>
 
-            {/* 3. NÚT BACK */}
-            {onBack && (
-                <div
-                    className="text-center animate-in fade-in slide-in-from-bottom-8 delay-500 fill-mode-forwards z-30"
-                    style={{
-                        paddingBottom: LAYOUT_CONFIG.backButton.marginBottom,
-                        marginTop: LAYOUT_CONFIG.backButton.marginTop // Áp dụng khoảng cách từ sách xuống nút
-                    }}
-                >
-                    <button
-                        onClick={onBack}
-                        style={{
-                            fontSize: LAYOUT_CONFIG.backButton.fontSize,
-                            paddingTop: LAYOUT_CONFIG.backButton.paddingY,
-                            paddingBottom: LAYOUT_CONFIG.backButton.paddingY,
-                            paddingLeft: LAYOUT_CONFIG.backButton.paddingX,
-                            paddingRight: LAYOUT_CONFIG.backButton.paddingX,
-                            minWidth: LAYOUT_CONFIG.backButton.minWidth
-                        }}
-                        className="mt-4 mx-auto rounded-[2rem] bg-[linear-gradient(135deg,#B38728_0%,#FBF5B7_50%,#AA8C2C_100%)] flex items-center justify-center gap-2 text-black hover:text-white uppercase tracking-widest transition-colors shadow-lg"
-                    >
-                        <ArrowLeft
-                            size={20}
-                            className="bg-black-500/80 group-hover:bg-white transition-transform duration-300 group-hover:-translate-x-1"
-                        />
-                        <span className="text-black/90 group-hover:text-white uppercase tracking-[0.25em] font-semibold transition-colors duration-300">
-                            {t.btn_back}
-                        </span>
-                    </button>
-                </div>
-            )}
 
         </div>
 
