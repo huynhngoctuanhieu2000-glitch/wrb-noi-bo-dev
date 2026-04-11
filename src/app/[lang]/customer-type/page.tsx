@@ -20,7 +20,6 @@ const LAYOUT_CONFIG = {
   // 2. CẤU HÌNH TIÊU ĐỀ
   text: {
     titleSize: "28px",       // Cỡ chữ tiêu đề chính (WELCOME...)
-    descSize: "16px",        // Cỡ chữ mô tả bên dưới
     marginBottom: "30px",    // Khoảng cách từ chữ xuống nút đầu tiên
   },
 
@@ -108,12 +107,7 @@ export default function CustomerTypePage() {
           >
             {t('wc_title')}
           </h1>
-          <p
-            className="gold-text-soft font-medium tracking-wide opacity-100"
-            style={{ fontSize: LAYOUT_CONFIG.text.descSize }}
-          >
-            {t('wc_desc')}
-          </p>
+
         </div>
 
         {/* --- NÚT KHÁCH HÀNG MỚI --- */}

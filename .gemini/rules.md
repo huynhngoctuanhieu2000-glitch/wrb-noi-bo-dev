@@ -1,7 +1,18 @@
-# 🔒 MULTI-CONVERSATION COORDINATION (CRITICAL)
+# 🌐 COMMUNICATION STANDARDS
+1.  **Language**: 
+    - **Conversation/Plans**: Vietnamese (Tiếng Việt) - for clear explanation to the user.
+    - **Code/Comments/Commits**: English - for international standards.
+2.  **Tone**: Professional, AI Sparring Partner.
+
+# 🚀 WORKFLOW RULES (CRITICAL - NO GLOBAL SEARCH)
+1.  **NO AUTO SEARCHING**: Đã vô hiệu hóa việc tự động tìm kiếm (grep search) toàn codebase, không yêu cầu tìm `PROJECT_MAP.md` hoặc `coordination.md` làm chậm máy.
+2.  **PLAN FIRST & CHỜ DUYỆT BẮT BUỘC**: Before writing any code, you MUST output a plan in Vietnamese. **You MUST STOP and wait for user's explicit OK/Duyệt before editing files.** 
+3.  **HỎI NHƯ PARTNER**: Đặt câu hỏi khai thác yêu cầu thay vì đoán.
+
+# 🔒 MULTI-CONVERSATION COORDINATION (OPTIONAL)
 
 ## Rule: File Locking & Coordination
-Before editing ANY file in this project, you MUST:
+Chỉ áp dụng khi triển khai các tính năng lớn. Nếu chỉ code hoặc fix lỗi thông thường, **hãy bỏ qua quy trình khóa file này** để xử lý tốc độ cao:
 
 1. **READ** the file `.agents/coordination.md` to check which files are currently being edited by other conversations.
 2. **If a file is listed as "in-use"** (🟢 Đang làm) by another conversation:
@@ -64,6 +75,6 @@ Khi code có thay đổi liên quan đến **database** (Supabase), bạn **BẮ
 2. **Kế hoạch triển khai (Implementation Plan):** Khi một bản kế hoạch (plan) được user ĐỒNG Ý / CHẤP NHẬN để tiến hành code, bạn BẮT BUỘC phải lưu lại bản kế hoạch đó vào một file lấy theo **Tên nhiệm vụ** (ví dụ: `plan_tao_api_dat_lich.md`).
 3. **Mục đích:** Đảm bảo không bị mất bối cảnh (context) khi chat dài, dễ dàng cho user đọc lại tiến trình làm việc và các quyết định kỹ thuật đã chốt.
 
-## Rule: Project Map & Context (BẮT BUỘC ĐỌC VÀ CẬP NHẬT)
-1. **ĐỌC TRƯỚC KHI LÀM:** Bất cứ khi nào bắt đầu một phiên làm việc mới có liên quan đến việc viết code hoặc sửa đổi kiến trúc, quy trình, bạn **BẮT BUỘC** phải đọc file `.agents/PROJECT_MAP.md` để nắm bắt hệ thống (cấu trúc thư mục, luồng dữ liệu, convention).
-2. **CẬP NHẬT SAU KHI XONG:** Khi phát triển xong thủ công hoặc tự động một luồng tính năng LỚN, thiết lập kiến trúc mới, bạn **BẮT BUỘC** phải dành bước cuối cùng để tóm tắt đường đi, data flow của tính năng đó và cập nhật (update) vào file `.agents/PROJECT_MAP.md`.
+## Rule: Project Map & Context (OPTIONAL)
+1. **ĐỌC TRƯỚC KHI LÀM:** Không bắt buộc đọc `PROJECT_MAP.md` ở đầu mọi phiên chat. Chỉ tham khảo khi làm tính năng hệ thống hoàn toàn mới để hiểu cấu trúc.
+2. **CẬP NHẬT SAU KHI XONG:** Mức bắt buộc chỉ áp dụng với tính năng tốn kém, cấu trúc lớn hoặc database thay đổi vĩ mô. Các chỉnh sửa thông thường thì bỏ qua.

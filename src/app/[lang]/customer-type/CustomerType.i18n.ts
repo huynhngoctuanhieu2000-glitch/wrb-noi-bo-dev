@@ -8,7 +8,7 @@
 /**
  * Type định nghĩa các key có thể dịch
  */
-export type TranslationKey = 'wc_title' | 'wc_desc' | 'btn_new_title' | 'btn_new_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout' | 'or_manual';
+export type TranslationKey = 'wc_title' | 'btn_new_title' | 'btn_new_desc' | 'btn_old_title' | 'btn_back' | 'find_history' | 'desc_enter_email' | 'input_placeholder' | 'search' | 'cancel' | 'error_not_found' | 'error_desc' | 'btn_retry' | 'btn_register_new' | 'btn_logout' | 'or_manual';
 
 /**
  * Object chứa tất cả bản dịch theo ngôn ngữ
@@ -17,7 +17,7 @@ export type TranslationKey = 'wc_title' | 'wc_desc' | 'btn_new_title' | 'btn_new
 export const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
     wc_title: 'Welcome',
-    wc_desc: 'What would you like to do?',
+
     btn_new_title: 'New Order',
     btn_new_desc: 'Create a new booking',
     btn_old_title: 'View Order History',
@@ -36,7 +36,7 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
   },
   vi: {
     wc_title: 'Chào mừng',
-    wc_desc: 'Bạn muốn thực hiện điều gì?',
+
     btn_new_title: 'Đơn hàng mới',
     btn_new_desc: 'Tạo dịch vụ mới',
     btn_old_title: 'Xem lịch sử đơn hàng',
@@ -55,7 +55,7 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
   },
   jp: {
     wc_title: 'ようこそ',
-    wc_desc: 'どうされますか？',
+
     btn_new_title: '新規注文',
     btn_new_desc: '新しい予約を作成',
     btn_old_title: '注文履歴を見る',
@@ -74,7 +74,7 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
   },
   kr: {
     wc_title: '환영합니다',
-    wc_desc: '무엇을 하시겠습니까?',
+
     btn_new_title: '새 주문',
     btn_new_desc: '새 예약 만들기',
     btn_old_title: '주문 내역 보기',
@@ -93,7 +93,7 @@ export const translations: Record<string, Record<TranslationKey, string>> = {
   },
   cn: {
     wc_title: '欢迎',
-    wc_desc: '您想做什么？',
+
     btn_new_title: '新订单',
     btn_new_desc: '创建新预约',
     btn_old_title: '查看订单记录',
