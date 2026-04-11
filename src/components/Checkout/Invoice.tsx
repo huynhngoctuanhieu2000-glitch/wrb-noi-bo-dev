@@ -55,11 +55,11 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                         // Helper for colors
                         const getStrengthColor = (s: string) => {
-                            return 'text-[#C9A96E]';
+                            return 'text-white';
                         };
 
                         const getTherapistColor = (t: string) => {
-                            return 'text-[#C9A96E]';
+                            return 'text-white';
                         };
 
                         return (
@@ -67,7 +67,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                 {/* Row 1: Name + Price */}
                                 <div className="flex justify-between items-start mb-1 gap-2">
                                     <h4 className="text-white font-bold text-lg truncate flex-1">{idx + 1}. {item.names[lang] || item.names.en}</h4>
-                                    <span className={`font-bold text-lg shrink-0 ${currency === 'USD' ? 'text-emerald-600' : 'text-[#C9A96E]'}`}>
+                                    <span className={`font-bold text-lg shrink-0 ${currency === 'USD' ? 'text-emerald-600' : 'text-white'}`}>
                                         {currency === 'USD'
                                             ? `${(item.priceUSD * item.qty)} USD`
                                             : `${formatCurrency(item.priceVND * item.qty)} VND`
@@ -87,7 +87,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                                 <div className="w-5 flex justify-center"><Clock size={16} className="text-gray-400" /></div>
                                                 <span className="font-medium text-gray-400">{dict.checkout?.time || (lang === 'en' ? 'Time' : 'Thời gian')}</span>
                                             </div>
-                                            <span className="font-bold text-[#C9A96E]">
+                                            <span className="font-bold text-white">
                                                 {item.timeDisplay 
                                                     ? item.timeDisplay.replace('mins', dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins'))
                                                     : `${item.timeValue} ${dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}`
@@ -125,7 +125,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                                 <div className="w-5 flex justify-center"><Ban size={16} className="text-gray-400" /></div>
                                                 <span className="font-medium text-gray-400">{dict.checkout.avoid}</span>
                                             </div>
-                                            <span className="text-[#C9A96E] font-bold leading-tight mt-0.5 text-right w-2/3">
+                                            <span className="text-white font-bold leading-tight mt-0.5 text-right w-2/3">
                                                 {formatParts(item.options.bodyParts.avoid)}
                                             </span>
                                         </div>
@@ -138,7 +138,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                                 <div className="w-5 flex justify-center"><HeartPulse size={16} className="text-gray-400" /></div>
                                                 <span className="font-medium text-gray-400">{dict.checkout.focus}</span>
                                             </div>
-                                            <span className="text-[#C9A96E] font-bold leading-tight mt-0.5 text-right w-2/3">
+                                            <span className="text-white font-bold leading-tight mt-0.5 text-right w-2/3">
                                                 {formatParts(item.options.bodyParts.focus)}
                                             </span>
                                         </div>

@@ -39,7 +39,7 @@ export default function ServiceItem({ service, quantity, lang, isBestSeller, onC
         >
             {/* [LOGIC NEW] Badge Best Seller */}
             {isBestSeller && (
-                <div className="absolute top-0 right-0 z-20 bg-gradient-to-r from-[#b6965b] to-[#dfc599] text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md">
+                <div className="absolute top-0 right-0 z-20 bg-gradient-to-r from-[#b6965b] to-[#dfc599] text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md">
                     BEST SELLER
                 </div>
             )}
@@ -70,7 +70,7 @@ export default function ServiceItem({ service, quantity, lang, isBestSeller, onC
             <div className="absolute bottom-3 right-3 z-10">
                 {isSelected ? (
                     // Nếu đã chọn: Hiện số lượng màu vàng
-                    <div className="w-9 h-9 rounded-full bg-[#D4AF37] text-black font-extrabold text-sm flex items-center justify-center shadow-lg shadow-[#C9A96E]/20 animate-[pop_0.2s_ease-out]">
+                    <div className="w-9 h-9 rounded-full bg-[#D4AF37] text-white font-extrabold text-sm flex items-center justify-center shadow-lg shadow-[#C9A96E]/20 animate-[pop_0.2s_ease-out]">
                         {quantity}
                     </div>
                 ) : (

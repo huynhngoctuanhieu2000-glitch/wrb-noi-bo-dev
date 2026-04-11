@@ -252,7 +252,7 @@ export default function PaymentModal({
                 <div className="p-4 bg-[#1c1c1e] border-t border-white/10">
                     <button
                         onClick={handleConfirmNext}
-                        className="w-full py-4 bg-[#C9A96E] text-black font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] active:scale-[0.98] transition-all text-lg"
+                        className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] active:scale-[0.98] transition-all text-lg"
                     >
                         {dict.checkout?.continue || 'TIẾP TỤC'}
                     </button>
@@ -295,7 +295,7 @@ export default function PaymentModal({
                                 setIsWarningClosing(true);
                                 setTimeout(() => { setShowWarningModal(false); setIsWarningClosing(false); }, 200);
                             }}
-                            className="w-full bg-[#C9A96E] hover:bg-[#b09461] text-black font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-lg shadow-[#C9A96E]/20 mt-2"
+                            className="w-full bg-[#C9A96E] hover:bg-[#b09461] text-white font-bold py-3.5 rounded-xl uppercase tracking-wider transition-colors shadow-lg shadow-[#C9A96E]/20 mt-2"
                         >
                             {dict.payment_methods?.payment_regulation?.btn || "UNDERSTOOD"}
                         </button>

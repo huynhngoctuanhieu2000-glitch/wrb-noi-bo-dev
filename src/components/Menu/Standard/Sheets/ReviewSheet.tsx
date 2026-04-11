@@ -133,7 +133,7 @@ export default function ReviewSheet({ service, cart, isOpen, lang, onClose, onUp
 
                         <button
                             onClick={() => setQty(q => q + 1)}
-                            className="w-12 h-12 rounded-xl bg-[#C9A96E] text-black flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-[#C9A96E]/20 hover:bg-[#dfc599]"
+                            className="w-12 h-12 rounded-xl bg-[#C9A96E] text-white flex items-center justify-center active:scale-90 transition-all shadow-lg shadow-[#C9A96E]/20 hover:bg-[#dfc599]"
                         >
                             <Plus size={20} />
                         </button>

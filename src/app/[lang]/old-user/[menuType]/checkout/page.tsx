@@ -240,7 +240,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                             <div className="hidden lg:block mt-6">
                                 <button
                                     onClick={handleConfirmOrder}
-                                    className="w-full py-4 bg-[#C9A96E] text-black font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
+                                    className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
                                 >
                                     {dict.checkout.confirm_order_btn}
                                 </button>
@@ -255,7 +255,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 <div className="max-w-2xl mx-auto">
                     <button
                         onClick={handleConfirmOrder}
-                        className="w-full py-4 bg-[#C9A96E] text-black font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
+                        className="w-full py-4 bg-[#C9A96E] text-white font-bold uppercase rounded-xl shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-colors text-lg"
                     >
                         {dict.checkout.confirm_order_btn}
                     </button>

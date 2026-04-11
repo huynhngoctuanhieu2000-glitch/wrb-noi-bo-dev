@@ -289,7 +289,7 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
 
                                                 {/* Badge số lượng nếu đã có trong giỏ (khi đang chọn món khác) */}
                                                 {cart[svc.id] > 0 && selectedService.id !== svc.id && (
-                                                    <div className="absolute top-2 right-2 w-5 h-5 bg-[#C9A96E] text-black text-[10px] font-bold rounded-full flex items-center justify-center">
+                                                    <div className="absolute top-2 right-2 w-5 h-5 bg-[#C9A96E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                                                         {cart[svc.id]}
                                                     </div>
                                                 )}
@@ -321,11 +321,11 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                             <div className="flex items-center gap-6 bg-[#1c1c1e] rounded-full p-2 border border-gray-700 px-6">
                                 <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center hover:bg-gray-600 transition-colors"><Minus size={18} /></button>
                                 <span className="text-xl font-bold text-white min-w-[30px] text-center font-mono">{qty}</span>
-                                <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 rounded-full bg-[#C9A96E] text-black flex items-center justify-center hover:bg-[#dfc599] transition-colors"><Plus size={18} /></button>
+                                <button onClick={() => setQty(q => q + 1)} className="w-10 h-10 rounded-full bg-[#C9A96E] text-white flex items-center justify-center hover:bg-[#dfc599] transition-colors"><Plus size={18} /></button>
                             </div>
                         </div>
 
-                        <button onClick={handleConfirm} className="w-full py-3.5 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-black font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-base uppercase hover:brightness-110 transition-all">
+                        <button onClick={handleConfirm} className="w-full py-3.5 bg-gradient-to-r from-[#b6965b] to-[#C9A96E] text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-base uppercase hover:brightness-110 transition-all">
                             <span>{cart[selectedService.id] ? t('update_cart') : t('add_to_cart')}</span>
                             <span className="opacity-40">|</span>
                             <span>{formatCurrency(selectedService.priceVND * qty)} VND</span>

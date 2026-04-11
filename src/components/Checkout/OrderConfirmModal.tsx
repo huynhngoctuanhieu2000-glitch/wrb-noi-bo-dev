@@ -602,7 +602,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     <button
                         onClick={handleConfirm}
                         disabled={isSubmitting}
-                        className="flex-[1.5] bg-[#C9A96E] text-black py-3.5 rounded-xl font-bold uppercase text-sm tracking-widest shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-all active:scale-[0.98] flex items-center justify-center gap-2 group"
+                        className="flex-[1.5] bg-[#C9A96E] text-white py-3.5 rounded-xl font-bold uppercase text-sm tracking-widest shadow-[0_0_15px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-all active:scale-[0.98] flex items-center justify-center gap-2 group"
                     >
                         <span>{dict.checkout.submit}</span>
                         {!isSubmitting && <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" strokeWidth={3} />}
