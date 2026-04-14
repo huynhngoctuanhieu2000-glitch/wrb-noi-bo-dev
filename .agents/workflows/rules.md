@@ -1,3 +1,7 @@
+---
+description: 
+---
+
 # 🔒 MULTI-CONVERSATION COORDINATION (CRITICAL)
 
 ## Rule: File Locking & Coordination
@@ -64,6 +68,4 @@ Khi code có thay đổi liên quan đến **database** (Supabase), bạn **BẮ
 2. **Kế hoạch triển khai (Implementation Plan):** Khi một bản kế hoạch (plan) được user ĐỒNG Ý / CHẤP NHẬN để tiến hành code, bạn BẮT BUỘC phải lưu lại bản kế hoạch đó vào một file lấy theo **Tên nhiệm vụ** (ví dụ: `plan_tao_api_dat_lich.md`).
 3. **Mục đích:** Đảm bảo không bị mất bối cảnh (context) khi chat dài, dễ dàng cho user đọc lại tiến trình làm việc và các quyết định kỹ thuật đã chốt.
 
-## Rule: Project Map & Context (BẮT BUỘC ĐỌC VÀ CẬP NHẬT)
-1. **ĐỌC TRƯỚC KHI LÀM:** Bất cứ khi nào bắt đầu một phiên làm việc mới có liên quan đến việc viết code hoặc sửa đổi kiến trúc, quy trình, bạn **BẮT BUỘC** phải đọc file `.agents/PROJECT_MAP.md` để nắm bắt hệ thống (cấu trúc thư mục, luồng dữ liệu, convention).
-2. **CẬP NHẬT SAU KHI XONG:** Khi phát triển xong thủ công hoặc tự động một luồng tính năng LỚN, thiết lập kiến trúc mới, bạn **BẮT BUỘC** phải dành bước cuối cùng để tóm tắt đường đi, data flow của tính năng đó và cập nhật (update) vào file `.agents/PROJECT_MAP.md`.
+

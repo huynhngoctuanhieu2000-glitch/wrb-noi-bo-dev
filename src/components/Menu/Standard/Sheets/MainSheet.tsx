@@ -242,16 +242,14 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                         <div className="px-5 mt-2">
                             {/* KHU VỰC CHỌN THỜI GIAN */}
                             <div className="mb-6">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t('select_duration')}</h3>
-
-                                    {/* Nếu list có item -> Cho nút Back to list */}
-                                    {purchasedServices.length > 0 && (
+                                {/* Nếu list có item -> Cho nút Back to list */}
+                                {purchasedServices.length > 0 && (
+                                    <div className="flex justify-end mb-3">
                                         <button onClick={() => setViewMode('LIST')} className="text-xs text-[#C9A96E] font-bold hover:underline">
                                             {t('back_to_list')}
                                         </button>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
 
                                 <div className="grid grid-cols-2 gap-3">
                                     {group
