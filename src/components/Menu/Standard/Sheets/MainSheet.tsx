@@ -13,6 +13,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, ChevronDown, List, Pencil, PlusCircle } from 'lucide-react';
 import { Service, CartState } from '../../types';
 import { formatCurrency } from '../../utils';
@@ -34,6 +35,10 @@ const CONFIG = {
     HEADER_IMAGE_HEIGHT: '12rem', // h-48 = 12rem = 192px
     OVERLAY_COLOR: 'bg-black/60',
     BG_COLOR: 'bg-[#0d0d0d]',
+    // Time slot button stagger
+    SLOT_STAGGER_DELAY: 0.06,     // Delay between each button appearing
+    SLOT_START_DELAY: 0.15,       // Delay before first button
+    SLOT_ANIMATION_DURATION: 0.3, // Each button's animation duration
 };
 
 // DICTIONARY
@@ -251,17 +256,44 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                     </div>
                                 )}
 
-                                <div className="grid grid-cols-2 gap-3">
+                                <motion.div
+                                    className="grid grid-cols-2 gap-3"
+                                    initial="hidden"
+                                    animate="visible"
+                                    variants={{
+                                        hidden: { opacity: 1 },
+                                        visible: {
+                                            opacity: 1,
+                                            transition: {
+                                                staggerChildren: CONFIG.SLOT_STAGGER_DELAY,
+                                                delayChildren: CONFIG.SLOT_START_DELAY,
+                                            },
+                                        },
+                                    }}
+                                >
                                     {group
                                         .filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx) // Dedup by time and price
                                         .sort((a, b) => a.timeValue - b.timeValue)
-                                        .slice(0, showAll ? undefined : 4)
+                                        .slice(0, 4)
                                         .map((svc) => (
-                                            <button
+                                            <motion.button
                                                 key={svc.id}
                                                 onClick={() => setSelectedService(svc)}
+                                                variants={{
+                                                    hidden: { opacity: 0, scale: 0.85, y: 10 },
+                                                    visible: {
+                                                        opacity: 1,
+                                                        scale: 1,
+                                                        y: 0,
+                                                        transition: {
+                                                            duration: CONFIG.SLOT_ANIMATION_DURATION,
+                                                            ease: [0.25, 0.46, 0.45, 0.94],
+                                                        },
+                                                    },
+                                                }}
+                                                whileTap={{ scale: 0.95 }}
                                                 className={`
-                                        flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-all relative overflow-hidden
+                                        flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-colors relative overflow-hidden
                                         ${selectedService.id === svc.id
                                                         ? 'bg-[#1c1c1e] text-white border-[#C9A96E] border-2 shadow-lg shadow-[#C9A96E]/10'
                                                         : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
@@ -291,22 +323,86 @@ export default function MainSheet({ group, cart, isOpen, lang, onClose, onAddToC
                                                         {cart[svc.id]}
                                                     </div>
                                                 )}
-                                            </button>
+                                            </motion.button>
                                         ))}
-                                </div>
+
+                                    {/* Expanded items (appear with animation after View More) */}
+                                    <AnimatePresence>
+                                        {showAll && group
+                                            .filter((svc, idx, arr) => arr.findIndex(s => s.timeValue === svc.timeValue && s.priceVND === svc.priceVND) === idx)
+                                            .sort((a, b) => a.timeValue - b.timeValue)
+                                            .slice(4)
+                                            .map((svc, idx) => (
+                                                <motion.button
+                                                    key={`extra-${svc.id}`}
+                                                    onClick={() => setSelectedService(svc)}
+                                                    initial={{ opacity: 0, scale: 0.85, y: 10 }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        scale: 1,
+                                                        y: 0,
+                                                        transition: {
+                                                            duration: CONFIG.SLOT_ANIMATION_DURATION,
+                                                            delay: idx * CONFIG.SLOT_STAGGER_DELAY,
+                                                            ease: [0.25, 0.46, 0.45, 0.94],
+                                                        },
+                                                    }}
+                                                    exit={{ opacity: 0, scale: 0.85 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className={`
+                                            flex flex-col items-center justify-center py-4 px-2 rounded-xl border transition-colors relative overflow-hidden
+                                            ${selectedService.id === svc.id
+                                                            ? 'bg-[#1c1c1e] text-white border-[#C9A96E] border-2 shadow-lg shadow-[#C9A96E]/10'
+                                                            : 'bg-[#0d0d0d] text-gray-400 border-gray-700 hover:border-gray-500'}
+                                        `}
+                                                >
+                                                    {svc.BEST_CHOICE && (
+                                                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-bl-md z-10 uppercase tracking-wider">
+                                                            {t('recommended')}
+                                                        </div>
+                                                    )}
+                                                    {svc.timeValue > 0 && (
+                                                        <span className={`text-xl font-bold mb-1 ${selectedService.id === svc.id ? 'text-white' : 'text-gray-400'}`}>
+                                                            {svc.timeValue}{t('mins')}
+                                                        </span>
+                                                    )}
+                                                    <div className="text-sm font-medium flex gap-1 items-center justify-center w-full">
+                                                        <span className="text-[#C9A96E] font-bold">{formatCurrency(svc.priceVND)}</span>
+                                                        <span className="text-gray-500">/</span>
+                                                        <span className="text-emerald-600 font-bold">{svc.priceUSD} USD</span>
+                                                    </div>
+                                                    {cart[svc.id] > 0 && selectedService.id !== svc.id && (
+                                                        <div className="absolute top-2 right-2 w-5 h-5 bg-[#C9A96E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                                            {cart[svc.id]}
+                                                        </div>
+                                                    )}
+                                                </motion.button>
+                                            ))}
+                                    </AnimatePresence>
+                                </motion.div>
                             </div>
 
                             {/* Button View More Logic */}
                             {!showAll && group.length > 4 && (
-                                <div className="flex justify-center mb-6">
+                                <motion.div
+                                    className="flex justify-center mb-6"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.4 }}
+                                >
                                     <button
                                         onClick={() => setShowAll(true)}
                                         className="text-gray-400 flex items-center gap-1 text-sm hover:text-white transition-colors"
                                     >
                                         <span>{t('view_more')}</span>
-                                        <ChevronDown size={16} />
+                                        <motion.span
+                                            animate={{ y: [0, 3, 0] }}
+                                            transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+                                        >
+                                            <ChevronDown size={16} />
+                                        </motion.span>
                                     </button>
-                                </div>
+                                </motion.div>
                             )}
                         </div>
                     )}

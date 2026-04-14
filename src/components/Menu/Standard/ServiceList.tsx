@@ -26,6 +26,14 @@ interface ServiceListProps {
     onItemClick: (services: Service[]) => void; // Thay đổi: Truyền vào 1 mảng các biến thể
 }
 
+// 🔧 UI CONFIGURATION
+const STAGGER_CONFIG = {
+    ITEM_DELAY: 0.06,        // Delay between each item appearing (seconds)
+    ITEM_START_DELAY: 0.1,   // Delay before first item appears
+    ITEM_DURATION: 0.35,     // Duration of each item's entrance
+    ITEM_Y_OFFSET: 20,       // How far items slide up from (pixels)
+};
+
 // Lập trình hiệu ứng variants linh động cho Slider
 const listVariants = {
     enter: (direction: number) => ({
@@ -42,6 +50,31 @@ const listVariants = {
         x: direction < 0 ? 30 : -30,
         opacity: 0
     })
+};
+
+// Stagger container for service items grid
+const gridContainerVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: STAGGER_CONFIG.ITEM_DELAY,
+            delayChildren: STAGGER_CONFIG.ITEM_START_DELAY,
+        },
+    },
+};
+
+const gridItemVariants = {
+    hidden: { opacity: 0, y: STAGGER_CONFIG.ITEM_Y_OFFSET, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            duration: STAGGER_CONFIG.ITEM_DURATION,
+            ease: [0.25, 0.46, 0.45, 0.94], // easeOutQuad
+        },
+    },
 };
 
 export default function ServiceList({ categories, services, cart, lang, selectedTags = [], direction = 1, onItemClick }: ServiceListProps) {
@@ -89,7 +122,13 @@ export default function ServiceList({ categories, services, cart, lang, selected
                         >
 
                             {/* Grid danh sách */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> {/* Grid responsive: 1 cột mobile, 2 cột tablet+ */}
+                            <motion.div
+                                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                                variants={gridContainerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                key={cat.id}
+                            >
                                 {categoryGroups.map((group) => {
                                     const representative = group[0]; // Lấy món đầu tiên làm đại diện hiển thị
 
@@ -101,17 +140,18 @@ export default function ServiceList({ categories, services, cart, lang, selected
                                     const isBestSellerGroup = group.some(item => item.BEST_SELLER === true);
 
                                     return (
-                                        <ServiceItem
-                                            key={representative.id}
-                                            service={representative} // Chỉ cần truyền thông tin đại diện (Tên, Ảnh)
-                                            quantity={totalQty}
-                                            lang={lang}
-                                            isBestSeller={isBestSellerGroup} // Truyền prop mới
-                                            onClick={() => onItemClick(group)} // Quan trọng: Truyền CẢ NHÓM vào để MainSheet xử lý
-                                        />
+                                        <motion.div key={representative.id} variants={gridItemVariants}>
+                                            <ServiceItem
+                                                service={representative} // Chỉ cần truyền thông tin đại diện (Tên, Ảnh)
+                                                quantity={totalQty}
+                                                lang={lang}
+                                                isBestSeller={isBestSellerGroup} // Truyền prop mới
+                                                onClick={() => onItemClick(group)} // Quan trọng: Truyền CẢ NHÓM vào để MainSheet xử lý
+                                            />
+                                        </motion.div>
                                     );
                                 })}
-                            </div>
+                            </motion.div>
                         </motion.div>
                     );
                 })}
