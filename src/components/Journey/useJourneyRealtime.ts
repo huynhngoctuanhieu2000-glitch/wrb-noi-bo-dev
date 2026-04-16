@@ -9,6 +9,7 @@ export interface ServiceItem {
     serviceId: string;
     service_name: string;
     service_name_en?: string;
+    service_names?: Record<string, string>; // { vi, en, cn, jp, kr }
     duration: number; // in minutes
     technicianCode: string;
     staffName: string;
@@ -93,7 +94,7 @@ export function useJourneyRealtime(bookingId: string) {
                 // Fetch all services
                 const { data: svcs } = await supabase
                     .from('Services')
-                    .select('id, nameVN, nameEN, duration')
+                    .select('id, nameVN, nameEN, nameCN, nameJP, nameKR, duration')
                     .limit(1000);
 
                 const svcMap = new Map();
@@ -143,11 +144,19 @@ export function useJourneyRealtime(bookingId: string) {
                         const itemRoomName = ktvSegment?.roomId || i.roomName || booking.roomName || null;
                         const itemBedId = ktvSegment?.bedId || i.bedId || booking.bedId || null;
 
+                        const fallbackName = svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`;
                         processedItems.push({
                             id: itemId,
                             serviceId: i.serviceId,
-                            service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
+                            service_name: fallbackName,
                             service_name_en: svc?.nameEN || svc?.nameVN,
+                            service_names: {
+                                vi: svc?.nameVN || fallbackName,
+                                en: svc?.nameEN || fallbackName,
+                                cn: svc?.nameCN || svc?.nameEN || fallbackName,
+                                jp: svc?.nameJP || svc?.nameEN || fallbackName,
+                                kr: svc?.nameKR || svc?.nameEN || fallbackName,
+                            },
                             duration: itemDuration,
                             technicianCode: techCode || '',
                             staffName: '',

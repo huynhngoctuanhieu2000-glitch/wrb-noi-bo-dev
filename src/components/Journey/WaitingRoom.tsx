@@ -83,7 +83,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-bold text-white text-sm leading-tight truncate">
-                                        {lang === 'vi' ? item.service_name : (item.service_name_en || item.service_name)}
+                                        {item.service_names?.[lang] || item.service_name}
                                     </p>
                                     <p className="text-xs text-[#C9A96E] font-medium mt-0.5">
                                         {item.duration} {t.minutes || 'min'}

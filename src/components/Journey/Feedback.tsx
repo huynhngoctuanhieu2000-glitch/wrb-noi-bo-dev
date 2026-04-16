@@ -4,12 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import TipModal from '@/components/Journey/TipModal';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
-import { getViolations } from './Journey.constants';
+import { getViolations, getRatingLabel } from './Journey.constants';
+import { translations } from './Journey.i18n';
 import AlertModal from '@/components/Shared/AlertModal';
 
 interface FeedbackProps {
     onComplete: (result: { rating: number, violations: number[], tipAmount: number, feedbackNote?: string }) => void;
     items?: ServiceItem[];
+    lang?: string;
     // Fallbacks for single-service or legacy usage
     staffName?: string;
     staffAvatar?: string;
@@ -20,11 +22,13 @@ interface FeedbackProps {
 export default function Feedback({ 
     onComplete, 
     items,
+    lang = 'vi',
     staffName, 
     staffAvatar, 
     serviceName, 
     duration 
 }: FeedbackProps) {
+    const t = translations[lang] || translations['en'];
     const [rating, setRating] = useState<number | null>(null);
     const [showTip, setShowTip] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +36,7 @@ export default function Feedback({
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     // Checkbox state for violations
-    const violations = getViolations('vi');
+    const violations = getViolations(lang);
 
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 
@@ -115,7 +119,7 @@ export default function Feedback({
             console.error("Feedback submission error:", error);
             setAlertState({
                 isOpen: true,
-                message: "Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.",
+                message: lang === 'vi' ? 'Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.' : 'An error occurred while submitting your review. Please try again.',
                 type: 'error'
             });
         }
@@ -145,9 +149,9 @@ export default function Feedback({
                                 />
                             </div>
                             <div className="flex-1 z-10">
-                                <h3 className="text-base font-black text-gray-800">{item.service_name}</h3>
+                                <h3 className="text-base font-black text-gray-800">{item.service_names?.[lang] || item.service_name}</h3>
                                 <p className="text-gray-500 font-medium text-xs">
-                                    {item.duration} min • {item.staffName || item.technicianCode || 'Đang cập nhật...'}
+                                    {item.duration} min • {item.staffName || item.technicianCode || (lang === 'vi' ? 'Đang cập nhật...' : 'Updating...')}
                                 </p>
                             </div>
                             <div className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-100 z-10">
@@ -167,9 +171,9 @@ export default function Feedback({
                         />
                     </div>
                     <div className="flex-1 z-10">
-                        <h2 className="text-xl font-black text-gray-800">{staffName || "Đang cập nhật..."}</h2>
+                        <h2 className="text-xl font-black text-gray-800">{staffName || (lang === 'vi' ? 'Đang cập nhật...' : 'Updating...')}</h2>
                         <p className="text-gray-500 font-medium text-sm">
-                            {serviceName || "Dịch vụ"} {duration ? `• ${duration} min` : ""}
+                            {serviceName || (lang === 'vi' ? 'Dịch vụ' : 'Service')} {duration ? `• ${duration} min` : ""}
                         </p>
                         <div className="flex text-amber-500 text-sm mt-1">
                             ★ ★ ★ ★ ★ <span className="text-gray-400 text-xs ml-1">(5.0)</span>
@@ -181,8 +185,9 @@ export default function Feedback({
             {/* Assessment Box */}
             <div className="w-full bg-gradient-to-br from-amber-200 to-amber-300 rounded-3xl p-6 shadow-md mb-8">
                 <p className="text-amber-950 font-semibold text-sm leading-relaxed mb-4 text-justify">
-                    Xin quý khách vui lòng đánh giá chất lượng dịch vụ để chúng tôi có cơ hội thấu hiểu và hoàn thiện trải nghiệm của bạn tốt hơn mỗi ngày.
-                    Sự hài lòng của bạn chính là phần thưởng quý giá nhất mà đội ngũ chúng tôi luôn trân trọng và biết ơn.
+                    {lang === 'vi'
+                        ? 'Xin quý khách vui lòng đánh giá chất lượng dịch vụ để chúng tôi có cơ hội thấu hiểu và hoàn thiện trải nghiệm của bạn tốt hơn mỗi ngày. Sự hài lòng của bạn chính là phần thưởng quý giá nhất mà đội ngũ chúng tôi luôn trân trọng và biết ơn.'
+                        : 'Please rate the quality of service so we can understand and improve your experience every day. Your satisfaction is the most valuable reward our team always cherishes and appreciates.'}
                 </p>
             </div>
 
@@ -193,7 +198,7 @@ export default function Feedback({
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${selectedViolations.length > 0 ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
-                        <h3 className="text-gray-800 font-bold text-base">Các lỗi dịch vụ (nếu có)</h3>
+                        <h3 className="text-gray-800 font-bold text-base">{t.violationsSectionTitle || 'Service feedback (if any)'}</h3>
                     </div>
                 </div>
 
@@ -215,7 +220,7 @@ export default function Feedback({
             </div>
 
             {/* Ratings */}
-            <h3 className="text-gray-800 font-bold text-lg mb-4 text-center">Trải nghiệm của bạn thế nào?</h3>
+            <h3 className="text-gray-800 font-bold text-lg mb-4 text-center">{t.yourExperience || 'Your experience?'}</h3>
 
             <div className="grid grid-cols-2 gap-4 w-full mb-10">
                 <button
@@ -224,7 +229,7 @@ export default function Feedback({
                     className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 ${UI_CONFIG.TRANSITION} ${rating === 1 ? 'bg-red-200 border-2 border-red-400 scale-105 shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]' : rating !== null ? UI_CONFIG.UNSELECTED_BG : 'bg-gray-50 opacity-70'}`}
                 >
                     <span className="text-4xl text-gray-900">😡</span>
-                    <span className="font-extrabold text-red-700 text-sm">Tệ</span>
+                    <span className="font-extrabold text-red-700 text-sm">{getRatingLabel(lang, 1)}</span>
                 </button>
                 <button
                     disabled={selectedViolations.length >= 3 || isLoading || isSuccess}
@@ -232,7 +237,7 @@ export default function Feedback({
                     className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 ${UI_CONFIG.TRANSITION} ${selectedViolations.length >= 3 ? 'bg-gray-100 opacity-40 grayscale cursor-not-allowed' : rating === 2 ? 'bg-gray-400 border-2 border-gray-600 scale-105 shadow-[inset_0_2px_8px_rgba(0,0,0,0.2)]' : UI_CONFIG.UNSELECTED_BG}`}
                 >
                     <span className="text-4xl text-gray-900">😐</span>
-                    <span className="font-extrabold text-gray-800 text-sm">Bình thường</span>
+                    <span className="font-extrabold text-gray-800 text-sm">{getRatingLabel(lang, 2)}</span>
                 </button>
                 <button
                     disabled={selectedViolations.length >= 2 || isLoading || isSuccess}
@@ -240,7 +245,7 @@ export default function Feedback({
                     className={`p-4 rounded-3xl flex flex-col items-center justify-center gap-2 ${UI_CONFIG.TRANSITION} ${selectedViolations.length >= 2 ? 'bg-gray-100 opacity-40 grayscale cursor-not-allowed' : rating === 3 ? 'bg-amber-300 border-2 border-amber-500 scale-105 shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)]' : UI_CONFIG.UNSELECTED_BG}`}
                 >
                     <span className="text-4xl text-gray-900">🙂</span>
-                    <span className="font-extrabold text-amber-800 text-sm">Tốt</span>
+                    <span className="font-extrabold text-amber-800 text-sm">{getRatingLabel(lang, 3)}</span>
                 </button>
                 <button
                     disabled={selectedViolations.length >= 1 || isLoading || isSuccess}
@@ -249,7 +254,7 @@ export default function Feedback({
                 >
                     <div className="absolute -top-3 -right-2 bg-amber-600 text-white text-[10px] font-black uppercase px-2 py-1 rounded-full shadow-sm transform rotate-12">Top</div>
                     <span className="text-4xl text-gray-900">🤩</span>
-                    <span className="font-extrabold text-amber-900 text-sm">Xuất sắc</span>
+                    <span className="font-extrabold text-amber-900 text-sm">{getRatingLabel(lang, 4)}</span>
                 </button>
             </div>
 
@@ -262,11 +267,11 @@ export default function Feedback({
                         className={`w-full py-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-3 ${isSuccess ? 'bg-green-600 text-white' : rating !== null ? 'bg-gray-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.2)] hover:bg-black' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
                     >
                         {isSuccess ? (
-                            <>Đã gửi thành công <CheckCircle2 size={24} /></>
+                            <>{t.thankYou || 'Submitted!'} <CheckCircle2 size={24} /></>
                         ) : isLoading ? (
-                            <><Loader2 className="animate-spin" size={24} /> Đang xử lý...</>
+                            <><Loader2 className="animate-spin" size={24} /> {t.processing || 'Processing...'}</>
                         ) : (
-                            rating !== null ? 'Gửi đánh giá' : 'Chọn mức độ hài lòng để Gửi'
+                            rating !== null ? (t.submitRating || 'Submit') : (t.selectToSubmit || 'Select to submit')
                         )}
                     </button>
                 </div>

@@ -178,9 +178,9 @@ const PaymentMethods = ({ lang, dict, selected, onChange }: PaymentMethodsProps)
                                     <div className="grid grid-cols-3 gap-4">
                                         {ACCEPTED_CARDS.map((card) => (
                                             <div key={card.name} className="flex flex-col items-center gap-2">
-                                                <div className="w-full aspect-[3/2] flex items-center justify-center p-2 rounded-xl border border-white/5 shadow-sm bg-white/95">
+                                                <div className="w-full aspect-[4/3] flex items-center justify-center p-2 rounded-xl border border-white/5 shadow-sm bg-white overflow-hidden">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img src={card.img} alt={card.name} className="w-auto h-auto max-w-full max-h-full object-contain mix-blend-multiply" />
+                                                    <img src={card.img} alt={card.name} className="w-full h-full object-contain mix-blend-multiply" />
                                                 </div>
                                                 <span className="text-[10px] font-bold text-gray-400 text-center">{card.name}</span>
                                             </div>
