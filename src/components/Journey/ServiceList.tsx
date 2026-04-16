@@ -448,7 +448,7 @@ const CombinedRatingView = ({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className={`font-black text-sm leading-tight truncate ${isRated ? 'text-gray-400' : 'text-white/90'}`}>
-                                        {item.service_name}
+                                        {lang === 'vi' ? item.service_name : (item.service_name_en || item.service_name)}
                                     </p>
                                     <p className="text-gray-500 text-xs font-medium truncate">
                                         {item.technicianCode && `${t.staff}: ${item.technicianCode} · `}{item.duration} {t.minutes}

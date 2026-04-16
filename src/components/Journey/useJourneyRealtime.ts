@@ -8,6 +8,7 @@ export interface ServiceItem {
     id: string;
     serviceId: string;
     service_name: string;
+    service_name_en?: string;
     duration: number; // in minutes
     technicianCode: string;
     staffName: string;
@@ -146,6 +147,7 @@ export function useJourneyRealtime(bookingId: string) {
                             id: itemId,
                             serviceId: i.serviceId,
                             service_name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
+                            service_name_en: svc?.nameEN || svc?.nameVN,
                             duration: itemDuration,
                             technicianCode: techCode || '',
                             staffName: '',

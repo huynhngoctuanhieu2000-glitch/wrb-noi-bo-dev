@@ -37,6 +37,7 @@ const TEXT = {
     continue: { vi: 'TIẾP TỤC', en: 'CONTINUE', cn: '继续', jp: '継続する', kr: '계속' },
     empty: { vi: 'Giỏ hàng trống', en: 'Your cart is empty', cn: '购物车为空', jp: 'カートは空です', kr: '장바구니가 비어 있습니다' },
     alert_empty: { vi: 'Vui lòng chọn ít nhất 1 dịch vụ!', en: 'Please select at least 1 service!', cn: '请 ít nhất 1 dịch vụ!', jp: '少なくとも1つのサービスを選択してください！', kr: '최소 1개의 서비스를 chuyên vụ!' },
+    qty: { vi: 'Số lượng (Qty)', en: 'Quantity (Qty)', cn: '数量 (Qty)', jp: '数量 (Qty)', kr: '수량 (Qty)' },
 };
 
 /**
@@ -329,7 +330,7 @@ export default function CartDrawer({ cart, services, lang, isOpen, onClose, onUp
 
                                         {/* Row 2: Quantity Only */}
                                         <div className="flex justify-between items-center mt-2 border-t border-white/5 pt-2">
-                                            <span className="text-xs text-gray-400 font-medium">Số lượng (Qty)</span>
+                                            <span className="text-xs text-gray-400 font-medium">{t('qty')}</span>
                                             {/* Quantity Controls (Condensed Pill Shape) */}
                                             <div className="flex items-center gap-2 bg-white/5 rounded-full px-2 py-0.5 border border-white/5">
                                                 <button
