@@ -107,6 +107,8 @@ export interface GroupedService {
     isCompleted: boolean;
     /** At least one item has a computedTimeStart */
     isStarted: boolean;
+    activeSegmentIndex: number;
+    totalSegments: number;
 }
 
 /**
@@ -135,11 +137,35 @@ export const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
             ? [...new Set(groupItems.map(i => i.service_name))]
             : groupItems.map(i => i.service_name);
 
+        // Gộp segments — DEDUP cho shared group (co-working) vì các items cùng mang 1 mảng segments
+        const allMySegs = isShared
+            ? (groupItems[0]?.segments || [])           // Co-working: lấy 1 lần, tránh nhân đôi
+            : groupItems.flatMap(i => i.segments || []); // Single KTV: mỗi item có segments riêng
+
+        let activeSegDuration = 0;
+        let activeSegStartTime: string | null = null;
+        let hasActiveSeg = false;
+        let activeSegIdx = -1;
+
+        if (allMySegs.length > 0 && allMySegs.some(s => s.actualStartTime)) {
+             // Tìm chặng đang chạy (từ dưới lên, chặng cuối cùng có actualStartTime)
+             for (let i = allMySegs.length - 1; i >= 0; i--) {
+                 if (allMySegs[i].actualStartTime) {
+                     activeSegDuration = Number(allMySegs[i].duration) || 0;
+                     activeSegStartTime = allMySegs[i].actualStartTime;
+                     hasActiveSeg = true;
+                     activeSegIdx = i;
+                     break;
+                 }
+             }
+        }
+
         // For shared items: same DV → use max duration (not sum)
         // For sequential items: different DVs → sum durations
-        const totalDuration = isShared
-            ? Math.max(...groupItems.map(i => i.duration))
-            : groupItems.reduce((sum, i) => sum + i.duration, 0);
+        // 🕒 NẾU CÓ CHẶNG ĐANG CHẠY: Dùng thời gian của riêng chặng đó
+        const totalDuration = hasActiveSeg 
+            ? activeSegDuration 
+            : (isShared ? Math.max(...groupItems.map(i => i.duration)) : groupItems.reduce((sum, i) => sum + i.duration, 0));
 
         // Collect all tech codes for display
         const allTechCodes = [...new Set(groupItems.map(i => i.technicianCode).filter(Boolean))];
@@ -151,14 +177,17 @@ export const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
             : names.join(' + ');
 
         // Earliest timeStart among all items in group
-        let earliestTimeStart: string | null = null;
-        groupItems.forEach(i => {
-            if (i.computedTimeStart) {
-                if (!earliestTimeStart || new Date(i.computedTimeStart) < new Date(earliestTimeStart)) {
-                    earliestTimeStart = i.computedTimeStart;
+        // 🕒 NẾU CÓ CHẶNG ĐANG CHẠY: Dùng mốc bắt đầu của riêng chặng đó
+        let earliestTimeStart: string | null = activeSegStartTime;
+        if (!hasActiveSeg) {
+            groupItems.forEach(i => {
+                if (i.computedTimeStart) {
+                    if (!earliestTimeStart || new Date(i.computedTimeStart) < new Date(earliestTimeStart)) {
+                        earliestTimeStart = i.computedTimeStart;
+                    }
                 }
-            }
-        });
+            });
+        }
 
         const doneStatuses = ['COMPLETED', 'DONE', 'CLEANING'];
         const isCompleted = groupItems.every(i => doneStatuses.includes(i.status || ''));
@@ -176,6 +205,8 @@ export const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
             items: groupItems,
             isCompleted,
             isStarted,
+            activeSegmentIndex: activeSegIdx,
+            totalSegments: allMySegs.length
         };
     });
 };

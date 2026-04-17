@@ -27,6 +27,7 @@ export interface ServiceItem {
     // Per-item room/bed (multi-tech multi-room)
     roomName: string | null;
     bedId: string | null;
+    segments: any[];
 }
 
 export interface JourneyData {
@@ -172,6 +173,7 @@ export function useJourneyRealtime(bookingId: string) {
                             // Per-item room/bed from segments
                             roomName: itemRoomName,
                             bedId: itemBedId,
+                            segments: Array.isArray(i.segments) ? i.segments : (typeof i.segments === 'string' ? JSON.parse(i.segments) : [])
                         });
                     });
                 });
@@ -279,6 +281,7 @@ export function useJourneyRealtime(bookingId: string) {
                                     itemFeedback: updatedItem.itemFeedback ?? item.itemFeedback,
                                     ktvRatings: updatedKtvRatings,
                                     computedTimeStart: updatedItem.timeStart ?? item.computedTimeStart,
+                                    segments: Array.isArray(updatedItem.segments) ? updatedItem.segments : (typeof updatedItem.segments === 'string' ? JSON.parse(updatedItem.segments) : item.segments)
                                 };
                             }
                             return item;

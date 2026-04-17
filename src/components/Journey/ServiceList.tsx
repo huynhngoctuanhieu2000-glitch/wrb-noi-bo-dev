@@ -135,6 +135,11 @@ const TabTimerView = ({
                         {currentGroup.technicianCode && `${t.staff}: ${currentGroup.technicianCode}`}
                         {/* Room/Bed info hidden from customer view (Task C2a) */}
                     </p>
+                    {currentGroup.totalSegments > 1 && currentGroup.activeSegmentIndex >= 0 && !isCompleted && (
+                        <p className="text-[10px] font-black text-[#C9A96E] bg-[#C9A96E]/10 border border-[#C9A96E]/20 px-3 py-1 rounded-full uppercase tracking-widest inline-flex mt-2">
+                            Đang làm chặng {currentGroup.activeSegmentIndex + 1}/{currentGroup.totalSegments}
+                        </p>
+                    )}
                     {currentGroup.itemCount > 1 && (
                         <p className="text-xs font-bold text-[#C9A96E] mt-1">
                             {currentGroup.totalDuration} {t.minutes} · {currentGroup.itemCount} {t.services}
