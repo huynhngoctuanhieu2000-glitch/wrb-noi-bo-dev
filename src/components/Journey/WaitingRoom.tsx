@@ -23,19 +23,12 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
     const shortOrderCode = orderId.replace(SHORT_CODE_REGEX, '$1') || orderId;
 
     // Lộ trình steps
-    const journeySteps = lang === 'vi'
-        ? [
-            { emoji: '🛁', title: 'Ngâm chân thảo dược', sub: 'Rửa chân, tẩy da chết bằng bột thảo dược' },
-            { emoji: '💆', title: 'Thực hiện dịch vụ', sub: 'Nhân viên phục vụ tại phòng' },
-            { emoji: '👜', title: 'Kiểm tra tư trang', sub: 'Kiểm tra đồ trước khi ra về' },
-            { emoji: '⭐', title: 'Đánh giá dịch vụ', sub: 'Chia sẻ trải nghiệm của bạn' },
-        ]
-        : [
-            { emoji: '🛁', title: 'Herbal Foot Soak', sub: 'Foot wash & exfoliation with herbal powder' },
-            { emoji: '💆', title: 'Service in Progress', sub: 'Therapist will serve you in the room' },
-            { emoji: '👜', title: 'Check Belongings', sub: 'Check your items before leaving' },
-            { emoji: '⭐', title: 'Rate Your Experience', sub: 'Share your feedback with us' },
-        ];
+    const journeySteps = [
+        { emoji: '🛁', title: t.step1Title, sub: t.step1Sub },
+        { emoji: '💆', title: t.step2Title, sub: t.step2Sub },
+        { emoji: '👜', title: t.step3Title, sub: t.step3Sub },
+        { emoji: '⭐', title: t.step4Title, sub: t.step4Sub },
+    ];
 
     return (
         <div className="flex flex-col items-center w-full animate-in fade-in duration-500">
@@ -48,14 +41,14 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
                 />
                 <div className="absolute top-4 left-4 right-4 bg-black/60 backdrop-blur-md rounded-2xl py-4 flex flex-col items-center justify-center shadow-md border border-[#C9A96E]/20">
                     <span className="text-[#C9A96E] font-bold text-xs uppercase tracking-wider">
-                        {lang === 'vi' ? 'Mã đơn hàng' : 'Order ID'}
+                        {t.orderId}
                     </span>
                     <span className="text-5xl font-black text-white mt-1 tracking-wider">{shortOrderCode}</span>
                 </div>
                 <div className="absolute bottom-4 left-4 bg-[#0d0d0d]/90 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
                     <div className="w-2.5 h-2.5 rounded-full bg-[#C9A96E] animate-pulse"></div>
                     <span className="text-[#C9A96E] font-bold text-xs uppercase tracking-wider">
-                        {lang === 'vi' ? 'Đang chuẩn bị' : 'Preparing'}
+                        {t.preparing}
                     </span>
                 </div>
             </div>
@@ -63,9 +56,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
             {/* Welcome Message */}
             <div className="text-center px-4 mb-6">
                 <h2 className="text-xl font-bold text-white/90 leading-relaxed">
-                    {lang === 'vi'
-                        ? 'Mời bạn ngâm chân thảo dược, chườm túi nóng, uống tách trà và cho chúng tôi ít phút để chuẩn bị phòng.'
-                        : 'Please enjoy herbal foot bath, hot compress, sip some tea, and give us a few minutes to prepare your room.'}
+                    {t.welcomeMessage}
                 </h2>
             </div>
 
@@ -100,7 +91,7 @@ export default function WaitingRoom({ orderId, lang = 'vi', items = [], roomName
             {/* ─── Lộ trình dịch vụ ─── */}
             <div className="w-full">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2 mb-3 block">
-                    {lang === 'vi' ? 'Lộ trình dịch vụ' : 'Your Journey'}
+                    {t.yourJourney}
                 </span>
                 <div className="bg-[#1c1c1e] rounded-3xl p-5 border border-white/5">
                     {journeySteps.map((step, idx) => {
