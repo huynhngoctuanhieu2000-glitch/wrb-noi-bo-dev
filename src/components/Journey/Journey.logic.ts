@@ -115,7 +115,7 @@ export interface GroupedService {
  * Group booking items by technician code.
  * Items with the same tech code are grouped together for combined timer display.
  */
-export const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
+export const groupItemsByTech = (items: ServiceItem[], lang: string = 'vi'): GroupedService[] => {
     const map = new Map<string, ServiceItem[]>();
     items.forEach(item => {
         // For composite items (multi-KTV split from same BookingItem),
@@ -132,10 +132,12 @@ export const groupItemsByTech = (items: ServiceItem[]): GroupedService[] => {
     return Array.from(map.entries()).map(([groupKey, groupItems]) => {
         const isShared = groupKey.startsWith('__shared_');
 
+        const getLocalizedName = (i: ServiceItem) => i.service_names?.[lang] || i.service_name;
+
         // Deduplicate service names for shared items (same DV shown once)
         const names = isShared
-            ? [...new Set(groupItems.map(i => i.service_name))]
-            : groupItems.map(i => i.service_name);
+            ? [...new Set(groupItems.map(getLocalizedName))]
+            : groupItems.map(getLocalizedName);
 
         // Gộp segments — DEDUP cho shared group (co-working) vì các items cùng mang 1 mảng segments
         const allMySegs = isShared

@@ -43,7 +43,7 @@ const TabTimerView = ({
     const t = translations[lang || 'vi'] || translations['en'];
 
     // Group items by technician
-    const groups = groupItemsByTech(items || []);
+    const groups = groupItemsByTech(items || [], lang || 'vi');
     const currentGroup = groups[selectedIdx] || groups[0];
     if (!currentGroup) return null;
 
