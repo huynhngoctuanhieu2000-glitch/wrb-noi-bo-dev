@@ -65,6 +65,9 @@ const dictionaries = {
             change_denomination_remaining: "Remaining",
             change_denomination_reset: "Reset",
             change_denomination_complete: "Complete",
+            scan_qr: "Scan QR code to track your service on your phone",
+            screen_resets_in: "Screen resets in",
+            reset_now: "<- Reset now",
             alerts: {
                 fill_name_email: "Please enter Full Name and Email",
                 fill_any_contact: "Please enter at least Name, Email, or Phone",
@@ -221,6 +224,9 @@ const dictionaries = {
             change_denomination_remaining: "Còn lại",
             change_denomination_reset: "Đặt lại",
             change_denomination_complete: "Đủ",
+            scan_qr: "Quét mã QR để theo dõi lộ trình trên điện thoại của bạn",
+            screen_resets_in: "Màn hình tự động làm mới sau",
+            reset_now: "<- Làm mới ngay",
             alerts: {
                 fill_name_email: "Vui lòng điền Tên và Email",
                 fill_any_contact: "Vui lòng điền ít nhất Tên, Email hoặc Số điện thoại",
@@ -377,6 +383,9 @@ const dictionaries = {
             change_denomination_remaining: "남은 금액",
             change_denomination_reset: "초기화",
             change_denomination_complete: "완료",
+            scan_qr: "QR 코드를 스캔하여 폰에서 진행 상황을 확인하세요",
+            screen_resets_in: "화면이 다음 시간 후 새로고침됩니다:",
+            reset_now: "<- 지금 새로고침",
             alerts: {
                 fill_name_email: "이름과 이메일을 입력해 주세요",
                 fill_any_contact: "이름, 이메일, 또는 전화번호 중 하나를 입력해 주세요",
@@ -533,6 +542,9 @@ const dictionaries = {
             change_denomination_remaining: "剩余",
             change_denomination_reset: "重置",
             change_denomination_complete: "完成",
+            scan_qr: "扫描二维码在手机上跟踪您的服务",
+            screen_resets_in: "屏幕将在以下时间后重置:",
+            reset_now: "<- 立即重置",
             alerts: {
                 fill_name_email: "请输入姓名和电子邮箱",
                 fill_any_contact: "请输入至少姓名、电子邮箱或电话号码其中之一",
@@ -689,6 +701,9 @@ const dictionaries = {
             change_denomination_remaining: "残り",
             change_denomination_reset: "リセット",
             change_denomination_complete: "完了",
+            scan_qr: "QRコードをスキャンしてスマートフォンで状況を確認",
+            screen_resets_in: "画面は以下でリセットされます:",
+            reset_now: "<- 今すぐリセット",
             alerts: {
                 fill_name_email: "お名前とメールアドレスを入力してください",
                 fill_any_contact: "名前、メールアドレス、電話番号のいずれかを入力してください",

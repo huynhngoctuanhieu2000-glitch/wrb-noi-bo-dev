@@ -171,7 +171,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
         }
     };
     if (success) {
-        const journeyUrl = `${UI_CONFIG.JOURNEY_BASE_URL}/${lang}/journey/${bookingId}`;
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : UI_CONFIG.JOURNEY_BASE_URL;
+        const journeyUrl = `${baseUrl}/${lang}/journey/${bookingId}`;
 
         // === TABLET MODE: Show QR Code ===
         if (isTabletDevice && bookingId) {
@@ -191,7 +192,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 {dict.checkout.order_submitted || 'Order Submitted!'}
                             </h2>
                             <p className="text-indigo-300 text-sm">
-                                Scan QR code to track your service on your phone
+                                {dict.checkout.scan_qr || 'Scan QR code to track your service on your phone'}
                             </p>
                         </div>
 
@@ -237,7 +238,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 />
                             </div>
                             <p className="text-xs text-indigo-400">
-                                Screen resets in <span className="font-bold text-white">{tabletResetCountdown}s</span>
+                                {dict.checkout.screen_resets_in || 'Screen resets in'} <span className="font-bold text-white">{tabletResetCountdown}s</span>
                             </p>
                         </div>
 
@@ -245,7 +246,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                             onClick={handleTabletReset}
                             className="text-indigo-400 text-sm font-medium hover:text-white transition-colors"
                         >
-                            ← Reset now
+                            {dict.checkout.reset_now || '<- Reset now'}
                         </button>
                     </div>
                 </div>
