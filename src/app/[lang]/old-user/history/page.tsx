@@ -116,24 +116,57 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                 // If processedItems (has flat fields strength/therapist in VN/EN), map back to codes.
                 let options = item.options ? { ...item.options } : {};
 
+                // Reverse map helper for values that might be stored in Vietnamese
+                const mapVal = (val: string): any => {
+                    if (!val) return undefined;
+                    const v = val.toLowerCase();
+                    if (v.includes('vừa') || v === 'medium') return 'medium';
+                    if (v.includes('lẹ') || v.includes('nhẹ') || v === 'light') return 'light'; 
+                    if (v.includes('mạnh') || v === 'strong') return 'strong';
+
+                    if (v.includes('nam') || v === 'male') return 'male';
+                    if (v.includes('nữ') || v === 'female') return 'female';
+                    if (v.includes('ngẫu nhiên') || v === 'random') return 'random';
+                    return val;
+                };
+
+                const mapBodyPart = (val: string): string => {
+                    if (!val) return val;
+                    const v = val.toLowerCase();
+                    if (v.includes('đầu') || v === 'head') return 'HEAD';
+                    if (v.includes('cổ') || v === 'neck') return 'NECK';
+                    if (v.includes('vai') || v === 'shoulder') return 'SHOULDER';
+                    if (v.includes('tay') || v === 'arm') return 'ARM';
+                    if (v.includes('lưng') || v === 'back') return 'BACK';
+                    if (v.includes('thắt lưng') || v === 'waist') return 'BACK'; 
+                    if (v.includes('đùi') || v === 'thigh') return 'THIGH';
+                    if (v.includes('bắp chân') || v === 'calf') return 'CALF';
+                    if (v.includes('bàn chân') || v === 'foot') return 'FOOT';
+                    return val;
+                };
+
+                // Map strength and therapist back to standard keys regardless
+                if (options.strength) options.strength = mapVal(options.strength);
+                if (options.therapist) options.therapist = mapVal(options.therapist);
+
+                // Handle legacy flat structure or mapped structure for focus/avoid
+                if (options.focus || options.avoid) {
+                    options.bodyParts = options.bodyParts || { focus: [], avoid: [] };
+                    if (options.focus && Array.isArray(options.focus)) {
+                        options.bodyParts.focus = options.focus.map(mapBodyPart);
+                    }
+                    if (options.avoid && Array.isArray(options.avoid)) {
+                        options.bodyParts.avoid = options.avoid.map(mapBodyPart);
+                    }
+                } else if (options.bodyParts) {
+                    if (options.bodyParts.focus) options.bodyParts.focus = options.bodyParts.focus.map(mapBodyPart);
+                    if (options.bodyParts.avoid) options.bodyParts.avoid = options.bodyParts.avoid.map(mapBodyPart);
+                }
+
                 if (!item.options) {
-                    // Reverse map helper
-                    const mapVal = (val: string): any => {
-                        if (!val) return undefined;
-                        const v = val.toLowerCase();
-                        if (v.includes('vừa') || v === 'medium') return 'medium';
-                        if (v.includes('lẹ') || v.includes('nhẹ') || v === 'light') return 'light'; // Typo protection
-                        if (v.includes('mạnh') || v === 'strong') return 'strong';
-
-                        if (v.includes('nam') || v === 'male') return 'male';
-                        if (v.includes('nữ') || v === 'female') return 'female';
-                        if (v.includes('ngẫu nhiên') || v === 'random') return 'random';
-                        return undefined;
-                    };
-
                     options = {
                         strength: mapVal(item.strength),
-                        therapist: mapVal(item.therapist || item.therapist_name), // Screenshot showed therapist_name
+                        therapist: mapVal(item.therapist || item.therapist_name), 
                     };
                 }
 
@@ -234,7 +267,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
                                     <div key={idx} className="flex items-center justify-between gap-2 text-sm">
                                         <div className="flex items-center gap-2 flex-1 min-w-0">
                                             <span className="text-[#D4AF37] font-bold text-xs flex-shrink-0">#{idx + 1}</span>
-                                            <span className="font-bold text-white truncate">{item.name || `Dịch vụ ${item.id}`}</span>
+                                            <span className="font-bold text-white truncate">{item.names?.[lang] || item.name || `Dịch vụ ${item.id}`}</span>
                                             {item.duration && (
                                                 <span className="text-gray-500 text-xs flex-shrink-0">{item.duration} min</span>
                                             )}

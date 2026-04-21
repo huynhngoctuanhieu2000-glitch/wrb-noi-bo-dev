@@ -247,7 +247,7 @@ export async function GET(request: Request) {
         // Fetch all services to map names
         const { data: allServices } = await supabaseAdmin
             .from('Services')
-            .select('id, nameVN, nameEN, duration')
+            .select('id, nameVN, nameEN, nameCN, nameKR, nameJP, duration')
             .limit(1000);
 
         const svcMap = new Map();
@@ -287,6 +287,13 @@ export async function GET(request: Request) {
                 return {
                     id: i.serviceId,
                     name: svc?.nameVN || svc?.nameEN || `Dịch vụ ${i.serviceId}`,
+                    names: {
+                        vi: svc?.nameVN || '',
+                        en: svc?.nameEN || '',
+                        cn: svc?.nameCN || '',
+                        kr: svc?.nameKR || '',
+                        jp: svc?.nameJP || '',
+                    },
                     duration: svc?.duration || null,
                     qty: i.quantity,
                     price: i.price,

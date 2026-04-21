@@ -182,7 +182,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
 
                 {/* Total */}
                 <div className="flex justify-between items-baseline">
-                    <span className="text-white font-bold text-lg">Total</span>
+                    <span className="text-white font-bold text-lg">{dict.checkout?.total_bill || 'Total'}</span>
                     <div className="text-right">
                         <span className={`block text-3xl font-black ${currency === 'USD' ? 'text-emerald-600' : 'text-[#C9A96E]'}`}>
                             {currency === 'USD'
@@ -190,7 +190,7 @@ export default function Invoice({ cart, lang, dict, currency = 'VND', onCustomRe
                                 : `${formatCurrency(total)} VND`
                             }
                         </span>
-                        <div className="text-xs text-gray-500 italic mt-1">*Price includes VAT</div>
+                        <div className="text-xs text-gray-500 italic mt-1">{dict.checkout?.price_includes_vat || '*Price includes VAT'}</div>
                     </div>
                 </div>
             </div>
