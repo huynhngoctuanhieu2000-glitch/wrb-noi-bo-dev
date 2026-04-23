@@ -248,21 +248,31 @@ export function useJourneyRealtime(bookingId: string) {
                     }
                 }
             )
-            // 🆕 Subscribe BookingItems: detect khi KTV hoàn thành từng DV
+            // 🆕 Subscribe BookingItems: detect khi KTV hoàn thành từng DV hoặc Mua thêm DV
             .on(
                 'postgres_changes',
                 {
-                    event: 'UPDATE',
+                    event: '*', // Lắng nghe cả INSERT, UPDATE, DELETE
                     schema: 'public',
                     table: 'BookingItems',
                     filter: `bookingId=eq.${resolvedId}`,
                 },
                 (payload: any) => {
-                    console.log('[Journey] BookingItem Realtime Update:', payload.new.id, payload.new.status);
-                    const updatedItem = payload.new;
-                    
-                    setData((prev) => {
-                        if (!prev) return prev;
+                    if (payload.eventType === 'INSERT') {
+                        console.log('[Journey] BookingItem Realtime INSERT:', payload.new.id);
+                        // Khi có dịch vụ mới mua thêm, ta cần gọi lại fetchState() để lấy được 
+                        // từ điển Tên dịch vụ (nameVN, nameEN) từ bảng Services. 
+                        // Vì sự kiện INSERT (mua thêm) rất hiếm khi xảy ra đồng loạt, nên việc gọi lại API là an toàn.
+                        fetchState();
+                        return;
+                    }
+
+                    if (payload.eventType === 'UPDATE') {
+                        console.log('[Journey] BookingItem Realtime Update:', payload.new.id, payload.new.status);
+                        const updatedItem = payload.new;
+                        
+                        setData((prev) => {
+                            if (!prev) return prev;
                         // Match composite IDs: 'abc-ktv0' starts with 'abc'
                         const originalId = updatedItem.id;
                         const updatedKtvRatings: Record<string, number> = updatedItem.ktvRatings || {};
@@ -288,7 +298,8 @@ export function useJourneyRealtime(bookingId: string) {
                         });
                         return { ...prev, items: updatedItems };
                     });
-                }
+                    } // close if UPDATE
+                } // close callback function
             )
             .subscribe((status: any, err?: any) => {
                 console.log('[useJourneyRealtime] Subscribe Status:', status);
