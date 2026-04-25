@@ -110,9 +110,11 @@ export function useJourneyRealtime(bookingId: string) {
                 (items || []).forEach((i: any) => {
                     const sId = String(i.serviceId || '').trim().toLowerCase();
                     const svc = svcMap.get(sId);
-                    const itemDuration = i.duration || svc?.duration || 60;
-
-                    // Priority: item-level timeStart → booking-level fallback (ONLY if this item's status is active)
+                    // Use ?? to allow 0 duration for addons like "Phòng riêng"
+                    const itemDuration = i.duration ?? svc?.duration ?? 0;
+                    // Provide a default of 60 only if it's strictly null/undefined and not an addon? 
+                    // Actually if it's 0, it should be 0.
+                    const finalDuration = itemDuration !== null && itemDuration !== undefined ? itemDuration : 60;
                     let computedTimeStart: string | null = null;
                     const activeStatuses = ['IN_PROGRESS', 'COMPLETED', 'CLEANING', 'DONE'];
                     if (i.timeStart) {
@@ -158,7 +160,7 @@ export function useJourneyRealtime(bookingId: string) {
                                 jp: svc?.nameJP || svc?.nameEN || fallbackName,
                                 kr: svc?.nameKR || svc?.nameEN || fallbackName,
                             },
-                            duration: itemDuration,
+                            duration: finalDuration,
                             technicianCode: techCode || '',
                             staffName: '',
                             staffAvatar: '',
