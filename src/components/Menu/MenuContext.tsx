@@ -13,6 +13,14 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { Service, ServiceOptions, CartItem, Category } from '@/components/Menu/types';
 import { getServices } from '@/components/Menu/getServices';
 
+export interface CustomerInfoContext {
+    name: string;
+    email: string;
+    phone: string;
+    gender: string;
+    room: string;
+}
+
 interface MenuContextType {
     services: Service[];
     categories: Category[]; // Added categories
@@ -29,6 +37,11 @@ interface MenuContextType {
     removeFromCart: (cartId: string) => void;
     clearCart: () => void;
     getQty: (serviceId: string) => number; // Helper lấy tổng số lượng của 1 service ID
+
+    // --- Customer Logic ---
+    customerInfo: CustomerInfoContext;
+    updateCustomerInfo: (field: string, value: string) => void;
+    resetCustomerInfo: () => void;
 }
 
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
@@ -41,6 +54,15 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
 
     // Cart State
     const [cart, setCart] = useState<CartItem[]>([]);
+
+    // Customer State
+    const [customerInfo, setCustomerInfoContext] = useState<CustomerInfoContext>({
+        name: '',
+        email: '',
+        phone: '',
+        gender: 'Male',
+        room: ''
+    });
 
     const fetchData = async () => {
         try {
@@ -108,10 +130,26 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         return cart.filter(item => item.id === serviceId).reduce((sum, item) => sum + item.qty, 0);
     };
 
+    // --- CUSTOMER FUNCTIONS ---
+    const updateCustomerInfo = (field: string, value: string) => {
+        setCustomerInfoContext(prev => ({ ...prev, [field]: value }));
+    };
+
+    const resetCustomerInfo = () => {
+        setCustomerInfoContext({
+            name: '',
+            email: '',
+            phone: '',
+            gender: 'Male',
+            room: ''
+        });
+    };
+
     return (
         <MenuContext.Provider value={{
             services, categories, loading, error, refreshData: fetchData,
-            cart, addToCart, updateCartItem, updateCartItemOptions, updateAllCartItemOptions, removeFromCart, clearCart, getQty
+            cart, addToCart, updateCartItem, updateCartItemOptions, updateAllCartItemOptions, removeFromCart, clearCart, getQty,
+            customerInfo, updateCustomerInfo, resetCustomerInfo
         }}>
             {children}
         </MenuContext.Provider>

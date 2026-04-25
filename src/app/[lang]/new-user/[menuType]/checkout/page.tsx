@@ -26,7 +26,7 @@ const PAGE_CONFIG = {
 
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
-    const { cart, updateAllCartItemOptions, updateCartItemOptions } = useMenuData();
+    const { cart, updateAllCartItemOptions, updateCartItemOptions, customerInfo, updateCustomerInfo, resetCustomerInfo } = useMenuData();
     const { user, isAuthUser } = useAuthStore();
 
     // Unwrap params
@@ -45,15 +45,6 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     };
 
     // --- STATE ---
-
-    // Customer Info
-    const [customerInfo, setCustomerInfo] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        gender: 'Male', // Default or could be empty
-        room: ''
-    });
 
     // Payment
     const [paymentMethod, setPaymentMethod] = useState('');
@@ -92,14 +83,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     // [NEW] Auto-fill Customer Info từ tài khoản đã đăng nhập
     useEffect(() => {
         if (isAuthUser && user) {
-            setCustomerInfo(prev => ({
-                ...prev,
-                // Ưu tiên lấy full_name từ metadata (Google), sau đó email, không thì rỗng
-                name: prev.name || user.user_metadata?.full_name || user.user_metadata?.name || '',
-                email: prev.email || user.email || '',
-                phone: prev.phone || user.phone || ''
-            }));
+            const authName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+            if (!customerInfo.name && authName) updateCustomerInfo('name', authName);
+            if (!customerInfo.email && user.email) updateCustomerInfo('email', user.email);
+            if (!customerInfo.phone && user.phone) updateCustomerInfo('phone', user.phone);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthUser, user]);
 
     const handleBack = () => {
@@ -122,7 +111,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     };
 
     const handleCustomerChange = (field: string, value: string) => {
-        setCustomerInfo(prev => ({ ...prev, [field]: value }));
+        updateCustomerInfo(field, value);
     };
 
     const handleConfirmOrder = () => {
@@ -181,6 +170,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         }
 
         const data = await res.json();
+        resetCustomerInfo();
         return data.accessToken || data.bookingId;
     };
 

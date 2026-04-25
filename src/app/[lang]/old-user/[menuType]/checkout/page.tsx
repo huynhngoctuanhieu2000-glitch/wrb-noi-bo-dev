@@ -17,7 +17,7 @@ import { getDictionary } from '@/lib/dictionaries';
 
 export default function CheckoutPage({ params }: { params: Promise<{ lang: string }> }) {
     const router = useRouter();
-    const { cart, updateAllCartItemOptions, updateCartItemOptions } = useMenuData();
+    const { cart, updateAllCartItemOptions, updateCartItemOptions, customerInfo, updateCustomerInfo, resetCustomerInfo } = useMenuData();
     const { user, isAuthUser } = useAuthStore();
 
     // Unwrap params
@@ -27,15 +27,6 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     const dict = getDictionary(lang);
 
     // --- STATE ---
-
-    // Customer Info
-    const [customerInfo, setCustomerInfo] = useState({
-        name: '',
-        email: '', // Will be filled from localStorage
-        phone: '',
-        gender: 'Male',
-        room: ''
-    });
 
     // Payment
     const [paymentMethod, setPaymentMethod] = useState('');
@@ -87,32 +78,24 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
             const storedInfoIdx = localStorage.getItem('currentUserInfo');
             if (storedInfoIdx) {
                 const info = JSON.parse(storedInfoIdx);
-                setCustomerInfo(prev => ({
-                    ...prev,
-                    name: authName || info.name || prev.name,
-                    email: authEmail || info.email || prev.email,
-                    phone: authPhone || info.phone || prev.phone
-                }));
+                if (!customerInfo.name && (authName || info.name)) updateCustomerInfo('name', authName || info.name);
+                if (!customerInfo.email && (authEmail || info.email)) updateCustomerInfo('email', authEmail || info.email);
+                if (!customerInfo.phone && (authPhone || info.phone)) updateCustomerInfo('phone', authPhone || info.phone);
             } else {
                 // Fallback: try email only
                 const email = localStorage.getItem('currentUserEmail');
-                setCustomerInfo(prev => ({
-                    ...prev,
-                    email: authEmail || email || prev.email,
-                    name: authName || prev.name,
-                    phone: authPhone || prev.phone
-                }));
+                if (!customerInfo.name && authName) updateCustomerInfo('name', authName);
+                if (!customerInfo.email && (authEmail || email)) updateCustomerInfo('email', authEmail || email);
+                if (!customerInfo.phone && authPhone) updateCustomerInfo('phone', authPhone);
             }
         } catch (e) {
             console.error("Failed to parse currentUserInfo", e);
             // Fallback to auth data if JSON parsing fails
-            setCustomerInfo(prev => ({
-                ...prev,
-                name: authName || prev.name,
-                email: authEmail || prev.email,
-                phone: authPhone || prev.phone
-            }));
+            if (!customerInfo.name && authName) updateCustomerInfo('name', authName);
+            if (!customerInfo.email && authEmail) updateCustomerInfo('email', authEmail);
+            if (!customerInfo.phone && authPhone) updateCustomerInfo('phone', authPhone);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthUser, user]);
 
     // --- HANDLERS ---
@@ -135,7 +118,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
     };
 
     const handleCustomerChange = (field: string, value: string) => {
-        setCustomerInfo(prev => ({ ...prev, [field]: value }));
+        updateCustomerInfo(field, value);
     };
 
     const handleConfirmOrder = () => {
@@ -193,6 +176,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
         }
 
         const data = await res.json();
+        resetCustomerInfo();
         return data.accessToken || data.bookingId;
     };
 
