@@ -15,7 +15,6 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 import { Be_Vietnam_Pro, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 const beVietnamPro = Be_Vietnam_Pro({
@@ -72,7 +71,6 @@ export default function RootLayout({
             <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}
             <ServiceWorkerRegister />
             <Analytics />
-            <SpeedInsights />
             {children}
           </MenuProvider>
         </AuthProvider>
