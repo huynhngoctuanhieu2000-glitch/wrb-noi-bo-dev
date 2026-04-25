@@ -39,7 +39,7 @@ export default function ServiceItem({ service, quantity, lang, isBestSeller, onC
         >
             {/* [LOGIC NEW] Badge Best Seller */}
             {isBestSeller && (
-                <div className="absolute top-0 right-0 z-20 bg-gradient-to-r from-[#b6965b] to-[#dfc599] text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md">
+                <div className="absolute top-0 right-0 z-20 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md uppercase tracking-wider">
                     BEST SELLER
                 </div>
             )}
