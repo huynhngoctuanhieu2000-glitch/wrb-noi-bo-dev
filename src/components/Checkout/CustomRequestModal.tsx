@@ -125,7 +125,7 @@ export default function CustomRequestModal({ isOpen, onClose, onSave, lang }: Cu
                         <div className="space-y-6">
                             {/* Strength */}
                             <div>
-                                <label className="block text-sm text-[#C9A96E] font-bold uppercase mb-3 text-center tracking-widest">Massage Strength</label>
+                                <label className="block text-sm text-[#C9A96E] font-bold uppercase mb-3 text-center tracking-widest">Care Pressure</label>
                                 <div className="flex bg-[#0d0d0d] border border-white/5 rounded-xl p-1">
                                     {['Light', 'Medium', 'Strong'].map(s => (
                                         <button

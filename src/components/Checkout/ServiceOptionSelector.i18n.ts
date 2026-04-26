@@ -13,7 +13,7 @@ export const t = {
         optionsTitle: 'Service Options',
         quantity: 'Number of people',
         duration: 'Duration',
-        strength: 'Massage Pressure',
+        strength: 'Care Pressure',
         strengthLight: 'Light (Relaxing)',
         strengthMedium: 'Medium',
         strengthStrong: 'Strong (Deep tissue)',

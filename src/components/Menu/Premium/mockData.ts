@@ -39,7 +39,7 @@ export const mockStaff: MockStaff[] = [
     id: 'NH001',
     name: 'Minh Anh',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD8CjMbUGAiDeH8FOV-aFYwsMgXYMKhRzihUvDT4QfFemF1SeQayK_ht022P2_x2hnkzU09sXSvjX1hq0Ry7ldJMw29k9hmyr7NBLjhF90M1QHB0P7pN6zoPVYF2oDp1yO8r--xaAAyLFwNOpmMVfdIepRxhUN1zmvhiI9Ykgsg8oCePJkLtLJsdzy0YChZkXLBjOhP7qgFX9DSNsQ5AwMYSwKQjGEewOcnklpl1eqtEYOcnHLaRDsTkSJakwekJjYzLNWj9WxQkTc',
-    title: { vi: 'Chuyên gia Massage Thụy Điển & Đá Nóng', en: 'Swedish & Hot Stone Specialist' },
+    title: { vi: 'Chuyên gia Chăm sóc Thụy Điển & Đá Nóng', en: 'Swedish & Hot Stone Specialist' },
     gender: 'female',
     rating: 4.9,
     reviewCount: 124,
@@ -78,7 +78,7 @@ export const mockStaff: MockStaff[] = [
     id: 'NH004',
     name: 'Bảo Trâm',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDLXtLmZJGE9Fx1luWWCYtf4Yqc-zC8c7xP2KBZMfM1iEHCGBRdajpQ9LKckhoUWvg3b6Yh6ct9oSIlPN8sFTf3LVG8MydwUHYrH__dNn20n7jQtFeLpcvq3yDPeIIyXxmhkAvw84x_LJQCJzffNJWD62BYrfjN70lHAGUmz-5x-QyndcCdFc4T1DompjmlnixZFoZoVjf59JwcCH7CvrlD-f_DuKq-s3ak4rTci9uH_s1uDtIhvq8QhR6xd661sAA7yXHMWrgyUDc',
-    title: { vi: 'Massage toàn diện & Trị liệu Shiatsu', en: 'Full Body & Shiatsu Therapy' },
+    title: { vi: 'Chăm sóc toàn diện & Trị liệu Shiatsu', en: 'Full Body & Shiatsu Therapy' },
     gender: 'female',
     rating: 4.7,
     reviewCount: 82,
@@ -91,7 +91,7 @@ export const mockStaff: MockStaff[] = [
 
 // ---- DANH MỤC DỊCH VỤ ----
 export const mockCategories: MockCategory[] = [
-  { id: 'body', icon: 'spa', vi: 'Massage Body', en: 'Body Therapy' },
+  { id: 'body', icon: 'spa', vi: 'Chăm sóc Body', en: 'Body Therapy' },
   { id: 'facial', icon: 'face', vi: 'Chăm sóc da mặt', en: 'Facial Care' },
   { id: 'foot', icon: 'footprint', vi: 'Trị liệu chân', en: 'Foot Therapy' },
   { id: 'hotstone', icon: 'hot_tub', vi: 'Đá Nóng Trị Liệu', en: 'Hot Stone' },

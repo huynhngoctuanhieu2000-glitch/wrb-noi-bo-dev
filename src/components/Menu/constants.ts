@@ -13,22 +13,22 @@ export const CATEGORIES: Category[] = [
     {
         id: 'Body',
         names: {
-            en: 'Body Massage',
-            vi: 'Massage Body',
-            jp: 'ボディマッサージ',
-            kr: '전신 마사지',
-            cn: '全身按摩'
+            en: 'Body Care',
+            vi: 'Chăm sóc Body',
+            jp: 'ボディケア',
+            kr: '전신 케어',
+            cn: '全身护理'
         },
         image: '/assets/icons/body.webp'
     },
     {
         id: 'Foot',
         names: {
-            en: 'Foot Massage',
-            vi: 'Massage Chân',
-            jp: '足裏マッサージ',
-            kr: '발 마사지',
-            cn: '足部按摩'
+            en: 'Foot Care',
+            vi: 'Chăm sóc Chân',
+            jp: 'フットケア',
+            kr: '발 케어',
+            cn: '足部护理'
         },
         image: '/assets/icons/foot.webp'
     },
