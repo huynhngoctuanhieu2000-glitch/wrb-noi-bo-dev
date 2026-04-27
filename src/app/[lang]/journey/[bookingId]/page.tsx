@@ -33,10 +33,16 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const itemsStarted = (journeyData?.items || []).some(i =>
         i.status && i.status !== 'WAITING'
     );
-    const derivedStatus = (rawStatus === 'NEW' || rawStatus === 'PREPARING') && itemsStarted
+    const derivedStatusRaw = (rawStatus === 'NEW' || rawStatus === 'PREPARING') && itemsStarted
         ? 'IN_PROGRESS'
         : rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
-    const state = derivedStatus;
+
+    // Kể cả khi Lễ tân đã bấm DONE (dọn phòng xong), nếu khách CHƯA đánh giá -> Ép về trạng thái FEEDBACK để khách có thể đánh giá bất cứ lúc nào
+    const allRated = (journeyData?.items || []).length > 0 && (journeyData?.items || []).every(i => 
+        i.itemRating !== null && i.itemRating !== undefined
+    );
+    
+    const state = (derivedStatusRaw === 'DONE' && !allRated) ? 'FEEDBACK' : derivedStatusRaw;
 
     // Khi rawStatus = PREPARING nhưng items đã Started -> Nghĩa là KTV đang nghỉ giữa chặng (chuyển phòng)
     const isPaused = rawStatus === 'PREPARING' && itemsStarted;
