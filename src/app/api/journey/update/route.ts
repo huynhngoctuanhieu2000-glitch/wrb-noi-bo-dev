@@ -153,6 +153,87 @@ export async function PATCH(request: Request) {
                 return NextResponse.json({ error: updateError.message }, { status: 500 });
             }
 
+            // 🌟 Thông báo khi khách đánh giá "Xuất sắc" (rating = 4)
+            if (itemRating === 4) {
+                try {
+                    // Xác định danh sách KTV codes
+                    let techCodesForNotif: string[] = [];
+                    if (ktvCode) {
+                        techCodesForNotif = [ktvCode.trim()];
+                    } else {
+                        // Read technicianCodes from the item
+                        const { data: itemForNotif } = await supabaseAdmin
+                            .from('BookingItems')
+                            .select('technicianCodes')
+                            .eq('id', bookingItemId)
+                            .eq('bookingId', bookingId)
+                            .maybeSingle();
+                        techCodesForNotif = (itemForNotif?.technicianCodes || []).map((c: string) => c.trim()).filter(Boolean);
+                    }
+
+                    const ktvDisplay = techCodesForNotif.join(', ') || 'KTV';
+
+                    // 1️⃣ Thông báo cho QUẦY LỄ TÂN (dispatch board popup)
+                    await supabaseAdmin.from('StaffNotifications').insert({
+                        bookingId,
+                        type: 'FEEDBACK',
+                        message: `🌟 Khách đánh giá XUẤT SẮC cho NV ${ktvDisplay}!`,
+                        isRead: false,
+                        createdAt: new Date().toISOString(),
+                    });
+
+                    // 2️⃣ Thông báo cho TỪNG KTV (KTV dashboard bonusMessage)
+                    for (const code of techCodesForNotif) {
+                        if (!code) continue;
+                        await supabaseAdmin.from('StaffNotifications').insert({
+                            bookingId,
+                            employeeId: code,
+                            type: 'REWARD',
+                            message: `🌟 Khách hàng vừa đánh giá bạn XUẤT SẮC! Tiếp tục phát huy nhé!`,
+                            isRead: false,
+                            createdAt: new Date().toISOString(),
+                        });
+                    }
+                    // 3️⃣ Gọi API Web Push để bắn thông báo ra ngoài màn hình (Push Notification)
+                    const adminUrl = process.env.ADMIN_URL || 'http://localhost:3000';
+                    const webhookSecret = process.env.WEBHOOK_SECRET || '';
+
+                    // 3.1 Push cho Quầy (ADMIN, RECEPTIONIST)
+                    await fetch(`${adminUrl}/api/notifications/push`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-webhook-secret': webhookSecret
+                        },
+                        body: JSON.stringify({
+                            title: 'Đánh giá Xuất Sắc! 🌟',
+                            message: `Khách hàng vừa đánh giá XUẤT SẮC cho NV ${ktvDisplay}!`,
+                            targetRoles: ['ADMIN', 'RECEPTIONIST']
+                        })
+                    }).catch(err => console.error('[journey/update] Web Push to Reception failed:', err));
+
+                    // 3.2 Push cho KTV
+                    if (techCodesForNotif.length > 0) {
+                        await fetch(`${adminUrl}/api/notifications/push`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-webhook-secret': webhookSecret
+                            },
+                            body: JSON.stringify({
+                                title: 'Bạn nhận được đánh giá Xuất Sắc! 🌟',
+                                message: `Tuyệt vời! Khách hàng vừa đánh giá bạn XUẤT SẮC. Tiếp tục phát huy nhé!`,
+                                targetStaffIds: techCodesForNotif
+                            })
+                        }).catch(err => console.error('[journey/update] Web Push to KTV failed:', err));
+                    }
+
+                } catch (notifErr) {
+                    // Non-critical: don't fail the rating update if notification fails
+                    console.error('[journey/update] Notification insert error:', notifErr);
+                }
+            }
+
             // 3. Re-query toàn bộ items để check xem tất cả đã rated chưa
             // Select ktvRatings only if column is available
             const selectFields = useKtvRatings

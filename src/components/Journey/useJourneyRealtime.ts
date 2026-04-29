@@ -105,9 +105,21 @@ export function useJourneyRealtime(bookingId: string) {
                     });
                 }
 
+                // 🔧 Filter out "Phòng riêng" (addon, not a real service to rate)
+                const rateableItems = (items || []).filter((i: any) => {
+                    const sId = String(i.serviceId || '').trim().toLowerCase();
+                    const svc = svcMap.get(sId);
+                    const nameVN = typeof svc?.nameVN === 'object' 
+                        ? (svc.nameVN?.vn || svc.nameVN?.vi || JSON.stringify(svc.nameVN)) 
+                        : String(svc?.nameVN || '');
+                    const nameLower = nameVN.toLowerCase();
+                    if (nameLower.includes('phòng riêng') || nameLower.includes('phong rieng')) return false;
+                    return true;
+                });
+
                 const processedItems: ServiceItem[] = [];
 
-                (items || []).forEach((i: any) => {
+                rateableItems.forEach((i: any) => {
                     const sId = String(i.serviceId || '').trim().toLowerCase();
                     const svc = svcMap.get(sId);
                     // Use ?? to allow 0 duration for addons like "Phòng riêng"
