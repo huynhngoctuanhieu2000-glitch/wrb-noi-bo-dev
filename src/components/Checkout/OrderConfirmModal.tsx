@@ -227,6 +227,12 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                 </div>
                                 <span className="font-bold text-white">{totalTime} {dict.checkout?.mins || (lang === 'vi' ? 'phút' : 'mins')}</span>
                             </div>
+                            <div className="flex justify-between items-center text-sm pt-2 mt-2 border-t border-white/10">
+                                <span className="text-indigo-300">{dict.checkout?.payment_method || (lang === 'en' ? 'Payment Method' : 'Thanh toán')}</span>
+                                <span className="font-bold text-white uppercase">
+                                    {dict.payment_methods?.[paymentMethod] || paymentMethod || 'Cash'}
+                                </span>
+                            </div>
                         </div>
 
                         {/* Auto-reset countdown */}

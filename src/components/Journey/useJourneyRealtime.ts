@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 
-export type JourneyStatus = 'NEW' | 'PREPARING' | 'IN_PROGRESS' | 'COMPLETED' | 'FEEDBACK' | 'DONE';
+export type JourneyStatus = 'NEW' | 'PREPARING' | 'IN_PROGRESS' | 'CLEANING' | 'COMPLETED' | 'FEEDBACK' | 'DONE';
 
 // Enriched service item with computed fields for per-service timer
 export interface ServiceItem {

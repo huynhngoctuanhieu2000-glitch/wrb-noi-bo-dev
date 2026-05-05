@@ -191,7 +191,7 @@ export const groupItemsByTech = (items: ServiceItem[], lang: string = 'vi'): Gro
             });
         }
 
-        const doneStatuses = ['COMPLETED', 'DONE', 'CLEANING'];
+        const doneStatuses = ['COMPLETED', 'DONE', 'CLEANING', 'FEEDBACK'];
         const isCompleted = groupItems.every(i => doneStatuses.includes(i.status || ''));
         const isStarted = groupItems.some(i => i.computedTimeStart !== null);
 

@@ -35,7 +35,9 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     );
     const derivedStatusRaw = (rawStatus === 'NEW' || rawStatus === 'PREPARING') && itemsStarted
         ? 'IN_PROGRESS'
-        : rawStatus === 'NEW' ? 'PREPARING' : rawStatus;
+        : rawStatus === 'NEW' ? 'PREPARING' 
+        : rawStatus === 'COMPLETED' ? 'CLEANING'
+        : rawStatus;
 
     // Kể cả khi Lễ tân đã bấm DONE (dọn phòng xong), nếu khách CHƯA đánh giá -> Ép về trạng thái FEEDBACK để khách có thể đánh giá bất cứ lúc nào
     const allRated = (journeyData?.items || []).length > 0 && (journeyData?.items || []).every(i => 
@@ -94,7 +96,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const getStepIndex = () => {
         if (state === 'DONE') return steps.length; // all done
         if (state === 'PREPARING') return 0; // Ngâm chân
-        if (state === 'COMPLETED' || state === 'FEEDBACK' || state === 'IN_PROGRESS') {
+        if (state === 'COMPLETED' || state === 'CLEANING' || state === 'FEEDBACK' || state === 'IN_PROGRESS') {
             if (serviceView === 'RATING') return 3;
             if (serviceView === 'CHECK_BELONGINGS') return 2;
             return 1; // TIMER
@@ -353,7 +355,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                     />
                 )}
 
-                {(state === 'IN_PROGRESS' || state === 'COMPLETED' || state === 'FEEDBACK') && (
+                {(state === 'IN_PROGRESS' || state === 'COMPLETED' || state === 'CLEANING' || state === 'FEEDBACK') && (
                     <ServiceList
                         items={journeyData?.items || []}
                         lang={lang}

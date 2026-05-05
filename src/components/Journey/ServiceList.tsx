@@ -598,7 +598,7 @@ const ServiceList = (props: ServiceListProps) => {
 
     // Auto-transition: TIMER → CHECK_BELONGINGS when all items completed
     const allCompleted = items.length > 0 && items.every(i =>
-        ['COMPLETED', 'DONE', 'CLEANING'].includes(i.status || '')
+        ['COMPLETED', 'DONE', 'CLEANING', 'FEEDBACK'].includes(i.status || '')
     );
     const allRated = items.length > 0 && items.every(i =>
         i.itemRating !== null && i.itemRating !== undefined
