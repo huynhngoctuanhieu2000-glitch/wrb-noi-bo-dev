@@ -20,6 +20,15 @@ const UI_CONFIG = {
     JOURNEY_BASE_URL: 'https://nganha.vercel.app',
 };
 
+// 🔧 Payment method → emoji icon mapping (language-agnostic for receptionist)
+const PAYMENT_ICONS: Record<string, string> = {
+    cash_vnd: '💵',
+    cash_usd: '💲',
+    card: '💳',
+    transfer: '📱',
+};
+const getPaymentIcon = (method: string): string => PAYMENT_ICONS[method] || '💰';
+
 interface OrderConfirmModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -229,7 +238,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                             </div>
                             <div className="flex justify-between items-center text-sm pt-2 mt-2 border-t border-white/10">
                                 <span className="text-indigo-300">{dict.checkout?.payment_method || (lang === 'en' ? 'Payment Method' : 'Thanh toán')}</span>
-                                <span className="font-bold text-white uppercase">
+                                <span className="font-bold text-white uppercase flex items-center gap-1.5">
+                                    <span className="text-base">{getPaymentIcon(paymentMethod)}</span>
                                     {dict.payment_methods?.[paymentMethod] || paymentMethod || 'Cash'}
                                 </span>
                             </div>
@@ -296,7 +306,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                             <div className="pt-2 mt-2 border-t border-white/5 space-y-1">
                                 <div className="flex justify-between text-xs">
                                     <span className="text-gray-400 font-medium">{dict.checkout.payment_method}</span>
-                                    <span className="font-bold text-white uppercase">
+                                    <span className="font-bold text-white uppercase flex items-center gap-1">
+                                        <span>{getPaymentIcon(paymentMethod)}</span>
                                         {dict.payment_methods?.[paymentMethod] || 'Cash'}
                                     </span>
                                 </div>
@@ -530,7 +541,8 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                     <div className="bg-[#0d0d0d] border border-white/5 rounded-2xl p-5 space-y-3">
                         <div className="flex justify-between text-sm text-gray-400 mb-2">
                             <span>{dict.checkout.payment_method}</span>
-                            <span className="font-bold text-[#C9A96E] uppercase">
+                            <span className="font-bold text-[#C9A96E] uppercase flex items-center gap-1.5">
+                                <span className="text-base">{getPaymentIcon(paymentMethod)}</span>
                                 {dict.payment_methods?.[paymentMethod] || dict.payment_methods?.cash_vnd || 'Cash (VND)'}
                             </span>
                         </div>
