@@ -39,39 +39,39 @@ export const VIOLATIONS_VI = [
 ];
 
 export const VIOLATIONS_EN = [
-    '1. Therapist using personal phone during service?',
-    '2. Therapist hinting or asking for a tip?',
-    '3. Therapist talking too much?',
-    '4. Therapist not following the correct procedure?',
-    '5. Therapist not safeguarding your belongings?',
-    '6. Did the therapist notify when starting the timer?',
+    '1. Did the therapist use their personal phone during service?',
+    '2. Did the therapist disturb you during the service?',
+    '3. Did the therapist not follow the correct service?',
+    '4. Did the therapist not gather your belongings in one place?',
+    '5. Did the therapist hint or ask for a tip?',
+    '6. Did the therapist forget to notify you when they started the timer?',
 ];
 
 export const VIOLATIONS_KR = [
-    '1. 테라피스트가 서비스 중 개인 휴대폰을 사용했나요?',
-    '2. 테라피스트가 팁을 암시하거나 요청했나요?',
-    '3. 테라피스트가 너무 많이 대화했나요?',
-    '4. 테라피스트가 올바른 절차를 따르지 않았나요?',
-    '5. 테라피스트가 고객의 소지품을 보관하지 않았나요?',
-    '6. 테라피스트가 타이머 시작 시 알려주었나요?',
+    '1. 테라피스트가 서비스 중 개인 휴대폰을 사용했습니까?',
+    '2. 테라피스트가 서비스 중 방해를 주거나 불편하게 했습니까?',
+    '3. 정해진 서비스 매뉴얼을 준수하지 않았습니까?',
+    '4. 소지품을 한곳에 안전하게 보관해드리지 않았습니까?',
+    '5. 팁을 노골적으로 요구하거나 암시했습니까?',
+    '6. 타이머 시작 시 안내를 받지 못하셨습니까?',
 ];
 
 export const VIOLATIONS_JP = [
-    '1. セラピストが施術中に私用の携帯電話を使用しましたか？',
-    '2. セラピストがチップを暗示または要求しましたか？',
-    '3. セラピストが過度に会話しましたか？',
-    '4. セラピストが正しい手順に従いませんでしたか？',
-    '5. セラピストがお客様の持ち物を保管しませんでしたか？',
-    '6. セラピストがタイマー開始時に通知しましたか？',
+    '1. 施術中、セラピストが私用の携帯電話を使用しましたか？',
+    '2. 施術中、セラピストがお客様を妨げたり、不快にさせたりしましたか？',
+    '3. 正しいサービス内容（マニュアル）に従っていませんでしたか？',
+    '4. お手荷物を一箇所にまとめて管理していませんでしたか？',
+    '5. チップを要求したり、それとなく促したりしましたか？',
+    '6. タイマー開始の際、セラピストから案内がありませんでしたか？',
 ];
 
 export const VIOLATIONS_CN = [
-    '1. 技师在服务期间使用个人手机？',
-    '2. 技师暗示或索要小费？',
-    '3. 技师聊天过多？',
-    '4. 技师未按正确流程操作？',
-    '5. 技师未妥善保管顾客物品？',
-    '6. 技师开始计时时是否有通知？',
+    '1. 理疗师在服务期间是否使用了私人手机？',
+    '2. 理疗师在服务期间是否打扰到您（或让您感到不适）？',
+    '3. 理疗师是否未按规定流程提供服务？',
+    '4. 理疗师是否未将您的随身物品妥善集中放置？',
+    '5. 理疗师是否有暗示或索要小费的行为？',
+    '6. 理疗师在启动计时器时，是否忘记告知您？',
 ];
 
 /** Map of language code to violations list */
