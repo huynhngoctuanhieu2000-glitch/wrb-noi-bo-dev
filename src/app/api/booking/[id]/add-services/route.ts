@@ -3,10 +3,11 @@ import { addServicesToBooking, BookingItem } from "@/services/booking";
 
 export async function POST(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id: bookingId } = params;
+        const resolvedParams = await params;
+        const { id: bookingId } = resolvedParams;
         const body = await request.json();
 
         if (!body.items || body.items.length === 0) {

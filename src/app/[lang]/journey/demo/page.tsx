@@ -106,7 +106,8 @@ export default function JourneyDemoPage() {
                         itemRating: null,
                         itemFeedback: null,
                         roomName: 'Phòng Demo',
-                        bedId: 'Giường 1'
+                        bedId: 'Giường 1',
+                        segments: []
                     }]}
                     totalDuration={90} 
                 />}

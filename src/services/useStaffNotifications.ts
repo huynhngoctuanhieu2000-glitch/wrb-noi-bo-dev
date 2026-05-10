@@ -63,7 +63,7 @@ export const useStaffNotifications = () => {
           schema: 'public',
           table: 'StaffNotifications',
         },
-        (payload) => {
+        (payload: any) => {
           console.log('🆕 Thông báo mới từ phòng:', payload.new);
           const newNoti = payload.new as StaffNotification;
           

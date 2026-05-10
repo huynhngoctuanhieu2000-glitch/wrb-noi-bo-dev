@@ -157,7 +157,7 @@ export const addServicesToBooking = async (bookingId: string, items: BookingItem
 
         const itemsToInsert = detailedItems.map((item, index) => {
             const serviceDef = allServices.find(s => s.id === item.id);
-            const itemDuration = serviceDef?.duration || 60; // fallback 60
+            const itemDuration = serviceDef?.timeValue || 60; // fallback 60
             addedDuration += itemDuration * item.qty;
 
             return {

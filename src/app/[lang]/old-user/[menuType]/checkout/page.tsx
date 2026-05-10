@@ -85,7 +85,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ lang: strin
                 // Fallback: try email only
                 const email = localStorage.getItem('currentUserEmail');
                 if (!customerInfo.name && authName) updateCustomerInfo('name', authName);
-                if (!customerInfo.email && (authEmail || email)) updateCustomerInfo('email', authEmail || email);
+                if (!customerInfo.email && (authEmail || email)) updateCustomerInfo('email', authEmail || email || '');
                 if (!customerInfo.phone && authPhone) updateCustomerInfo('phone', authPhone);
             }
         } catch (e) {

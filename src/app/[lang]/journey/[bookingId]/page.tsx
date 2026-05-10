@@ -96,7 +96,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const getStepIndex = () => {
         if (state === 'DONE') return steps.length; // all done
         if (state === 'PREPARING') return 0; // Ngâm chân
-        if (state === 'COMPLETED' || state === 'CLEANING' || state === 'FEEDBACK' || state === 'IN_PROGRESS') {
+        if (state === 'CLEANING' || state === 'FEEDBACK' || state === 'IN_PROGRESS') {
             if (serviceView === 'RATING') return 3;
             if (serviceView === 'CHECK_BELONGINGS') return 2;
             return 1; // TIMER
@@ -355,7 +355,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                     />
                 )}
 
-                {(state === 'IN_PROGRESS' || state === 'COMPLETED' || state === 'CLEANING' || state === 'FEEDBACK') && (
+                {(state === 'IN_PROGRESS' || state === 'CLEANING' || state === 'FEEDBACK') && (
                     <ServiceList
                         items={journeyData?.items || []}
                         lang={lang}

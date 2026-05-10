@@ -72,7 +72,7 @@ const gridItemVariants = {
         scale: 1,
         transition: {
             duration: STAGGER_CONFIG.ITEM_DURATION,
-            ease: [0.25, 0.46, 0.45, 0.94], // easeOutQuad
+            ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number], // easeOutQuad
         },
     },
 };
