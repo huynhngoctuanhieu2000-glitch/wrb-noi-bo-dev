@@ -97,7 +97,7 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
 
         itemsToRestore.forEach((item: any) => {
             // 1. Try to find service by ID first
-            let service = services.find((s: any) => s.id === item.id);
+            let service = services.find((s: any) => String(s.id).toLowerCase() === String(item.id).toLowerCase());
 
             // 2. Fallback: Find by Name (exact match EN or VN) if ID not found
             if (!service && item.name) {
@@ -181,20 +181,34 @@ export default function HistoryPage({ params }: { params: Promise<{ lang: string
         // Clear cart for new booking
         clearCart();
         // Redirect to Old User -> Select Menu (as requested)
-        router.push(`/${lang}/old-user/select-menu`);
+        setTimeout(() => {
+            router.push(`/${lang}/old-user/select-menu`);
+        }, 100);
     };
 
     const handleModify = (order: any) => {
+        if (!services || services.length === 0) {
+            console.error("Services not loaded yet");
+            return;
+        }
         restoreCart(order);
         // Redirect to Menu to edit
         // Default to 'standard' for now as we haven't saved menuType in DB yet
-        router.push(`/${lang}/old-user/standard/menu`);
+        setTimeout(() => {
+            router.push(`/${lang}/old-user/standard/menu`);
+        }, 100);
     };
 
     const handleRebook = (order: any) => {
+        if (!services || services.length === 0) {
+            console.error("Services not loaded yet");
+            return;
+        }
         restoreCart(order);
         // Redirect to Checkout directly
-        router.push(`/${lang}/old-user/standard/checkout`);
+        setTimeout(() => {
+            router.push(`/${lang}/old-user/standard/checkout`);
+        }, 100);
     };
 
     if (!dict) return <div className="min-h-screen bg-[#000000] flex items-center justify-center text-white"></div>;
