@@ -89,7 +89,7 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 Chìa khóa / Thẻ',
         // TipModal
         tipExcellent: 'Xuất sắc!',
-        tipMessage: 'Cảm ơn quý khách đã dành cho chúng tôi đánh giá tuyệt vời! Sự hài lòng của bạn là động lực lớn nhất để đội ngũ chúng tôi tiếp tục nỗ lực mỗi ngày.',
+        tipMessage: 'Cảm ơn Quý khách đã hài lòng với dịch vụ! Nếu muốn dành thêm sự khích lệ cho kỹ thuật viên, Quý khách có thể gửi tặng một khoản tip nhỏ. Điều này hoàn toàn tùy thuộc vào ý muốn của Quý khách và là nguồn động viên rất lớn đối với đội ngũ của chúng tôi.',
         continueBtn: 'Tiếp Tục',
     },
     en: {
@@ -179,7 +179,7 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 Keys / Cards',
         // TipModal
         tipExcellent: 'Excellent!',
-        tipMessage: 'Thank you for your wonderful feedback! Your satisfaction is the greatest motivation for our team to keep striving every day.',
+        tipMessage: 'We\'re delighted you enjoyed your visit! If you\'d like to share an extra thank-you, feel free to leave a small tip for your therapist—it\'s entirely up to you and always appreciated.',
         continueBtn: 'Continue',
     },
 
@@ -270,7 +270,7 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 열쇠 / 카드',
         // TipModal
         tipExcellent: '훌륭합니다!',
-        tipMessage: '훌륭한 평가를 해주셔서 감사합니다! 고객님의 만족은 저희 팀이 매일 더 노력하는 가장 큰 원동력입니다.',
+        tipMessage: '만족스러운 시간이 되셨다니 정말 기쁩니다! 오늘 서비스가 특별히 좋으셨다면, 담당 테라피스트에게 작은 응원의 마음(팁)을 전하실 수 있습니다. 이는 전적으로 고객님의 선택이며, 따뜻한 격려만으로도 저희에겐 큰 힘이 됩니다.',
         continueBtn: '계속하기',
     },
     jp: {
@@ -360,7 +360,7 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 鍵 / カード',
         // TipModal
         tipExcellent: '素晴らしい！',
-        tipMessage: '素晴らしい評価をいただきありがとうございます！お客様のご満足は、私たちチームが毎日努力し続ける最大の原動力です。',
+        tipMessage: 'ご満足いただけたとのこと、心より嬉しく存じます。もしよろしければ、担当セラピストへ感謝の気持ちとしてチップをお渡しいただくことも可能です。もちろん、お客様のご任意でございます。温かいお言葉をいただけるだけでも、私たちにとって最大の励みとなります。',
         continueBtn: '続ける',
     },
     cn: {
@@ -450,7 +450,7 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 钥匙 / 卡片',
         // TipModal
         tipExcellent: '太棒了！',
-        tipMessage: '感谢您给予我们如此出色的评价！您的满意是我们团队每天不断努力的最大动力。',
+        tipMessage: '很高兴能为您提供满意的服务！如果您想对理疗师表达额外的肯定，可以自愿赠送小费以示鼓励。这完全取决于您的意愿，您的支持与认可对我们至关重要。',
         continueBtn: '继续',
     },
 };
