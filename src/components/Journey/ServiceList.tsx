@@ -28,6 +28,7 @@ interface ServiceListProps {
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
     isPaused?: boolean;
     onViewChange?: (view: 'TIMER' | 'CHECK_BELONGINGS' | 'RATING') => void;
+    onAllRated?: () => void;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -244,10 +245,11 @@ const CheckBelongingsView = ({ lang = 'vi', onConfirm }: { lang?: string; onConf
 // VIEW 3: Combined Rating — Tất cả NV gộp 1 trang
 // ═══════════════════════════════════════════════════════════════════════════════
 const CombinedRatingView = ({
-    items, lang = 'vi', bookingId, onItemRated,
+    items, lang = 'vi', bookingId, onItemRated, onAllRated,
 }: {
     items: ServiceItem[]; lang?: string; bookingId: string;
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
+    onAllRated?: () => void;
 }) => {
     // Task C3a: Auto-expand first unrated service card
     const firstUnratedId = items.find(item => item.itemRating === null || item.itemRating === undefined)?.id || null;
@@ -297,12 +299,14 @@ const CombinedRatingView = ({
     const ratedCount = items.filter(i => (i.itemRating !== null && i.itemRating !== undefined) || submitted.has(i.id)).length;
     const allRated = ratedCount >= items.length;
 
-    // Clean up localStorage when all rated
+    // Clean up localStorage and notify parent when all rated
     useEffect(() => {
         if (allRated) {
             try { localStorage.removeItem(storageKey); } catch { /* silent */ }
+            // Notify parent to transition to DONE screen
+            onAllRated?.();
         }
-    }, [allRated, storageKey]);
+    }, [allRated, storageKey, onAllRated]);
 
     const handleSubmit = async (itemId: string) => {
         const rating = ratings[itemId];
@@ -626,6 +630,7 @@ const ServiceList = (props: ServiceListProps) => {
                     lang={lang}
                     bookingId={props.bookingId}
                     onItemRated={props.onItemRated}
+                    onAllRated={props.onAllRated}
                 />
             )}
         </div>

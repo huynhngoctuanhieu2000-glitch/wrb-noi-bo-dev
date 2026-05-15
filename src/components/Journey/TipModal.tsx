@@ -41,7 +41,7 @@ export default function TipModal({ onClose, lang = 'vi' }: TipModalProps) {
 
                     <h3 className="text-2xl font-black text-[#C9A96E] mb-4">{t.tipExcellent}</h3>
 
-                    <div className="bg-[#0d0d0d] text-gray-300 text-sm p-4 rounded-2xl mb-6 leading-relaxed border border-[#C9A96E]/20">
+                    <div className="bg-[#0d0d0d] text-gray-300 text-base p-5 rounded-2xl mb-6 leading-relaxed border border-[#C9A96E]/20">
                         {t.tipMessage}
                     </div>
 

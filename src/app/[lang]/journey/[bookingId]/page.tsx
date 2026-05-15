@@ -23,6 +23,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const [serviceView, setServiceView] = React.useState<'TIMER' | 'CHECK_BELONGINGS' | 'RATING'>('TIMER');
     const [confirmState, setConfirmState] = React.useState<{ isOpen: boolean; message: string; onConfirm: () => void; isDestructive?: boolean } | null>(null);
     const [alertState, setAlertState] = React.useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
+    const [forceAllRated, setForceAllRated] = React.useState(false);
 
     // State machine: derive từ booking.status + items status
     const rawStatus = journeyData?.status || 'PREPARING';
@@ -44,7 +45,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         i.itemRating !== null && i.itemRating !== undefined
     );
     
-    const state = (derivedStatusRaw === 'DONE' && !allRated) ? 'FEEDBACK' : derivedStatusRaw;
+    const state = forceAllRated ? 'DONE' : (derivedStatusRaw === 'DONE' && !allRated) ? 'FEEDBACK' : derivedStatusRaw;
 
     // Khi rawStatus = PREPARING nhưng items đã Started -> Nghĩa là KTV đang nghỉ giữa chặng (chuyển phòng)
     const isPaused = rawStatus === 'PREPARING' && itemsStarted;
@@ -375,6 +376,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                         onItemRated={handleItemRated}
                         isPaused={isPaused}
                         onViewChange={setServiceView}
+                        onAllRated={() => setForceAllRated(true)}
                     />
                 )}
 
