@@ -4,7 +4,7 @@ import React from 'react';
 import { translations } from './Journey.i18n';
 
 // 🔧 UI CONFIGURATION
-const AUTO_CLOSE_DELAY = 4000; // Auto-close after 4 seconds
+const AUTO_CLOSE_DELAY = 5000; // Auto-close after 5 seconds
 
 interface TipModalProps {
     onClose: (tipAmount: number) => void;
@@ -12,13 +12,12 @@ interface TipModalProps {
 }
 
 /**
- * TipModal — View-only / Reference mode (Task C3b)
- * Shows tip amounts for reference only. No selection or sending.
+ * TipModal — Appreciation popup for Excellent rating
+ * Shows a thank-you message to the customer. No tip selection.
  * Auto-closes after a delay or user can dismiss manually.
  */
 export default function TipModal({ onClose, lang = 'vi' }: TipModalProps) {
     const t = translations[lang] || translations['en'];
-    const tips = ["50.000vnd", "100.000vnd", "200.000vnd", "500.000vnd"];
 
     // Auto-close after delay
     React.useEffect(() => {
@@ -46,33 +45,12 @@ export default function TipModal({ onClose, lang = 'vi' }: TipModalProps) {
                         {t.tipMessage}
                     </div>
 
-                    {/* Reference label */}
-                    <div className="w-full flex items-center gap-2 mb-3">
-                        <div className="flex-1 h-px bg-white/10" />
-                        <span className="text-[10px] font-black text-[#C9A96E]/60 uppercase tracking-widest">
-                            {lang === 'vi' ? 'Tham Khảo' : 'For Reference'}
-                        </span>
-                        <div className="flex-1 h-px bg-white/10" />
-                    </div>
-
-                    {/* Tip Grid — View-only (no onClick) */}
-                    <div className="grid grid-cols-2 gap-3 w-full mb-6 opacity-80">
-                        {tips.map((amount) => (
-                            <div
-                                key={amount}
-                                className="py-4 px-2 rounded-2xl font-bold border border-white/5 bg-[#0d0d0d] text-[#C9A96E] text-center shadow-sm"
-                            >
-                                {amount}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Single close button */}
+                    {/* Continue button */}
                     <button
                         onClick={() => onClose(0)}
                         className="w-full py-4 rounded-2xl font-bold text-lg bg-[#C9A96E] text-black shadow-[0_5px_20px_rgba(201,169,110,0.3)] hover:bg-[#b09461] transition-all flex items-center justify-center gap-2"
                     >
-                        {lang === 'vi' ? 'Tiếp Tục' : 'Continue'}
+                        {t.continueBtn || (lang === 'vi' ? 'Tiếp Tục' : 'Continue')}
                     </button>
                 </div>
             </div>

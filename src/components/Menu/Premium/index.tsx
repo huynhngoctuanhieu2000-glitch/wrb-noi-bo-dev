@@ -170,8 +170,8 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
                 timeSlot={timeSlot}
                 totalPrice={totalPrice}
                 onConfirm={() => {
-                  // TODO: Push data to backend then redirect
-                  onCheckout();
+                  // Booking already submitted via API — go back to home
+                  onBack();
                 }}
               />
             </motion.div>

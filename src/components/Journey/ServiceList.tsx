@@ -308,7 +308,11 @@ const CombinedRatingView = ({
         const rating = ratings[itemId];
         if (!rating || submitting) return;
 
-
+        // Show TipModal (appreciation popup) when rating is Excellent (4)
+        if (rating === 4) {
+            setShowTipFor(itemId);
+            return;
+        }
 
         setSubmitting(itemId);
         try {

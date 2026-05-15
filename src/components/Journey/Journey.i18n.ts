@@ -89,10 +89,8 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 Chìa khóa / Thẻ',
         // TipModal
         tipExcellent: 'Xuất sắc!',
-        tipMessage: 'Cảm ơn vì sự hài lòng của bạn, bạn có thể gửi tiền tip cho nhân viên xem như phần thưởng khích lệ.',
-        tipSend: 'Gửi tiền tip',
-        tipSkip: 'Bỏ qua',
-        tipProcessing: 'Đang xử lý...',
+        tipMessage: 'Cảm ơn quý khách đã dành cho chúng tôi đánh giá tuyệt vời! Sự hài lòng của bạn là động lực lớn nhất để đội ngũ chúng tôi tiếp tục nỗ lực mỗi ngày.',
+        continueBtn: 'Tiếp Tục',
     },
     en: {
         preparing: 'Preparing',
@@ -181,10 +179,8 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 Keys / Cards',
         // TipModal
         tipExcellent: 'Excellent!',
-        tipMessage: 'Thank you for your satisfaction! You can send a tip to the therapist as an encouragement.',
-        tipSend: 'Send Tip',
-        tipSkip: 'Skip',
-        tipProcessing: 'Processing...',
+        tipMessage: 'Thank you for your wonderful feedback! Your satisfaction is the greatest motivation for our team to keep striving every day.',
+        continueBtn: 'Continue',
     },
 
     kr: {
@@ -274,10 +270,8 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 열쇠 / 카드',
         // TipModal
         tipExcellent: '훌륭합니다!',
-        tipMessage: '만족하셨다니 감사합니다! 테라피스트에게 팁을 보내 격려해 주세요.',
-        tipSend: '팁 보내기',
-        tipSkip: '건너뛰기',
-        tipProcessing: '처리 중...',
+        tipMessage: '훌륭한 평가를 해주셔서 감사합니다! 고객님의 만족은 저희 팀이 매일 더 노력하는 가장 큰 원동력입니다.',
+        continueBtn: '계속하기',
     },
     jp: {
         preparing: '準備中',
@@ -366,10 +360,8 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 鍵 / カード',
         // TipModal
         tipExcellent: '素晴らしい！',
-        tipMessage: 'ご満足いただきありがとうございます！セラピストへの励ましとしてチップを送ることができます。',
-        tipSend: 'チップを送る',
-        tipSkip: 'スキップ',
-        tipProcessing: '処理中...',
+        tipMessage: '素晴らしい評価をいただきありがとうございます！お客様のご満足は、私たちチームが毎日努力し続ける最大の原動力です。',
+        continueBtn: '続ける',
     },
     cn: {
         preparing: '准备中',
@@ -458,10 +450,8 @@ export const translations: Record<string, any> = {
         checkKeys: '🔑 钥匙 / 卡片',
         // TipModal
         tipExcellent: '太棒了！',
-        tipMessage: '感谢您的满意！您可以给技师发送小费作为鼓励。',
-        tipSend: '发送小费',
-        tipSkip: '跳过',
-        tipProcessing: '处理中...',
+        tipMessage: '感谢您给予我们如此出色的评价！您的满意是我们团队每天不断努力的最大动力。',
+        continueBtn: '继续',
     },
 };
 
