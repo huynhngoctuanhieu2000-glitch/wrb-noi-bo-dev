@@ -33,11 +33,12 @@ interface CheckAvailabilityResponse {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Determine if a given date string (YYYY-MM-DD) is today */
-const isToday = (dateStr: string): boolean => {
-  const today = new Date().toISOString().slice(0, 10);
-  return dateStr === today;
-};
+/** Get today's date in Vietnam timezone (Asia/Ho_Chi_Minh) as YYYY-MM-DD */
+const getTodayVN = (): string =>
+  new Date().toLocaleDateString('sv', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+/** Determine if a given date string (YYYY-MM-DD) is today in VN timezone */
+const isToday = (dateStr: string): boolean => dateStr === getTodayVN();
 
 /** Parse "HH:mm" to total minutes from midnight */
 const timeToMinutes = (time: string): number => {
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
 
     const staffIdsRaw = searchParams.get('staffIds') ?? '';
-    const dateParam = searchParams.get('date') ?? new Date().toISOString().slice(0, 10);
+    const dateParam = searchParams.get('date') ?? getTodayVN(); // Default to VN today
     const timeParam = searchParams.get('time') ?? null; // "HH:mm" or null
     const durationParam = parseInt(searchParams.get('duration') ?? '60', 10);
 
@@ -129,10 +130,12 @@ export async function GET(req: NextRequest) {
 
     // ─── Step 4: Fetch Bookings for this KTV on this date ─────────────────
     //    (needed for timeline building AND exact-time conflict check)
+    // bookingDate is a timestamp, so query a full-day range
     const { data: bookingsList } = await supabase
       .from('Bookings')
       .select('id, technicianCode, timeBooking, status, notes, totalAmount')
-      .eq('bookingDate', dateParam.startsWith(dateParam.slice(0, 10)) ? dateParam : dateParam)
+      .gte('bookingDate', `${dateParam}T00:00:00`)
+      .lt('bookingDate', `${dateParam}T23:59:59`)
       .in('status', ['NEW', 'PENDING_CONFIRM', 'PREPARING', 'READY', 'IN_PROGRESS'])
       .in('technicianCode', staffIds);
 
