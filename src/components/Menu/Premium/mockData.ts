@@ -1,7 +1,12 @@
 // =============================================
-// 🎨 MOCK DATA for Premium VIP Menu
-// Dữ liệu giả dùng để phát triển UI/UX trước
-// Sau khi duyệt UI, sẽ thay bằng Supabase API
+// ⛔ DEPRECATED — DO NOT USE
+// File này chỉ tồn tại vì SkillBuilder + CategorySelector
+// legacy vẫn import. Cả 2 component này đã bị loại khỏi flow
+// chính (Premium/index.tsx). An toàn để xóa khi cleanup final.
+//
+// Dữ liệu thực: GET /api/staff/vip-available
+// Pricing thực: src/lib/vipPricingEngine.ts
+// Skills thực: src/lib/vipSkills.constants.ts
 // =============================================
 
 export interface MockStaff {

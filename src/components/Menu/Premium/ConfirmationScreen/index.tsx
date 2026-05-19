@@ -54,6 +54,10 @@ const i18n: Record<string, Record<string, string>> = {
     successTitle: 'Đặt lịch thành công!',
     successMsg: 'Cảm ơn bạn! Spa sẽ liên hệ xác nhận trong thời gian sớm nhất.',
     successBtn: 'VỀ TRANG CHỦ',
+    badgeConfirmed: '✅ Đặt lịch thành công',
+    badgeNeedsConfirm: '⚠️ Tiệm sẽ liên hệ xác nhận',
+    badgeRisky: '🔴 Cần xác nhận khẩn',
+    bookingCodeLabel: 'Mã đặt lịch',
   },
   en: {
     heroSub: 'Premium Experience',
@@ -84,6 +88,10 @@ const i18n: Record<string, Record<string, string>> = {
     successTitle: 'Booking Confirmed!',
     successMsg: 'Thank you! Our spa will contact you shortly to confirm.',
     successBtn: 'BACK TO HOME',
+    badgeConfirmed: '✅ Booking Confirmed',
+    badgeNeedsConfirm: '⚠️ We will contact you to confirm',
+    badgeRisky: '🔴 Urgent confirmation needed',
+    bookingCodeLabel: 'Booking Code',
   },
   kr: {
     heroSub: '프리미엄 경험',
@@ -114,6 +122,10 @@ const i18n: Record<string, Record<string, string>> = {
     successTitle: '예약 완료!',
     successMsg: '감사합니다! 곧 연락드리겠습니다.',
     successBtn: '홈으로',
+    badgeConfirmed: '✅ 예약 완료',
+    badgeNeedsConfirm: '⚠️ 확인을 위해 연락드리겠습니다',
+    badgeRisky: '🔴 긴급 확인 필요',
+    bookingCodeLabel: '예약 코드',
   },
   cn: {
     heroSub: '尊享体验',
@@ -144,6 +156,10 @@ const i18n: Record<string, Record<string, string>> = {
     successTitle: '预约成功！',
     successMsg: '感谢您！我们将尽快联系您确认。',
     successBtn: '返回首页',
+    badgeConfirmed: '✅ 预约成功',
+    badgeNeedsConfirm: '⚠️ 我们将联系您确认',
+    badgeRisky: '🔴 需紧急确认',
+    bookingCodeLabel: '预约编号',
   },
   jp: {
     heroSub: 'プレミアム体験',
@@ -174,6 +190,10 @@ const i18n: Record<string, Record<string, string>> = {
     successTitle: '予約完了！',
     successMsg: 'ありがとうございます！近日中にご連絡いたします。',
     successBtn: 'ホームへ',
+    badgeConfirmed: '✅ 予約完了',
+    badgeNeedsConfirm: '⚠️ 確認のためご連絡いたします',
+    badgeRisky: '🔴 緊急確認が必要です',
+    bookingCodeLabel: '予約コード',
   },
 };
 
@@ -285,12 +305,12 @@ const ConfirmationScreen = ({
               ? 'bg-red-500/10 text-red-400 border border-red-500/30'
               : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
         }`}>
-          {isConfirmed ? '✅ Đặt lịch thành công' : isRisky ? '🔴 Cần xác nhận khẩn' : '⚠️ Tiệm sẽ liên hệ xác nhận'}
+          {isConfirmed ? t.badgeConfirmed : isRisky ? t.badgeRisky : t.badgeNeedsConfirm}
         </div>
 
         {bookingCode && (
           <div className="bg-[#1b1b1d] border border-[#e6c487]/30 rounded-2xl px-6 py-3 mb-4">
-            <span className="text-[10px] text-[#998f81] uppercase tracking-wider block">Booking Code</span>
+            <span className="text-[10px] text-[#998f81] uppercase tracking-wider block">{t.bookingCodeLabel}</span>
             <span className="text-lg font-bold text-[#e6c487] tracking-[0.1em]">{bookingCode}</span>
           </div>
         )}

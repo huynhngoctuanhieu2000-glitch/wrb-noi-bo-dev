@@ -8,6 +8,7 @@ import BookingConfig from './BookingConfig';
 import ConfirmationScreen from './ConfirmationScreen';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 import { type VipPricingTable } from '@/lib/vipPricingEngine';
+import { getT } from './Premium.i18n';
 
 // =============================================
 // 👑 Premium Menu – VIP Booking Flow
@@ -31,7 +32,7 @@ interface PremiumMenuProps {
 type MenuStep = 'STAFF' | 'BOOKING_CONFIG' | 'CONFIRMATION';
 
 const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
-  const isVi = lang === 'vi';
+  const t = getT(lang);
   const [step, setStep] = useState<MenuStep>('STAFF');
 
   // VIP pricing table from SystemConfigs (2D: numStaff → duration → price)
@@ -65,13 +66,12 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
       case 'CONFIRMATION': setStep('BOOKING_CONFIG'); break;
     }
   };
-
   // Step title for header
   const getStepTitle = () => {
     switch (step) {
-      case 'STAFF': return isVi ? 'CHỌN CHUYÊN GIA' : 'SELECT EXPERT';
-      case 'BOOKING_CONFIG': return isVi ? 'TÙY CHỌN DỊCH VỤ' : 'CUSTOMIZE';
-      case 'CONFIRMATION': return isVi ? 'XÁC NHẬN' : 'CONFIRM';
+      case 'STAFF': return t.step_staff;
+      case 'BOOKING_CONFIG': return t.step_config;
+      case 'CONFIRMATION': return t.step_confirm;
     }
   };
 

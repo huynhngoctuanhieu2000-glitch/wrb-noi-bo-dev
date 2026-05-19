@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type VipStaffInfo, getStaffVipSkills, groupSkillsByType } from '@/lib/vipStaffUtils';
+import { getT, tpl } from '../Premium.i18n';
 
 // =============================================
 // 🧑 Staff Selector – REAL DATA (Pha 3)
@@ -20,36 +21,32 @@ interface StaffSelectorProps {
   onConfirmSelection: (selectedStaffIds: string[], staffInfoList: VipStaffInfo[]) => void;
 }
 
-// --- Localized status badge config ---
-const STATUS_CONFIG = {
+// --- Status badge style config (text from i18n) ---
+const STATUS_STYLES: Record<string, { style: string; textStyle: string; i18nKey: string }> = {
   AVAILABLE: {
-    vi: 'SẴN SÀNG',
-    en: 'AVAILABLE',
     style: 'bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20',
     textStyle: 'text-[10px] tracking-[0.1em] text-emerald-400 font-bold uppercase',
+    i18nKey: 'status_available',
   },
   BUSY: {
-    vi: 'ĐANG PHỤC VỤ',
-    en: 'IN SERVICE',
     style: 'bg-amber-500/15 backdrop-blur-md border border-amber-400/20',
     textStyle: 'text-[10px] tracking-[0.1em] text-amber-300 font-bold uppercase',
+    i18nKey: 'status_busy',
   },
   OFF_TODAY: {
-    vi: 'NGHỈ HÔM NAY',
-    en: 'OFF TODAY',
     style: 'bg-[#93000a]/20 backdrop-blur-md border border-[#ffb4ab]/20',
     textStyle: 'text-[10px] tracking-[0.1em] text-[#ffb4ab] font-bold uppercase',
+    i18nKey: 'status_offToday',
   },
   ON_LEAVE: {
-    vi: 'NGÀY NGHỈ',
-    en: 'ON LEAVE',
     style: 'bg-[#93000a]/20 backdrop-blur-md border border-[#ffb4ab]/20',
     textStyle: 'text-[10px] tracking-[0.1em] text-[#ffb4ab] font-bold uppercase',
+    i18nKey: 'status_onLeave',
   },
 };
 
 const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffSelectorProps) => {
-  const isVi = lang === 'vi';
+  const t = getT(lang);
 
   // State
   const [staffList, setStaffList] = useState<VipStaffInfo[]>([]);
@@ -105,12 +102,12 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
   };
 
   const getStatusBadge = (staff: VipStaffInfo) => {
-    const cfg = STATUS_CONFIG[staff.availability];
-    let label = isVi ? cfg.vi : cfg.en;
+    const cfg = STATUS_STYLES[staff.availability];
+    let label = t[cfg.i18nKey];
 
     // BUSY: show estimated end time
     if (staff.availability === 'BUSY' && staff.estimatedEndTime) {
-      label = isVi ? `RẢNH SAU ${staff.estimatedEndTime}` : `FREE AFTER ${staff.estimatedEndTime}`;
+      label = tpl(t.status_freeAfter, { time: staff.estimatedEndTime });
     }
 
     return (
@@ -124,7 +121,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
   const getSkillPreview = (staff: VipStaffInfo): string => {
     const skills = getStaffVipSkills(staff.skills);
     const top = skills.slice(0, SKILL_PREVIEW_COUNT);
-    const names = top.map((sk) => (isVi ? sk.name.vi : sk.name.en));
+    const names = top.map((sk) => (sk.name as Record<string, string>)[lang] || sk.name.en);
     if (skills.length > SKILL_PREVIEW_COUNT) names.push(`+${skills.length - SKILL_PREVIEW_COUNT}`);
     return names.join(' · ');
   };
@@ -145,10 +142,10 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
       {/* Section Header */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
         <h2 className="text-3xl font-serif italic text-[#e6c487] leading-tight mb-2">
-          {isVi ? 'DANH SÁCH CHUYÊN GIA' : 'OUR EXPERTS'}
+          {t.ss_title}
         </h2>
         <p className="text-[11px] tracking-[0.15em] uppercase text-[#d0c5b5]/80">
-          {isVi ? 'Những đôi tay tài hoa sẵn sàng chăm sóc bạn' : 'Talented hands ready to care for you'}
+          {t.ss_subtitle}
         </p>
       </motion.section>
 
@@ -167,7 +164,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isVi ? 'Tìm theo tên hoặc mã (NH001)' : 'Search by name or code'}
+            placeholder={t.ss_searchPlaceholder}
             className="bg-transparent border-none focus:ring-0 focus:outline-none text-sm w-full placeholder:text-[#998f81]/50 text-[#e4e2e4]"
           />
           {searchQuery && (
@@ -191,7 +188,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
       {!isLoading && sortedStaff.length === 0 && (
         <div className="text-center py-16">
           <p className="text-[#998f81] text-sm">
-            {isVi ? 'Không tìm thấy nhân viên' : 'No staff found'}
+            {t.ss_noResult}
           </p>
         </div>
       )}
@@ -204,7 +201,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
           className="mb-4 px-4 py-2.5 bg-[#e6c487]/10 border border-[#e6c487]/30 rounded-xl text-center"
         >
           <p className="text-xs text-[#e6c487]">
-            {isVi ? `Tối đa ${MAX_SELECTABLE_STAFF} chuyên viên` : `Maximum ${MAX_SELECTABLE_STAFF} therapists`}
+            {tpl(t.ss_maxHint, { max: MAX_SELECTABLE_STAFF })}
           </p>
         </motion.div>
       )}
@@ -277,10 +274,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
                           ? 'bg-[#e6c487] text-[#412d00]'
                           : 'border border-[#4d463a] text-[#e4e2e4]'
                       }`}>
-                        {!unavailable
-                          ? (isVi ? 'ĐẶT NGAY' : 'BOOK NOW')
-                          : (isVi ? 'KHÔNG KHẢ DỤNG' : 'UNAVAILABLE')
-                        }
+                        {!unavailable ? t.ss_bookNow : t.ss_unavailable}
                       </div>
                     </div>
                   </div>
@@ -305,7 +299,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
               onClick={handleConfirm}
               className="w-full py-5 rounded-full bg-[#e6c487] text-[#412d00] font-bold tracking-[0.12em] text-sm shadow-[0_15px_30px_rgba(0,0,0,0.4)] flex items-center justify-center gap-3 active:scale-95 duration-200 uppercase"
             >
-              <span>{isVi ? `Tiếp tục với ${selectedIds.length} chuyên viên` : `Continue with ${selectedIds.length} therapists`}</span>
+              <span>{tpl(t.ss_continueWith, { count: selectedIds.length })}</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </motion.div>
@@ -316,10 +310,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
       {!isLoading && sortedStaff.length > 0 && (
         <div className="mt-16 text-center px-4 opacity-40">
           <p className="font-serif italic text-base text-[#c9a96e] leading-relaxed">
-            {isVi
-              ? '"Nghệ thuật của sự thư giãn bắt đầu từ những tâm hồn tinh tế nhất."'
-              : '"The art of relaxation begins with the most refined souls."'
-            }
+            {t.ss_quote}
           </p>
         </div>
       )}

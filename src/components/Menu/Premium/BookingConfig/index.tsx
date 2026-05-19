@@ -6,6 +6,7 @@ import {
   groupSkillsByType,
   getSkillName,
 } from '@/lib/vipStaffUtils';
+import { type VipLang } from '@/lib/vipSkills.constants';
 import {
   calculateMinDuration,
   getAvailableDurations,
@@ -13,6 +14,7 @@ import {
   type VipPricingTable,
   type VipDuration,
 } from '@/lib/vipPricingEngine';
+import { getT, tpl, DAY_KEYS } from '../Premium.i18n';
 
 // =============================================
 // 📅 Booking Config – REAL DATA (Pha 3)
@@ -37,7 +39,7 @@ interface BookingConfigProps {
 }
 
 const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPricingTable, onConfirm }: BookingConfigProps) => {
-  const isVi = lang === 'vi';
+  const t = getT(lang);
   const primaryStaff = selectedStaffInfoList[0];
   const pricingTable = vipPricingTable ?? FALLBACK_PRICING_TABLE;
 
@@ -83,16 +85,13 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
   // Day chips (next 5 days)
   const dayChips = useMemo(() => {
     const days = [];
-    const dayNames = isVi
-      ? ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7']
-      : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     for (let i = 0; i < 5; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
-      days.push({ label: dayNames[d.getDay()], date: d.getDate(), isoDate: d.toISOString().slice(0, 10) });
+      days.push({ label: t[DAY_KEYS[d.getDay()]], date: d.getDate(), isoDate: d.toISOString().slice(0, 10) });
     }
     return days;
-  }, [isVi]);
+  }, [t]);
 
   const toggleSkill = (staffId: string, skillId: string) => {
     setSelectedSkillsMap(prev => {
@@ -123,7 +122,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
           <div>
             <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-4">
               <span className="w-8 h-px bg-[#4d463a] mr-3" />
-              {isVi ? 'CHỌN DỊCH VỤ CHO TừNG KTV' : 'SERVICES BY THERAPIST'}
+              {t.bc_servicesByKtv}
             </h3>
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {selectedStaffInfoList.map(s => (
@@ -141,7 +140,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                   <div className="text-left leading-tight">
                     <span className="block text-xs font-bold">{s.fullName}</span>
                     <span className="block text-[9px] opacity-60">
-                      {(selectedSkillsMap[s.id] || []).length} {isVi ? 'kỹ năng' : 'skills'}
+                      {(selectedSkillsMap[s.id] || []).length} {t.bc_skills}
                     </span>
                   </div>
                 </button>
@@ -160,7 +159,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
               </div>
             </div>
             <div>
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[#ffb597]">Expert Therapist</span>
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#ffb597]">{t.bc_expertTherapist}</span>
               <h2 className="text-2xl font-serif italic text-[#e6c487] mt-0.5">{primaryStaff?.fullName}</h2>
               <p className="text-[10px] text-[#e6c487]/60 mt-1">{primaryStaff?.id}</p>
             </div>
@@ -172,23 +171,20 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
         <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-4">
           <span className="w-8 h-px bg-[#4d463a] mr-3" />
-          {isVi ? 'KỸ NĂNG CHUYÊN BIỆT' : 'SPECIALTIES'}
+          {t.bc_specialties}
         </h3>
 
         {/* minDuration hint */}
         {allSelectedSkillIds.length > 0 && (
           <p className="text-[10px] text-[#e6c487]/60 mb-3">
-            {isVi
-              ? `${leCount} lẻ + ${chinhCount} chính → Tối thiểu ${minDuration} phút`
-              : `${leCount} extras + ${chinhCount} main → Min ${minDuration} mins`
-            }
+            {tpl(t.bc_minDurationHint, { le: leCount, chinh: chinhCount, min: minDuration })}
           </p>
         )}
 
         {/* CHÍNH group */}
         {chinhSkills.length > 0 && (
           <div className="mb-4">
-            <p className="text-[9px] text-[#998f81] tracking-widest uppercase mb-2">── {isVi ? 'Dịch vụ Chính' : 'Main Services'}</p>
+            <p className="text-[9px] text-[#998f81] tracking-widest uppercase mb-2">── {t.bc_mainServices}</p>
             <div className="flex flex-wrap gap-2.5">
               {chinhSkills.map(skill => {
                 const isActive = selectedSkillsMap[activeStaffTab]?.includes(skill.id);
@@ -200,7 +196,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                         : 'bg-[#2a2a2c] border border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                     }`}
                   >
-                    {getSkillName(skill, isVi ? 'vi' : 'en')}
+                    {getSkillName(skill, lang as VipLang)}
                   </button>
                 );
               })}
@@ -211,7 +207,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
         {/* LẺ group */}
         {leSkills.length > 0 && (
           <div>
-            <p className="text-[9px] text-[#998f81] tracking-widest uppercase mb-2">── {isVi ? 'Dịch vụ Lẻ' : 'Add-ons'}</p>
+            <p className="text-[9px] text-[#998f81] tracking-widest uppercase mb-2">── {t.bc_addons}</p>
             <div className="flex flex-wrap gap-2.5">
               {leSkills.map(skill => {
                 const isActive = selectedSkillsMap[activeStaffTab]?.includes(skill.id);
@@ -223,7 +219,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                         : 'bg-[#2a2a2c] border border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                     }`}
                   >
-                    {getSkillName(skill, isVi ? 'vi' : 'en')}
+                    {getSkillName(skill, lang as VipLang)}
                   </button>
                 );
               })}
@@ -232,7 +228,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
         )}
 
         {availableSkills.length === 0 && (
-          <p className="text-[#998f81] text-sm">{isVi ? 'Không có kỹ năng phù hợp' : 'No matching skills'}</p>
+          <p className="text-[#998f81] text-sm">{t.bc_noSkills}</p>
         )}
       </motion.section>
 
@@ -247,10 +243,10 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
           >
             <div className="p-5 rounded-2xl bg-[#c9a96e]/5 border border-[#e6c487]/20">
               <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#e6c487] font-bold mb-1">
-                {isVi ? 'CHỌN THỜI LƯỢNG DỊCH VỤ' : 'SELECT DURATION'}
+                {t.bc_selectDuration}
               </h3>
               <p className="text-[10px] text-[#998f81] mb-4">
-                {isVi ? 'Giá đã bao gồm VAT' : 'Price includes VAT'}
+                {t.bc_vatIncluded}
               </p>
               <div className="flex flex-col gap-3">
                 {availableDurations.map(dur => {
@@ -272,7 +268,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                         }`}>
                           {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#e6c487]" />}
                         </div>
-                        <span className="text-base font-bold">{dur} {isVi ? 'phút' : 'mins'}</span>
+                        <span className="text-base font-bold">{dur} {t.bc_mins}</span>
                       </div>
                       <span className="text-base font-bold">{price.toLocaleString('vi-VN')}đ</span>
                     </button>
@@ -291,7 +287,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
             <section>
               <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-4">
                 <span className="w-8 h-px bg-[#4d463a] mr-3" />
-                {isVi ? 'HÌNH THỨC SỬ DỤNG' : 'SERVICE PREFERENCE'}
+                {t.bc_servicePreference}
               </h3>
               
               <div className="grid grid-cols-2 gap-3">
@@ -307,7 +303,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                   }`}
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                  <span className="text-sm font-medium">{isVi ? 'Đang Tại Chi Nhánh' : 'Walk-in Box'}</span>
+                  <span className="text-sm font-medium">{t.bc_walkIn}</span>
                 </button>
 
                 <button
@@ -322,7 +318,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                   }`}
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  <span className="text-sm font-medium">{isVi ? 'Đặt Lịch Trước' : 'Book Advance'}</span>
+                  <span className="text-sm font-medium">{t.bc_bookAdvance}</span>
                 </button>
               </div>
             </section>
@@ -339,7 +335,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                   <section>
                     <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-4">
                       <span className="w-8 h-px bg-[#4d463a] mr-3" />
-                      {isVi ? 'CHỌN NGÀY' : 'SELECT DATE'}
+                      {t.bc_selectDate}
                     </h3>
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                       {dayChips.map((day: { label: string; date: number }, idx: number) => (
@@ -363,7 +359,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                   <section>
                     <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-5">
                       <span className="w-8 h-px bg-[#4d463a] mr-3" />
-                      {isVi ? 'THỜI GIAN TRỐNG' : 'AVAILABLE TIMES'}
+                      {t.bc_availableTimes}
                     </h3>
                     <div className="space-y-5">
                       {/* Morning 08-12 */}
@@ -377,7 +373,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                         >{time}</button>
                       ))}
                       <p className="text-[9px] text-[#998f81] text-center mt-2">
-                        {isVi ? '* Tiệm sẽ xác nhận lịch chính xác khi liên hệ' : '* Exact slot confirmed when staff contact you'}
+                        {t.bc_timeNote}
                       </p>
                     </div>
                   </section>
@@ -400,8 +396,8 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
           >
             <div className="flex justify-between items-end mb-3 px-2">
               <div>
-                <div className="text-[10px] text-[#998f81] uppercase tracking-wider">{isVi ? 'Đã chọn' : 'Selected'}</div>
-                <div className="text-lg font-bold text-[#e4e2e4]">{effectiveDuration} {isVi ? 'phút' : 'mins'}</div>
+                <div className="text-[10px] text-[#998f81] uppercase tracking-wider">{t.bc_selected}</div>
+                <div className="text-lg font-bold text-[#e4e2e4]">{effectiveDuration} {t.bc_mins}</div>
                 {selectedStaffIds.length > 1 && (
                   <div className="text-[9px] text-[#998f81]">x {selectedStaffIds.length} KTV</div>
                 )}
@@ -415,7 +411,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
               onClick={() => onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: selectedSlot, totalPrice })}
               className="w-full py-5 rounded-full bg-[#e6c487] text-[#412d00] font-bold tracking-[0.12em] text-sm shadow-[0_15px_30px_rgba(0,0,0,0.4)] flex items-center justify-center gap-3 active:scale-95 duration-200 uppercase"
             >
-              <span>{isVi ? 'XÁC NHẬN LỰA CHỌN' : 'CONFIRM SELECTION'}</span>
+              <span>{t.bc_confirmSelection}</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </motion.div>
