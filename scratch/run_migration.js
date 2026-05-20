@@ -4,14 +4,14 @@ const databaseUrl = "postgresql://postgres.adzfohfdindovfcpaizb:KldSnHk8nggpuhpS
 const sql = postgres(databaseUrl, { ssl: { rejectUnauthorized: false } });
 
 async function main() {
-  console.log('🔄 Bắt đầu chạy SQL migration...');
+  console.log('🔄 Bắt đầu chạy SQL migration chèn config...');
   try {
-    // 1. Thêm cột source vào Bookings nếu chưa tồn tại
     await sql`
-      ALTER TABLE "Bookings" 
-      ADD COLUMN IF NOT EXISTS "source" text DEFAULT 'STANDARD_MENU';
+      INSERT INTO "SystemConfigs" (key, value)
+      VALUES ('menu_vip_buffer_minutes', '30')
+      ON CONFLICT (key) DO NOTHING;
     `;
-    console.log('✅ Đã thêm cột "source" vào bảng Bookings với giá trị mặc định là "STANDARD_MENU".');
+    console.log('✅ Đã chèn thành công key "menu_vip_buffer_minutes" = "30" vào bảng SystemConfigs.');
   } catch (error) {
     console.error('❌ Lỗi khi thực thi SQL Migration:', error);
   } finally {

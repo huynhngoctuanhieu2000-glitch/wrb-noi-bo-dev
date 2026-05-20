@@ -45,6 +45,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [timeSlot, setTimeSlot] = useState<string | null>(null);
   const [appointmentDate, setAppointmentDate] = useState<string | null>(null);
+  const [bufferMinutes, setBufferMinutes] = useState<number>(30);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   // Fetch VIP pricing table from SystemConfigs
@@ -55,6 +56,9 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
         // API trả { pricing: VipPricingTable } dạng object 2 chiều
         if (data.pricing && typeof data.pricing === 'object' && !Array.isArray(data.pricing)) {
           setVipPricingTable(data.pricing as VipPricingTable);
+        }
+        if (typeof data.bufferMinutes === 'number') {
+          setBufferMinutes(data.bufferMinutes);
         }
       })
       .catch(err => console.error('[VIP] Failed to fetch pricing:', err));
@@ -133,6 +137,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
                   selectedStaffIds={selectedStaffIds}
                   selectedStaffInfoList={selectedStaffInfoList}
                   vipPricingTable={vipPricingTable}
+                  bufferMinutes={bufferMinutes}
                   onConfirm={(data) => {
                     setSelectedSkillsMap(data.skillsMap);
                     setTotalDuration(data.totalDuration);

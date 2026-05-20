@@ -30,7 +30,6 @@ const FALLBACK_PRICING_TABLE: VipPricingTable = {
   '2': { '60': 1080000, '70': 1260000, '90': 1530000, '120': 2040000, '150': 2550000, '180': 3060000, '240': 4080000 },
 };
 const TIME_SLOT_INTERVAL_MINUTES = 30;
-const BUFFER_MINUTES = 30; // Đặt trước ít nhất 30 phút so với hiện tại
 const DEFAULT_SHIFT_START = '09:00';
 const DEFAULT_SHIFT_END = '22:00';
 const SKILLS_VISIBLE_COUNT = 8; // Hiện tối đa 8 skills, có nút "Xem thêm"
@@ -54,6 +53,7 @@ const generateTimeSlots = (
   shiftEnd: string | null,
   isToday: boolean,
   serviceDuration: number,
+  bufferMinutes: number = 30,
 ): string[] => {
   const start = shiftStart || DEFAULT_SHIFT_START;
   const end = shiftEnd || DEFAULT_SHIFT_END;
@@ -66,10 +66,10 @@ const generateTimeSlots = (
   // Trừ buffer cuối ca: slot cuối = shiftEnd - serviceDuration
   const lastSlotMins = endMins - serviceDuration;
 
-  // Nếu hôm nay: start từ now + BUFFER, round lên bội 30
+  // Nếu hôm nay: start từ now + bufferMinutes, round lên bội 30
   if (isToday) {
     const now = new Date();
-    const nowMins = now.getHours() * 60 + now.getMinutes() + BUFFER_MINUTES;
+    const nowMins = now.getHours() * 60 + now.getMinutes() + bufferMinutes;
     const roundedNow = Math.ceil(nowMins / TIME_SLOT_INTERVAL_MINUTES) * TIME_SLOT_INTERVAL_MINUTES;
     startMins = Math.max(startMins, roundedNow);
   }
@@ -87,10 +87,11 @@ interface BookingConfigProps {
   selectedStaffInfoList: VipStaffInfo[];
   vipPricingTable?: VipPricingTable;
   vipPricing?: { duration: number; price: number; label: string }[];
+  bufferMinutes?: number;
   onConfirm: (data: { skillsMap: Record<string, string[]>; totalDuration: number; timeSlot: string | null; totalPrice: number; appointmentDate: string }) => void;
 }
 
-const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPricingTable, onConfirm }: BookingConfigProps) => {
+const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPricingTable, bufferMinutes = 30, onConfirm }: BookingConfigProps) => {
   const t = getT(lang);
   const primaryStaff = selectedStaffInfoList[0];
   const pricingTable = vipPricingTable ?? FALLBACK_PRICING_TABLE;
@@ -193,10 +194,10 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
     let endMins = timeToMinutes(shiftEnd);
     if (endMins <= startMins) endMins += 24 * 60; // cross-midnight
 
-    // Nếu hôm nay: start từ now + BUFFER_MINUTES
+    // Nếu hôm nay: start từ now + bufferMinutes
     if (isToday) {
       const now = new Date();
-      const nowMins = now.getHours() * 60 + now.getMinutes() + BUFFER_MINUTES;
+      const nowMins = now.getHours() * 60 + now.getMinutes() + bufferMinutes;
       startMins = Math.max(startMins, nowMins);
     }
 
@@ -212,7 +213,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
       endTime: endMins >= 1440 ? '23:59' : minutesToTime(endMins),
       hasSlots: true,
     };
-  }, [primaryStaff, selectedDateStr, dayChips]);
+  }, [primaryStaff, selectedDateStr, dayChips, bufferMinutes]);
 
   const toggleSkill = (staffId: string, skillId: string) => {
     setSelectedSkillsMap(prev => {

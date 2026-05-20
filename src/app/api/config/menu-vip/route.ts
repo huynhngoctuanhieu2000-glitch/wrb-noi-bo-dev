@@ -14,8 +14,8 @@ export async function GET() {
             return NextResponse.json({ enabled: false, pricing: [] });
         }
 
-        // Fetch both configs in parallel
-        const [enabledRes, pricingRes] = await Promise.all([
+        // Fetch all configs in parallel
+        const [enabledRes, pricingRes, bufferRes] = await Promise.all([
             supabase
                 .from('SystemConfigs')
                 .select('value')
@@ -25,6 +25,11 @@ export async function GET() {
                 .from('SystemConfigs')
                 .select('value')
                 .eq('key', 'menu_vip_pricing')
+                .maybeSingle(),
+            supabase
+                .from('SystemConfigs')
+                .select('value')
+                .eq('key', 'menu_vip_buffer_minutes')
                 .maybeSingle(),
         ]);
 
@@ -39,9 +44,15 @@ export async function GET() {
             pricing = typeof raw === 'string' ? JSON.parse(raw) : raw;
         }
 
-        return NextResponse.json({ enabled, pricing });
+        // Parse buffer minutes
+        let bufferMinutes = 30;
+        if (bufferRes.data?.value) {
+            bufferMinutes = parseInt(String(bufferRes.data.value), 10) || 30;
+        }
+
+        return NextResponse.json({ enabled, pricing, bufferMinutes });
     } catch (error: any) {
         console.error('[API] GET /api/config/menu-vip error:', error);
-        return NextResponse.json({ enabled: false, pricing: [] });
+        return NextResponse.json({ enabled: false, pricing: [], bufferMinutes: 30 });
     }
 }
