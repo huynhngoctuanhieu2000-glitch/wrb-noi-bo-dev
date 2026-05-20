@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   type VipStaffInfo,
   getIntersectionSkills,
+  getStaffVipSkills,
   groupSkillsByType,
   getSkillName,
 } from '@/lib/vipStaffUtils';
@@ -154,9 +155,25 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
     return date < today;
   };
 
-  // --- Real skills: intersection of all selected KTVs ---
-  const allStaffSkills = selectedStaffInfoList.map(s => s.skills);
-  const availableSkills = useMemo(() => getIntersectionSkills(allStaffSkills), [allStaffSkills]);
+  // --- Real skills: specific to the currently ACTIVE KTV tab ---
+  const activeStaffInfo = useMemo(() =>
+    selectedStaffInfoList.find(s => s.id === activeStaffTab) || primaryStaff,
+    [selectedStaffInfoList, activeStaffTab, primaryStaff]
+  );
+
+  const availableSkills = useMemo(() => {
+    let skills = getStaffVipSkills(activeStaffInfo?.skills);
+
+    // Filter redundant "Combo" skills if "Chuyên" exists
+    const hasEarChuyen = skills.some(s => s.id === 'earChuyen');
+    const hasNailChuyen = skills.some(s => s.id === 'nailChuyen');
+
+    if (hasEarChuyen) skills = skills.filter(s => s.id !== 'earCombo');
+    if (hasNailChuyen) skills = skills.filter(s => s.id !== 'nailCombo');
+
+    return skills;
+  }, [activeStaffInfo]);
+
   const { le: leSkills, chinh: chinhSkills } = useMemo(() => groupSkillsByType(availableSkills), [availableSkills]);
 
   // All currently selected skill IDs
@@ -372,15 +389,15 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                     <button
                       key={dur}
                       onClick={() => setSelectedDuration(dur)}
-                      className={`flex flex-col items-center justify-center min-w-[90px] py-3 px-3 rounded-xl transition-all shrink-0 border-2 ${
+                      className={`flex flex-col items-center justify-center min-w-[72px] sm:min-w-[85px] py-2.5 px-1 sm:px-2 rounded-xl transition-all shrink-0 border-2 ${
                         isSelected
                           ? 'bg-[#e6c487]/15 border-[#e6c487] text-[#e6c487] shadow-[0_0_15px_rgba(230,196,135,0.15)]'
                           : 'bg-[#1b1b1d] border-[#4d463a]/30 text-[#d0c5b5] hover:border-[#998f81]/50'
                       }`}
                     >
-                      <span className="text-base font-bold">{dur}</span>
-                      <span className="text-[10px] opacity-70">{t.bc_mins}</span>
-                      <span className={`text-[11px] font-bold mt-1 ${isSelected ? 'text-[#e6c487]' : 'text-[#c9a96e]'}`}>
+                      <span className="text-sm sm:text-base font-bold">{dur}</span>
+                      <span className="text-[9px] sm:text-[10px] opacity-70">{t.bc_mins}</span>
+                      <span className={`text-[10px] sm:text-[11px] font-bold mt-1 ${isSelected ? 'text-[#e6c487]' : 'text-[#c9a96e]'}`}>
                         {(price / 1000).toFixed(0)}k
                       </span>
                     </button>
