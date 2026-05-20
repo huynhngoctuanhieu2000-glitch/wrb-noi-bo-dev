@@ -30,14 +30,16 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const [isRefreshing, setIsRefreshing] = React.useState(false);
     const touchStartY = React.useRef(0);
     const isPulling = React.useRef(false);
+    const pullDistanceRef = React.useRef(0);
 
     // 🔧 PULL-TO-REFRESH CONFIGURATION
     const PULL_THRESHOLD = 80;
     const MAX_PULL = 120;
+    const ACTIVATION_ZONE = 15; // px dead zone before activating (allows native scroll)
 
     React.useEffect(() => {
         const handleTouchStart = (e: TouchEvent) => {
-            if (window.scrollY === 0 && !isRefreshing) {
+            if (window.scrollY <= 0 && !isRefreshing) {
                 touchStartY.current = e.touches[0].clientY;
                 isPulling.current = true;
             }
@@ -45,20 +47,37 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
 
         const handleTouchMove = (e: TouchEvent) => {
             if (!isPulling.current || isRefreshing) return;
-            const deltaY = e.touches[0].clientY - touchStartY.current;
-            if (deltaY > 0) {
-                e.preventDefault();
-                setPullDistance(Math.min(deltaY * 0.5, MAX_PULL));
-            } else {
+
+            // If page has scrolled away from top, cancel pull
+            if (window.scrollY > 0) {
                 isPulling.current = false;
                 setPullDistance(0);
+                pullDistanceRef.current = 0;
+                return;
             }
+
+            const deltaY = e.touches[0].clientY - touchStartY.current;
+
+            if (deltaY > ACTIVATION_ZONE) {
+                // User clearly pulling down — activate pull-to-refresh
+                e.preventDefault();
+                const dist = Math.min((deltaY - ACTIVATION_ZONE) * 0.5, MAX_PULL);
+                setPullDistance(dist);
+                pullDistanceRef.current = dist;
+            } else if (deltaY < 0) {
+                // User scrolling up — cancel pull, let native scroll work
+                isPulling.current = false;
+                setPullDistance(0);
+                pullDistanceRef.current = 0;
+            }
+            // 0 <= deltaY <= ACTIVATION_ZONE: do nothing, let browser decide
         };
 
         const handleTouchEnd = async () => {
             if (!isPulling.current) return;
             isPulling.current = false;
-            if (pullDistance >= PULL_THRESHOLD) {
+
+            if (pullDistanceRef.current >= PULL_THRESHOLD) {
                 setIsRefreshing(true);
                 setPullDistance(PULL_THRESHOLD);
                 try {
@@ -68,9 +87,11 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
                 } finally {
                     setIsRefreshing(false);
                     setPullDistance(0);
+                    pullDistanceRef.current = 0;
                 }
             } else {
                 setPullDistance(0);
+                pullDistanceRef.current = 0;
             }
         };
 
@@ -83,7 +104,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
             document.removeEventListener('touchmove', handleTouchMove);
             document.removeEventListener('touchend', handleTouchEnd);
         };
-    }, [isRefreshing, pullDistance, refresh]);
+    }, [isRefreshing, refresh]);
 
     // State machine: derive từ booking.status + items status
     const rawStatus = journeyData?.status || 'PREPARING';
@@ -96,15 +117,15 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     );
     const derivedStatusRaw = (rawStatus === 'NEW' || rawStatus === 'PREPARING') && itemsStarted
         ? 'IN_PROGRESS'
-        : rawStatus === 'NEW' ? 'PREPARING' 
-        : rawStatus === 'COMPLETED' ? 'CLEANING'
-        : rawStatus;
+        : rawStatus === 'NEW' ? 'PREPARING'
+            : rawStatus === 'COMPLETED' ? 'CLEANING'
+                : rawStatus;
 
     // Kể cả khi Lễ tân đã bấm DONE (dọn phòng xong), nếu khách CHƯA đánh giá -> Ép về trạng thái FEEDBACK để khách có thể đánh giá bất cứ lúc nào
-    const allRated = (journeyData?.items || []).length > 0 && (journeyData?.items || []).every(i => 
+    const allRated = (journeyData?.items || []).length > 0 && (journeyData?.items || []).every(i =>
         i.itemRating !== null && i.itemRating !== undefined
     );
-    
+
     const state = forceAllRated ? 'DONE' : (derivedStatusRaw === 'DONE' && !allRated) ? 'FEEDBACK' : derivedStatusRaw;
 
     // Khi rawStatus = PREPARING nhưng items đã Started -> Nghĩa là KTV đang nghỉ giữa chặng (chuyển phòng)
@@ -266,7 +287,7 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
     const handleItemRated = useCallback(async (itemId: string, rating: number, feedback: string) => {
         // Strip composite KTV suffix (e.g. 'abc-ktv0' → 'abc') for DB update
         const realItemId = itemId.replace(/-ktv\d+$/, '');
-        
+
         // Extract ktvCode for per-KTV rating
         let ktvCode: string | undefined;
         if (itemId !== realItemId) {
@@ -359,13 +380,13 @@ export default function JourneyPage({ params }: { params: Promise<{ lang: string
         <div className="min-h-screen bg-[#0d0d0d] text-white pb-10 font-sans selection:bg-[#C9A96E]/20">
             {/* Pull-to-refresh indicator */}
             {(pullDistance > 0 || isRefreshing) && (
-                <div 
+                <div
                     className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-center transition-all duration-200"
                     style={{ height: `${pullDistance}px` }}
                 >
                     <div className={`flex flex-col items-center gap-1 ${isRefreshing ? 'animate-pulse' : ''}`}>
-                        <svg 
-                            className={`w-6 h-6 text-[#C9A96E] transition-transform duration-200 ${isRefreshing ? 'animate-spin' : ''}`} 
+                        <svg
+                            className={`w-6 h-6 text-[#C9A96E] transition-transform duration-200 ${isRefreshing ? 'animate-spin' : ''}`}
                             style={{ transform: isRefreshing ? undefined : `rotate(${(pullDistance / PULL_THRESHOLD) * 360}deg)` }}
                             fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         >
