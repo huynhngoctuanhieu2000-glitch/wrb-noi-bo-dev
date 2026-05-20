@@ -219,7 +219,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
 
       {/* Therapist Gallery */}
       {!isLoading && (
-        <div className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
           {sortedStaff.map((staff, idx) => {
             const isSelected = selectedIds.includes(staff.id);
             const unavailable = isUnavailable(staff);
@@ -248,8 +248,8 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
                   ) : (
                     /* Fallback avatar */
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2a2a2c] to-[#1b1b1d]">
-                      <span className="text-6xl text-[#e6c487]/30 font-serif">
-                        {staff.fullName.charAt(0)}
+                      <span className="text-3xl text-[#e6c487]/30 font-bold tracking-wider">
+                        {staff.id}
                       </span>
                     </div>
                   )}
@@ -266,12 +266,10 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
 
                   {/* Content Overlay */}
                   <div className="absolute bottom-0 left-0 w-full p-7 bg-gradient-to-t from-[#131315] via-[#131315]/60 to-transparent">
-                    {/* Staff Code Badge */}
-                    <div className="inline-block bg-[#e6c487]/15 border border-[#e6c487]/30 px-3 py-1 rounded-full mb-2">
-                      <span className="text-[11px] tracking-[0.15em] text-[#e6c487] font-bold">{staff.id}</span>
+                    {/* Staff Code Badge — enlarged as primary identifier */}
+                    <div className="inline-block bg-[#e6c487]/15 border border-[#e6c487]/30 px-4 py-1.5 rounded-full mb-3">
+                      <span className="text-sm tracking-[0.15em] text-[#e6c487] font-bold">{staff.id}</span>
                     </div>
-
-                    <h3 className="font-serif italic text-2xl text-[#e4e2e4] mb-1">{staff.fullName}</h3>
 
                     {/* Skill preview chips */}
                     {skillPreview && (
@@ -304,7 +302,7 @@ const StaffSelector = ({ lang, preferredCategoryId, onConfirmSelection }: StaffS
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 80 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="fixed bottom-6 left-6 right-6 z-40"
+            className="fixed bottom-6 inset-x-6 lg:inset-x-0 mx-auto lg:w-[500px] z-40"
           >
             <button
               onClick={handleConfirm}

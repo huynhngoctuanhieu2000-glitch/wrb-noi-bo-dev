@@ -24,27 +24,10 @@ export default function Header({ categories, activeCategory, lang, onSelectCateg
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isReady, setIsReady] = useState(false);
     
-    // Nhân bản danh sách 14 lần (~100 items) để tạo cảm giác scroll vô cực an toàn
-    const multiplier = 14;
-    const repeatedCategories = Array(multiplier).fill(categories).flat();
+    const repeatedCategories = categories;
 
     useEffect(() => {
-        const el = scrollRef.current;
-        if (el && categories.length > 0) {
-            // Tắt hiệu ứng mượt để nhảy đến giữa tức thì
-            el.style.scrollBehavior = 'auto';
-            const blockWidth = el.scrollWidth / multiplier;
-            // Nhảy đến block thứ 7 (chính giữa)
-            el.scrollLeft = blockWidth * (multiplier / 2);
-            
-            // Hiện UI lên
-            setIsReady(true);
-            
-            // Bật lại css scroll-smooth sau khi render
-            setTimeout(() => {
-                if (el) el.style.scrollBehavior = 'smooth';
-            }, 50);
-        }
+        setIsReady(true);
     }, [categories.length]);
 
     // ---- Hỗ trợ kéo thả trên màn hình máy tính (Mouse Drag to Scroll) ----

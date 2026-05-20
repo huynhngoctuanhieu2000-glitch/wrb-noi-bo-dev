@@ -16,7 +16,6 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { Be_Vietnam_Pro, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
 
-
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ['400', '500', '600', '700'],
   subsets: ['latin', 'vietnamese'],
@@ -61,11 +60,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {/* Thẻ body này là nơi chứa mọi trang web của bạn.
         Nó sẽ tự động nhận các style từ globals.css
       */}
-      <body className={`${beVietnamPro.variable} ${playfairDisplay.variable} font-sans antialiased w-full h-full`}>
+      <body suppressHydrationWarning className={`${beVietnamPro.variable} ${playfairDisplay.variable} font-sans antialiased w-full h-full`}>
         <AuthProvider>
           <MenuProvider>
             <IOSViewportFix /> {/* Kích hoạt script tính chiều cao */}

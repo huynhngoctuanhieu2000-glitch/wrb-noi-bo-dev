@@ -109,54 +109,56 @@ const PremiumMenu = ({ lang, onBack, onCheckout }: PremiumMenuProps) => {
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <AnimatePresence mode="wait">
-          {step === 'STAFF' && (
-            <motion.div key="staff" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
-              <StaffSelector
-                lang={lang}
-                onConfirmSelection={(ids, staffInfoList) => {
-                  setSelectedStaffIds(ids);
-                  setSelectedStaffInfoList(staffInfoList);
-                  setStep('BOOKING_CONFIG');
-                }}
-              />
-            </motion.div>
-          )}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+        <div className="w-full lg:max-w-5xl lg:mx-auto lg:px-8 pb-32">
+          <AnimatePresence mode="wait">
+            {step === 'STAFF' && (
+              <motion.div key="staff" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} className="w-full">
+                <StaffSelector
+                  lang={lang}
+                  onConfirmSelection={(ids, staffInfoList) => {
+                    setSelectedStaffIds(ids);
+                    setSelectedStaffInfoList(staffInfoList);
+                    setStep('BOOKING_CONFIG');
+                  }}
+                />
+              </motion.div>
+            )}
 
-          {step === 'BOOKING_CONFIG' && (
-            <motion.div key="booking" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
-              <BookingConfig
-                lang={lang}
-                selectedStaffIds={selectedStaffIds}
-                selectedStaffInfoList={selectedStaffInfoList}
-                vipPricingTable={vipPricingTable}
-                onConfirm={(data) => {
-                  setSelectedSkillsMap(data.skillsMap);
-                  setTotalDuration(data.totalDuration);
-                  setTimeSlot(data.timeSlot);
-                  setTotalPrice(data.totalPrice || 0);
-                  setStep('CONFIRMATION');
-                }}
-              />
-            </motion.div>
-          )}
+            {step === 'BOOKING_CONFIG' && (
+              <motion.div key="booking" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} className="w-full">
+                <BookingConfig
+                  lang={lang}
+                  selectedStaffIds={selectedStaffIds}
+                  selectedStaffInfoList={selectedStaffInfoList}
+                  vipPricingTable={vipPricingTable}
+                  onConfirm={(data) => {
+                    setSelectedSkillsMap(data.skillsMap);
+                    setTotalDuration(data.totalDuration);
+                    setTimeSlot(data.timeSlot);
+                    setTotalPrice(data.totalPrice || 0);
+                    setStep('CONFIRMATION');
+                  }}
+                />
+              </motion.div>
+            )}
 
-          {step === 'CONFIRMATION' && (
-            <motion.div key="confirmation" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
-              <ConfirmationScreen
-                lang={lang}
-                selectedStaffIds={selectedStaffIds}
-                selectedStaffInfoList={selectedStaffInfoList}
-                selectedSkillsMap={selectedSkillsMap}
-                totalDuration={totalDuration}
-                timeSlot={timeSlot}
-                totalPrice={totalPrice}
-                onConfirm={() => { onBack(); }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {step === 'CONFIRMATION' && (
+              <motion.div key="confirmation" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }} className="w-full">
+                <ConfirmationScreen
+                  lang={lang}
+                  selectedStaffIds={selectedStaffIds}
+                  selectedStaffInfoList={selectedStaffInfoList}
+                  selectedSkillsMap={selectedSkillsMap}
+                  totalDuration={totalDuration}
+                  timeSlot={timeSlot}
+                  totalPrice={totalPrice}
+                  onConfirm={() => { onBack(); }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

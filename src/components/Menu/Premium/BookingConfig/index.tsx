@@ -15,6 +15,7 @@ import {
   type VipDuration,
 } from '@/lib/vipPricingEngine';
 import { getT, tpl, DAY_KEYS } from '../Premium.i18n';
+import FlipTimePicker from './FlipTimePicker';
 
 // =============================================
 // 📅 Booking Config – REAL DATA (Pha 3)
@@ -145,15 +146,37 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
     return days;
   }, [t]);
 
-  // --- Dynamic time slots from KTV shift ---
-  const timeSlots = useMemo(() => {
-    // Use earliest shift among all selected staff (most restrictive)
-    const shiftStart = primaryStaff?.shiftStart ?? null;
-    const shiftEnd = primaryStaff?.shiftEnd ?? null;
+  // --- Dynamic time range for FlipTimePicker ---
+  // Range = shiftStart → shiftEnd (full ca, tiệm xác nhận sau)
+  const pickerTimeRange = useMemo(() => {
+    const shiftStart = primaryStaff?.shiftStart ?? DEFAULT_SHIFT_START;
+    const shiftEnd = primaryStaff?.shiftEnd ?? DEFAULT_SHIFT_END;
     const isToday = selectedDay === 0;
-    const duration = effectiveDuration ?? 60;
-    return generateTimeSlots(shiftStart, shiftEnd, isToday, duration);
-  }, [primaryStaff, selectedDay, effectiveDuration]);
+
+    let startMins = timeToMinutes(shiftStart);
+    let endMins = timeToMinutes(shiftEnd);
+    if (endMins <= startMins) endMins += 24 * 60; // cross-midnight
+
+    // Nếu hôm nay: start từ now + BUFFER_MINUTES
+    if (isToday) {
+      const now = new Date();
+      const nowMins = now.getHours() * 60 + now.getMinutes() + BUFFER_MINUTES;
+      startMins = Math.max(startMins, nowMins);
+    }
+
+    // Clamp: nếu start > end → không còn slot
+    if (startMins > endMins) {
+      return { startTime: '', endTime: '', hasSlots: false };
+    }
+
+    return {
+      startTime: minutesToTime(startMins),
+      // Cross-midnight: endMins=1440 → minutesToTime="00:00" gây lỗi picker
+      // Cap tại 23:59 để picker hiểu đúng (ca 3: 17→00 = 17→23:59)
+      endTime: endMins >= 1440 ? '23:59' : minutesToTime(endMins),
+      hasSlots: true,
+    };
+  }, [primaryStaff, selectedDay]);
 
   const toggleSkill = (staffId: string, skillId: string) => {
     setSelectedSkillsMap(prev => {
@@ -195,11 +218,11 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                   }`}
                 >
                   {s.avatarUrl
-                    ? <img src={s.avatarUrl} alt={s.fullName} className="w-7 h-7 rounded-full border border-white/10 shrink-0" />
-                    : <div className="w-7 h-7 rounded-full bg-[#2a2a2c] flex items-center justify-center text-[#e6c487] text-xs font-bold">{s.fullName.charAt(0)}</div>
+                    ? <img src={s.avatarUrl} alt={s.id} className="w-7 h-7 rounded-full border border-white/10 shrink-0" />
+                    : <div className="w-7 h-7 rounded-full bg-[#2a2a2c] flex items-center justify-center text-[#e6c487] text-[9px] font-bold">{s.id}</div>
                   }
                   <div className="text-left leading-tight">
-                    <span className="block text-xs font-bold">{s.fullName}</span>
+                    <span className="block text-xs font-bold text-[#e6c487]">{s.id}</span>
                     <span className="block text-[9px] opacity-60">
                       {(selectedSkillsMap[s.id] || []).length} {t.bc_skills}
                     </span>
@@ -213,14 +236,13 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg relative shrink-0">
               {primaryStaff?.avatarUrl
-                ? <img src={primaryStaff.avatarUrl} alt={primaryStaff.fullName} className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-gradient-to-br from-[#2a2a2c] to-[#1b1b1d] flex items-center justify-center text-xl text-[#e6c487]/30 font-serif">{primaryStaff?.fullName.charAt(0)}</div>
+                ? <img src={primaryStaff.avatarUrl} alt={primaryStaff?.id} className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-gradient-to-br from-[#2a2a2c] to-[#1b1b1d] flex items-center justify-center text-sm text-[#e6c487]/40 font-bold">{primaryStaff?.id}</div>
               }
             </div>
             <div>
               <p className="text-[10px] tracking-[0.15em] uppercase text-[#c9a96e]">{t.bc_expertTherapist}</p>
-              <h2 className="text-xl font-serif italic text-[#e4e2e4]">{primaryStaff?.fullName}</h2>
-              <p className="text-[11px] text-[#998f81]">{primaryStaff?.id}</p>
+              <h2 className="text-xl font-bold tracking-wider text-[#e6c487]">{primaryStaff?.id}</h2>
             </div>
           </div>
         )}
@@ -408,24 +430,19 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                     </div>
                   </section>
 
-                  {/* Time slots — DYNAMIC GRID 3 COLUMNS (Bug B+C fix) */}
+                  {/* Time Picker — Flip Clock Style */}
                   <section>
                     <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#d0c5b5] flex items-center mb-3">
                       <span className="w-6 h-px bg-[#4d463a] mr-2" />
                       {t.bc_availableTimes}
                     </h3>
-                    {timeSlots.length > 0 ? (
-                      <div className="grid grid-cols-3 gap-2">
-                        {timeSlots.map(time => (
-                          <button key={time} onClick={() => setSelectedSlot(time)}
-                            className={`py-2.5 text-center rounded-xl text-sm font-medium transition-all border ${
-                              selectedSlot === time
-                                ? 'bg-[#e6c487]/10 border-[#e6c487] text-[#e6c487] font-bold'
-                                : 'bg-[#1b1b1d] border-[#4d463a]/20 text-[#e4e2e4]/60 hover:border-[#998f81]/40'
-                            }`}
-                          >{time}</button>
-                        ))}
-                      </div>
+                    {pickerTimeRange.hasSlots ? (
+                      <FlipTimePicker
+                        startTime={pickerTimeRange.startTime}
+                        endTime={pickerTimeRange.endTime}
+                        value={selectedSlot}
+                        onChange={(time) => setSelectedSlot(time)}
+                      />
                     ) : (
                       <p className="text-[#998f81] text-sm text-center py-4">
                         {lang === 'vi' ? 'Không còn khung giờ trống' : 'No available time slots'}
@@ -450,7 +467,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 80 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="fixed bottom-6 left-5 right-5 z-40"
+            className="fixed bottom-6 inset-x-5 lg:inset-x-0 mx-auto lg:w-[500px] z-40"
           >
             <div className="flex justify-between items-end mb-2 px-1">
               <div>

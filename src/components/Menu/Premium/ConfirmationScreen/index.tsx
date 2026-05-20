@@ -409,34 +409,36 @@ const ConfirmationScreen = ({
         </h3>
         <p className="text-[10px] text-[#998f81] -mt-2">{t.customerInfoDesc}</p>
 
-        <input
-          type="text"
-          value={customerName}
-          onChange={e => setCustomerName(e.target.value)}
-          placeholder={t.namePlaceholder}
-          className={INPUT_STYLE}
-        />
-        <input
-          type="tel"
-          value={customerPhone}
-          onChange={e => setCustomerPhone(e.target.value)}
-          placeholder={t.phonePlaceholder}
-          className={INPUT_STYLE}
-        />
-        <input
-          type="email"
-          value={customerEmail}
-          onChange={e => setCustomerEmail(e.target.value)}
-          placeholder={t.emailPlaceholder}
-          className={INPUT_STYLE}
-        />
-        <textarea
-          value={customerNote}
-          onChange={e => setCustomerNote(e.target.value)}
-          placeholder={t.notePlaceholder}
-          rows={3}
-          className={`${INPUT_STYLE} resize-none`}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <input
+            type="text"
+            value={customerName}
+            onChange={e => setCustomerName(e.target.value)}
+            placeholder={t.namePlaceholder}
+            className={INPUT_STYLE}
+          />
+          <input
+            type="tel"
+            value={customerPhone}
+            onChange={e => setCustomerPhone(e.target.value)}
+            placeholder={t.phonePlaceholder}
+            className={INPUT_STYLE}
+          />
+          <input
+            type="email"
+            value={customerEmail}
+            onChange={e => setCustomerEmail(e.target.value)}
+            placeholder={t.emailPlaceholder}
+            className={`${INPUT_STYLE} lg:col-span-2`}
+          />
+          <textarea
+            value={customerNote}
+            onChange={e => setCustomerNote(e.target.value)}
+            placeholder={t.notePlaceholder}
+            rows={3}
+            className={`${INPUT_STYLE} resize-none lg:col-span-2`}
+          />
+        </div>
 
         {/* Error message */}
         <AnimatePresence>
@@ -454,7 +456,7 @@ const ConfirmationScreen = ({
       </div>
 
       {/* Floating Submit Button */}
-      <div className="fixed bottom-6 left-6 right-6 z-40">
+      <div className="fixed bottom-6 inset-x-6 lg:inset-x-0 mx-auto lg:w-[500px] z-40">
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
