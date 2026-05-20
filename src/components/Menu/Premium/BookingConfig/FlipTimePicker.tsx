@@ -12,6 +12,7 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
 const ITEM_HEIGHT = 48; // Height of each item in px
 const VISIBLE_ITEMS = 3; // 1 above + selected + 1 below
 const CONTAINER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS; // Total container height
+const MINUTE_INTERVAL = 15; // 00, 15, 30, 45
 
 interface FlipTimePickerProps {
   /** Earliest selectable time "HH:mm" */
@@ -195,10 +196,11 @@ const FlipTimePicker = ({ startTime, endTime, value, onChange }: FlipTimePickerP
     hours.push(h);
   }
 
-  // Parse current value
+  // Parse current value — snap minute to nearest interval
   const currentVal = value ? parseTime(value) : { h: hours[0] ?? start.h, m: 0 };
+  const snappedMin = Math.round(currentVal.m / MINUTE_INTERVAL) * MINUTE_INTERVAL;
   const [selectedHour, setSelectedHour] = useState(currentVal.h);
-  const [selectedMinute, setSelectedMinute] = useState(currentVal.m);
+  const [selectedMinute, setSelectedMinute] = useState(snappedMin >= 60 ? 60 - MINUTE_INTERVAL : snappedMin);
 
   // Generate valid minutes for selected hour
   const validMinutes: number[] = [];
@@ -211,8 +213,11 @@ const FlipTimePicker = ({ startTime, endTime, value, onChange }: FlipTimePickerP
     }
   }
 
-  // All 60 minutes for display, but constraint will be applied
-  const allMinutes = Array.from({ length: 60 }, (_, i) => i);
+  // Minutes at 15-min intervals: [0, 15, 30, 45]
+  const allMinutes = Array.from(
+    { length: 60 / MINUTE_INTERVAL },
+    (_, i) => i * MINUTE_INTERVAL
+  );
 
   // Sync selection back to parent
   useEffect(() => {
@@ -225,18 +230,26 @@ const FlipTimePicker = ({ startTime, endTime, value, onChange }: FlipTimePickerP
     }
   }, [selectedHour, selectedMinute]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Clamp minute when hour changes
+  // Clamp minute when hour changes — snap to nearest valid 15-min interval
   const handleHourChange = (h: number) => {
     setSelectedHour(h);
 
-    // If new hour is first hour, clamp min to at least start.m
-    if (h === start.h && selectedMinute < start.m) {
-      setSelectedMinute(start.m);
+    // Round current minute to nearest MINUTE_INTERVAL
+    let clampedMin = Math.round(selectedMinute / MINUTE_INTERVAL) * MINUTE_INTERVAL;
+    if (clampedMin >= 60) clampedMin = 60 - MINUTE_INTERVAL;
+
+    // If new hour is first hour, clamp min to at least start.m (rounded up)
+    if (h === start.h) {
+      const minStart = Math.ceil(start.m / MINUTE_INTERVAL) * MINUTE_INTERVAL;
+      if (clampedMin < minStart) clampedMin = minStart;
     }
-    // If new hour is last hour, clamp min to at most end.m
-    if (h === end.h && selectedMinute > end.m) {
-      setSelectedMinute(end.m);
+    // If new hour is last hour, clamp min to at most end.m (rounded down)
+    if (h === end.h) {
+      const maxEnd = Math.floor(end.m / MINUTE_INTERVAL) * MINUTE_INTERVAL;
+      if (clampedMin > maxEnd) clampedMin = maxEnd;
     }
+
+    if (clampedMin !== selectedMinute) setSelectedMinute(clampedMin);
   };
 
   const handleMinuteChange = (m: number) => {
