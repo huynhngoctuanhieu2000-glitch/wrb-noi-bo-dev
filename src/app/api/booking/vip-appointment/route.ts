@@ -170,7 +170,9 @@ export async function POST(request: NextRequest) {
     const bookingId = `${branchCode}-${billCode}`;
 
     // Map confidence → booking status
-    const bookingStatus = confidence === 'CONFIRMED' ? 'NEW' : 'PENDING_CONFIRM';
+    // DB enum chỉ có: NEW, PREPARING, READY, IN_PROGRESS, COMPLETED, FEEDBACK, CLEANING, DONE
+    // Confidence level được lưu trong notes JSON để admin phân biệt
+    const bookingStatus = 'NEW';
 
     // ─── Step 5: Build notes (rich metadata) ─────────────────────────────────
     const notesObj = {
@@ -205,7 +207,9 @@ export async function POST(request: NextRequest) {
         technicianCode: selectedStaffIds[0] || null,
         totalAmount: serverPrice || 0,
         paymentMethod: 'CASH', // default payment method
-        source: 'VIP_MENU',
+        source: (timeSlot && timeSlot !== 'BRANCH_DECIDE') || (appointmentDate && appointmentDate !== getTodayVN())
+          ? 'VIP_BOOKING'   // Khách hẹn giờ hoặc chọn ngày tương lai
+          : 'VIP_WALK_IN',  // Khách tại tiệm, phục vụ ngay
         status: bookingStatus,
         notes: JSON.stringify(notesObj),
         createdAt: vnTimeStr,
@@ -223,51 +227,40 @@ export async function POST(request: NextRequest) {
     }
 
     // ─── Step 6.5: Insert Booking Items ───────────────────────────────────────
-    const MAP_VIP_SKILL_TO_SERVICE_ID: Record<string, string> = {
-      shampoo: 'NHS0202',
-      earCombo: 'NHS0600',
-      earChuyen: 'NHS0600',
-      razorShave: 'NHS0700',
-      machineShave: 'NHS0700',
-      facial: 'NHS0301',
-      nailCombo: 'NHS0500',
-      nailChuyen: 'NHS0500',
-      heelScrub: 'NHS0400',
-      hairCut: 'NHS0701',
-      hairExtensionShampoo: 'NHS0202',
-      thaiBody: 'NHS0028',
-      shiatsuBody: 'NHS0015',
-      oilBody: 'NHS0001',
-      hotStoneBody: 'NHS0022',
-      bodyMix: 'NHS0040',
-      foot: 'NHS0100',
-    };
+    // Luật VIP Menu:
+    // 1. Tên dịch vụ là tổng hợp các skills khách chọn (VD: Gội + Body). Thời gian = thời gian khách chọn.
+    // 2. Nếu khách chọn 2 KTV (Tứ thủ), tạo ra 2 BookingItems riêng biệt (mỗi item 1 KTV) để Dispatch không bị chia đôi giờ.
+    
+    const { ALL_VIP_SKILLS } = await import('@/lib/vipSkills.constants');
+    const SKILL_MAP = Object.fromEntries(ALL_VIP_SKILLS.map((s: any) => [s.id, s]));
+    const skillNames = skills.map((id: string) => {
+      let name = SKILL_MAP[id]?.name?.vi || id;
+      if (name.toLowerCase().includes('ráy')) name = 'Ráy';
+      if (name.toLowerCase().includes('nail') || name.toLowerCase().includes('móng')) name = 'Nail';
+      return name;
+    });
+    // Remove duplicates in case they picked both Ráy Chuyên and Ráy Combo (unlikely but possible)
+    const uniqueSkillNames = [...new Set(skillNames)];
+    const displayName = uniqueSkillNames.length > 0 ? uniqueSkillNames.join(' + ') : 'Gói VIP';
 
-    const itemsToInsert = [];
-    if (skills.length > 0) {
-      skills.forEach((skillId, index) => {
-        const serviceId = MAP_VIP_SKILL_TO_SERVICE_ID[skillId] || 'NHS0800';
-        itemsToInsert.push({
-          id: `${bookingId}-item${index + 1}`,
-          bookingId: bookingId,
-          serviceId: serviceId,
-          quantity: 1,
-          price: index === 0 ? (serverPrice || 0) : 0,
-          technicianCodes: selectedStaffIds,
-          status: 'WAITING',
-        });
-      });
-    } else {
+    const itemsToInsert: any[] = [];
+    
+    selectedStaffIds.forEach((ktvId: string, index: number) => {
       itemsToInsert.push({
-        id: `${bookingId}-item1`,
+        id: `${bookingId}-item${index + 1}`,
         bookingId: bookingId,
-        serviceId: 'NHS0800',
+        serviceId: 'NHS0800', // Mã Gói VIP Tổng Hợp
         quantity: 1,
-        price: serverPrice || 0,
-        technicianCodes: selectedStaffIds,
+        price: index === 0 ? (serverPrice || 0) : 0, // Tiền chỉ ghi nhận ở item đầu
+        technicianCodes: [ktvId], // Gán ĐÚNG 1 KTV vào item này
         status: 'WAITING',
+        options: {
+           displayName: displayName, // Dispatch Board sẽ đọc field này để hiển thị thay vì tên gốc
+           vipDuration: duration,    // Thời lượng VIP (bảng BookingItems không có cột duration)
+           selectedSkills: skills,   // Danh sách skills khách chọn
+        }
       });
-    }
+    });
 
     const { error: itemsError } = await supabase
       .from('BookingItems')

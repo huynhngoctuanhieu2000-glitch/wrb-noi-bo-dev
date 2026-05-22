@@ -159,7 +159,8 @@ export async function POST(request: Request) {
                 status: 'NEW',
                 billCode: billNum,
                 customerLang: normalizedLang,
-                accessToken: accessToken
+                accessToken: accessToken,
+                source: 'STANDARD_WALK_IN'
             })
             .select()
             .single();

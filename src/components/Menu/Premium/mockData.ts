@@ -1,13 +1,12 @@
-// =============================================
-// ⛔ DEPRECATED — DO NOT USE
-// File này chỉ tồn tại vì SkillBuilder + CategorySelector
-// legacy vẫn import. Cả 2 component này đã bị loại khỏi flow
-// chính (Premium/index.tsx). An toàn để xóa khi cleanup final.
-//
-// Dữ liệu thực: GET /api/staff/vip-available
-// Pricing thực: src/lib/vipPricingEngine.ts
-// Skills thực: src/lib/vipSkills.constants.ts
-// =============================================
+/**
+ * @deprecated This file is deprecated. Real data comes from:
+ * - Staff: GET /api/staff/vip-available
+ * - Pricing: GET /api/config/menu-vip  
+ * - Skills: src/lib/vipSkills.constants.ts
+ * 
+ * DO NOT import from this file in new code.
+ * Kept temporarily for reference only.
+ */
 
 export interface MockStaff {
   id: string;

@@ -365,12 +365,12 @@ const ConfirmationScreen = ({
               {selectedStaffInfoList.map(s => (
                 s.avatarUrl
                   ? <img key={s.id} src={s.avatarUrl} alt={s.fullName} className="w-10 h-10 rounded-full border-2 border-[#131315] object-cover" />
-                  : <div key={s.id} className="w-10 h-10 rounded-full border-2 border-[#131315] bg-[#2a2a2c] flex items-center justify-center text-[#e6c487] font-bold text-sm">{s.fullName.charAt(0)}</div>
+                  : <div key={s.id} className="w-10 h-10 rounded-full border-2 border-[#131315] bg-[#2a2a2c] flex items-center justify-center text-[#e6c487] font-bold text-sm">{s.id.slice(0, 3)}</div>
               ))}
             </div>
             <div>
               <div className="text-[10px] text-[#998f81] tracking-wider uppercase">{t.therapists}</div>
-              <div className="text-sm font-medium text-[#e4e2e4]">{selectedStaffInfoList.map(s => s.fullName).join(' & ')}</div>
+              <div className="text-sm font-medium text-[#e4e2e4]">{selectedStaffInfoList.map(s => s.id).join(' & ')}</div>
             </div>
           </div>
         </div>
@@ -395,7 +395,13 @@ const ConfirmationScreen = ({
           <div>
             <div className="text-[10px] text-[#998f81] tracking-wider uppercase">{t.schedule}</div>
             <div className="text-sm font-medium text-[#e4e2e4]">
-              {isBranch ? t.walkIn : `${timeSlot} (${totalDuration} ${t.mins})`}
+              {isBranch ? t.walkIn : (
+                <>
+                  {appointmentDate && <span className="text-[#e6c487] font-medium">{new Date(appointmentDate + 'T00:00').toLocaleDateString(lang === 'vi' ? 'vi-VN' : lang === 'kr' ? 'ko-KR' : lang === 'cn' ? 'zh-CN' : lang === 'jp' ? 'ja-JP' : 'en-US', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>}
+                  {appointmentDate && ' — '}
+                  {timeSlot} ({totalDuration} {t.mins})
+                </>
+              )}
             </div>
           </div>
         </div>
