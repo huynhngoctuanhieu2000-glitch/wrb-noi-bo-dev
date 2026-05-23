@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
 import TipModal from '@/components/Journey/TipModal';
-import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getViolations, getRatingLabel } from './Journey.constants';
-import { useServiceTimer, groupItemsByTech, useViolations, GroupedService } from './Journey.logic';
+import { TIMER_CONFIG_COMPACT, RATING_OPTIONS, getRatingLabel } from './Journey.constants';
+import { useServiceTimer, groupItemsByTech, useViolations, GroupedService, useRemindersCustomer } from './Journey.logic';
 import AlertModal from '@/components/Shared/AlertModal';
 import { translations } from './Journey.i18n';
 
@@ -56,7 +56,7 @@ const TabTimerView = ({
     );
     const circumference = 2 * Math.PI * TIMER_CONFIG_COMPACT.RADIUS;
     const isCompleted = currentGroup.isCompleted;
-    const violations = getViolations(lang || 'vi');
+    const violations = useRemindersCustomer(lang || 'vi');
 
     // Use shared violations hook
     const currentGroupId = currentGroup.items[0]?.id || '0';
@@ -274,7 +274,7 @@ const CombinedRatingView = ({
 
     // Read violations from localStorage (saved by TabTimerView)
     const storageKey = `spa_wrb_violations_${bookingId || 'default'}`;
-    const violations = getViolations(lang || 'vi');
+    const violations = useRemindersCustomer(lang || 'vi');
 
     useEffect(() => {
         try {

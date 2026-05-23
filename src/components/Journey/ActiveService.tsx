@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
-import { TIMER_CONFIG, getViolations, CHANGE_STAFF_TIMEOUT_MINUTES } from './Journey.constants';
-import { useServiceTimer, useViolations } from './Journey.logic';
+import { TIMER_CONFIG, CHANGE_STAFF_TIMEOUT_MINUTES } from './Journey.constants';
+import { useServiceTimer, useViolations, useRemindersCustomer } from './Journey.logic';
 import { translations } from './Journey.i18n';
 
 interface ActiveServiceProps {
@@ -119,7 +119,7 @@ export default function ActiveService({
         timeEnd,
     );
 
-    const violations = getViolations(lang || 'vi');
+    const violations = useRemindersCustomer(lang || 'vi');
     const t = translations[lang || 'vi'] || translations['en'];
 
     const currentItemId = currentItem?.id || '0';

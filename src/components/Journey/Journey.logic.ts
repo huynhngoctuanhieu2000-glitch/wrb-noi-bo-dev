@@ -317,3 +317,41 @@ export const useViolations = (
         toggleViolation,
     };
 };
+
+// ─── useRemindersCustomer ───────────────────────────────────────────────────
+
+/**
+ * Hook: fetch active reminders (violations) from Supabase dynamically.
+ */
+export const useRemindersCustomer = (lang: string = 'vi') => {
+    const [reminders, setReminders] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchReminders = async () => {
+            const { createClient } = await import('@/lib/supabase');
+            const supabase = createClient();
+            const { data, error } = await supabase
+                .from('Reminders_Customer')
+                .select('contentVN, contentEN, contentCN, contentJP, contentKR')
+                .eq('is_active', true)
+                .order('order_index', { ascending: true });
+
+            if (data && !error) {
+                const mapLangToColumn = (l: string) => {
+                    switch (l) {
+                        case 'en': return 'contentEN';
+                        case 'kr': return 'contentKR';
+                        case 'jp': return 'contentJP';
+                        case 'cn': return 'contentCN';
+                        default: return 'contentVN';
+                    }
+                };
+                const colName = mapLangToColumn(lang);
+                setReminders(data.map((r: any) => r[colName]));
+            }
+        };
+        fetchReminders();
+    }, [lang]);
+
+    return reminders;
+};

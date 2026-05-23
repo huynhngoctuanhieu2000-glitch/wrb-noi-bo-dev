@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import TipModal from '@/components/Journey/TipModal';
 import { ServiceItem } from '@/components/Journey/useJourneyRealtime';
-import { getViolations, getRatingLabel } from './Journey.constants';
+import { getRatingLabel } from './Journey.constants';
+import { useRemindersCustomer } from './Journey.logic';
 import { translations } from './Journey.i18n';
 import AlertModal from '@/components/Shared/AlertModal';
 
@@ -36,7 +37,7 @@ export default function Feedback({
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
 
     // Checkbox state for violations
-    const violations = getViolations(lang);
+    const violations = useRemindersCustomer(lang);
 
     const [selectedViolations, setSelectedViolations] = useState<number[]>([]);
 
