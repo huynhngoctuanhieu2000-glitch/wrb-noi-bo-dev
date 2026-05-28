@@ -4,7 +4,7 @@ import React from 'react';
 import { translations } from './Journey.i18n';
 
 // 🔧 UI CONFIGURATION
-const AUTO_CLOSE_DELAY = 5000; // Auto-close after 5 seconds
+const AUTO_CLOSE_DELAY = 20000; // Auto-close after 20 seconds
 
 interface TipModalProps {
     onClose: (tipAmount: number) => void;
