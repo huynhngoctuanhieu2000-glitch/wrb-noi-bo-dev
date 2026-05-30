@@ -308,9 +308,9 @@ const CombinedRatingView = ({
         }
     }, [allRated, storageKey, onAllRated]);
 
-    const handleSubmit = async (itemId: string) => {
-        const rating = ratings[itemId];
-        if (!rating || submitting) return;
+    // Auto-submit: gọi trực tiếp khi chọn rating, không cần nút Submit
+    const handleAutoSubmit = async (itemId: string, rating: number) => {
+        if (submitting) return;
 
         // Show TipModal (appreciation popup) when rating is Excellent (4)
         if (rating === 4) {
@@ -504,10 +504,14 @@ const CombinedRatingView = ({
 
                                             return (
                                                 <button key={opt.value}
-                                                    disabled={isDisabled}
-                                                    onClick={() => !isDisabled && setRatings(prev => ({ ...prev, [item.id]: opt.value }))}
+                                                    disabled={isDisabled || isSubmittingThis}
+                                                    onClick={() => {
+                                                        if (isDisabled || isSubmittingThis) return;
+                                                        setRatings(prev => ({ ...prev, [item.id]: opt.value }));
+                                                        handleAutoSubmit(item.id, opt.value);
+                                                    }}
                                                     className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
-                                                        isDisabled
+                                                        isDisabled || isSubmittingThis
                                                             ? 'opacity-40 grayscale cursor-not-allowed bg-[#0d0d0d] border-transparent'
                                                             : `active:scale-95 ${bgClass}`
                                                     }`}>
@@ -519,17 +523,13 @@ const CombinedRatingView = ({
                                             );
                                         })}
                                     </div>
-                                    <button onClick={() => handleSubmit(item.id)}
-                                        disabled={!ratings[item.id] || isSubmittingThis}
-                                        className={`w-full py-3 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-                                            ratings[item.id] && !isSubmittingThis
-                                                ? 'bg-[#C9A96E] text-black shadow-md active:scale-95 hover:bg-[#b09461]'
-                                                : 'bg-[#1c1c1e] border border-white/5 text-gray-500 cursor-not-allowed'
-                                        }`}>
-                                        {isSubmittingThis
-                                            ? <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>{t.submitting}</>
-                                            : ratings[item.id] ? t.submitRating : t.selectToSubmit}
-                                    </button>
+                                    {/* Submitting indicator */}
+                                    {isSubmittingThis && (
+                                        <div className="w-full py-3 flex items-center justify-center gap-2 text-[#C9A96E]">
+                                            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
+                                            <span className="text-sm font-bold">{t.submitting}</span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

@@ -223,6 +223,11 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                             />
                         </div>
 
+                        {/* Timer Reminder for Customer */}
+                        <p className="text-indigo-200/80 text-xs text-center leading-relaxed max-w-sm px-2 mt-1">
+                            {dict.checkout.qr_timer_reminder || 'Scan the QR code above to track your journey.'}
+                        </p>
+
                         {/* Info */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-4 w-full space-y-2">
                             <div className="flex justify-between text-sm">
