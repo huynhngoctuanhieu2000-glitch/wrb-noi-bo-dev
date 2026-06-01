@@ -251,12 +251,18 @@ const CombinedRatingView = ({
     onItemRated: (itemId: string, rating: number, feedback: string) => Promise<void>;
     onAllRated?: () => void;
 }) => {
+    // Group items by KTV
+    const groups = groupItemsByTech(items, lang || 'vi');
+
+    const [submitted, setSubmitted] = useState<Set<string>>(new Set());
+
     // Task C3a: Auto-expand first unrated service card
-    const firstUnratedId = items.find(item => item.itemRating === null || item.itemRating === undefined)?.id || null;
+    const firstUnratedId = groups.find(g => 
+        g.items.some(i => (i.itemRating === null || i.itemRating === undefined) && !submitted.has(i.id))
+    )?.items[0].id || null;
     const [expandedId, setExpandedId] = useState<string | null>(firstUnratedId);
     const [ratings, setRatings] = useState<Record<string, number>>({});
     const [submitting, setSubmitting] = useState<string | null>(null);
-    const [submitted, setSubmitted] = useState<Set<string>>(new Set());
     const [showTipFor, setShowTipFor] = useState<string | null>(null);
     const [savedViolations, setSavedViolations] = useState<number[]>([]);
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
@@ -296,8 +302,8 @@ const CombinedRatingView = ({
         } catch { /* silent */ }
     }, [storageKey]);
 
-    const ratedCount = items.filter(i => (i.itemRating !== null && i.itemRating !== undefined) || submitted.has(i.id)).length;
-    const allRated = ratedCount >= items.length;
+    const ratedCount = groups.filter(g => g.items.every(i => (i.itemRating !== null && i.itemRating !== undefined) || submitted.has(i.id))).length;
+    const allRated = ratedCount >= groups.length;
 
     // Clean up localStorage and notify parent when all rated
     useEffect(() => {
@@ -309,19 +315,28 @@ const CombinedRatingView = ({
     }, [allRated, storageKey, onAllRated]);
 
     // Auto-submit: gọi trực tiếp khi chọn rating, không cần nút Submit
-    const handleAutoSubmit = async (itemId: string, rating: number) => {
+    const handleAutoSubmit = async (groupId: string, rating: number) => {
         if (submitting) return;
 
         // Show TipModal (appreciation popup) when rating is Excellent (4)
         if (rating === 4) {
-            setShowTipFor(itemId);
+            setShowTipFor(groupId);
             return;
         }
 
-        setSubmitting(itemId);
+        setSubmitting(groupId);
         try {
-            await onItemRated(itemId, rating, '');
-            setSubmitted(prev => new Set([...prev, itemId]));
+            const group = groups.find(g => g.items[0].id === groupId);
+            if (group) {
+                const newSubmitted = new Set(submitted);
+                for (const item of group.items) {
+                    if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
+                        await onItemRated(item.id, rating, '');
+                        newSubmitted.add(item.id);
+                    }
+                }
+                setSubmitted(newSubmitted);
+            }
             setExpandedId(null);
         } catch (err: any) {
             console.error('Rating submit error:', err);
@@ -335,14 +350,25 @@ const CombinedRatingView = ({
     };
 
     const handleTipClose = async (tipAmount: number) => {
-        const itemId = showTipFor;
+        const groupId = showTipFor;
         setShowTipFor(null);
-        if (!itemId) return;
+        if (!groupId) return;
 
-        setSubmitting(itemId);
+        setSubmitting(groupId);
         try {
-            await onItemRated(itemId, 4, `tip:${tipAmount}`);
-            setSubmitted(prev => new Set([...prev, itemId]));
+            const group = groups.find(g => g.items[0].id === groupId);
+            if (group) {
+                const newSubmitted = new Set(submitted);
+                let first = true;
+                for (const item of group.items) {
+                    if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
+                        await onItemRated(item.id, 4, first ? `tip:${tipAmount}` : '');
+                        newSubmitted.add(item.id);
+                        first = false;
+                    }
+                }
+                setSubmitted(newSubmitted);
+            }
             setExpandedId(null);
         } catch (err: any) {
             console.error('Rating submit error:', err);
@@ -430,25 +456,26 @@ const CombinedRatingView = ({
                     </div>
                 </div>
                 <span className="text-xs font-black text-gray-500 whitespace-nowrap">
-                    {ratedCount}/{items.length} {t.rated}
+                    {ratedCount}/{groups.length} {t.rated}
                 </span>
             </div>
 
             {/* Staff Cards */}
             <div className="space-y-3">
-                {items.map((item) => {
-                    const isExpanded = expandedId === item.id;
-                    const isRated = (item.itemRating !== null && item.itemRating !== undefined) || submitted.has(item.id);
-                    const ratingValue = ratings[item.id] || item.itemRating;
+                {groups.map((group) => {
+                    const groupId = group.items[0].id;
+                    const isExpanded = expandedId === groupId;
+                    const isRated = group.items.every(i => (i.itemRating !== null && i.itemRating !== undefined) || submitted.has(i.id));
+                    const ratingValue = ratings[groupId] || group.items[0].itemRating;
                     const ratedOpt = RATING_OPTIONS.find(r => r.value === ratingValue);
-                    const isSubmittingThis = submitting === item.id;
+                    const isSubmittingThis = submitting === groupId;
 
                     return (
-                        <div key={item.id} className={`bg-[#1c1c1e] rounded-3xl border-2 transition-all overflow-hidden ${
+                        <div key={groupId} className={`bg-[#1c1c1e] rounded-3xl border-2 transition-all overflow-hidden ${
                             isRated ? 'border-white/5 opacity-80' : isExpanded ? 'border-[#C9A96E] shadow-[#C9A96E]/20 shadow-lg' : 'border-white/5'
                         }`}>
-                            {/* Accordion Header — chỉ hiện tên dịch vụ, ẩn NV */}
-                            <button onClick={() => !isRated && setExpandedId(isExpanded ? null : item.id)}
+                            {/* Accordion Header — chỉ hiện NV */}
+                            <button onClick={() => !isRated && setExpandedId(isExpanded ? null : groupId)}
                                 className="w-full text-left p-4 flex items-center gap-3">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
                                     isRated ? 'bg-[#0d0d0d] border border-white/5' : 'bg-[#0d0d0d] border border-[#C9A96E]/30 text-[#C9A96E]'
@@ -457,17 +484,11 @@ const CombinedRatingView = ({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className={`font-black text-sm leading-tight truncate ${isRated ? 'text-gray-400' : 'text-white/90'}`}>
-                                        {item.service_names?.[lang] || item.service_name}
+                                        NV: {group.technicianCode || 'N/A'}
                                     </p>
                                     <p className="text-gray-500 text-xs font-medium truncate">
-                                        {item.technicianCode && `${t.staff}: ${item.technicianCode} · `}{item.duration} {t.minutes}
+                                        {group.itemCount} {t.services} · {group.totalDuration} {t.minutes}
                                     </p>
-                                    {/* Show KTV badge for multi-KTV items */}
-                                    {item.id.includes('-ktv') && item.technicianCode && (
-                                        <span className="inline-block mt-1 text-[9px] font-black text-[#C9A96E] bg-[#C9A96E]/10 px-2 py-0.5 rounded-full border border-[#C9A96E]/20">
-                                            NV: {item.technicianCode}
-                                        </span>
-                                    )}
                                 </div>
                                 {isRated ? (
                                     <div className="flex items-center gap-1.5 bg-[#C9A96E]/20 text-[#C9A96E] px-3 py-1.5 rounded-full border border-[#C9A96E]/30">
@@ -493,7 +514,7 @@ const CombinedRatingView = ({
                                             // TODO: Update opt.bgSel in Journey.constants.ts to dark mode version later, for now we inject Tailwind class string conditionally here if we need to. 
                                             // Actually RATING_OPTIONS.bgSel might be using bright colors like bg-green-100.
                                             // We'll customize it here:
-                                            const isSel = ratings[item.id] === opt.value;
+                                            const isSel = ratings[groupId] === opt.value;
                                             let bgClass = "bg-[#1c1c1e] border-white/5 hover:border-white/10";
                                             if (isSel) {
                                                 if (opt.value === 4) bgClass = "bg-green-900/40 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
@@ -507,8 +528,8 @@ const CombinedRatingView = ({
                                                     disabled={isDisabled || isSubmittingThis}
                                                     onClick={() => {
                                                         if (isDisabled || isSubmittingThis) return;
-                                                        setRatings(prev => ({ ...prev, [item.id]: opt.value }));
-                                                        handleAutoSubmit(item.id, opt.value);
+                                                        setRatings(prev => ({ ...prev, [groupId]: opt.value }));
+                                                        handleAutoSubmit(groupId, opt.value);
                                                     }}
                                                     className={`flex flex-col items-center p-2.5 rounded-2xl border-2 transition-all ${
                                                         isDisabled || isSubmittingThis
@@ -541,19 +562,21 @@ const CombinedRatingView = ({
             {!allRated && (
                 <button
                     onClick={async () => {
-                        const unrated = items.filter(i =>
-                            (i.itemRating === null || i.itemRating === undefined) && !submitted.has(i.id)
+                        const unratedGroups = groups.filter(g => 
+                            g.items.some(i => (i.itemRating === null || i.itemRating === undefined) && !submitted.has(i.id))
                         );
                         setSubmitting('__skip__');
                         try {
-                            for (const item of unrated) {
-                                await onItemRated(item.id, 0, 'skipped');
+                            const newSubmitted = new Set(submitted);
+                            for (const group of unratedGroups) {
+                                for (const item of group.items) {
+                                    if ((item.itemRating === null || item.itemRating === undefined) && !newSubmitted.has(item.id)) {
+                                        await onItemRated(item.id, 0, 'skipped');
+                                        newSubmitted.add(item.id);
+                                    }
+                                }
                             }
-                            setSubmitted(prev => {
-                                const next = new Set(prev);
-                                unrated.forEach(i => next.add(i.id));
-                                return next;
-                            });
+                            setSubmitted(newSubmitted);
                         } catch { /* noop */ }
                         finally { setSubmitting(null); }
                     }}

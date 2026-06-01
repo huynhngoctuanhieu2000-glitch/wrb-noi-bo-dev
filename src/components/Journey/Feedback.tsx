@@ -134,28 +134,47 @@ export default function Feedback({
         }
     };
 
+    // Group items by KTV
+    const groupedKTVs = items ? Object.values(items.reduce((acc, item) => {
+        const ktvId = item.technicianCode || item.staffName || item.id;
+        if (!acc[ktvId]) {
+            acc[ktvId] = {
+                ...item,
+                serviceNames: [item.service_names?.[lang] || item.service_name],
+                totalDuration: item.duration || 0,
+            };
+        } else {
+            const sName = item.service_names?.[lang] || item.service_name;
+            if (!acc[ktvId].serviceNames.includes(sName)) {
+                acc[ktvId].serviceNames.push(sName);
+            }
+            acc[ktvId].totalDuration += (item.duration || 0);
+        }
+        return acc;
+    }, {} as Record<string, any>)) : [];
+
     return (
         <div className="flex flex-col items-center w-full animate-in fade-in slide-in-from-bottom-5 duration-500 pb-20">
             {/* Header / Service Cards */}
-            {items && items.length > 0 ? (
+            {groupedKTVs.length > 0 ? (
                 <div className="w-full space-y-3 mb-6">
-                    {items.map((item, idx) => (
-                        <div key={item.id} className="w-full bg-white rounded-3xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 relative overflow-hidden">
+                    {groupedKTVs.map((ktv, idx) => (
+                        <div key={ktv.id} className="w-full bg-white rounded-3xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 relative overflow-hidden">
                             {idx === 0 && <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-3xl -mr-10 -mt-10"></div>}
                             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-amber-100 flex-shrink-0 z-10">
                                 <img 
-                                    src={item.staffAvatar || "https://i.pravatar.cc/150?img=32"} 
+                                    src={ktv.staffAvatar || "https://i.pravatar.cc/150?img=32"} 
                                     alt="Therapist" 
                                     className="w-full h-full object-cover" 
                                 />
                             </div>
-                            <div className="flex-1 z-10">
-                                <h3 className="text-base font-black text-gray-800">{item.service_names?.[lang] || item.service_name}</h3>
-                                <p className="text-gray-500 font-medium text-xs">
-                                    {item.duration} min • {item.staffName || item.technicianCode || (lang === 'vi' ? 'Đang cập nhật...' : 'Updating...')}
+                            <div className="flex-1 z-10 min-w-0">
+                                <h3 className="text-base font-black text-gray-800 truncate">{ktv.staffName || ktv.technicianCode || (lang === 'vi' ? 'Đang cập nhật...' : 'Updating...')}</h3>
+                                <p className="text-gray-500 font-medium text-xs truncate">
+                                    {lang === 'vi' ? 'Kỹ thuật viên' : 'Therapist'}
                                 </p>
                             </div>
-                            <div className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-100 z-10">
+                            <div className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-full border border-amber-100 z-10 flex-shrink-0">
                                 #{idx + 1}
                             </div>
                         </div>
