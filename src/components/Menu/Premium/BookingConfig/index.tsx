@@ -476,6 +476,40 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
         )}
       </AnimatePresence>
 
+      {/* Guide text (only visible before selecting duration) */}
+      <AnimatePresence>
+        {!selectedDuration && (
+          <motion.section
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            className="mb-5"
+          >
+            <div className="bg-[#1b1b1d] rounded-2xl p-4 border border-[#4d463a]/50 shadow-md">
+              <p className="text-sm text-[#d0c5b5] leading-relaxed">
+                {
+                  lang === 'en' ? 'First, choose your preferred therapist. Then, select your total duration and customize your services to fit your time.' :
+                  lang === 'cn' ? '首先请选择您心仪的理疗师，接着选择您的总时长，最后随心定制该时段内的服务项目。' :
+                  lang === 'jp' ? 'まずお好みのセラピストをお選びください。次に総所要時間を選択し、その時間内でお好みのサービスをカスタマイズしてください。' :
+                  lang === 'kr' ? '먼저 원하시는 테라피스트를 선택해 주세요. 그 다음 총 이용 시간을 선택하신 후, 해당 시간 내에 원하시는 서비스를 맞춤 설정해 보세요.' :
+                  'Trước tiên, vui lòng chọn kỹ thuật viên yêu thích của bạn. Sau đó chọn tổng thời gian và tự do phối các dịch vụ theo ý muốn trong khung giờ đã chọn.'
+                }
+                <br /><br />
+                <span className="text-[#e6c487] font-semibold">
+                {
+                  lang === 'en' ? 'Every booking includes a complimentary private room. ✨' :
+                  lang === 'cn' ? '所有预约均已包含免费独立私密包厢。✨' :
+                  lang === 'jp' ? 'すべてのプランに無料の個室利用が含まれています。✨' :
+                  lang === 'kr' ? '모든 예약에는 독립된 프라이빗 룸 이용이 무료로 포함되어 있습니다. ✨' :
+                  'Mỗi lượt đặt lịch đều đã bao gồm phòng riêng miễn phí. ✨'
+                }
+                </span>
+              </p>
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
+
       {/* Hình Thức Sử Dụng (after duration selected) */}
       <AnimatePresence>
         {selectedDuration && (
