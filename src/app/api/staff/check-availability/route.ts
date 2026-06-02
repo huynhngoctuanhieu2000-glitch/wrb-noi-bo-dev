@@ -3,6 +3,29 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
 
+// Helper: Convert UTC time string ("08:34:00") from Supabase to VN time ("15:34")
+function formatTimeVn(timeStr: string | null): string | null {
+  if (!timeStr) return null;
+  if (timeStr.includes('T')) {
+    try {
+      const d = new Date(timeStr);
+      return d.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hour12: false });
+    } catch {
+      return timeStr;
+    }
+  }
+  const parts = timeStr.split(':');
+  if (parts.length >= 2) {
+    let h = parseInt(parts[0], 10);
+    const m = parts[1];
+    if (!isNaN(h)) {
+      h = (h + 7) % 24;
+      return `${h.toString().padStart(2, '0')}:${m}`;
+    }
+  }
+  return timeStr;
+}
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const SHIFT_MAP: Record<string, { start: string; end: string }> = {
@@ -128,7 +151,7 @@ export async function GET(req: NextRequest) {
       for (const tq of tqList ?? []) {
         turnQueueMap.set(tq.employee_id, {
           status: tq.status,
-          estimated_end_time: tq.estimated_end_time,
+          estimated_end_time: formatTimeVn(tq.estimated_end_time),
         });
       }
     }

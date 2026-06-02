@@ -4,6 +4,33 @@ import { type VipStaffInfo, type StaffAvailability, type ShiftType, SHIFT_MAP } 
 
 export const dynamic = 'force-dynamic';
 
+// Helper: Convert UTC time string ("08:34:00") from Supabase to VN time ("15:34")
+function formatTimeVn(timeStr: string | null): string | null {
+  if (!timeStr) return null;
+  // If it's an ISO string, parse properly
+  if (timeStr.includes('T')) {
+    try {
+      const d = new Date(timeStr);
+      return d.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', hour12: false });
+    } catch {
+      return timeStr;
+    }
+  }
+  
+  // If it's a direct time string from Supabase (e.g. "08:34:00")
+  const parts = timeStr.split(':');
+  if (parts.length >= 2) {
+    let h = parseInt(parts[0], 10);
+    const m = parts[1];
+    if (!isNaN(h)) {
+      h = (h + 7) % 24;
+      return `${h.toString().padStart(2, '0')}:${m}`;
+    }
+  }
+  
+  return timeStr;
+}
+
 /**
  * GET /api/staff/vip-available
  *
@@ -141,7 +168,7 @@ export async function GET(_req: NextRequest) {
           availability = 'AVAILABLE';
         } else if (tq.status === 'working' || tq.status === 'assigned') {
           availability = 'BUSY';
-          estimatedEndTime = tq.estimated_end_time;
+          estimatedEndTime = formatTimeVn(tq.estimated_end_time);
           currentOrderId = tq.current_order_id;
         } else if (tq.status === 'off') {
           availability = 'OFF_DUTY';
