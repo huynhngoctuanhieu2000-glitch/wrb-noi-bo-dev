@@ -17,15 +17,10 @@ function formatTimeVn(timeStr: string | null): string | null {
     }
   }
   
-  // If it's a direct time string from Supabase (e.g. "08:34:00")
+  // If it's a direct time string from Supabase (e.g. "15:34:00")
   const parts = timeStr.split(':');
   if (parts.length >= 2) {
-    let h = parseInt(parts[0], 10);
-    const m = parts[1];
-    if (!isNaN(h)) {
-      h = (h + 7) % 24;
-      return `${h.toString().padStart(2, '0')}:${m}`;
-    }
+    return `${parts[0].padStart(2, '0')}:${parts[1]}`;
   }
   
   return timeStr;
