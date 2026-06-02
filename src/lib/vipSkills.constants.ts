@@ -126,8 +126,6 @@ export const CHINH_SKILLS: VipSkill[] = [
   {
     id: 'foot',
     type: 'CHINH',
-    composite: true,
-    compositeKeys: ['oilFoot', 'hotStoneFoot', 'acupressureFoot'],
     name: { vi: 'Foot', en: 'Foot', cn: '足疗', jp: 'フット', kr: '발 마사지' },
   },
 ];

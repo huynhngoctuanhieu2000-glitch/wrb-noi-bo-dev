@@ -31,9 +31,9 @@ export const staffHasSkill = (
 ): boolean => {
   if (!staffSkills) return false;
 
-  // Composite skill: check ANY of the composite keys
+  // Composite skill: check ANY of the composite keys OR the main skill id itself
   if (skill.composite && skill.compositeKeys) {
-    return skill.compositeKeys.some((key) => hasSkill(staffSkills[key]));
+    return hasSkill(staffSkills[skill.id]) || skill.compositeKeys.some((key) => hasSkill(staffSkills[key]));
   }
 
   // Regular skill: direct lookup

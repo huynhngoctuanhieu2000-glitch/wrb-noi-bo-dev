@@ -58,6 +58,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
     const t = texts[lang] || texts['en'];
     const [comingSoon, setComingSoon] = useState<string | null>(null);
     const [vipEnabled, setVipEnabled] = useState(false);
+    const [showVipGuide, setShowVipGuide] = useState(false);
 
     // Fetch VIP config from SystemConfigs
     useEffect(() => {
@@ -171,7 +172,7 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
 
                 {/* === BOOK 2: PREMIUM === */}
                 <div
-                    onClick={() => vipEnabled ? onSelect('vip') : setComingSoon('vip')}
+                    onClick={() => vipEnabled ? setShowVipGuide(true) : setComingSoon('vip')}
                     className={`group ${styles.bookWrapper} cursor-pointer active:scale-95 transition-transform duration-300 animate-in fade-in slide-in-from-right-8 delay-300 fill-mode-forwards relative`}
                 >
                     <div
@@ -251,6 +252,57 @@ export default function MenuTypeSelector({ lang, onSelect, onBack }: Props) {
 
 
         </div>
+
+            {/* VIP Guide Modal */}
+            {showVipGuide && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
+                    onClick={() => setShowVipGuide(false)}
+                >
+                    <div
+                        className="relative bg-[#0f1218] border border-[#B38728]/30 rounded-3xl p-6 md:p-8 max-w-[400px] w-[90%] text-center animate-in zoom-in-95 duration-300 shadow-[0_0_40px_rgba(179,135,40,0.15)]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close button top right */}
+                        <button
+                            onClick={() => setShowVipGuide(false)}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <p className="text-[17px] md:text-xl text-[#d0c5b5] leading-relaxed mb-6 mt-4 font-bold">
+                            {
+                                lang === 'en' ? 'First, choose your preferred therapist. Then, select your total duration and customize your services to fit your time.' :
+                                lang === 'cn' ? '首先请选择您心仪的理疗师，接着选择您的总时长，最后随心定制该时段内的服务项目。' :
+                                lang === 'jp' ? 'まずお好みのセラピストをお選びください。次に総所要時間を選択し、その時間内でお好みのサービスをカスタマイズしてください。' :
+                                lang === 'kr' ? '먼저 원하시는 테라피스트를 선택해 주세요. 그 다음 총 이용 시간을 선택하신 후, 해당 시간 내에 원하시는 서비스를 맞춤 설정해 보세요.' :
+                                'Trước tiên, vui lòng chọn kỹ thuật viên yêu thích của bạn. Sau đó chọn tổng thời gian và tự do phối các dịch vụ theo ý muốn trong khung giờ đã chọn.'
+                            }
+                        </p>
+                        
+                        <p className="text-[17px] md:text-xl text-[#e6c487] font-bold mb-8">
+                            {
+                                lang === 'en' ? 'Every booking includes a complimentary private room. ✨' :
+                                lang === 'cn' ? '所有预约均已包含免费独立私密包厢。✨' :
+                                lang === 'jp' ? 'すべてのプランに無料の個室利用が含まれています。✨' :
+                                lang === 'kr' ? '모든 예약에는 독립된 프라이빗 룸 이용이 무료로 포함되어 있습니다. ✨' :
+                                'Mỗi lượt đặt lịch đều đã bao gồm phòng riêng miễn phí. ✨'
+                            }
+                        </p>
+
+                        <button
+                            onClick={() => {
+                                setShowVipGuide(false);
+                                onSelect('vip');
+                            }}
+                            className="w-full py-3.5 rounded-2xl bg-[#D4AF37] hover:bg-[#B38728] text-black font-extrabold text-[15px] uppercase tracking-widest transition-all active:scale-95 shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+                        >
+                            {lang === 'vi' ? 'Bắt đầu' : lang === 'en' ? 'Start' : lang === 'kr' ? '시작하기' : lang === 'cn' ? '开始' : '開始'}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Coming Soon Modal */}
             {comingSoon && (
