@@ -40,7 +40,7 @@ export const LE_SKILLS: VipSkill[] = [
   {
     id: 'shampoo',
     type: 'LE',
-    name: { vi: 'Gội', en: 'Shampoo', cn: '洗头', jp: 'シャンプー', kr: '샴푸' },
+    name: { vi: 'Gội đầu thư giãn', en: 'Hair Wash', cn: '舒缓洗发', jp: 'シャンプー', kr: '헤어 워시' },
   },
   {
     id: 'earCombo',
@@ -55,17 +55,17 @@ export const LE_SKILLS: VipSkill[] = [
   {
     id: 'razorShave',
     type: 'LE',
-    name: { vi: 'Cạo dao', en: 'Razor Shave', cn: '剃须', jp: 'カミソリシェーブ', kr: '면도' },
+    name: { vi: 'Cạo râu (Dao cạo)', en: 'Razor Shave', cn: '剃须刀刮胡', jp: 'カミソリシェービング', kr: '전통 면도' },
   },
   {
     id: 'machineShave',
     type: 'LE',
-    name: { vi: 'Cạo máy', en: 'Machine Shave', cn: '电动剃须', jp: 'マシンシェーブ', kr: '기계 면도' },
+    name: { vi: 'Cạo râu (Máy)', en: 'Machine Shave', cn: '电动剃须', jp: '電気シェービング', kr: '전기 면도' },
   },
   {
     id: 'facial',
     type: 'LE',
-    name: { vi: 'Facial', en: 'Facial', cn: '面部护理', jp: 'フェイシャル', kr: '페이셜' },
+    name: { vi: 'Chăm sóc da mặt', en: 'Facial', cn: '面部护理', jp: 'フェイシャル', kr: '페이셜 케어' },
   },
   {
     id: 'nailCombo',
@@ -75,12 +75,12 @@ export const LE_SKILLS: VipSkill[] = [
   {
     id: 'nailChuyen',
     type: 'LE',
-    name: { vi: 'Cắt móng', en: 'Nail cut', cn: '剪指甲', jp: '爪切り', kr: '손톱 정리' },
+    name: { vi: 'Cắt móng tay & chân', en: 'Manicure & Pedicure', cn: '手部与足部美甲护理', jp: 'ハンド＆フットケア', kr: '매니큐어 & 페디큐어' },
   },
   {
     id: 'heelScrub',
     type: 'LE',
-    name: { vi: 'Bào gót', en: 'Heel Scrub', cn: '足跟磨砂', jp: 'ヒールスクラブ', kr: '발뒤꿈치 스크럽' },
+    name: { vi: 'Chà gót chân', en: 'Heel skin shave', cn: '去脚底死皮', jp: 'かかと角質削り', kr: '발뒤꿈치 각질 제거' },
   },
   {
     id: 'hairCut',
@@ -101,32 +101,32 @@ export const CHINH_SKILLS: VipSkill[] = [
   {
     id: 'thaiBody',
     type: 'CHINH',
-    name: { vi: 'Body Thái', en: 'Thai Body', cn: '泰式按摩', jp: 'タイボディ', kr: '타이 바디' },
+    name: { vi: 'Thái', en: 'Thai', cn: '泰式', jp: 'タイ古式', kr: '타이' },
   },
   {
     id: 'shiatsuBody',
     type: 'CHINH',
-    name: { vi: 'Body Shire', en: 'Shiatsu Body', cn: '指压按摩', jp: '指圧ボディ', kr: '시아츠 바디' },
+    name: { vi: 'Shiatsu', en: 'Shiatsu', cn: '指压', jp: '指圧', kr: '시아추' },
   },
   {
     id: 'oilBody',
     type: 'CHINH',
-    name: { vi: 'Body Dầu', en: 'Oil Body', cn: '精油按摩', jp: 'オイルボディ', kr: '오일 바디' },
+    name: { vi: 'Tinh dầu', en: 'Oil', cn: '精油', jp: 'オイル', kr: '오일' },
   },
   {
     id: 'hotStoneBody',
     type: 'CHINH',
-    name: { vi: 'Body Đá', en: 'Hot Stone Body', cn: '热石按摩', jp: 'ホットストーンボディ', kr: '핫스톤 바디' },
+    name: { vi: 'Đá nóng', en: 'Hot Stone', cn: '热石', jp: 'ホットストーン', kr: '핫스톤' },
   },
   {
     id: 'bodyMix',
     type: 'CHINH',
-    name: { vi: 'Body Mix', en: 'Mix Body', cn: '混合按摩', jp: 'ミックスボディ', kr: '믹스 바디' },
+    name: { vi: 'Mix 4 loại', en: 'Mix of four', cn: '四合一综合', jp: '4種ミックス', kr: '4가지 믹스' },
   },
   {
     id: 'foot',
     type: 'CHINH',
-    name: { vi: 'Foot', en: 'Foot', cn: '足疗', jp: 'フット', kr: '발 마사지' },
+    name: { vi: 'Chân', en: 'Foot', cn: '足部', jp: 'フット', kr: '발' },
   },
 ];
 
