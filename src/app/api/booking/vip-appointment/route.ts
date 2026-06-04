@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       customerName,
       customerPhone,
       customerEmail,
+      customerNote,
       selectedStaffIds,
       selectedSkills,   // string[] — skill IDs selected
       duration,         // number — minutes
@@ -228,6 +229,7 @@ export async function POST(request: NextRequest) {
       bookedAt: vnTimeStr,
       isRisky: confidence === 'RISKY',
       bufferWarning: false, // TODO Pha 4.5: check from timeline
+      customerNotes: customerNote || '',
     };
 
     // ─── Step 6: Insert Booking ───────────────────────────────────────────────
@@ -337,6 +339,10 @@ export async function POST(request: NextRequest) {
         `👨‍⚕️ KTV: ${ktvDisplay}\n` +
         `⏱️ ${duration} phút · ${priceDisplay}\n` +
         `📅 ${dateDisplay} — ${timeDisplay}`;
+
+      if (customerNote && customerNote.trim()) {
+        notifMessage += `\n📝 Ghi chú: ${customerNote.trim()}`;
+      }
 
       // Append warnings for non-CONFIRMED
       if (warnings.length > 0) {

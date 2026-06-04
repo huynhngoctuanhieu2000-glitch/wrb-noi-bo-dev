@@ -52,6 +52,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout, onSwitchToStandard }: PremiumMe
   const [appointmentDate, setAppointmentDate] = useState<string | null>(null);
   const [bufferMinutes, setBufferMinutes] = useState<number>(30);
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [customerNotes, setCustomerNotes] = useState<string>('');
 
   // Fetch VIP pricing table from SystemConfigs
   useEffect(() => {
@@ -174,6 +175,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout, onSwitchToStandard }: PremiumMe
                         displayName,
                         duration: data.totalDuration,
                         totalPrice: data.totalPrice || 0,
+                        customerNotes: data.customerNotes,
                       });
 
                       // Navigate to shared checkout page
@@ -185,6 +187,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout, onSwitchToStandard }: PremiumMe
                       setTimeSlot(data.timeSlot);
                       setTotalPrice(data.totalPrice || 0);
                       setAppointmentDate(data.appointmentDate);
+                      setCustomerNotes(data.customerNotes || '');
                       setStep('CONFIRMATION');
                     }
                   }}
@@ -203,6 +206,7 @@ const PremiumMenu = ({ lang, onBack, onCheckout, onSwitchToStandard }: PremiumMe
                   timeSlot={timeSlot}
                   appointmentDate={appointmentDate}
                   totalPrice={totalPrice}
+                  initialCustomerNotes={customerNotes}
                   onConfirm={() => { onBack(); }}
                 />
               </motion.div>

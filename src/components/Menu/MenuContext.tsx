@@ -47,6 +47,7 @@ interface MenuContextType {
         displayName: string;
         duration: number;
         totalPrice: number;
+        customerNotes?: string;
     }) => void;
 
     // --- Customer Logic ---
@@ -142,7 +143,6 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // --- VIP CART FUNCTION ---
-    // Add VIP item(s) to cart. 1 KTV = 1 cart item. Price only on first item.
     const addVipToCart = (params: {
         staffIds: string[];
         staffInfoList: VipStaffInfo[];
@@ -150,6 +150,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
         displayName: string;
         duration: number;
         totalPrice: number;
+        customerNotes?: string;
     }) => {
         const newItems: CartItem[] = params.staffIds.map((staffId, index) => {
             const staffInfo = params.staffInfoList.find(s => s.id === staffId);
@@ -174,6 +175,7 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
                 vipSkillIds: params.skillIds,
                 vipDisplayName: params.displayName,
                 vipDuration: params.duration,
+                vipCustomerNotes: params.customerNotes,
             };
         });
         setCart(prev => [...prev, ...newItems]);

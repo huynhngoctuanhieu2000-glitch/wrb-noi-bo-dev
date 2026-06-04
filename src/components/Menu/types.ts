@@ -96,6 +96,7 @@ export interface CartItem extends Service {
   vipSkillIds?: string[];                // Selected skill IDs
   vipDisplayName?: string;               // Combined skill names e.g. "Body Thái + Gội"
   vipDuration?: number;                  // Duration in minutes (customer choice)
+  vipCustomerNotes?: string;             // Customer notes for VIP item
 }
 
 // export type CartState = Record<string, number>; // (Legacy - Deactivated)

@@ -40,6 +40,7 @@ export async function handleVipItems(
                 displayName,
                 vipDuration: item.vipDuration || item.timeValue || 60,
                 selectedSkills: skillIds,
+                customerNotes: item.vipCustomerNotes || '',
             }
         };
     });

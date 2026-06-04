@@ -20,6 +20,7 @@ interface ConfirmationScreenProps {
   timeSlot: string | null;
   appointmentDate?: string | null;         // YYYY-MM-DD
   totalPrice: number;
+  initialCustomerNotes?: string;
   onConfirm: () => void;
 }
 
@@ -206,6 +207,7 @@ const ConfirmationScreen = ({
   timeSlot,
   appointmentDate,
   totalPrice,
+  initialCustomerNotes,
   onConfirm,
 }: ConfirmationScreenProps) => {
   const t = i18n[lang] || i18n['en'];
@@ -218,7 +220,7 @@ const ConfirmationScreen = ({
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
-  const [customerNote, setCustomerNote] = useState('');
+  const [customerNote, setCustomerNote] = useState(initialCustomerNotes || '');
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);

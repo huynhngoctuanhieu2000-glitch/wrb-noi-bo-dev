@@ -128,7 +128,7 @@ interface BookingConfigProps {
   vipPricingTable?: VipPricingTable;
   vipPricing?: { duration: number; price: number; label: string }[];
   bufferMinutes?: number;
-  onConfirm: (data: { skillsMap: Record<string, string[]>; totalDuration: number; timeSlot: string | null; totalPrice: number; appointmentDate: string }) => void;
+  onConfirm: (data: { skillsMap: Record<string, string[]>; totalDuration: number; timeSlot: string | null; totalPrice: number; appointmentDate: string | null; customerNotes?: string }) => void;
 }
 
 const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPricingTable, bufferMinutes = 30, onConfirm }: BookingConfigProps) => {
@@ -167,6 +167,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
   const [showAllSkills, setShowAllSkills] = useState(false);
   const [isAgreedTerms, setIsAgreedTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [customerNotes, setCustomerNotes] = useState('');
 
   // Calendar states
   const [showCalendar, setShowCalendar] = useState(false);
@@ -602,6 +603,20 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Customer Notes */}
+            <section className="mt-5 p-4 rounded-2xl bg-[#1b1b1d] border border-[#4d463a]/30">
+              <h3 className="text-[11px] tracking-[0.2em] uppercase text-[#e6c487] font-bold mb-3 flex items-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#e6c487] mr-2" />
+                {t.bc_customerNotes}
+              </h3>
+              <textarea
+                value={customerNotes}
+                onChange={(e) => setCustomerNotes(e.target.value)}
+                placeholder={t.bc_notesPlaceholder}
+                className="w-full h-24 p-3.5 rounded-xl bg-[#131315] border border-[#4d463a]/40 text-[#e4e2e4] placeholder:text-[#998f81]/40 text-sm focus:outline-none focus:border-[#e6c487]/60 transition-colors resize-none"
+              />
+            </section>
           </motion.div>
         )}
       </AnimatePresence>
@@ -655,7 +670,7 @@ const BookingConfig = ({ lang, selectedStaffIds, selectedStaffInfoList, vipPrici
             </div>
             <button
               disabled={bookingMethod === 'advance' && !isAgreedTerms}
-              onClick={() => onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: selectedSlot, totalPrice, appointmentDate: selectedDateStr })}
+              onClick={() => onConfirm({ skillsMap: selectedSkillsMap, totalDuration: effectiveDuration, timeSlot: selectedSlot, totalPrice, appointmentDate: selectedDateStr, customerNotes })}
               className={`w-full py-4 rounded-full font-bold tracking-[0.12em] text-sm flex items-center justify-center gap-3 duration-200 uppercase ${
                 (bookingMethod === 'branch' || isAgreedTerms)
                   ? 'bg-[#e6c487] text-[#412d00] shadow-[0_15px_30px_rgba(0,0,0,0.4)] active:scale-95' 
