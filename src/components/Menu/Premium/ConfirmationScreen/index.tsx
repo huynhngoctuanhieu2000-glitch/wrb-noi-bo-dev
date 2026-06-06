@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type VipStaffInfo } from '@/lib/vipStaffUtils';
 
@@ -210,7 +210,15 @@ const ConfirmationScreen = ({
   initialCustomerNotes,
   onConfirm,
 }: ConfirmationScreenProps) => {
-  const t = i18n[lang] || i18n['en'];
+  const [activeLang, setActiveLang] = useState(lang);
+  const [originalLang, setOriginalLang] = useState(lang);
+
+  useEffect(() => {
+    setActiveLang(lang);
+    setOriginalLang(lang);
+  }, [lang]);
+
+  const t = i18n[activeLang] || i18n['en'];
   const isBranch = timeSlot === 'BRANCH_DECIDE';
 
   // All selected skill IDs (union across all staff)
@@ -351,6 +359,22 @@ const ConfirmationScreen = ({
           <span className="text-[10px] tracking-[0.3em] uppercase text-[#ffb597]">{t.heroSub}</span>
           <h2 className="text-2xl font-serif italic text-[#e4e2e4] mt-1">{t.heroTitle}</h2>
         </div>
+        {/* Nút dịch Tiếng Việt kín đáo, nhỏ gọn cho Lễ tân kiểm tra thông tin */}
+        <div className="absolute top-3 right-3 z-50">
+          <button
+            type="button"
+            onClick={() => {
+              if (activeLang === 'vi') {
+                setActiveLang(originalLang);
+              } else {
+                setActiveLang('vi');
+              }
+            }}
+            className="bg-[#131315]/40 hover:bg-[#1b1b1d]/80 text-[#e6c487]/70 hover:text-[#e6c487] text-[9px] font-black tracking-widest uppercase px-2.5 py-1.5 rounded-lg border border-[#4d463a]/20 shadow-sm active:scale-95 transition-all flex items-center gap-1"
+          >
+            🌐 {activeLang === 'vi' ? `ORIGINAL (${originalLang.toUpperCase()})` : 'DỊCH TIẾNG VIỆT'}
+          </button>
+        </div>
       </div>
 
       {/* Booking Details */}
@@ -399,7 +423,7 @@ const ConfirmationScreen = ({
             <div className="text-sm font-medium text-[#e4e2e4]">
               {isBranch ? t.walkIn : (
                 <>
-                  {appointmentDate && <span className="text-[#e6c487] font-medium">{new Date(appointmentDate + 'T00:00').toLocaleDateString(lang === 'vi' ? 'vi-VN' : lang === 'kr' ? 'ko-KR' : lang === 'cn' ? 'zh-CN' : lang === 'jp' ? 'ja-JP' : 'en-US', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>}
+                  {appointmentDate && <span className="text-[#e6c487] font-medium">{new Date(appointmentDate + 'T00:00').toLocaleDateString(activeLang === 'vi' ? 'vi-VN' : activeLang === 'kr' ? 'ko-KR' : activeLang === 'cn' ? 'zh-CN' : activeLang === 'jp' ? 'ja-JP' : 'en-US', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>}
                   {appointmentDate && ' — '}
                   {timeSlot} ({totalDuration} {t.mins})
                 </>
