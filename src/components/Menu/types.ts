@@ -51,7 +51,10 @@ export interface Service {
   // UI Configuration Flags (Task E2+E3)
   SHOW_CUSTOM_FOR_YOU?: boolean;  // Show/hide entire Custom For You modal
   SHOW_NOTES?: boolean;           // Show/hide Notes section in Custom modal
-  SHOW_PREFERENCES?: boolean;     // Show/hide Preferences (Strength + Therapist Gender)
+  SHOW_GENDER?: boolean;
+    SHOW_STRENGTH?: boolean;
+    SHOW_FOCUS?: boolean;
+    SHOW_PREFERENCES?: boolean;     // Show/hide Preferences (Strength + Therapist Gender)
 
   // New Logic Flags
   ACTIVE?: boolean;      // Hiển thị hay không

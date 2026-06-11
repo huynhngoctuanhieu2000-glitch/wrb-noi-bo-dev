@@ -51,7 +51,7 @@ export async function handleStandardItems(
             focus: focusVN,
             avoid: avoidVN,
             tags: tagList,
-            note: opts.notes?.content || ''
+            note: opts.notes?.customText || opts.notes?.content || ''
         };
     });
 
@@ -77,3 +77,4 @@ export async function handleStandardItems(
 
     if (error) throw error;
 }
+

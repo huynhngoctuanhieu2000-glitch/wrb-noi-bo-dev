@@ -63,6 +63,9 @@ export const getMenuData = async (): Promise<Service[]> => {
                 // UI Configuration Flags (Task E2+E3)
                 SHOW_CUSTOM_FOR_YOU: item.showCustomForYou !== false, // Default true
                 SHOW_NOTES: item.showNotes !== false,                 // Default true
+                SHOW_GENDER: item.showGender !== false, // Default true
+                SHOW_STRENGTH: item.showStrength !== false, // Default true
+                SHOW_FOCUS: item.showFocus !== false, // Default true
                 SHOW_PREFERENCES: item.showPreferences !== false,     // Default true
 
                 ACTIVE: item.isActive,
@@ -78,3 +81,4 @@ export const getMenuData = async (): Promise<Service[]> => {
         return [];
     }
 };
+

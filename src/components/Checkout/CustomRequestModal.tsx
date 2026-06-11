@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { X, Check, CloudLightning, User, FileText } from 'lucide-react';
-import { ServiceOptions } from '@/components/Menu/types';
+import { ServiceOptions, CartItem } from '@/components/Menu/types';
 
 interface CustomRequestModalProps {
+    item?: CartItem | null;
     isOpen: boolean;
     onClose: () => void;
     onSave: (options: ServiceOptions) => void;
@@ -20,7 +21,7 @@ const BODY_AREAS = [
     { id: 'feet', label: 'Feet / Bàn chân' },
 ];
 
-export default function CustomRequestModal({ isOpen, onClose, onSave, lang }: CustomRequestModalProps) {
+export default function CustomRequestModal({ isOpen, onClose, onSave, lang, item }: CustomRequestModalProps) {
     const [tab, setTab] = useState<'BODY' | 'PREF' | 'NOTE'>('BODY');
 
     // State for options
@@ -28,6 +29,21 @@ export default function CustomRequestModal({ isOpen, onClose, onSave, lang }: Cu
     const [strength, setStrength] = useState<'Light' | 'Medium' | 'Strong'>('Medium');
     const [therapist, setTherapist] = useState<'Male' | 'Female' | 'Random'>('Random');
     const [note, setNote] = useState('');
+
+    const showGender = item?.SHOW_GENDER !== false;
+    const showStrength = item?.SHOW_STRENGTH !== false;
+    const showFocus = item?.SHOW_FOCUS !== false;
+    const showNotes = item?.SHOW_NOTES !== false;
+    const showPrefTab = showGender || showStrength;
+
+    // Reset tab to the first available tab when modal opens
+    React.useEffect(() => {
+        if (isOpen) {
+            if (showFocus) setTab('BODY');
+            else if (showPrefTab) setTab('PREF');
+            else setTab('NOTE');
+        }
+    }, [isOpen, showFocus, showPrefTab]);
 
     if (!isOpen) return null;
 
@@ -74,24 +90,30 @@ export default function CustomRequestModal({ isOpen, onClose, onSave, lang }: Cu
 
                 {/* Tabs */}
                 <div className="flex p-2 gap-2 border-b border-white/10 bg-[#0d0d0d]">
-                    <button
-                        onClick={() => setTab('BODY')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${tab === 'BODY' ? 'bg-[#C9A96E] text-black shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
-                    >
-                        <CloudLightning size={16} /> Body Focus
-                    </button>
-                    <button
-                        onClick={() => setTab('PREF')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${tab === 'PREF' ? 'bg-[#C9A96E] text-black shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
-                    >
-                        <User size={16} /> Preferences
-                    </button>
-                    <button
-                        onClick={() => setTab('NOTE')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${tab === 'NOTE' ? 'bg-[#C9A96E] text-black shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
-                    >
-                        <FileText size={16} /> Notes
-                    </button>
+                    {showFocus && (
+                        <button
+                            onClick={() => setTab('BODY')}
+                            className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${tab === 'BODY' ? 'bg-[#C9A96E] text-black shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                        >
+                            <CloudLightning size={16} /> Body Focus
+                        </button>
+                    )}
+                    {showPrefTab && (
+                        <button
+                            onClick={() => setTab('PREF')}
+                            className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${tab === 'PREF' ? 'bg-[#C9A96E] text-black shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                        >
+                            <User size={16} /> Preferences
+                        </button>
+                    )}
+                    {showNotes && (
+                        <button
+                            onClick={() => setTab('NOTE')}
+                            className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${tab === 'NOTE' ? 'bg-[#C9A96E] text-black shadow-[0_0_10px_rgba(201,169,110,0.3)]' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                        >
+                            <FileText size={16} /> Notes
+                        </button>
+                    )}
                 </div>
 
                 {/* Body Content */}
@@ -121,42 +143,46 @@ export default function CustomRequestModal({ isOpen, onClose, onSave, lang }: Cu
                     )}
 
                     {/* PREF TAB */}
-                    {tab === 'PREF' && (
+                    {tab === 'PREF' && showPrefTab && (
                         <div className="space-y-6">
                             {/* Strength */}
-                            <div>
-                                <label className="block text-sm text-[#C9A96E] font-bold uppercase mb-3 text-center tracking-widest">Care Pressure</label>
-                                <div className="flex bg-[#0d0d0d] border border-white/5 rounded-xl p-1">
-                                    {['Light', 'Medium', 'Strong'].map(s => (
-                                        <button
-                                            key={s}
-                                            onClick={() => setStrength(s as any)}
-                                            className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${strength === s ? 'bg-[#1c1c1e] text-[#C9A96E] border border-[#C9A96E]/30 shadow-sm' : 'text-[#3f3f46] hover:text-gray-400'}`}
-                                        >
-                                            {s}
-                                        </button>
-                                    ))}
+                            {showStrength && (
+                                <div>
+                                    <label className="block text-sm text-[#C9A96E] font-bold uppercase mb-3 text-center tracking-widest">Care Pressure</label>
+                                    <div className="flex bg-[#0d0d0d] border border-white/5 rounded-xl p-1">
+                                        {['Light', 'Medium', 'Strong'].map(s => (
+                                            <button
+                                                key={s}
+                                                onClick={() => setStrength(s as any)}
+                                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${strength === s ? 'bg-[#1c1c1e] text-[#C9A96E] border border-[#C9A96E]/30 shadow-sm' : 'text-[#3f3f46] hover:text-gray-400'}`}
+                                            >
+                                                {s}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Therapist */}
-                            <div>
-                                <label className="block text-sm text-[#C9A96E] font-bold uppercase mb-3 text-center tracking-widest">Therapist Gender</label>
-                                <div className="flex gap-3">
-                                    {['Male', 'Female', 'Random'].map(t => (
-                                        <button
-                                            key={t}
-                                            onClick={() => setTherapist(t as any)}
-                                            className={`flex-1 py-3 px-4 rounded-xl border transition-all text-sm font-bold flex flex-col items-center gap-1 ${therapist === t
-                                                ? 'bg-[#C9A96E]/10 border-[#C9A96E]/50 text-[#C9A96E]'
-                                                : 'bg-[#0d0d0d] border-white/5 text-gray-400 hover:border-white/20'
-                                                }`}
-                                        >
-                                            <span>{t}</span>
-                                        </button>
-                                    ))}
+                            {showGender && (
+                                <div>
+                                    <label className="block text-sm text-[#C9A96E] font-bold uppercase mb-3 text-center tracking-widest">Therapist Gender</label>
+                                    <div className="flex gap-3">
+                                        {['Male', 'Female', 'Random'].map(t => (
+                                            <button
+                                                key={t}
+                                                onClick={() => setTherapist(t as any)}
+                                                className={`flex-1 py-3 px-4 rounded-xl border transition-all text-sm font-bold flex flex-col items-center gap-1 ${therapist === t
+                                                    ? 'bg-[#C9A96E]/10 border-[#C9A96E]/50 text-[#C9A96E]'
+                                                    : 'bg-[#0d0d0d] border-white/5 text-gray-400 hover:border-white/20'
+                                                    }`}
+                                            >
+                                                <span>{t}</span>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     )}
 
