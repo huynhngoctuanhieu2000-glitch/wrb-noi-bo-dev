@@ -12,7 +12,7 @@ export async function POST(request: Request) {
         const supabaseAdmin = getSupabaseAdmin();
         if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
         const body = await request.json();
-        const { customer, items, paymentMethod, amountPaid, totalVND, lang } = body;
+        const { customer, items, paymentMethod, amountPaid, totalVND, lang, vatInvoice } = body;
 
         // Normalize language code to prevent mismatch (e.g. 'VN' → 'vi', 'vn' → 'vi')
         const VALID_LANGS = ['vi', 'en', 'kr', 'jp', 'cn'];
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
         }
 
         const fallbackId = Date.now().toString();
-        const customerData = {
+        const customerData: Record<string, any> = {
             id: customerId,
             fullName: customer.name || "Guest",
             phone: customer.phone?.trim() || `GUEST-${fallbackId}`,
@@ -98,6 +98,13 @@ export async function POST(request: Request) {
             createdAt: vnTimeStr,
             updatedAt: vnTimeStr
         };
+
+        // Add VAT invoice info if provided
+        if (vatInvoice && vatInvoice.taxCode) {
+            customerData.taxCode = vatInvoice.taxCode;
+            customerData.companyName = vatInvoice.companyName || null;
+            customerData.companyAddress = vatInvoice.companyAddress || null;
+        }
 
         const { error: customerError } = await supabaseAdmin
             .from('Customers')

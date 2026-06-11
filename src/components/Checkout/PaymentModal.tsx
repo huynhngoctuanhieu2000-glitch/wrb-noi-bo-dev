@@ -5,15 +5,17 @@ import { X, AlertCircle } from 'lucide-react';
 import PaymentMethods from '@/components/Checkout/PaymentMethods';
 import ChangeDenominationSelector from '@/components/Checkout/ChangeDenominationSelector';
 import AlertModal from '@/components/Shared/AlertModal';
+import VatInvoiceSection, { type VatInvoiceData } from '@/components/Checkout/VatInvoiceSection';
 
 interface PaymentModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onNext: (data: { paymentMethod: string; amountPaid: string; changeDenominations: number[] }) => void;
+    onNext: (data: { paymentMethod: string; amountPaid: string; changeDenominations: number[]; vatInvoice?: VatInvoiceData | null }) => void;
     lang: string;
     dict: any;
     totalVND: number;
     totalUSD: number;
+    initialVatInvoice?: VatInvoiceData | null; // 5B persist
 }
 
 export default function PaymentModal({
@@ -23,7 +25,8 @@ export default function PaymentModal({
     lang,
     dict,
     totalVND,
-    totalUSD
+    totalUSD,
+    initialVatInvoice
 }: PaymentModalProps) {
     const [isClosing, setIsClosing] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
@@ -35,6 +38,7 @@ export default function PaymentModal({
     const [alertState, setAlertState] = useState<{ isOpen: boolean; message: string; type?: 'error' | 'success' | 'info' }>({ isOpen: false, message: '' });
     const [showWarningModal, setShowWarningModal] = useState(false);
     const [isWarningClosing, setIsWarningClosing] = useState(false);
+    const [vatInvoice, setVatInvoice] = useState<VatInvoiceData | null>(initialVatInvoice || null);
 
     const currency = useMemo(() => paymentMethod === 'cash_usd' ? 'USD' : 'VND', [paymentMethod]);
 
@@ -118,7 +122,8 @@ export default function PaymentModal({
         onNext({
             paymentMethod,
             amountPaid,
-            changeDenominations
+            changeDenominations,
+            vatInvoice,
         });
     };
 
@@ -246,6 +251,16 @@ export default function PaymentModal({
                             )}
                         </div>
                     )}
+
+                    {/* VAT Invoice Section */}
+                    <div className="bg-[#0d0d0d] p-4 rounded-2xl border border-white/5">
+                        <VatInvoiceSection
+                            lang={lang}
+                            dict={dict}
+                            invoiceData={vatInvoice}
+                            onInvoiceChange={setVatInvoice}
+                        />
+                    </div>
                 </div>
 
                 {/* Footer Action */}

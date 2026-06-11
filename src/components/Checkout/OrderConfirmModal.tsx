@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { X, ClipboardList, Clock, ArrowRight, Check, User, HeartPulse, Ban, GripHorizontal, AlertCircle, Phone, Mail, Hand } from 'lucide-react';
+import { X, ClipboardList, Clock, ArrowRight, Check, User, HeartPulse, Ban, GripHorizontal, AlertCircle, Phone, Mail, Hand, Building2, MapPin } from 'lucide-react';
 import { CartItem } from '@/components/Menu/types';
 import { formatCurrency } from '@/components/Menu/utils';
 import { createClient } from '@/lib/supabase';
 import { QRCodeSVG } from 'qrcode.react';
 import AlertModal from '@/components/Shared/AlertModal';
+import { type VatInvoiceData } from '@/components/Checkout/VatInvoiceSection';
 
 // 🔧 UI CONFIGURATION
 const UI_CONFIG = {
@@ -44,6 +45,7 @@ interface OrderConfirmModalProps {
     };
     paymentMethod: string; // code (e.g. 'cash_vnd')
     amountPaid: number;
+    vatInvoice?: VatInvoiceData | null;
 }
 
 const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
@@ -56,6 +58,7 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
     customerInfo,
     paymentMethod,
     amountPaid,
+    vatInvoice,
 }) => {
     // 1. Move all hooks to the top (React requirement)
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -595,6 +598,33 @@ const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
                                             {(tag === 'Pregnant' || tag === (dict.tags?.pregnant)) ? (dict.tags?.pregnant) : (dict.tags?.allergy)} {tag.includes('Pregnant') || tag === dict.tags?.pregnant ? '🤰' : '⚠️'}
                                         </span>
                                     ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* VAT Invoice Info */}
+                    {vatInvoice && (
+                        <div className="bg-[#0d0d0d] border border-[#C9A96E]/20 rounded-2xl p-4 space-y-3">
+                            <div className="text-[11px] font-bold text-[#C9A96E] uppercase tracking-wider">
+                                {dict.vat_invoice?.invoice_info_title || (lang === 'vi' ? 'Thông tin xuất hoá đơn' : 'VAT Invoice Info')}
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex items-start gap-2">
+                                    <Building2 size={16} className="text-[#C9A96E] mt-0.5 shrink-0" />
+                                    <span className="text-white font-semibold text-sm">{vatInvoice.companyName}</span>
+                                </div>
+                                {vatInvoice.companyAddress && (
+                                    <div className="flex items-start gap-2">
+                                        <MapPin size={16} className="text-gray-400 mt-0.5 shrink-0" />
+                                        <span className="text-gray-300 text-sm">{vatInvoice.companyAddress}</span>
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-2 pt-1">
+                                    <span className="text-gray-500 text-[10px] uppercase tracking-widest font-bold">MST</span>
+                                    <span className="text-[#C9A96E] text-sm font-mono font-bold bg-[#C9A96E]/10 px-2 py-0.5 rounded-lg">
+                                        {vatInvoice.taxCode}
+                                    </span>
                                 </div>
                             </div>
                         </div>
