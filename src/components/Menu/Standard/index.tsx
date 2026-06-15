@@ -80,10 +80,10 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
     const [lastAddedCartIds, setLastAddedCartIds] = useState<string[]>([]);
 
     // --- 1. LẤY DATA TỪ CONTEXT ---
-    const { services: allServices, loading: contextLoading, cart, addToCart: contextAddToCart, updateCartItem, updateCartItemOptions, removeFromCart } = useMenuData();
+    const { services: allServices, loading: contextLoading, error: contextError, refreshData, cart, addToCart: contextAddToCart, updateCartItem, updateCartItemOptions, removeFromCart } = useMenuData();
 
     useEffect(() => {
-        if (!contextLoading && allServices.length > 0) {
+        if (!contextLoading) {
             // Filter đúng loại Standard (NHS...)
             const standardServices = allServices.filter(s => s.menuType === 'standard');
             setServices(standardServices);
@@ -237,14 +237,41 @@ export default function StandardMenu({ lang, onBack, onCheckout, onSwitchToVip }
                     />
 
                     {/* B. LIST (Chỉ truyền category đã lọc) */}
-                    <ServiceList
-                        categories={filteredCategories}
-                        services={services}
-                        cart={cartLookup}
-                        direction={slideDirection}
-                        lang={lang}
-                        onItemClick={handleServiceClick}
-                    />
+                    {contextLoading ? (
+                        <div className="flex-1 px-4 pt-4 flex flex-col gap-4 overflow-y-auto no-scrollbar">
+                            {/* Loading Skeleton */}
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="w-full h-[120px] bg-white/5 rounded-3xl animate-pulse"></div>
+                            ))}
+                        </div>
+                    ) : contextError || (services.length === 0 && !contextLoading) ? (
+                        <div className="flex-1 px-4 flex flex-col items-center justify-center text-center gap-4 overflow-y-auto pb-40">
+                            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500/80 mb-2">
+                                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-[#e6c487] font-semibold text-lg">{lang === 'vi' ? 'Lỗi Tải Dữ Liệu' : 'Failed to Load'}</h3>
+                            <p className="text-sm text-gray-400 max-w-[80%]">
+                                {lang === 'vi' ? 'Đường truyền không ổn định hoặc máy chủ phản hồi chậm. Vui lòng thử lại.' : 'Connection is unstable or server is slow. Please try again.'}
+                            </p>
+                            <button 
+                                onClick={() => refreshData()}
+                                className="mt-2 px-6 py-3 bg-[#e6c487] text-black font-bold rounded-xl active:scale-95 transition-transform"
+                            >
+                                {lang === 'vi' ? 'Tải Lại Dữ Liệu' : 'Retry Now'}
+                            </button>
+                        </div>
+                    ) : (
+                        <ServiceList
+                            categories={filteredCategories}
+                            services={services}
+                            cart={cartLookup}
+                            direction={slideDirection}
+                            lang={lang}
+                            onItemClick={handleServiceClick}
+                        />
+                    )}
 
                     {/* C. FOOTER */}
                     <Footer

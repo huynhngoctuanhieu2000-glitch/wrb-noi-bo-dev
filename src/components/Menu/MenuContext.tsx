@@ -79,12 +79,14 @@ export const MenuProvider = ({ children }: { children: ReactNode }) => {
     const fetchData = async () => {
         try {
             setLoading(true);
+            setError(null); // Clear error cũ trước khi thử lại
             const data = await getServices('all');
             console.log('🚀 [MenuData] Pre-fetched', data.length, 'services');
             setServices(data);
         } catch (err) {
             console.error('❌ [MenuData] Error fetching:', err);
-            setError(err);
+            setError(err); // Lưu lỗi vào context để UI biết đường hiển thị
+            setServices([]); // Xóa dữ liệu cũ nếu lỗi
         } finally {
             setLoading(false);
         }
